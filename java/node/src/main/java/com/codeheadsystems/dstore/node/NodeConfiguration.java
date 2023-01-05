@@ -23,8 +23,8 @@ import io.dropwizard.Configuration;
  */
 public class NodeConfiguration extends Configuration {
 
-  String databaseDirectory;
-  String controlPlaneUrl;
+  private String databaseDirectory;
+  private String controlPlaneUrl;
 
   /**
    * Getter for database directory.
