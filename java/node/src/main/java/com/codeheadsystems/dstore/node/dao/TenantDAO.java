@@ -1,0 +1,144 @@
+package com.codeheadsystems.dstore.node.dao;
+
+import com.codeheadsystems.dstore.node.engine.SQLEngine;
+import com.codeheadsystems.dstore.node.model.ImmutableTenant;
+import com.codeheadsystems.dstore.node.model.Tenant;
+import com.google.common.collect.ImmutableList;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Optional;
+import javax.inject.Inject;
+import javax.inject.Singleton;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * Accessor to tenant records in the node. This are not the tenant tables, but the tenant itself.
+ */
+@Singleton
+public class TenantDAO {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(TenantDAO.class);
+
+  private final SQLEngine sqlEngine;
+
+  /**
+   * Default constructor.
+   *
+   * @param sqlEngine to execute sql.
+   */
+  @Inject
+  public TenantDAO(final SQLEngine sqlEngine) {
+    LOGGER.info("TenantDAO({})", sqlEngine);
+    this.sqlEngine = sqlEngine;
+  }
+
+  /**
+   * Creates the tenant in the database. If it already exists, does nothing but returns the existing tenant.
+   *
+   * @param tenant to create.
+   * @return The tenant... either the one that was created or the existing one.
+   */
+  public Tenant create(final Tenant tenant) {
+    LOGGER.debug("create({})", tenant.id());
+    sqlEngine.executePreparedInternal("insert into NODE_TENANT (RID_TENANT,UUID,KEY,NONCE) values (?,?,?,?)", (ps) -> {
+      try {
+        ps.setString(1, tenant.id());
+        ps.setString(2, tenant.uuid());
+        ps.setString(3, tenant.key());
+        ps.setString(4, tenant.nonce());
+        ps.execute();
+        if (ps.getUpdateCount() != 1) {
+          throw new IllegalArgumentException("Unable to create tenant");
+        }
+      } catch (SQLException e) {
+        throw new IllegalArgumentException("Unable to read a tenant", e);
+      }
+      return null;
+    });
+    return tenant;
+  }
+
+  /**
+   * Reads a tenant from the database result set. Does not advance the cursor.
+   *
+   * @param rs result set to read from. Must be on a row.
+   * @return a tenant.
+   */
+  private Tenant fromResultSet(final ResultSet rs) {
+    try {
+      return ImmutableTenant.builder()
+          .id(rs.getString("RID_TENANT"))
+          .uuid(rs.getString("UUID"))
+          .key(rs.getString("KEY"))
+          .nonce(rs.getString("NONCE"))
+          .build();
+    } catch (SQLException e) {
+      throw new IllegalArgumentException("Unable to read tenant", e);
+    }
+  }
+
+  /**
+   * Reads from the current database, if the tenant exists.
+   *
+   * @param tenantId tenant to read.
+   * @return optional tenant if it exists.
+   */
+  public Optional<Tenant> read(final String tenantId) {
+    LOGGER.debug("read({})", tenantId);
+    return sqlEngine.executePreparedInternal("select * from NODE_TENANT where RID_TENANT = ?", (ps) -> {
+      try {
+        ps.setString(1, tenantId);
+        try (final ResultSet rs = ps.executeQuery()) {
+          if (rs.next()) {
+            return Optional.of(fromResultSet(rs));
+          } else {
+            return Optional.empty();
+          }
+        }
+      } catch (SQLException e) {
+        throw new IllegalArgumentException("Unable to read a tenant", e);
+      }
+    });
+  }
+
+  /**
+   * Returns a list of all tenants in the database.
+   *
+   * @return list ot tenant ids.
+   */
+  public List<String> allTenants() {
+    LOGGER.debug("allTenants()");
+    return sqlEngine.executeQueryInternal("select RID_TENANT from NODE_TENANT", (rs) -> {
+      final ImmutableList.Builder<String> builder = ImmutableList.builder();
+      try {
+        while (rs.next()) {
+          builder.add(rs.getString(1));
+        }
+      } catch (SQLException e) {
+        throw new IllegalArgumentException("Unable to list tenants", e);
+      }
+      return builder.build();
+    });
+  }
+
+  /**
+   * Deletes the tenant from the database. If there was no tenant, does nothing.
+   *
+   * @param tenantId to delete.
+   * @return boolean if anyone was found to delete.
+   */
+  public boolean delete(final String tenantId) {
+    LOGGER.debug("delete({})", tenantId);
+    return sqlEngine.executePreparedInternal("delete from NODE_TENANT where RID_TENANT = ?", (ps) -> {
+      try {
+        ps.setString(1, tenantId);
+        ps.execute();
+        return ps.getUpdateCount() > 0;
+      } catch (SQLException e) {
+        throw new IllegalArgumentException("Unable to delete a tenant", e);
+      }
+    });
+  }
+}

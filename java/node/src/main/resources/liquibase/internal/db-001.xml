@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+		http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <!--
+    - RID_TENANT: Indexed, first part of the primary composite key
+    - UUID: The tenants UUID specific to this node.
+    - KEY: The tenant Key specific to this node. (32 bytes as base64 encoded string)
+    - NONCE: The tenant Nonce specific to this node (12 bytes as base64 encoded string).
+    -->
+
+    <changeSet id="2022-12-28-001" author="wolpert">
+        <createTable tableName="NODE_TENANT">
+            <column name="RID_TENANT" type="varchar(256)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="UUID" type="varchar(256)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="KEY" type="varchar(256)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="NONCE" type="varchar(256)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="2023-01-01-001" author="wolpert">
+        <createTable tableName="NODE_TENANT_TABLES">
+            <column name="RID_TENANT" type="varchar(256)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="TABLE_NAME" type="varchar(256)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+</databaseChangeLog>

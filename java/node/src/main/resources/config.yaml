@@ -1,0 +1,57 @@
+databaseDirectory: /tmp
+
+logging:
+  level: INFO
+  loggers:
+    com.codeheadsystems: DEBUG
+    com.mchange.v2.c3p0: WARN
+  appenders:
+    - type: console
+      logFormat: "%d{HH:mm:ss.SSS} [%thread] [%X{trace}] %-5level %logger{36} - %msg%n"
+
+metrics:
+  frequency: 1 minute
+  reportOnStop: true
+  reporters:
+    - type: log
+      logger: metrics
+      markerName: SLF4j
+    - type: graphite
+      host: localhost
+      port: 2003
+      prefix: node
+      transport: tcp
+
+health:
+  healthCheckUrlPaths: [ "/health-check" ]
+  healthChecks:
+    - name: deadlocks
+      type: alive
+      critical: true
+      initialState: true
+      schedule:
+        checkInterval: 10s
+        downtimeInterval: 2s
+        initialDelay: 5s
+        failureAttempts: 1
+        successAttempts: 2
+    - name: InternalDataSourceHealthCheck
+      type: ready
+      critical: true
+      initialState: false
+      schedule:
+        checkInterval: 10s
+        downtimeInterval: 2s
+        initialDelay: 5s
+        failureAttempts: 1
+        successAttempts: 2
+    - name: BasicHealthCheck
+      type: alive
+      critical: true
+      initialState: false
+      schedule:
+        checkInterval: 60s
+        downtimeInterval: 2s
+        initialDelay: 5s
+        failureAttempts: 1
+        successAttempts: 2

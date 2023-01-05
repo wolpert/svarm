@@ -1,0 +1,57 @@
+/*
+ * Copyright (c) 2020-2023. CodeHead Systems. All rights reserved
+ * Ned Wolpert <ned.wolpert@codeheadsystems.com>
+ */
+
+apply plugin: 'application'
+apply plugin: "java-library"
+apply plugin: "eclipse"
+
+ext {
+    appName = "node"
+    configPath = "${rootProject.projectDir}/node/src/main/resources/"
+}
+
+configurations {
+    project.archivesBaseName = "${appName}"
+    jar.archiveBaseName = "${appName}"
+}
+
+dependencies {
+    implementation project(":common")
+    implementation libs.hsqldb
+    implementation libs.liquibase.core
+    implementation libs.c3p0
+
+    implementation libs.javax.inject
+    implementation libs.dagger
+    annotationProcessor libs.dagger.compiler
+    compileOnly libs.immutables.value
+    annotationProcessor libs.immutables.value
+
+    implementation libs.jackson.annotations
+    implementation libs.jackson.core
+    implementation libs.jackson.databind
+    implementation libs.jackson.datatype.jdk8
+    implementation libs.dropwizard.auth
+    implementation libs.dropwizard.core
+    implementation libs.dropwizard.jackson
+    implementation libs.dropwizard.metrics.graphite
+    implementation libs.micrometer.core
+    implementation libs.metrics.core
+
+    testImplementation libs.jackson.dataformat.yaml
+    testAnnotationProcessor libs.dagger.compiler
+
+    // Logging stuff... need all thos for logback changes
+    implementation libs.logback.classic
+    implementation libs.logback.core
+    implementation libs.logback.access
+    implementation libs.jakarta.servlet.api
+    implementation libs.javax.servlet.api
+}
+
+run {
+    args 'server', configPath + 'config.yaml'
+    mainClassName = "com.codeheadsystems.dstore.node.Node"
+}

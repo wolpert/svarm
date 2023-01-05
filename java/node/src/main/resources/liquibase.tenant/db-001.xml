@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+		http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <!--
+        - RID_ID: Indexed, first part of the primary composite key.
+        - C_COL:  Indexed, second part of the primary composite key.
+        - C_DATA_TYPE: Enum, either String or Integer.
+        - C_DATA: Nullable String.
+    -->
+
+    <!--    <changeSet  id="1"  author="wolpert">-->
+    <!--        <createTable  tableName="NODE_INTERNAL">-->
+    <!--            <column  name="RID_TABLE"  type="varchar(256)"><constraints  primaryKey="true"  nullable="false"/></column>-->
+    <!--            <column  name="C_COL"  type="varchar(256)"><constraints  nullable="false"/></column>-->
+    <!--            <column  name="C_DATA_TYPE"  type="varchar(256)"><constraints  nullable="false"/></column>-->
+    <!--        </createTable>-->
+    <!--    </changeSet>-->
+</databaseChangeLog>

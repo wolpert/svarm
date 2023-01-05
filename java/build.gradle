@@ -1,0 +1,139 @@
+/*
+ * Copyright (c) 2020-2021. CodeHead Systems. All rights reserved
+ * Ned Wolpert <ned.wolpert@codeheadsystems.com>
+ */
+
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+
+buildscript {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+        maven { url "https://plugins.gradle.org/m2/" }
+        maven { url "https://maven.google.com" } // Google's Maven repository
+        gradlePluginPortal() // was jcenter() which is dying
+        google()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:4.0.1'
+        classpath 'org.gretty:gretty:3.0.2'
+    }
+}
+
+
+ext {
+    codeheadTestVersion = '1.0.4'
+    codeheadMetricsVersion = '1.0.1'
+    statemachineVersion = '1.0.1-SNAPSHOT'
+    gamelibVersion = '1.0.3-SNAPSHOT'
+}
+
+allprojects {
+    group 'com.codeheadsystems.dstore'
+    version '1.0.0-SNAPSHOT'
+
+    apply plugin: "java-library"
+    apply plugin: "idea"
+    apply plugin: 'jacoco'
+    apply plugin: 'signing'
+    apply plugin: 'maven-publish'
+    java {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+        withJavadocJar()
+        withSourcesJar()
+    }
+    // Ensure we have lint warnings displayed so we can fix or  @SuppressWarnings("unchecked")
+    tasks.withType(JavaCompile) {
+        options.compilerArgs << "-Xlint:unchecked"
+    }
+    test {
+        useJUnitPlatform() // needed for junit5
+        finalizedBy jacocoTestReport
+    }
+    dependencies {
+        implementation "com.codeheadsystems:metrics:${codeheadMetricsVersion}"
+
+        implementation libs.slf4j.api
+        implementation libs.bcprov
+
+        implementation libs.jackson.annotations
+        implementation libs.jackson.core
+        implementation libs.jackson.databind
+        implementation libs.jackson.datatype.jdk8
+
+        testImplementation("com.codeheadsystems:codehead-test:${codeheadTestVersion}")
+        testImplementation "com.codeheadsystems:metrics-test:${codeheadMetricsVersion}"
+        testImplementation(libs.assertj.core)
+        testImplementation(libs.junit.jupiter.engine)
+        testImplementation(libs.junit.jupiter.api)
+        testImplementation(libs.junit.jupiter.params)
+        testImplementation(libs.mockito.junit.jupiter)
+        testImplementation(libs.mockito.core)
+
+        // Logging in tests
+        testImplementation libs.logback.classic
+        testImplementation libs.logback.core
+    }
+    jacocoTestReport {
+        dependsOn test
+        afterEvaluate {
+            classDirectories.setFrom(files(classDirectories.files.collect {
+                fileTree(dir: it, exclude: [
+                        '**/dagger/**.class',
+                        '**/Dagger*Builder.class',
+                        '**/*Exception.class',
+                        '**/*Module.class',
+                        '**/*_Factory.class',
+                        '**/*_Factory.*class',
+                        '**/*InstanceHolder.class',
+                        '**/*_Factory$InstanceHolder.class'
+                ])
+            }))
+        }
+    }
+    def excludeFiles = [
+            '**.dagger.**',
+            '**.Dagger*Builder',
+            '**.*Exception',
+            '**.*Module',
+            '**.*_Factory',
+            '**.*_Factory*',
+            '**.InstanceHolder',
+            '**.*_Factory$InstanceHolder'
+    ]
+
+// If you want to override, use this in your package and set. This is the low bar.
+    jacocoTestCoverageVerification {
+        dependsOn jacocoTestReport
+        violationRules {
+            rule {
+                excludes = excludeFiles
+                element = 'CLASS'
+                limit {
+                    counter = 'LINE'
+                    value = 'COVEREDRATIO'
+                    minimum = 0.8
+                }
+            }
+            rule {
+                excludes = excludeFiles
+                element = 'CLASS'
+                limit {
+                    counter = 'BRANCH'
+                    value = 'COVEREDRATIO'
+                    minimum = 0.7
+                }
+            }
+        }
+    }
+
+    javadoc {
+        if (JavaVersion.current().isJava9Compatible()) {
+            options.addBooleanOption('html5', true)
+        }
+    }
+
+}
+
