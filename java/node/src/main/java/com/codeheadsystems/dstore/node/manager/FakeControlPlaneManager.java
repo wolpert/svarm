@@ -65,7 +65,7 @@ public class FakeControlPlaneManager implements ControlPlaneManager {
   }
 
   /**
-   * Fake tenantIdKey
+   * Fake tenantIdKey.
    *
    * @param tenantId to use.
    * @return key based on node uuid.

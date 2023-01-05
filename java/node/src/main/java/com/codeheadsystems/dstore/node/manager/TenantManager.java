@@ -17,7 +17,7 @@
 package com.codeheadsystems.dstore.node.manager;
 
 import com.codeheadsystems.dstore.common.crypt.AesGcmSivManager;
-import com.codeheadsystems.dstore.node.dao.TenantDAO;
+import com.codeheadsystems.dstore.node.dao.TenantDao;
 import com.codeheadsystems.dstore.node.model.ImmutableTenant;
 import com.codeheadsystems.dstore.node.model.Tenant;
 import com.codeheadsystems.metrics.Metrics;
@@ -38,7 +38,7 @@ public class TenantManager {
   private static final Logger LOGGER = LoggerFactory.getLogger(TenantManager.class);
 
   private final Metrics metrics;
-  private final TenantDAO dao;
+  private final TenantDao dao;
   private final AesGcmSivManager aesGcmSivManager;
 
   /**
@@ -50,7 +50,7 @@ public class TenantManager {
    */
   @Inject
   public TenantManager(final Metrics metrics,
-                       final TenantDAO dao,
+                       final TenantDao dao,
                        final AesGcmSivManager aesGcmSivManager) {
     LOGGER.info("TenantManager({},{},{})", metrics, dao, aesGcmSivManager);
     this.metrics = metrics;

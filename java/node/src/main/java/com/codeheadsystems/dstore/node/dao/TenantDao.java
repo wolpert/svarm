@@ -16,7 +16,7 @@
 
 package com.codeheadsystems.dstore.node.dao;
 
-import com.codeheadsystems.dstore.node.engine.SQLEngine;
+import com.codeheadsystems.dstore.node.engine.SqlEngine;
 import com.codeheadsystems.dstore.node.model.ImmutableTenant;
 import com.codeheadsystems.dstore.node.model.Tenant;
 import com.google.common.collect.ImmutableList;
@@ -33,11 +33,11 @@ import org.slf4j.LoggerFactory;
  * Accessor to tenant records in the node. This are not the tenant tables, but the tenant itself.
  */
 @Singleton
-public class TenantDAO {
+public class TenantDao {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(TenantDAO.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(TenantDao.class);
 
-  private final SQLEngine sqlEngine;
+  private final SqlEngine sqlEngine;
 
   /**
    * Default constructor.
@@ -45,8 +45,8 @@ public class TenantDAO {
    * @param sqlEngine to execute sql.
    */
   @Inject
-  public TenantDAO(final SQLEngine sqlEngine) {
-    LOGGER.info("TenantDAO({})", sqlEngine);
+  public TenantDao(final SqlEngine sqlEngine) {
+    LOGGER.info("TenantDao({})", sqlEngine);
     this.sqlEngine = sqlEngine;
   }
 

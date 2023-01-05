@@ -20,7 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.codeheadsystems.dstore.common.crypt.AesGcmSivManager;
-import com.codeheadsystems.dstore.node.dao.TenantDAO;
+import com.codeheadsystems.dstore.node.dao.TenantDao;
 import com.codeheadsystems.dstore.node.model.Tenant;
 import com.codeheadsystems.metrics.test.BaseMetricTest;
 import java.util.List;
@@ -39,7 +39,7 @@ class TenantManagerTest extends BaseMetricTest {
   private static final String KEY = "KEY";
   private final String TENANT_ID = "tenant";
 
-  @Mock private TenantDAO dao;
+  @Mock private TenantDao dao;
   @Mock private AesGcmSivManager aesManager;
   @Mock private Tenant tenant;
   @Mock private List<String> list;

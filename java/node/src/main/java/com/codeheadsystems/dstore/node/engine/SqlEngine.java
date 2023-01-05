@@ -37,23 +37,23 @@ import org.slf4j.LoggerFactory;
  * Provides some ability to manage and work SQL queries.
  */
 @Singleton
-public class SQLEngine {
+public class SqlEngine {
 
   /**
    * Identifier for metrics name.
    */
-  public static final String SQLENGINE_EXECUTE = "SQLEngine.execute";
+  public static final String SQLENGINE_EXECUTE = "SqlEngine.execute";
 
   /**
    * Identifier for metrics name.
    */
-  public static final String SQLENGINE_EXECUTE_PREPARED = "SQLEngine.executePrepared";
+  public static final String SQLENGINE_EXECUTE_PREPARED = "SqlEngine.executePrepared";
 
   /**
    * Used to identify internal queries.
    */
   public static final String INTERNAL = "INTERNAL";
-  private static final Logger LOGGER = LoggerFactory.getLogger(SQLEngine.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(SqlEngine.class);
 
   private final Metrics metrics;
   private final MeterRegistry meterRegistry;
@@ -66,8 +66,8 @@ public class SQLEngine {
    * @param dataSourceManager manager for the ds.
    */
   @Inject
-  public SQLEngine(final Metrics metrics, final DataSourceManager dataSourceManager) {
-    LOGGER.info("SQLEngine({},{})", metrics, dataSourceManager);
+  public SqlEngine(final Metrics metrics, final DataSourceManager dataSourceManager) {
+    LOGGER.info("SqlEngine({},{})", metrics, dataSourceManager);
     this.metrics = metrics;
     this.dataSourceManager = dataSourceManager;
     this.meterRegistry = metrics.registry();
@@ -156,8 +156,10 @@ public class SQLEngine {
                              final String query,
                              final Function<ResultSet, R> function) {
     LOGGER.debug("executeQuery({},{})", datasourceLookup, query);
-    final Counter success = meterRegistry.counter(SQLENGINE_EXECUTE, "datasource", datasourceLookup, "success", "true");
-    final Counter failure = meterRegistry.counter(SQLENGINE_EXECUTE, "datasource", datasourceLookup, "success", "false");
+    final Counter success =
+        meterRegistry.counter(SQLENGINE_EXECUTE, "datasource", datasourceLookup, "success", "true");
+    final Counter failure =
+        meterRegistry.counter(SQLENGINE_EXECUTE, "datasource", datasourceLookup, "success", "false");
     final Timer timer = meterRegistry.timer(SQLENGINE_EXECUTE, "datasource", datasourceLookup);
     return metrics.time(timer, success, failure, () -> {
       try (final Connection connection = dataSource.getConnection()) {
@@ -187,8 +189,10 @@ public class SQLEngine {
                                 final String query,
                                 final Function<PreparedStatement, R> function) {
     LOGGER.debug("executePrepared({},{})", datasourceLookup, query);
-    final Counter success = meterRegistry.counter(SQLENGINE_EXECUTE_PREPARED, "datasource", datasourceLookup, "success", "true");
-    final Counter failure = meterRegistry.counter(SQLENGINE_EXECUTE_PREPARED, "datasource", datasourceLookup, "success", "false");
+    final Counter success =
+        meterRegistry.counter(SQLENGINE_EXECUTE_PREPARED, "datasource", datasourceLookup, "success", "true");
+    final Counter failure =
+        meterRegistry.counter(SQLENGINE_EXECUTE_PREPARED, "datasource", datasourceLookup, "success", "false");
     final Timer timer = meterRegistry.timer(SQLENGINE_EXECUTE_PREPARED, "datasource", datasourceLookup);
     return metrics.time(timer, success, failure, () -> {
       try (final Connection connection = dataSource.getConnection()) {

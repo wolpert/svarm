@@ -16,7 +16,7 @@
 
 package com.codeheadsystems.dstore.node.resource;
 
-import static com.codeheadsystems.dstore.node.resource.TraceUUID.TRACE_UUID_HEADER;
+import static com.codeheadsystems.dstore.node.resource.TraceUuid.TRACE_UUID_HEADER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -32,13 +32,13 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-class TraceUUIDTest {
+class TraceUuidTest {
 
   private static final String UUID = "UUID";
   @Mock private ContainerRequestContext requestContext;
   @Mock private ContainerResponseContext responseContext;
   @Mock private MultivaluedMap<String, Object> multivaluedMap;
-  @InjectMocks private TraceUUID traceUUID;
+  @InjectMocks private TraceUuid traceUUID;
 
   @Test
   public void roundTrip_notPreSet() throws IOException {

@@ -52,7 +52,7 @@ public class PingResource implements JerseyResource {
   }
 
   /**
-   * Ping!
+   * Ping.
    *
    * @return pong.
    */

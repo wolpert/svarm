@@ -47,7 +47,8 @@ public class DatabaseConnectionEngine {
    */
   public static final String INTERNAL_DB_NAME = "nodeInternalDb";
   private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseConnectionEngine.class);
-  private static final String CONNECTION_URL = "jdbc:hsqldb:file:%s/database;crypt_key=%s;crypt_iv=%s;crypt_type=AES/GCM-SIV/NoPadding;crypt_provider=BC;";
+  private static final String CONNECTION_URL =
+      "jdbc:hsqldb:file:%s/database;crypt_key=%s;crypt_iv=%s;crypt_type=AES/GCM-SIV/NoPadding;crypt_provider=BC;";
 
   private final ControlPlaneManager controlPlaneManager;
   private final NodeInternalConfiguration nodeInternalConfiguration;
@@ -154,7 +155,7 @@ public class DatabaseConnectionEngine {
   }
 
   /**
-   * Gets a connection URL for HSQLDB, encrypted with AES/GCM/SIV
+   * Gets a connection URL for HSQLDB, encrypted with AES/GCM/SIV.
    *
    * @param databaseDirectory the location to use.
    * @param key               the key.

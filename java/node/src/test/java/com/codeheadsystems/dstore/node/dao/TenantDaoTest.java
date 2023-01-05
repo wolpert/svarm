@@ -26,13 +26,13 @@ import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-class TenantDAOTest extends BaseSQLTest {
+class TenantDaoTest extends BaseSQLTest {
 
-  private TenantDAO dao;
+  private TenantDao dao;
 
   @BeforeEach
   void setup() {
-    dao = new TenantDAO(sqlEngine);
+    dao = new TenantDao(sqlEngine);
   }
 
   @Test

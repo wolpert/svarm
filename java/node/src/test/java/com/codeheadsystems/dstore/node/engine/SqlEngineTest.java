@@ -36,7 +36,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-class SQLEngineTest extends BaseMetricTest {
+class SqlEngineTest extends BaseMetricTest {
 
   private static final String QUERY = "QUERY";
   @Mock private DataSourceManager dataSourceManager;
@@ -47,14 +47,15 @@ class SQLEngineTest extends BaseMetricTest {
   @Mock private ResultSet resultSet;
 
   private AtomicInteger atomicInteger;
-  private final Function<ResultSet, Integer> function = (rs) -> rs == resultSet ? atomicInteger.incrementAndGet() : atomicInteger.get();
+  private final Function<ResultSet, Integer> function =
+      (rs) -> rs == resultSet ? atomicInteger.incrementAndGet() : atomicInteger.get();
 
-  private SQLEngine sqlEngine;
+  private SqlEngine sqlEngine;
 
   @BeforeEach
   void setup() {
     atomicInteger = new AtomicInteger(1);
-    sqlEngine = new SQLEngine(metrics, dataSourceManager);
+    sqlEngine = new SqlEngine(metrics, dataSourceManager);
   }
 
   @Test

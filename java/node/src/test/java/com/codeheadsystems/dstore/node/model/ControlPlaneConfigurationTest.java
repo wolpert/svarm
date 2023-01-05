@@ -16,17 +16,20 @@
 
 package com.codeheadsystems.dstore.node.model;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import com.codeheadsystems.test.model.BaseJacksonTest;
 
-import org.junit.jupiter.api.Test;
+class ControlPlaneConfigurationTest extends BaseJacksonTest<ControlPlaneConfiguration> {
 
-class ResponseObjectTest {
-
-  @Test
-  void testUuidUnique() {
-    final ResponseObject<String> r1 = ImmutableResponseObject.<String>builder().resource("something").build();
-    final ResponseObject<String> r2 = ImmutableResponseObject.<String>builder().resource("something").build();
-    assertThat(r1.responseUuid()).isNotEqualTo(r2.responseUuid());
+  @Override
+  protected Class<ControlPlaneConfiguration> getBaseClass() {
+    return ControlPlaneConfiguration.class;
   }
 
+  @Override
+  protected ControlPlaneConfiguration getInstance() {
+    return ImmutableControlPlaneConfiguration.builder()
+        .key("key")
+        .uuid("uuid")
+        .build();
+  }
 }

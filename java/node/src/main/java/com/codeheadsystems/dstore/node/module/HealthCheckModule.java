@@ -47,6 +47,6 @@ public interface HealthCheckModule {
    */
   @Binds
   @IntoSet
-  HealthCheck InternalDataSourceHealthCheck(final InternalDataSourceHealthCheck healthCheck);
+  HealthCheck internalDataSourceHealthCheck(final InternalDataSourceHealthCheck healthCheck);
 
 }

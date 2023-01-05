@@ -19,7 +19,7 @@ package com.codeheadsystems.dstore.node.module;
 import com.codeheadsystems.dstore.node.resource.JerseyResource;
 import com.codeheadsystems.dstore.node.resource.PingResource;
 import com.codeheadsystems.dstore.node.resource.TenantResource;
-import com.codeheadsystems.dstore.node.resource.TraceUUID;
+import com.codeheadsystems.dstore.node.resource.TraceUuid;
 import dagger.Binds;
 import dagger.Module;
 import dagger.multibindings.IntoSet;
@@ -51,12 +51,12 @@ public interface ResourceModule {
   JerseyResource tenantResource(TenantResource resource);
 
   /**
-   * TraceUUID resource.
+   * TraceUuid resource.
    *
    * @param resource resource.
    * @return JerseyResource.
    */
   @Binds
   @IntoSet
-  JerseyResource traceUUID(TraceUUID resource);
+  JerseyResource traceUuid(TraceUuid resource);
 }

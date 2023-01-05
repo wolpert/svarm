@@ -56,8 +56,13 @@ public class DatabaseInitializationEngine {
                          final String path) {
     LOGGER.info("initialize({})", path);
     try {
-      Database database = DatabaseFactory.getInstance().findCorrectDatabaseImplementation(new JdbcConnection(connection));
-      Liquibase liquibase = new liquibase.Liquibase(path + "/liquibase-setup.xml", new ClassLoaderResourceAccessor(), database);
+      Database database = DatabaseFactory.getInstance()
+          .findCorrectDatabaseImplementation(new JdbcConnection(connection));
+      Liquibase liquibase = new liquibase.Liquibase(
+          path + "/liquibase-setup.xml",
+          new ClassLoaderResourceAccessor(),
+          database
+      );
       liquibase.update(new Contexts(), new LabelExpression());
       LOGGER.info("complete");
     } catch (LiquibaseException e) {

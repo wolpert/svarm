@@ -32,15 +32,15 @@ import org.slf4j.MDC;
  * Used so that we can have request/responses use the traceUUID concept for request tracing.
  */
 @Singleton
-public class TraceUUID implements ContainerRequestFilter, ContainerResponseFilter, JerseyResource {
+public class TraceUuid implements ContainerRequestFilter, ContainerResponseFilter, JerseyResource {
 
   /**
    * Identifier for the header.
    */
-  public static final String TRACE_UUID_HEADER = "X-TraceUUID";
+  public static final String TRACE_UUID_HEADER = "X-TraceUuid";
   private static final String MDC_ID = "trace";
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(TraceUUID.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(TraceUuid.class);
 
   private final ThreadLocal<String> traceThreadLocal = new ThreadLocal<>();
 
@@ -48,8 +48,8 @@ public class TraceUUID implements ContainerRequestFilter, ContainerResponseFilte
    * Default constructor.
    */
   @Inject
-  public TraceUUID() {
-    LOGGER.info("TraceUUID");
+  public TraceUuid() {
+    LOGGER.info("TraceUuid");
   }
 
   private static String getOrCreatedUuid(final String uuid) {
@@ -74,8 +74,8 @@ public class TraceUUID implements ContainerRequestFilter, ContainerResponseFilte
   @Override
   public void filter(final ContainerRequestContext requestContext) throws IOException {
     final String uuid = requestContext.getHeaderString(TRACE_UUID_HEADER);
-    LOGGER.debug("filter(request):{}", uuid);
     MDC.put(MDC_ID, uuid);
+    LOGGER.debug("filter(request):{}", uuid);
     traceThreadLocal.set(getOrCreatedUuid(uuid));
   }
 

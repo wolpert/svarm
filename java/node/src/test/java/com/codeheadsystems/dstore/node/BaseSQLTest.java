@@ -20,7 +20,7 @@ import static org.mockito.Mockito.lenient;
 
 import com.codeheadsystems.dstore.node.engine.DatabaseConnectionEngine;
 import com.codeheadsystems.dstore.node.engine.DatabaseInitializationEngine;
-import com.codeheadsystems.dstore.node.engine.SQLEngine;
+import com.codeheadsystems.dstore.node.engine.SqlEngine;
 import com.codeheadsystems.dstore.node.manager.DataSourceManager;
 import com.codeheadsystems.metrics.test.BaseMetricTest;
 import java.sql.SQLException;
@@ -38,7 +38,7 @@ public abstract class BaseSQLTest extends BaseMetricTest {
 
   private static final Logger log = LoggerFactory.getLogger(BaseSQLTest.class);
 
-  protected SQLEngine sqlEngine;
+  protected SqlEngine sqlEngine;
   private DataSourceManager dataSourceManager;
   private DatabaseInitializationEngine databaseInitializationEngine;
   @Mock private DatabaseConnectionEngine databaseConnectionEngine;
@@ -51,7 +51,7 @@ public abstract class BaseSQLTest extends BaseMetricTest {
     lenient().when(databaseConnectionEngine.getInternalConnectionUrl()).thenReturn(url);
     dataSourceManager = new DataSourceManager(databaseConnectionEngine, databaseInitializationEngine);
     dataSourceManager.start();
-    sqlEngine = new SQLEngine(metrics, dataSourceManager);
+    sqlEngine = new SqlEngine(metrics, dataSourceManager);
   }
 
   @AfterEach
