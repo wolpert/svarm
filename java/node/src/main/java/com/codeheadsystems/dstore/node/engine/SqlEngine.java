@@ -17,6 +17,7 @@
 package com.codeheadsystems.dstore.node.engine;
 
 import com.codeheadsystems.dstore.node.manager.DataSourceManager;
+import com.codeheadsystems.dstore.node.model.Tenant;
 import com.codeheadsystems.metrics.Metrics;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -108,17 +109,17 @@ public class SqlEngine {
   /**
    * Executes the query on the tenant dataSource using metrics against the object itself.
    *
-   * @param tenantId tenant.
+   * @param tenant   tenant.
    * @param query    to execute.
    * @param function that will process the result set.
    * @param <R>      the type.
    * @return a instance of type-r.
    */
-  public <R> R executeQueryTenant(final String tenantId,
+  public <R> R executeQueryTenant(final Tenant tenant,
                                   final String query,
                                   final Function<ResultSet, R> function) {
-    return executeQuery(tenantId,
-        dataSourceManager.getTenant(tenantId),
+    return executeQuery(tenant.id(),
+        dataSourceManager.getDataSource(tenant),
         query,
         function);
   }
@@ -126,17 +127,17 @@ public class SqlEngine {
   /**
    * Executes the prepared statement on the tenant dataSource using metrics against the object itself.
    *
-   * @param tenantId tenant.
+   * @param tenant   tenant.
    * @param query    to execute.
    * @param function that will process the prepared statement.
    * @param <R>      the type.
    * @return a instance of type-r.
    */
-  public <R> R executePreparedTenant(final String tenantId,
+  public <R> R executePreparedTenant(final Tenant tenant,
                                      final String query,
                                      final Function<PreparedStatement, R> function) {
-    return executePrepared(tenantId,
-        dataSourceManager.getTenant(tenantId),
+    return executePrepared(tenant.id(),
+        dataSourceManager.getDataSource(tenant),
         query,
         function);
   }

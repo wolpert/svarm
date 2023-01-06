@@ -18,6 +18,7 @@ package com.codeheadsystems.dstore.node.manager;
 
 import com.codeheadsystems.dstore.node.engine.DatabaseConnectionEngine;
 import com.codeheadsystems.dstore.node.engine.DatabaseInitializationEngine;
+import com.codeheadsystems.dstore.node.model.Tenant;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -41,10 +42,13 @@ public class DataSourceManager implements Managed {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(DataSourceManager.class);
   private static final String INTERNAL = "liquibase/internal";
+  private static final String TENANT = "liquibase/tenant";
+  private static final int INTERNAL_MIN_POOL_SIZE = 1;
+  private static final int TENANT_MIN_POOL_SIZE = 0;
 
   private final DatabaseConnectionEngine databaseConnectionEngine;
   private final DatabaseInitializationEngine databaseInitializationEngine;
-  private final LoadingCache<String, DataSource> dataSourceLoadingCache;
+  private final LoadingCache<Tenant, DataSource> dataSourceLoadingCache;
 
   private volatile DataSource internalDataSource = null;
 
@@ -57,14 +61,26 @@ public class DataSourceManager implements Managed {
   @Inject
   public DataSourceManager(final DatabaseConnectionEngine databaseConnectionEngine,
                            final DatabaseInitializationEngine databaseInitializationEngine) {
-    LOGGER.info("DataSourceManager()");
+    LOGGER.info("DataSourceManager({},{})", databaseConnectionEngine, databaseInitializationEngine);
     this.databaseConnectionEngine = databaseConnectionEngine;
     this.databaseInitializationEngine = databaseInitializationEngine;
-
-    dataSourceLoadingCache = CacheBuilder.newBuilder()
+    this.dataSourceLoadingCache = CacheBuilder.newBuilder()
         .maximumSize(1000)
         .removalListener(this::onRemoval)
         .build(CacheLoader.from(this::loadTenant));
+  }
+
+  private static DataSource getComboPooledDataSource(final int minPoolSize, final String url) {
+    ComboPooledDataSource cpds = new ComboPooledDataSource();
+    cpds.setJdbcUrl(url);
+    cpds.setUser("SA");
+    cpds.setPassword("");
+    cpds.setMinPoolSize(minPoolSize);
+    cpds.setAcquireIncrement(5);
+    cpds.setMaxPoolSize(20);
+    cpds.setMaxIdleTime(300);
+    cpds.setTestConnectionOnCheckout(true);
+    return cpds;
   }
 
   /**
@@ -82,7 +98,7 @@ public class DataSourceManager implements Managed {
    * @param tenant to get the source for.
    * @return the source.
    */
-  public DataSource getTenant(final String tenant) {
+  public DataSource getDataSource(final Tenant tenant) {
     return dataSourceLoadingCache.getUnchecked(tenant);
   }
 
@@ -104,13 +120,21 @@ public class DataSourceManager implements Managed {
     return Optional.ofNullable(internalDataSource);
   }
 
-  private void onRemoval(RemovalNotification<String, DataSource> notification) {
+  private void onRemoval(RemovalNotification<Tenant, DataSource> notification) {
     LOGGER.info("onRemoval({},{})", notification.getKey(), notification.getCause());
   }
 
-  private DataSource loadTenant(final String tenant) {
-    LOGGER.info("loadTenant({})", tenant);
-    return null;
+  private DataSource loadTenant(final Tenant tenant) {
+    LOGGER.info("loadTenant({})", tenant.id());
+    final String url = databaseConnectionEngine.getTenantConnectionUrl(tenant.id(), tenant.key(), tenant.nonce());
+    final DataSource dataSource = getComboPooledDataSource(TENANT_MIN_POOL_SIZE, url);
+    try {
+      final Connection connection = dataSource.getConnection();
+      databaseInitializationEngine.initialize(connection, TENANT);
+      return dataSource;
+    } catch (SQLException e) {
+      throw new IllegalArgumentException("Unable to get tenant initialized connection", e);
+    }
   }
 
   /**
@@ -121,18 +145,11 @@ public class DataSourceManager implements Managed {
     if (internalDataSource == null) {
       try {
         LOGGER.info("setupInternalDataSource(): inProgress");
-        ComboPooledDataSource cpds = new ComboPooledDataSource();
-        cpds.setJdbcUrl(databaseConnectionEngine.getInternalConnectionUrl());
-        cpds.setUser("SA");
-        cpds.setPassword("");
-        cpds.setMinPoolSize(1);
-        cpds.setAcquireIncrement(5);
-        cpds.setMaxPoolSize(20);
-        cpds.setMaxIdleTime(300);
-        cpds.setTestConnectionOnCheckout(true);
-        Connection connection = cpds.getConnection();
+        final String url = databaseConnectionEngine.getInternalConnectionUrl();
+        final DataSource dataSource = getComboPooledDataSource(INTERNAL_MIN_POOL_SIZE, url);
+        final Connection connection = dataSource.getConnection();
         databaseInitializationEngine.initialize(connection, INTERNAL);
-        internalDataSource = cpds;
+        internalDataSource = dataSource;
         LOGGER.info("setupInternalDataSource(): complete");
       } catch (SQLException e) {
         LOGGER.error("Setup internal datasource failed", e);
@@ -155,7 +172,7 @@ public class DataSourceManager implements Managed {
       LOGGER.info("isHealthy(): Internal datasource not created yet.");
       return false;
     }
-    final boolean result = ds.get().getConnection().isValid(1);
+    final boolean result = ds.get().getConnection().isValid(INTERNAL_MIN_POOL_SIZE);
     if (result) {
       LOGGER.debug("isHealthy(): true");
     } else {

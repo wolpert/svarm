@@ -36,6 +36,7 @@ public interface Tenant {
    *
    * @return value.
    */
+  @Value.Auxiliary
   String uuid();
 
   /**
@@ -43,6 +44,7 @@ public interface Tenant {
    *
    * @return value.
    */
+  @Value.Auxiliary
   String key();
 
   /**
@@ -50,6 +52,7 @@ public interface Tenant {
    *
    * @return value.
    */
+  @Value.Auxiliary
   String nonce();
 
 }
