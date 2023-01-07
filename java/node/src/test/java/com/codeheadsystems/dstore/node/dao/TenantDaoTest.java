@@ -21,9 +21,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.codeheadsystems.dstore.node.BaseSQLTest;
 import com.codeheadsystems.dstore.node.model.ImmutableTenant;
 import com.codeheadsystems.dstore.node.model.Tenant;
-import com.codeheadsystems.dstore.tinyorm.engine.MethodInvokerEngine;
-import com.codeheadsystems.dstore.tinyorm.engine.TinyOrmEngine;
-import com.codeheadsystems.dstore.tinyorm.factory.ColumnDefinitionFactory;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,7 +32,7 @@ class TenantDaoTest extends BaseSQLTest {
 
   @BeforeEach
   void setup() {
-    dao = new TenantDao(sqlEngine, new TinyOrmEngine(new ColumnDefinitionFactory(), new MethodInvokerEngine()));
+    dao = new TenantDao(sqlEngine);
   }
 
   @Test
