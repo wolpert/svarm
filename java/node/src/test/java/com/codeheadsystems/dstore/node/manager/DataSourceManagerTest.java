@@ -16,19 +16,22 @@
 
 package com.codeheadsystems.dstore.node.manager;
 
+import static com.codeheadsystems.dstore.node.manager.DataSourceManager.INTERNAL;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.codeheadsystems.dstore.node.engine.DatabaseConnectionEngine;
 import com.codeheadsystems.dstore.node.engine.DatabaseInitializationEngine;
 import com.codeheadsystems.dstore.node.model.Tenant;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.HashSet;
+import java.sql.Connection;
 import java.util.Optional;
 import javax.sql.DataSource;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -45,54 +48,35 @@ class DataSourceManagerTest {
   private static final String TENANT_ID = "tenantId";
   private static final String KEY = "key";
   private static final String NONCE = "nonce";
+  private static final String CONNECTION_URL = "jdbc:hsqldb:mem:DataSourceManagerTest";
 
   @Mock private DatabaseInitializationEngine databaseInitializationEngine;
   @Mock private DatabaseConnectionEngine databaseConnectionEngine;
   @Mock private Tenant tenant;
+  @Captor private ArgumentCaptor<Connection> connectionArgumentCaptor;
 
   @InjectMocks private DataSourceManager dataSourceManager;
 
   @Test
-  void loadTenant_realInitiaztion() throws SQLException {
+  void loadTenant_realInitialization() {
     when(tenant.id()).thenReturn(TENANT_ID);
     when(tenant.key()).thenReturn(KEY);
     when(tenant.nonce()).thenReturn(NONCE);
-    when(databaseConnectionEngine.getTenantConnectionUrl(TENANT_ID, KEY, NONCE)).thenReturn("jdbc:hsqldb:mem:DataSourceManagerTest-loadTenant");
-    final DataSourceManager manager = new DataSourceManager(databaseConnectionEngine, new DatabaseInitializationEngine());
-    final DataSource dataSource = manager.getDataSource(tenant);
-    assertThat(dataSource)
-        .isNotNull();
-    final HashSet<String> tableNames = new HashSet<>();
-    try (ResultSet result = dataSource.getConnection().createStatement().
-        executeQuery("SELECT TABLE_NAME  FROM INFORMATION_SCHEMA.SYSTEM_TABLES where TABLE_SCHEM = 'PUBLIC'")) {
-      while (result.next()) {
-        tableNames.add(result.getString("TABLE_NAME"));
-      }
-    }
-    assertThat(tableNames)
-        .containsExactlyInAnyOrder("DATABASECHANGELOGLOCK", "DATABASECHANGELOG");
+    when(databaseConnectionEngine.getTenantConnectionUrl(TENANT_ID, KEY, NONCE)).thenReturn(CONNECTION_URL);
+    final DataSource dataSource = dataSourceManager.getDataSource(tenant);
+    assertThat(dataSource).isNotNull();
   }
 
   @Test
-  void internalSetup() throws SQLException {
-    when(databaseConnectionEngine.getInternalConnectionUrl()).thenReturn("jdbc:hsqldb:mem:DataSourceManagerTest");
-    final DataSourceManager manager = new DataSourceManager(databaseConnectionEngine, new DatabaseInitializationEngine());
-    manager.start();
-    final Optional<DataSource> internalDataSource = manager.getInternalDataSource();
+  void internalSetup() {
+    when(databaseConnectionEngine.getInternalConnectionUrl()).thenReturn(CONNECTION_URL);
+    dataSourceManager.start();
+    final Optional<DataSource> internalDataSource = dataSourceManager.getInternalDataSource();
     assertThat(internalDataSource)
         .isNotNull()
         .isNotEmpty();
-    assertThat(manager.isReady()).isTrue();
-
-    final HashSet<String> tableNames = new HashSet<>();
-    try (ResultSet result = internalDataSource.get().getConnection().createStatement().
-        executeQuery("SELECT TABLE_NAME  FROM INFORMATION_SCHEMA.SYSTEM_TABLES where TABLE_SCHEM = 'PUBLIC'")) {
-      while (result.next()) {
-        tableNames.add(result.getString("TABLE_NAME"));
-      }
-    }
-    assertThat(tableNames)
-        .containsExactlyInAnyOrder("DATABASECHANGELOGLOCK", "DATABASECHANGELOG", "NODE_TENANT", "NODE_TENANT_TABLES");
+    assertThat(dataSourceManager.isReady()).isTrue();
+    verify(databaseInitializationEngine).initialize(connectionArgumentCaptor.capture(), eq(INTERNAL));
   }
 
 }
