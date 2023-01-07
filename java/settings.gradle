@@ -24,5 +24,6 @@ dependencyResolutionManagement {
 }
 
 // All subprojects we want to build.
-include ':common', ':node'
+include ':common', ':tiny-orm',
+        ':node'
 

@@ -14,50 +14,48 @@
  * limitations under the License.
  */
 
-package com.codeheadsystems.dstore.node.model;
+package com.codeheadsystems.dstore.tinyorm.model;
 
-import com.codeheadsystems.dstore.tinyorm.annotation.ColName;
+import java.lang.reflect.Method;
 import org.immutables.value.Value;
 
 /**
- * Internal structure to define the tenant itself.
+ * A column definition for the tiny orm.
  */
 @Value.Immutable
-public interface Tenant {
+public interface ColumnDefinition extends Comparable<ColumnDefinition> {
 
   /**
-   * Id of the tenant. This is global.
+   * Allows for comparisons.
    *
-   * @return value.
+   * @param columnDefinition to compare.
+   * @return comparison.
    */
-  @ColName("RID_TENANT")
-  String id();
+  @Override
+  default int compareTo(ColumnDefinition columnDefinition) {
+    return columnName().compareTo(columnDefinition.columnName());
+  }
 
   /**
-   * Uuid of the tenant. This is local to us.
+   * Method with the annotation.
    *
-   * @return value.
+   * @return the method.
    */
-  @Value.Auxiliary
-  @ColName("UUID")
-  String uuid();
+  Method method();
 
   /**
-   * Key of the tenant. This is our local key, not the key from the control plane.
+   * The column name in the database.
    *
-   * @return value.
+   * @return the name.
    */
-  @Value.Auxiliary
-  @ColName("KEY")
-  String key();
+  @Value.NaturalOrder
+  String columnName();
 
   /**
-   * Nonce of the tenant database. This is our local key.
+   * The return class type.
    *
-   * @return value.
+   * @return return type.
    */
-  @Value.Auxiliary
-  @ColName("NONCE")
-  String nonce();
+  Class<?> returnType();
 
 }

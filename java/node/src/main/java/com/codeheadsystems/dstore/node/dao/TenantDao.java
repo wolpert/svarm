@@ -19,6 +19,7 @@ package com.codeheadsystems.dstore.node.dao;
 import com.codeheadsystems.dstore.node.engine.SqlEngine;
 import com.codeheadsystems.dstore.node.model.ImmutableTenant;
 import com.codeheadsystems.dstore.node.model.Tenant;
+import com.codeheadsystems.dstore.tinyorm.engine.TinyOrmEngine;
 import com.google.common.collect.ImmutableList;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -38,14 +39,18 @@ public class TenantDao {
   private static final Logger LOGGER = LoggerFactory.getLogger(TenantDao.class);
 
   private final SqlEngine sqlEngine;
+  private final TinyOrmEngine tinyOrmEngine;
 
   /**
    * Default constructor.
    *
-   * @param sqlEngine to execute sql.
+   * @param sqlEngine     to execute sql.
+   * @param tinyOrmEngine to 'make our life simpler'. lol.
    */
   @Inject
-  public TenantDao(final SqlEngine sqlEngine) {
+  public TenantDao(final SqlEngine sqlEngine,
+                   final TinyOrmEngine tinyOrmEngine) {
+    this.tinyOrmEngine = tinyOrmEngine;
     LOGGER.info("TenantDao({})", sqlEngine);
     this.sqlEngine = sqlEngine;
   }
@@ -58,21 +63,8 @@ public class TenantDao {
    */
   public Tenant create(final Tenant tenant) {
     LOGGER.debug("create({})", tenant.id());
-    sqlEngine.executePreparedInternal("insert into NODE_TENANT (RID_TENANT,UUID,KEY,NONCE) values (?,?,?,?)", (ps) -> {
-      try {
-        ps.setString(1, tenant.id());
-        ps.setString(2, tenant.uuid());
-        ps.setString(3, tenant.key());
-        ps.setString(4, tenant.nonce());
-        ps.execute();
-        if (ps.getUpdateCount() != 1) {
-          throw new IllegalArgumentException("Unable to create tenant");
-        }
-      } catch (SQLException e) {
-        throw new IllegalArgumentException("Unable to read a tenant", e);
-      }
-      return null;
-    });
+    final String insertQuery = tinyOrmEngine.insertQuery(Tenant.class, "NODE_TENANT");
+    sqlEngine.executePreparedInternal(insertQuery, tinyOrmEngine.insertPreparedStatement(tenant));
     return tenant;
   }
 

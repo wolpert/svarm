@@ -31,6 +31,7 @@ checkstyle {
 
 dependencies {
     implementation project(":common")
+    implementation project(":tiny-orm")
     implementation libs.hsqldb
     implementation libs.liquibase.core
     implementation libs.c3p0
@@ -38,8 +39,6 @@ dependencies {
     implementation libs.javax.inject
     implementation libs.dagger
     annotationProcessor libs.dagger.compiler
-    compileOnly libs.immutables.value
-    annotationProcessor libs.immutables.value
 
     implementation libs.jackson.annotations
     implementation libs.jackson.core
