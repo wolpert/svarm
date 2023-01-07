@@ -53,6 +53,18 @@
             <column name="TABLE_NAME" type="varchar(256)">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
+            <column name="HASH_START" type="varchar(256)">
+                <constraints primaryKey="false" nullable="true"/>
+            </column>
+            <column name="HASH_END" type="varchar(256)">
+                <constraints primaryKey="false" nullable="true"/>
+            </column>
+            <column name="QUANTITY_EST" type="bigint">
+                <constraints primaryKey="false" nullable="true"/>
+            </column>
+            <column name="ENABLED" type="boolean">
+                <constraints primaryKey="false" nullable="false"/>
+            </column>
         </createTable>
     </changeSet>
 </databaseChangeLog>

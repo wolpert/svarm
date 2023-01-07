@@ -51,8 +51,9 @@ greater part of the system. Each data node can respond to the core API
 requirements.
 
 V1 tables look like this:
-- RID_ID: Indexed, first part of the primary composite key.
+- RID_ID: Indexed, first part of the primary composite key. This is the unique identifier
 - C_COL:  Indexed, second part of the primary composite key.
+- HASH: The hash value of the RID_ID for mgmt.
 - C_DATA_TYPE: Enum, either String or Integer.
 - C_DATA: Nullable String.
 
