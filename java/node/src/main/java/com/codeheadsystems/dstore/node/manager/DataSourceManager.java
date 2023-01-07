@@ -39,10 +39,15 @@ import org.slf4j.LoggerFactory;
  */
 @Singleton
 public class DataSourceManager implements Managed {
-
+  /**
+   * Identifier for internal liquibase files.
+   */
+  public static final String INTERNAL = "liquibase/internal";
+  /**
+   * Identifier for tenant liquibase files.
+   */
+  public static final String TENANT = "liquibase/tenant";
   private static final Logger LOGGER = LoggerFactory.getLogger(DataSourceManager.class);
-  private static final String INTERNAL = "liquibase/internal";
-  private static final String TENANT = "liquibase/tenant";
   private static final int INTERNAL_MIN_POOL_SIZE = 1;
   private static final int TENANT_MIN_POOL_SIZE = 0;
 
@@ -107,7 +112,7 @@ public class DataSourceManager implements Managed {
    *
    * @param tenant to remove.
    */
-  public void evictTenant(String tenant) {
+  public void evictTenant(Tenant tenant) {
     dataSourceLoadingCache.invalidate(tenant);
   }
 

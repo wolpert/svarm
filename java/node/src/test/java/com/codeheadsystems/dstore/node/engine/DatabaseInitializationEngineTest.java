@@ -16,30 +16,66 @@
 
 package com.codeheadsystems.dstore.node.engine;
 
+import static com.codeheadsystems.dstore.node.manager.DataSourceManager.INTERNAL;
+import static com.codeheadsystems.dstore.node.manager.DataSourceManager.TENANT;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.security.Security;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashSet;
+import java.util.Random;
+import java.util.stream.Stream;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.bouncycastle.util.encoders.Hex;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 class DatabaseInitializationEngineTest {
 
-  private Connection connection;
-  private DatabaseInitializationEngine engine;
+  private static final Random RANDOM = new Random();
 
-  @BeforeEach
-  void setUp() throws SQLException {
-    connection = DriverManager.getConnection("jdbc:hsqldb:mem:DatabaseInitializationEngineTest", "SA", "");
-    engine = new DatabaseInitializationEngine();
+  private String key;
+  private String nonce;
+
+  public static Stream<Arguments> pathToTableNames() {
+    return Stream.of(
+        Arguments.of("liquibasetest", new String[]{"DATABASECHANGELOGLOCK", "DATABASECHANGELOG", "PERSON", "OTHERTABLE"}),
+        Arguments.of(INTERNAL, new String[]{"DATABASECHANGELOGLOCK", "DATABASECHANGELOG", "NODE_TENANT", "NODE_TENANT_TABLES"}),
+        Arguments.of(TENANT, new String[]{"DATABASECHANGELOGLOCK", "DATABASECHANGELOG"})
+    );
   }
 
-  @Test
-  void testLiquibase() throws SQLException {
-    engine.initialize(connection, "liquibasetest");
+  /**
+   * Bytes for encryption.
+   *
+   * @param size of the bytes.
+   * @return as a hex string.
+   */
+  static String bytes(final int size) {
+    final byte[] bArray = new byte[size];
+    RANDOM.nextBytes(bArray);
+    return Hex.toHexString(bArray);
+  }
+
+  @BeforeEach
+  void setupSecurity() {
+    if (Security.getProvider("BC") == null) {
+      Security.addProvider(new BouncyCastleProvider());
+    }
+  }
+
+  @ParameterizedTest
+  @MethodSource("pathToTableNames")
+  void liquibaseTesting(final String path, final String... expectedTableNames) throws SQLException {
+    final Connection connection = DriverManager.getConnection("jdbc:hsqldb:mem:DatabaseInitializationEngineTest-" +
+            path + ";crypt_key=" + bytes(32) + ";crypt_iv=" + bytes(12) + ";crypt_type=AES/GCM-SIV/NoPadding;crypt_provider=BC;",
+        "SA", "");
+    new DatabaseInitializationEngine().initialize(connection, path);
     final HashSet<String> tableNames = new HashSet<>();
     try (ResultSet result = connection.createStatement().
         executeQuery("SELECT TABLE_NAME  FROM INFORMATION_SCHEMA.SYSTEM_TABLES where TABLE_SCHEM = 'PUBLIC'")) {
@@ -48,7 +84,7 @@ class DatabaseInitializationEngineTest {
       }
     }
     assertThat(tableNames)
-        .containsExactlyInAnyOrder("DATABASECHANGELOGLOCK", "DATABASECHANGELOG", "PERSON", "OTHERTABLE");
+        .containsExactlyInAnyOrder(expectedTableNames);
   }
 
 }
