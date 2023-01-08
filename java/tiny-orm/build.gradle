@@ -27,5 +27,7 @@ dependencies {
     testImplementation libs.logback.access
     testImplementation libs.jakarta.servlet.api
     testImplementation libs.javax.servlet.api
+
+    testImplementation libs.hsqldb
 }
 

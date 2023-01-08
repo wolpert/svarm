@@ -30,7 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A naive orm engine.
+ * A naive tiny orm engine.
  */
 @Singleton
 public class TinyOrmEngine {
@@ -40,9 +40,16 @@ public class TinyOrmEngine {
   private final ColumnDefinitionFactory columnDefinitionFactory;
   private final MethodInvokerEngine methodInvokerEngine;
 
+  /**
+   * Constructor.
+   *
+   * @param columnDefinitionFactory to use.
+   * @param methodInvokerEngine     to use.
+   */
   @Inject
   public TinyOrmEngine(final ColumnDefinitionFactory columnDefinitionFactory,
                        final MethodInvokerEngine methodInvokerEngine) {
+    LOGGER.info("TinyOrmEngine({},{})", columnDefinitionFactory, methodInvokerEngine);
     this.columnDefinitionFactory = columnDefinitionFactory;
     this.methodInvokerEngine = methodInvokerEngine;
   }
@@ -57,31 +64,28 @@ public class TinyOrmEngine {
    */
   public String insertQuery(final Class<?> modelClass,
                             final String tableName) {
+    LOGGER.debug("insertQuery({},{}+", modelClass, tableName);
     final List<String> columns = columnDefinitionFactory.columnDefinitions(modelClass).stream()
         .map(ColumnDefinition::columnName)
         .toList();
-    final StringBuilder result = new StringBuilder("insert into ").append(tableName).append(" (");
-    result.append(String.join(",", columns));
-    result.append(") values (").append(columns.stream().map(x -> "?").collect(Collectors.joining(",")));
-    return result.append(")").toString();
+    return new StringBuilder("insert into ").append(tableName)
+        .append(" (").append(String.join(",", columns))
+        .append(") values (").append(columns.stream().map(x -> "?").collect(Collectors.joining(",")))
+        .append(")").toString();
   }
 
+  /**
+   * Clousre to insert an objcet into the table.
+   *
+   * @param instance of the object.
+   * @param <R>      type of object.
+   * @return the clouser.
+   */
   public <R> Function<PreparedStatement, R> insertPreparedStatement(R instance) {
     return (ps) -> {
       final AtomicInteger colNumberHolder = new AtomicInteger(0);
       columnDefinitionFactory.columnDefinitions(instance.getClass())
-          .forEach(cd -> {
-            final int colNumber = colNumberHolder.incrementAndGet();
-            switch (cd.returnType().getSimpleName()) {
-              case "String":
-                methodInvokerEngine.setString(instance, ps, cd, colNumber);
-                break;
-              case "Integer":
-                methodInvokerEngine.setInteger(instance, ps, cd, colNumber);
-              default:
-                throw new IllegalArgumentException("We do not support yet: " + cd.returnType());
-            }
-          });
+          .forEach(cd -> methodInvokerEngine.setPreparedStatement(instance, ps, cd, colNumberHolder.incrementAndGet()));
       try {
         ps.execute();
         if (ps.getUpdateCount() != 1) {

@@ -21,8 +21,17 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * Defines a column name for an attribute.
+ */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ColName {
+
+  /**
+   * Set the name of the column. Required.
+   *
+   * @return the name.
+   */
   String value();
 }

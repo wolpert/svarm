@@ -24,9 +24,15 @@ import java.sql.SQLException;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+/**
+ * Invokes methods hiding the exceptions.
+ */
 @Singleton
 public class MethodInvokerEngine {
 
+  /**
+   * Default constructor.
+   */
   @Inject
   public MethodInvokerEngine() {
 
@@ -40,6 +46,7 @@ public class MethodInvokerEngine {
    * @param <T>      of this type.
    * @return the value.
    */
+  @SuppressWarnings("unchecked")
   public <T> T get(final Method method, final Object instance) {
     try {
       return (T) method.invoke(instance);
@@ -50,7 +57,29 @@ public class MethodInvokerEngine {
     }
   }
 
-  public <R> void setString(final R instance, final PreparedStatement ps, final ColumnDefinition cd, final int colNumber) {
+  /**
+   * Sets the value in the prepared statement. Will figure out what value to set.
+   *
+   * @param instance we are working with. Has the value.
+   * @param ps the prepared statement.
+   * @param cd the column definition that has method to invoke.
+   * @param colNumber number in the prepared statement to set.
+   * @param <R> type of object.
+   */
+  public <R> void setPreparedStatement(final R instance, final PreparedStatement ps, final ColumnDefinition cd, final int colNumber) {
+    switch (cd.returnType().getSimpleName()) {
+      case "String":
+        setString(instance, ps, cd, colNumber);
+        break;
+      case "Integer":
+        setInteger(instance, ps, cd, colNumber);
+        break;
+      default:
+        throw new IllegalArgumentException("We do not support yet: " + cd.returnType());
+    }
+  }
+
+  private <R> void setString(final R instance, final PreparedStatement ps, final ColumnDefinition cd, final int colNumber) {
     try {
       final String value = get(cd.method(), instance);
       ps.setString(colNumber, value);
@@ -59,7 +88,7 @@ public class MethodInvokerEngine {
     }
   }
 
-  public <R> void setInteger(final R instance, final PreparedStatement ps, final ColumnDefinition cd, final int colNumber) {
+  private <R> void setInteger(final R instance, final PreparedStatement ps, final ColumnDefinition cd, final int colNumber) {
     try {
       final Integer value = get(cd.method(), instance);
       ps.setInt(colNumber, value);
