@@ -44,6 +44,7 @@ public interface TenantTable {
    *
    * @return value.
    */
+  @Value.Auxiliary
   Optional<String> hashStart();
 
   /**
@@ -51,6 +52,7 @@ public interface TenantTable {
    *
    * @return value.
    */
+  @Value.Auxiliary
   Optional<String> hashEnd();
 
   /**
@@ -58,13 +60,15 @@ public interface TenantTable {
    *
    * @return value.
    */
-  Optional<Integer> estimatedQuantity();
+  @Value.Auxiliary
+  Integer estimatedQuantity();
 
   /**
    * Identifier if the table is enabled for use. If false, can only be managed.
    *
    * @return value.
    */
+  @Value.Auxiliary
   boolean enabled();
 
 }

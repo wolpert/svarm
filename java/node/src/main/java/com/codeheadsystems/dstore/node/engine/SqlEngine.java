@@ -27,6 +27,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Types;
+import java.util.Optional;
 import java.util.function.Function;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -204,5 +206,41 @@ public class SqlEngine {
         throw new IllegalArgumentException("Unable to complete sql call", e);
       }
     });
+  }
+
+  /**
+   * Helper method to manage nullable fields.
+   *
+   * @param colNumber         to set.
+   * @param value             value.
+   * @param preparedStatement preparedStatement.
+   * @throws SQLException if we gots complains.
+   */
+  public void setStringField(final int colNumber,
+                             final Optional<String> value,
+                             final PreparedStatement preparedStatement) throws SQLException {
+    if (value.isPresent()) {
+      preparedStatement.setString(colNumber, value.get());
+    } else {
+      preparedStatement.setNull(colNumber, Types.VARCHAR);
+    }
+  }
+
+  /**
+   * Helper method to manage nullable fields.
+   *
+   * @param colNumber         to set.
+   * @param value             value.
+   * @param preparedStatement preparedStatement.
+   * @throws SQLException if we gots complains.
+   */
+  public void setBigIntField(final int colNumber,
+                             final Optional<Integer> value,
+                             final PreparedStatement preparedStatement) throws SQLException {
+    if (value.isPresent()) {
+      preparedStatement.setInt(colNumber, value.get());
+    } else {
+      preparedStatement.setNull(colNumber, Types.BIGINT);
+    }
   }
 }

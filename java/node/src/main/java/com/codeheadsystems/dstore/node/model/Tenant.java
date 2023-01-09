@@ -16,7 +16,6 @@
 
 package com.codeheadsystems.dstore.node.model;
 
-import com.codeheadsystems.dstore.tinyorm.annotation.ColName;
 import org.immutables.value.Value;
 
 /**
@@ -30,7 +29,6 @@ public interface Tenant {
    *
    * @return value.
    */
-  @ColName("RID_TENANT")
   String id();
 
   /**
@@ -39,7 +37,6 @@ public interface Tenant {
    * @return value.
    */
   @Value.Auxiliary
-  @ColName("UUID")
   String uuid();
 
   /**
@@ -48,7 +45,6 @@ public interface Tenant {
    * @return value.
    */
   @Value.Auxiliary
-  @ColName("KEY")
   String key();
 
   /**
@@ -57,7 +53,6 @@ public interface Tenant {
    * @return value.
    */
   @Value.Auxiliary
-  @ColName("NONCE")
   String nonce();
 
 }
