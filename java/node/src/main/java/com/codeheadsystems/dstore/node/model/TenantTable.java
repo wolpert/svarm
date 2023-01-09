@@ -72,11 +72,11 @@ public interface TenantTable {
   boolean enabled();
 
   /**
-   * The hashing algorithm that was used.
+   * The version of table this requires.
    *
    * @return value.
    */
   @Value.Auxiliary
-  String hashingAlgorithm();
+  String tableVersion();
 
 }

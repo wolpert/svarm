@@ -59,7 +59,7 @@ public class TenantTableDao {
   public TenantTable create(final TenantTable tenantTable) {
     LOGGER.debug("create({})", tenantTable);
     sqlEngine.executePreparedInternal(
-        "insert into NODE_TENANT_TABLES (RID_TENANT,TABLE_NAME,HASH_START,HASH_END, QUANTITY_EST, ENABLED, HASH_ALGO) values (?,?,?,?,?,?,?)",
+        "insert into NODE_TENANT_TABLES (RID_TENANT,TABLE_NAME,HASH_START,HASH_END, QUANTITY_EST, ENABLED, TABLE_VERSION) values (?,?,?,?,?,?,?)",
         (ps) -> {
           try {
             ps.setString(1, tenantTable.tenantId());
@@ -68,7 +68,7 @@ public class TenantTableDao {
             sqlEngine.setStringField(4, tenantTable.hashEnd(), ps);
             ps.setInt(5, tenantTable.estimatedQuantity());
             ps.setBoolean(6, tenantTable.enabled());
-            ps.setString(7, tenantTable.hashingAlgorithm());
+            ps.setString(7, tenantTable.tableVersion());
             ps.execute();
             if (ps.getUpdateCount() != 1) {
               throw new IllegalArgumentException("Unable to create tenant table");
@@ -90,14 +90,14 @@ public class TenantTableDao {
   public TenantTable update(final TenantTable tenantTable) {
     LOGGER.debug("update({})", tenantTable);
     sqlEngine.executePreparedInternal(
-        "update NODE_TENANT_TABLES set HASH_START = ?, HASH_END = ?, QUANTITY_EST = ?, ENABLED = ?, HASH_ALGO = ? where RID_TENANT = ? and TABLE_NAME = ?",
+        "update NODE_TENANT_TABLES set HASH_START = ?, HASH_END = ?, QUANTITY_EST = ?, ENABLED = ?, TABLE_VERSION = ? where RID_TENANT = ? and TABLE_NAME = ?",
         (ps) -> {
           try {
             sqlEngine.setStringField(1, tenantTable.hashStart(), ps);
             sqlEngine.setStringField(2, tenantTable.hashEnd(), ps);
             ps.setInt(3, tenantTable.estimatedQuantity());
             ps.setBoolean(4, tenantTable.enabled());
-            ps.setString(5, tenantTable.hashingAlgorithm());
+            ps.setString(5, tenantTable.tableVersion());
             ps.setString(6, tenantTable.tenantId());
             ps.setString(7, tenantTable.tableName());
             ps.execute();
@@ -131,7 +131,7 @@ public class TenantTableDao {
           .hashEnd(Optional.ofNullable(rs.getString("HASH_END")))
           .estimatedQuantity(rs.getInt("QUANTITY_EST"))
           .enabled(rs.getBoolean("ENABLED"))
-          .hashingAlgorithm("HASH_ALGO")
+          .tableVersion("HASH_ALGO")
           .build();
     } catch (SQLException e) {
       throw new IllegalArgumentException("Unable to read tenant table", e);

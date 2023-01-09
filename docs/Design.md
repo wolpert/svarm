@@ -65,7 +65,7 @@ Each data node has a table to describe tables it controls. Example:
 - HASH_END: End hash identifier if there is a max hash key allowed.
 - QUANTITY: Estimate number of entries in the table.
 - UUID: The tenants UUID specific to this node.
-- HASH_ALGO: the hash algorithm to use.
+- TABLE_VERSION: The version of table this requires.
 
 One JSON object is broken down into multiple rows in the relational table.
 Each store has a separate table.
@@ -86,6 +86,15 @@ This includes:
 These are used at various points for encryption. All encryption is 
 AES/GCM/SIV. When we use the word 'key', the keys are identified by the UUID
 by are the 256b keys.
+
+### Hashing
+
+The initial key hashing technique will be [Murmur2](https://en.wikipedia.org/wiki/MurmurHash)
+which provides good randomness and executes very fast. Collisions are allowed in
+the lookup strategy, and the 32bit variant is enough of a namespace for us.
+
+(Note that this is still being decided. Other option was [FNV-1a](https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function)
+which does not have the little/big endian issue.)
 
 ### Data storage
 
