@@ -94,7 +94,8 @@ which provides good randomness and executes very fast. Collisions are allowed in
 the lookup strategy, and the 32bit variant is enough of a namespace for us.
 
 (Note that this is still being decided. Other option was [FNV-1a](https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function)
-which does not have the little/big endian issue.)
+which does not have the little/big endian issue. The important thing was multiple
+platforms and languages give the same results.)
 
 ### Data storage
 
