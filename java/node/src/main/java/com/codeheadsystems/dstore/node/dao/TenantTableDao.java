@@ -79,6 +79,38 @@ public class TenantTableDao {
   }
 
   /**
+   * Updates the record with things that can change. (Not the table name or tenant id).
+   *
+   * @param tenantTable that has the new values.
+   * @return the tenant table.
+   */
+  public TenantTable update(final TenantTable tenantTable) {
+    LOGGER.debug("update({})", tenantTable);
+    sqlEngine.executePreparedInternal("update NODE_TENANT_TABLES set HASH_START = ?, HASH_END = ?, QUANTITY_EST = ?, ENABLED = ? where RID_TENANT = ? and TABLE_NAME = ?", (ps) -> {
+      try {
+        ps.setString(5, tenantTable.tenantId());
+        ps.setString(6, tenantTable.tableName());
+        sqlEngine.setStringField(1, tenantTable.hashStart(), ps);
+        sqlEngine.setStringField(2, tenantTable.hashEnd(), ps);
+        ps.setInt(3, tenantTable.estimatedQuantity());
+        ps.setBoolean(4, tenantTable.enabled());
+        ps.execute();
+        if (ps.getUpdateCount() == 0) {
+          LOGGER.warn("No entry to update for {}", tenantTable);
+          throw new IllegalArgumentException("No entry to update");
+        } else if (ps.getUpdateCount() > 2) {
+          LOGGER.error("Oops, this is bad. More than one entry updated. {}", tenantTable);
+          throw new IllegalStateException("Multiple entries updated: " + ps.getUpdateCount());
+        }
+      } catch (SQLException e) {
+        throw new IllegalArgumentException("Unable to read a tenant table", e);
+      }
+      return null;
+    });
+    return tenantTable;
+  }
+
+  /**
    * Reads a tenant from the database result set. Does not advance the cursor.
    *
    * @param rs result set to read from. Must be on a row.
