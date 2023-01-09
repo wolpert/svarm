@@ -58,6 +58,7 @@ class TenantTableDaoTest extends BaseSQLTest {
         .hashEnd(UUID.randomUUID().toString())
         .estimatedQuantity(random.nextInt())
         .enabled(random.nextBoolean())
+        .hashingAlgorithm(UUID.randomUUID().toString())
         .build();
   }
 

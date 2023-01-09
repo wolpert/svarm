@@ -16,67 +16,54 @@
 
 package com.codeheadsystems.dstore.node.model;
 
-import java.util.Optional;
 import org.immutables.value.Value;
 
 /**
- * Meta data about a tenant table.
+ * RID_ID: Indexed, first part of the primary composite key. This is the unique identifier
+ * C_COL: Indexed, second part of the primary composite key.
+ * HASH: The hash value of the RID_ID for mgmt.
+ * C_DATA_TYPE: Enum, either String or Integer.
+ * C_DATA: Nullable String.
  */
 @Value.Immutable
-public interface TenantTable {
+public interface TenantTableEntry {
 
   /**
-   * Identifier of the tenant.
+   * The id of the row/entry.
    *
-   * @return value.
+   * @return String.
    */
-  String tenantId();
+  String id();
 
   /**
-   * Name of the table.
+   * The name of the row column.
    *
-   * @return value.
+   * @return String.
    */
-  String tableName();
+  String column();
 
   /**
-   * The starting hash. Can be null in which it starts at the beginning.
+   * The hash value for the entry. (Based on the id). This is indexed too.
    *
-   * @return value.
-   */
-  @Value.Auxiliary
-  Optional<String> hashStart();
-
-  /**
-   * The ending hash. Can be null in which it finishes at the end.
-   *
-   * @return value.
+   * @return String.
    */
   @Value.Auxiliary
-  Optional<String> hashEnd();
+  String hash();
 
   /**
-   * Number of rows in the table, estimated.
+   * The type of data. Only Integer and String supported.
    *
-   * @return value.
+   * @return String.
    */
   @Value.Auxiliary
-  Integer estimatedQuantity();
+  String dataType();
 
   /**
-   * Identifier if the table is enabled for use. If false, can only be managed.
+   * The data itself.
    *
-   * @return value.
+   * @return String.
    */
   @Value.Auxiliary
-  boolean enabled();
-
-  /**
-   * The hashing algorithm that was used.
-   *
-   * @return value.
-   */
-  @Value.Auxiliary
-  String hashingAlgorithm();
+  String data();
 
 }

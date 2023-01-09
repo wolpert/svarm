@@ -65,6 +65,7 @@ Each data node has a table to describe tables it controls. Example:
 - HASH_END: End hash identifier if there is a max hash key allowed.
 - QUANTITY: Estimate number of entries in the table.
 - UUID: The tenants UUID specific to this node.
+- HASH_ALGO: the hash algorithm to use.
 
 One JSON object is broken down into multiple rows in the relational table.
 Each store has a separate table.

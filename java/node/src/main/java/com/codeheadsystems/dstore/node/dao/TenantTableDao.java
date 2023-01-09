@@ -58,23 +58,26 @@ public class TenantTableDao {
    */
   public TenantTable create(final TenantTable tenantTable) {
     LOGGER.debug("create({})", tenantTable);
-    sqlEngine.executePreparedInternal("insert into NODE_TENANT_TABLES (RID_TENANT,TABLE_NAME,HASH_START,HASH_END, QUANTITY_EST, ENABLED) values (?,?,?,?,?,?)", (ps) -> {
-      try {
-        ps.setString(1, tenantTable.tenantId());
-        ps.setString(2, tenantTable.tableName());
-        sqlEngine.setStringField(3, tenantTable.hashStart(), ps);
-        sqlEngine.setStringField(4, tenantTable.hashEnd(), ps);
-        ps.setInt(5, tenantTable.estimatedQuantity());
-        ps.setBoolean(6, tenantTable.enabled());
-        ps.execute();
-        if (ps.getUpdateCount() != 1) {
-          throw new IllegalArgumentException("Unable to create tenant table");
-        }
-      } catch (SQLException e) {
-        throw new IllegalArgumentException("Unable to read a tenant table", e);
-      }
-      return null;
-    });
+    sqlEngine.executePreparedInternal(
+        "insert into NODE_TENANT_TABLES (RID_TENANT,TABLE_NAME,HASH_START,HASH_END, QUANTITY_EST, ENABLED, HASH_ALGO) values (?,?,?,?,?,?,?)",
+        (ps) -> {
+          try {
+            ps.setString(1, tenantTable.tenantId());
+            ps.setString(2, tenantTable.tableName());
+            sqlEngine.setStringField(3, tenantTable.hashStart(), ps);
+            sqlEngine.setStringField(4, tenantTable.hashEnd(), ps);
+            ps.setInt(5, tenantTable.estimatedQuantity());
+            ps.setBoolean(6, tenantTable.enabled());
+            ps.setString(7, tenantTable.hashingAlgorithm());
+            ps.execute();
+            if (ps.getUpdateCount() != 1) {
+              throw new IllegalArgumentException("Unable to create tenant table");
+            }
+          } catch (SQLException e) {
+            throw new IllegalArgumentException("Unable to read a tenant table", e);
+          }
+          return null;
+        });
     return tenantTable;
   }
 
@@ -86,27 +89,30 @@ public class TenantTableDao {
    */
   public TenantTable update(final TenantTable tenantTable) {
     LOGGER.debug("update({})", tenantTable);
-    sqlEngine.executePreparedInternal("update NODE_TENANT_TABLES set HASH_START = ?, HASH_END = ?, QUANTITY_EST = ?, ENABLED = ? where RID_TENANT = ? and TABLE_NAME = ?", (ps) -> {
-      try {
-        ps.setString(5, tenantTable.tenantId());
-        ps.setString(6, tenantTable.tableName());
-        sqlEngine.setStringField(1, tenantTable.hashStart(), ps);
-        sqlEngine.setStringField(2, tenantTable.hashEnd(), ps);
-        ps.setInt(3, tenantTable.estimatedQuantity());
-        ps.setBoolean(4, tenantTable.enabled());
-        ps.execute();
-        if (ps.getUpdateCount() == 0) {
-          LOGGER.warn("No entry to update for {}", tenantTable);
-          throw new IllegalArgumentException("No entry to update");
-        } else if (ps.getUpdateCount() > 2) {
-          LOGGER.error("Oops, this is bad. More than one entry updated. {}", tenantTable);
-          throw new IllegalStateException("Multiple entries updated: " + ps.getUpdateCount());
-        }
-      } catch (SQLException e) {
-        throw new IllegalArgumentException("Unable to read a tenant table", e);
-      }
-      return null;
-    });
+    sqlEngine.executePreparedInternal(
+        "update NODE_TENANT_TABLES set HASH_START = ?, HASH_END = ?, QUANTITY_EST = ?, ENABLED = ?, HASH_ALGO = ? where RID_TENANT = ? and TABLE_NAME = ?",
+        (ps) -> {
+          try {
+            sqlEngine.setStringField(1, tenantTable.hashStart(), ps);
+            sqlEngine.setStringField(2, tenantTable.hashEnd(), ps);
+            ps.setInt(3, tenantTable.estimatedQuantity());
+            ps.setBoolean(4, tenantTable.enabled());
+            ps.setString(5, tenantTable.hashingAlgorithm());
+            ps.setString(6, tenantTable.tenantId());
+            ps.setString(7, tenantTable.tableName());
+            ps.execute();
+            if (ps.getUpdateCount() == 0) {
+              LOGGER.warn("No entry to update for {}", tenantTable);
+              throw new IllegalArgumentException("No entry to update");
+            } else if (ps.getUpdateCount() > 2) {
+              LOGGER.error("Oops, this is bad. More than one entry updated. {}", tenantTable);
+              throw new IllegalStateException("Multiple entries updated: " + ps.getUpdateCount());
+            }
+          } catch (SQLException e) {
+            throw new IllegalArgumentException("Unable to read a tenant table", e);
+          }
+          return null;
+        });
     return tenantTable;
   }
 
@@ -125,6 +131,7 @@ public class TenantTableDao {
           .hashEnd(Optional.ofNullable(rs.getString("HASH_END")))
           .estimatedQuantity(rs.getInt("QUANTITY_EST"))
           .enabled(rs.getBoolean("ENABLED"))
+          .hashingAlgorithm("HASH_ALGO")
           .build();
     } catch (SQLException e) {
       throw new IllegalArgumentException("Unable to read tenant table", e);
@@ -140,7 +147,8 @@ public class TenantTableDao {
    */
   public Optional<TenantTable> read(final String tenantId, final String tableName) {
     LOGGER.debug("read({},{})", tenantId, tableName);
-    return sqlEngine.executePreparedInternal("select * from NODE_TENANT_TABLES where RID_TENANT = ? and TABLE_NAME = ?",
+    return sqlEngine.executePreparedInternal(
+        "select * from NODE_TENANT_TABLES where RID_TENANT = ? and TABLE_NAME = ?",
         (ps) -> {
           try {
             ps.setString(1, tenantId);

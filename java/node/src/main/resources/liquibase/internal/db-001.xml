@@ -65,6 +65,9 @@
             <column name="ENABLED" type="boolean">
                 <constraints primaryKey="false" nullable="false"/>
             </column>
+            <column name="HASH_ALGO" type="varchar(256)">
+                <constraints primaryKey="false" nullable="false"/>
+            </column>
         </createTable>
     </changeSet>
 </databaseChangeLog>
