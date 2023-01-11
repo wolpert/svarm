@@ -22,6 +22,7 @@ import com.codeheadsystems.dstore.node.module.ConfigurationModule;
 import com.codeheadsystems.dstore.node.module.HealthCheckModule;
 import com.codeheadsystems.dstore.node.module.ResourceModule;
 import com.codeheadsystems.dstore.node.module.StartupModule;
+import com.codeheadsystems.dstore.node.module.TableDefinitionEngineModule;
 import com.codeheadsystems.dstore.node.module.UtilitiesModule;
 import com.codeheadsystems.dstore.node.resource.JerseyResource;
 import com.codeheadsystems.metrics.dagger.MetricsModule;
@@ -41,6 +42,7 @@ import javax.inject.Singleton;
     MetricsModule.class,
     ResourceModule.class,
     StartupModule.class,
+    TableDefinitionEngineModule.class,
     UtilitiesModule.class
 })
 public interface DropWizardComponent {

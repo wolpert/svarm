@@ -19,7 +19,7 @@
   * - C_COL:  Indexed, second part of the primary composite key.
   * - HASH: The hash value of the RID_ID for mgmt.
   * - C_DATA_TYPE: Enum, either String or Integer.
-  * - C_DATA: Nullable String.
+  * - C_DATA: The actual data for that table columm.
   */
 
 create table CUSTOMER_PROVIDED_TABLE_NAME (
@@ -31,4 +31,7 @@ create table CUSTOMER_PROVIDED_TABLE_NAME (
     PRIMARY KEY (RID_ID, C_COL)
 );
 
+/**
+  * This is not a unique index.
+ */
 create index CUSTOMER_PROVIDED_TABLE_NAME_HASH_IDX on CUSTOMER_PROVIDED_TABLE_NAME(HASH);

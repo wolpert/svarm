@@ -35,6 +35,7 @@ dependencies {
     implementation libs.hsqldb
     implementation libs.liquibase.core
     implementation libs.c3p0
+    implementation libs.guava
 
     implementation libs.javax.inject
     implementation libs.dagger
