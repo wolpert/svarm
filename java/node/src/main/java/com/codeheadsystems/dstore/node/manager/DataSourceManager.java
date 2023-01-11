@@ -53,7 +53,7 @@ public class DataSourceManager implements Managed {
 
   private final DatabaseConnectionEngine databaseConnectionEngine;
   private final DatabaseInitializationEngine databaseInitializationEngine;
-  private final LoadingCache<Tenant, DataSource> dataSourceLoadingCache;
+  private final LoadingCache<Tenant, DataSource> tenantDataSourceLoadingCache;
 
   private volatile DataSource internalDataSource = null;
 
@@ -69,7 +69,7 @@ public class DataSourceManager implements Managed {
     LOGGER.info("DataSourceManager({},{})", databaseConnectionEngine, databaseInitializationEngine);
     this.databaseConnectionEngine = databaseConnectionEngine;
     this.databaseInitializationEngine = databaseInitializationEngine;
-    this.dataSourceLoadingCache = CacheBuilder.newBuilder()
+    this.tenantDataSourceLoadingCache = CacheBuilder.newBuilder()
         .maximumSize(1000)
         .removalListener(this::onRemoval)
         .build(CacheLoader.from(this::loadTenant));
@@ -104,7 +104,7 @@ public class DataSourceManager implements Managed {
    * @return the source.
    */
   public DataSource getDataSource(final Tenant tenant) {
-    return dataSourceLoadingCache.getUnchecked(tenant);
+    return tenantDataSourceLoadingCache.getUnchecked(tenant);
   }
 
   /**
@@ -113,7 +113,7 @@ public class DataSourceManager implements Managed {
    * @param tenant to remove.
    */
   public void evictTenant(Tenant tenant) {
-    dataSourceLoadingCache.invalidate(tenant);
+    tenantDataSourceLoadingCache.invalidate(tenant);
   }
 
   /**

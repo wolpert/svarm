@@ -18,12 +18,18 @@ package com.codeheadsystems.dstore.node.manager;
 
 import com.codeheadsystems.dstore.common.crypt.AesGcmSivManager;
 import com.codeheadsystems.dstore.node.dao.TenantDao;
+import com.codeheadsystems.dstore.node.exception.NotFoundException;
 import com.codeheadsystems.dstore.node.model.ImmutableTenant;
 import com.codeheadsystems.dstore.node.model.Tenant;
 import com.codeheadsystems.metrics.Metrics;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+import com.google.common.util.concurrent.UncheckedExecutionException;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.slf4j.Logger;
@@ -40,6 +46,7 @@ public class TenantManager {
   private final Metrics metrics;
   private final TenantDao dao;
   private final AesGcmSivManager aesGcmSivManager;
+  private final LoadingCache<String, Tenant> tenantLoadingCache;
 
   /**
    * Default constructor.
@@ -56,6 +63,9 @@ public class TenantManager {
     this.metrics = metrics;
     this.dao = dao;
     this.aesGcmSivManager = aesGcmSivManager;
+    this.tenantLoadingCache = CacheBuilder.newBuilder()
+        .maximumSize(100)
+        .build(CacheLoader.from(this::load));
   }
 
   /**
@@ -66,7 +76,27 @@ public class TenantManager {
    */
   public Optional<Tenant> get(final String tenantId) {
     LOGGER.debug("get({})", tenantId);
-    return metrics.time("TenantManager.get", () -> dao.read(tenantId));
+    try {
+      return Optional.of(tenantLoadingCache.get(tenantId));
+    } catch (NotFoundException nfe) {
+      LOGGER.debug("Tenant not found (unchecked): {}", tenantId);
+      return Optional.empty();
+    } catch (ExecutionException | UncheckedExecutionException e) {
+      final Throwable cause = e.getCause();
+      if (cause instanceof NotFoundException) {
+        LOGGER.debug("Tenant not found (checked): {}", tenantId);
+        return Optional.empty();
+      } else {
+        LOGGER.error("Loading tenant failed", cause);
+        throw new RuntimeException(e);
+      }
+    }
+  }
+
+  private Tenant load(final String tenantId) {
+    LOGGER.debug("load({})", tenantId);
+    final Optional<Tenant> tenant = metrics.time("TenantManager.load", () -> dao.read(tenantId));
+    return tenant.orElseThrow(() -> new NotFoundException("No such tenant: " + tenantId));
   }
 
   /**
@@ -110,7 +140,9 @@ public class TenantManager {
    */
   public boolean delete(final String tenantId) {
     LOGGER.debug("delete({})", tenantId);
-    return metrics.time("TenantManager.tenants", () -> dao.delete(tenantId));
+    final boolean result = metrics.time("TenantManager.tenants", () -> dao.delete(tenantId));
+    tenantLoadingCache.invalidate(tenantId);
+    return result;
   }
 
 }

@@ -97,7 +97,7 @@ the lookup strategy, and the 32bit variant is enough of a namespace for us.
 which does not have the little/big endian issue. The important thing was multiple
 platforms and languages give the same results.)
 
-### Data storage
+### Data storage encryption
 
 When a node is started up, a 32bit key is created and store locally. When
 a node connects to the control plane, a second 32bit key is retrieved from
@@ -117,6 +117,19 @@ also supplies an unique identifier (UUID) to the node when it connects.
 The two UUIDs are hashed together which generates the AES256 key used to 
 encrypt/decrypt the tables. (The mechanism to add a data node to a control plane
 will be documented in the control plane flow.)
+
+### Physical tables
+
+Initially, the node implementation is a separate datasource instance per Tenant table.
+The reasons to do this includes:
+1. Easy cleanup by file deletion.
+2. Liquibase can be used without having to worry about different table names.
+3. Overhead is minor
+4. Quick to build. 
+
+I have a feeling this will need to change in the future, but I'd like to get
+to that point. Is this tech debt? Not necessarily. This seems like a good way
+to use HSQLDB at this point. Folks with a better idea are welcome to comment.
 
 ## Control
 
