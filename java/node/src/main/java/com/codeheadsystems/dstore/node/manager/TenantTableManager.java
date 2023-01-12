@@ -16,11 +16,14 @@
 
 package com.codeheadsystems.dstore.node.manager;
 
+import com.codeheadsystems.dstore.common.crypt.AesGcmSivManager;
 import com.codeheadsystems.dstore.node.dao.TenantTableDao;
+import com.codeheadsystems.dstore.node.engine.TableDefinitionEngine;
 import com.codeheadsystems.dstore.node.model.ImmutableTenantTable;
 import com.codeheadsystems.dstore.node.model.TenantTable;
 import com.codeheadsystems.metrics.Metrics;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -37,19 +40,27 @@ public class TenantTableManager {
 
   private final Metrics metrics;
   private final TenantTableDao dao;
+  private final AesGcmSivManager aesGcmSivManager;
+  private final Map<String, TableDefinitionEngine> tableDefinitionEngineMap;
 
   /**
    * Default constructor.
    *
-   * @param metrics to use.
-   * @param dao     to use.
+   * @param metrics                  to use.
+   * @param dao                      to use.
+   * @param aesGcmSivManager         to crypt controls.
+   * @param tableDefinitionEngineMap map of available engines.
    */
   @Inject
   public TenantTableManager(final Metrics metrics,
-                            final TenantTableDao dao) {
-    LOGGER.info("TenantManager({},{})", metrics, dao);
+                            final TenantTableDao dao,
+                            final AesGcmSivManager aesGcmSivManager,
+                            final Map<String, TableDefinitionEngine> tableDefinitionEngineMap) {
+    LOGGER.info("TenantManager({},{},{},{})", metrics, dao, aesGcmSivManager, tableDefinitionEngineMap);
     this.metrics = metrics;
     this.dao = dao;
+    this.aesGcmSivManager = aesGcmSivManager;
+    this.tableDefinitionEngineMap = tableDefinitionEngineMap;
   }
 
   /**
@@ -60,7 +71,7 @@ public class TenantTableManager {
    * @return the tenant.
    */
   public Optional<TenantTable> get(final String tenantId, final String tableName) {
-    LOGGER.debug("get({},{})", tenantId, tableName);
+    LOGGER.debug("get({}, {})", tenantId, tableName);
     return metrics.time("TenantTableManager.get", () -> dao.read(tenantId, tableName));
   }
 
@@ -68,23 +79,31 @@ public class TenantTableManager {
    * Created the tenant table. If it already exists, simply return the one we already have. Idempotent. Does not set the
    * hash values.
    *
-   * @param tenantId  tenant to create.
-   * @param tableName table name to create.
+   * @param tenantId     tenant to create.
+   * @param tableName    table name to create.
+   * @param tableVersion the version of the table we are creating.
    * @return a tenant.
    */
-  public TenantTable create(final String tenantId, final String tableName) {
-    LOGGER.debug("create({})", tenantId);
+  public TenantTable create(final String tenantId, final String tableName, final String tableVersion) {
+    LOGGER.debug("create({}, {}, {})", tenantId, tableName, tableVersion);
     return get(tenantId, tableName).orElseGet(() ->
-        metrics.time("TenantTableManager.create", () -> dao.create(buildTenantTable(tenantId, tableName))));
+        metrics.time("TenantTableManager.create",
+            () -> dao.create(buildTenantTable(tenantId, tableName, tableVersion))));
   }
 
-  private TenantTable buildTenantTable(final String tenantId, final String tableName) {
-    LOGGER.debug("buildTenantTable({}, {})", tenantId, tableName);
+  private TenantTable buildTenantTable(final String tenantId, final String tableName, final String tableVersion) {
+    LOGGER.debug("buildTenantTable({}, {}, {})", tenantId, tableName, tableVersion);
+    if (!tableDefinitionEngineMap.containsKey(tableVersion)) {
+      throw new IllegalArgumentException("Unknown table version: " + tableVersion);
+    }
     return ImmutableTenantTable.builder()
         .tenantId(tenantId)
         .tableName(tableName)
         .enabled(true)
         .estimatedQuantity(0)
+        .tableVersion(tableVersion)
+        .key(aesGcmSivManager.randomKeyBase64Encoded())
+        .nonce(aesGcmSivManager.randomNonceBase64Encoded())
         .build();
   }
 
@@ -95,7 +114,7 @@ public class TenantTableManager {
    * @return a list of tables.
    */
   public List<String> tables(final String tenantId) {
-    LOGGER.debug("tables()");
+    LOGGER.debug("tables({})", tenantId);
     return metrics.time("TenantTableManager.tenants", () -> dao.allTenantTables(tenantId));
   }
 
@@ -108,8 +127,8 @@ public class TenantTableManager {
    * @return boolean if deleted or not.
    */
   public boolean delete(final String tenantId, final String tableName) {
-    LOGGER.debug("delete({},{})", tenantId, tableName);
-    return metrics.time("TenantTableManager.tenants", () -> dao.delete(tenantId, tableName));
+    LOGGER.debug("delete({}, {})", tenantId, tableName);
+    return metrics.time("TenantTableManager.delete", () -> dao.delete(tenantId, tableName));
   }
 
 }

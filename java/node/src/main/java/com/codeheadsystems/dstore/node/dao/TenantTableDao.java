@@ -59,7 +59,7 @@ public class TenantTableDao {
   public TenantTable create(final TenantTable tenantTable) {
     LOGGER.debug("create({})", tenantTable);
     sqlEngine.executePreparedInternal(
-        "insert into NODE_TENANT_TABLES (RID_TENANT,TABLE_NAME,HASH_START,HASH_END, QUANTITY_EST, ENABLED, TABLE_VERSION) values (?,?,?,?,?,?,?)",
+        "insert into NODE_TENANT_TABLES (RID_TENANT,TABLE_NAME,HASH_START,HASH_END, QUANTITY_EST, ENABLED, TABLE_VERSION, KEY, NONCE) values (?,?,?,?,?,?,?,?,?)",
         (ps) -> {
           try {
             ps.setString(1, tenantTable.tenantId());
@@ -69,6 +69,8 @@ public class TenantTableDao {
             ps.setInt(5, tenantTable.estimatedQuantity());
             ps.setBoolean(6, tenantTable.enabled());
             ps.setString(7, tenantTable.tableVersion());
+            ps.setString(8, tenantTable.key());
+            ps.setString(9, tenantTable.nonce());
             ps.execute();
             if (ps.getUpdateCount() != 1) {
               throw new IllegalArgumentException("Unable to create tenant table");
@@ -90,7 +92,7 @@ public class TenantTableDao {
   public TenantTable update(final TenantTable tenantTable) {
     LOGGER.debug("update({})", tenantTable);
     sqlEngine.executePreparedInternal(
-        "update NODE_TENANT_TABLES set HASH_START = ?, HASH_END = ?, QUANTITY_EST = ?, ENABLED = ?, TABLE_VERSION = ? where RID_TENANT = ? and TABLE_NAME = ?",
+        "update NODE_TENANT_TABLES set HASH_START = ?, HASH_END = ?, QUANTITY_EST = ?, ENABLED = ?, TABLE_VERSION = ? where RID_TENANT = ? and TABLE_NAME = ? and KEY = ? and NONCE = ?",
         (ps) -> {
           try {
             sqlEngine.setStringField(1, tenantTable.hashStart(), ps);
@@ -100,6 +102,8 @@ public class TenantTableDao {
             ps.setString(5, tenantTable.tableVersion());
             ps.setString(6, tenantTable.tenantId());
             ps.setString(7, tenantTable.tableName());
+            ps.setString(8, tenantTable.key());
+            ps.setString(9, tenantTable.nonce());
             ps.execute();
             if (ps.getUpdateCount() == 0) {
               LOGGER.warn("No entry to update for {}", tenantTable);
@@ -132,6 +136,8 @@ public class TenantTableDao {
           .estimatedQuantity(rs.getInt("QUANTITY_EST"))
           .enabled(rs.getBoolean("ENABLED"))
           .tableVersion("HASH_ALGO")
+          .key("KEY")
+          .nonce("NONCE")
           .build();
     } catch (SQLException e) {
       throw new IllegalArgumentException("Unable to read tenant table", e);

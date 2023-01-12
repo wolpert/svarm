@@ -68,6 +68,12 @@
             <column name="TABLE_VERSION" type="varchar(256)">
                 <constraints primaryKey="false" nullable="false"/>
             </column>
+            <column name="KEY" type="varchar(256)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="NONCE" type="varchar(256)">
+                <constraints nullable="false"/>
+            </column>
         </createTable>
     </changeSet>
 </databaseChangeLog>

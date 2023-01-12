@@ -79,4 +79,19 @@ public interface TenantTable {
   @Value.Auxiliary
   String tableVersion();
 
+  /**
+   * Key of the tenant. This is our local key, not the key from the control plane.
+   *
+   * @return value.
+   */
+  @Value.Auxiliary
+  String key();
+
+  /**
+   * Nonce of the tenant database. This is our local key.
+   *
+   * @return value.
+   */
+  @Value.Auxiliary
+  String nonce();
 }

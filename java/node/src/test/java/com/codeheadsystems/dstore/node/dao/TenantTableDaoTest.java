@@ -59,6 +59,8 @@ class TenantTableDaoTest extends BaseSQLTest {
         .estimatedQuantity(random.nextInt())
         .enabled(random.nextBoolean())
         .tableVersion(UUID.randomUUID().toString())
+        .key(UUID.randomUUID().toString())
+        .nonce(UUID.randomUUID().toString())
         .build();
   }
 
