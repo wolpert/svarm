@@ -25,6 +25,17 @@ import org.immutables.value.Value;
 public interface TenantTableIdentifier {
 
   /**
+   * Helper method to create an identifier.
+   *
+   * @param tenantId  to use.
+   * @param tableName to use.
+   * @return the identifier.
+   */
+  static TenantTableIdentifier from(final String tenantId, final String tableName) {
+    return ImmutableTenantTableIdentifier.builder().tenantId(tenantId).tableName(tableName).build();
+  }
+
+  /**
    * Identifier of the tenant.
    *
    * @return value.

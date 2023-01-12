@@ -19,14 +19,20 @@ package com.codeheadsystems.dstore.node.manager;
 import com.codeheadsystems.dstore.common.crypt.AesGcmSivManager;
 import com.codeheadsystems.dstore.node.dao.TenantTableDao;
 import com.codeheadsystems.dstore.node.engine.TableDefinitionEngine;
+import com.codeheadsystems.dstore.node.exception.NotFoundException;
 import com.codeheadsystems.dstore.node.model.ImmutableTenantTable;
 import com.codeheadsystems.dstore.node.model.ImmutableTenantTableIdentifier;
 import com.codeheadsystems.dstore.node.model.TenantTable;
 import com.codeheadsystems.dstore.node.model.TenantTableIdentifier;
 import com.codeheadsystems.metrics.Metrics;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+import com.google.common.util.concurrent.UncheckedExecutionException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.slf4j.Logger;
@@ -44,6 +50,7 @@ public class TenantTableManager {
   private final TenantTableDao dao;
   private final AesGcmSivManager aesGcmSivManager;
   private final Map<String, TableDefinitionEngine> tableDefinitionEngineMap;
+  private final LoadingCache<TenantTableIdentifier, TenantTable> tenantTableCacheLoader;
 
   /**
    * Default constructor.
@@ -63,6 +70,9 @@ public class TenantTableManager {
     this.dao = dao;
     this.aesGcmSivManager = aesGcmSivManager;
     this.tableDefinitionEngineMap = tableDefinitionEngineMap;
+    tenantTableCacheLoader = CacheBuilder.newBuilder()
+        .maximumSize(100)
+        .build(CacheLoader.from(this::load));
   }
 
   /**
@@ -74,7 +84,27 @@ public class TenantTableManager {
    */
   public Optional<TenantTable> get(final String tenantId, final String tableName) {
     LOGGER.debug("get({}, {})", tenantId, tableName);
-    return metrics.time("TenantTableManager.get", () -> dao.read(tenantId, tableName));
+    final TenantTableIdentifier identifier = TenantTableIdentifier.from(tenantId, tableName);
+    try {
+      return Optional.of(tenantTableCacheLoader.get(identifier));
+    } catch (NotFoundException nfe) {
+      LOGGER.debug("Tenant not found (unchecked): {}", tenantId);
+      return Optional.empty();
+    } catch (ExecutionException | UncheckedExecutionException e) {
+      final Throwable cause = e.getCause();
+      if (cause instanceof NotFoundException) {
+        LOGGER.debug("Tenant not found (checked): {}", tenantId);
+        return Optional.empty();
+      } else {
+        LOGGER.error("Loading tenant failed", cause);
+        throw new RuntimeException(e);
+      }
+    }
+  }
+
+  private TenantTable load(final TenantTableIdentifier identifier) {
+    return metrics.time("TenantTableManager.load", () -> dao.read(identifier.tenantId(), identifier.tableName()))
+        .orElseThrow(() -> new NotFoundException("No such tenant table: " + identifier));
   }
 
   /**
