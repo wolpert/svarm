@@ -20,7 +20,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.codeheadsystems.dstore.node.BaseSQLTest;
 import com.codeheadsystems.dstore.node.model.ImmutableTenantTable;
+import com.codeheadsystems.dstore.node.model.ImmutableTenantTableIdentifier;
 import com.codeheadsystems.dstore.node.model.TenantTable;
+import com.codeheadsystems.dstore.node.model.TenantTableIdentifier;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
@@ -51,9 +53,12 @@ class TenantTableDaoTest extends BaseSQLTest {
   }
 
   private static TenantTable randomTenantTable(final String tenantId) {
-    return ImmutableTenantTable.builder()
+    final TenantTableIdentifier identifier = ImmutableTenantTableIdentifier.builder()
         .tenantId(tenantId)
         .tableName(UUID.randomUUID().toString())
+        .build();
+    return ImmutableTenantTable.builder()
+        .identifier(identifier)
         .hashStart(UUID.randomUUID().toString())
         .hashEnd(UUID.randomUUID().toString())
         .estimatedQuantity(random.nextInt())
@@ -72,30 +77,30 @@ class TenantTableDaoTest extends BaseSQLTest {
   @ParameterizedTest
   @MethodSource("tenantTables")
   void roundTripWithTenants(final TenantTable tenantTable) {
-    assertThat(dao.read(tenantTable.tenantId(), tenantTable.tableName())).isEmpty();
+    assertThat(dao.read(tenantTable.identifier().tenantId(), tenantTable.identifier().tableName())).isEmpty();
     assertThat(dao.create(tenantTable)).isEqualTo(tenantTable);
-    assertThat(dao.read(tenantTable.tenantId(), tenantTable.tableName())).isPresent().contains(tenantTable);
+    assertThat(dao.read(tenantTable.identifier().tenantId(), tenantTable.identifier().tableName())).isPresent().contains(tenantTable);
   }
 
   @Test
   void testUpdates() {
     final TenantTable tt1 = randomTenantTable();
     dao.create(tt1);
-    assertThat(dao.read(tt1.tenantId(), tt1.tableName())).isPresent().contains(tt1);
+    assertThat(dao.read(tt1.identifier().tenantId(), tt1.identifier().tableName())).isPresent().contains(tt1);
     final TenantTable tt2 = ImmutableTenantTable.copyOf(tt1).withHashEnd(Optional.empty()).withHashStart(Optional.empty());
     dao.update(tt2);
-    assertThat(dao.read(tt1.tenantId(), tt1.tableName())).isPresent().contains(tt2);
+    assertThat(dao.read(tt1.identifier().tenantId(), tt1.identifier().tableName())).isPresent().contains(tt2);
     final TenantTable tt3 = ImmutableTenantTable.copyOf(tt1).withHashEnd(Optional.of(UUID.randomUUID().toString())).withHashStart(Optional.of(UUID.randomUUID().toString()));
     dao.update(tt3);
-    assertThat(dao.read(tt1.tenantId(), tt1.tableName())).isPresent().contains(tt3);
+    assertThat(dao.read(tt1.identifier().tenantId(), tt1.identifier().tableName())).isPresent().contains(tt3);
   }
 
   @Test
   void roundTrip() {
     final TenantTable tenantTable = randomTenantTable();
-    assertThat(dao.read(tenantTable.tenantId(), tenantTable.tableName())).isEmpty();
+    assertThat(dao.read(tenantTable.identifier().tenantId(), tenantTable.identifier().tableName())).isEmpty();
     assertThat(dao.create(tenantTable)).isEqualTo(tenantTable);
-    assertThat(dao.read(tenantTable.tenantId(), tenantTable.tableName())).isPresent().contains(tenantTable);
+    assertThat(dao.read(tenantTable.identifier().tenantId(), tenantTable.identifier().tableName())).isPresent().contains(tenantTable);
   }
 
   @Test
@@ -103,15 +108,15 @@ class TenantTableDaoTest extends BaseSQLTest {
     final String tenantId = UUID.randomUUID().toString();
     final List<TenantTable> tenants = List.of(randomTenantTable(tenantId), randomTenantTable(tenantId), randomTenantTable(tenantId));
     tenants.forEach(dao::create);
-    final List<String> tableNames = tenants.stream().map(TenantTable::tableName).toList();
+    final List<String> tableNames = tenants.stream().map(TenantTable::identifier).map(TenantTableIdentifier::tableName).toList();
     assertThat(dao.allTenantTables(tenantId)).containsOnlyOnceElementsOf(tableNames);
   }
 
   @Test
   void delete() {
     final TenantTable tenantTable = randomTenantTable();
-    assertThat(dao.delete(tenantTable.tenantId(), tenantTable.tableName())).isFalse();
+    assertThat(dao.delete(tenantTable.identifier().tenantId(), tenantTable.identifier().tableName())).isFalse();
     dao.create(tenantTable);
-    assertThat(dao.delete(tenantTable.tenantId(), tenantTable.tableName())).isTrue();
+    assertThat(dao.delete(tenantTable.identifier().tenantId(), tenantTable.identifier().tableName())).isTrue();
   }
 }

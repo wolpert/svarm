@@ -18,7 +18,9 @@ package com.codeheadsystems.dstore.node.dao;
 
 import com.codeheadsystems.dstore.node.engine.SqlEngine;
 import com.codeheadsystems.dstore.node.model.ImmutableTenantTable;
+import com.codeheadsystems.dstore.node.model.ImmutableTenantTableIdentifier;
 import com.codeheadsystems.dstore.node.model.TenantTable;
+import com.codeheadsystems.dstore.node.model.TenantTableIdentifier;
 import com.google.common.collect.ImmutableList;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -62,8 +64,8 @@ public class TenantTableDao {
         "insert into NODE_TENANT_TABLES (RID_TENANT,TABLE_NAME,HASH_START,HASH_END, QUANTITY_EST, ENABLED, TABLE_VERSION, KEY, NONCE) values (?,?,?,?,?,?,?,?,?)",
         (ps) -> {
           try {
-            ps.setString(1, tenantTable.tenantId());
-            ps.setString(2, tenantTable.tableName());
+            ps.setString(1, tenantTable.identifier().tenantId());
+            ps.setString(2, tenantTable.identifier().tableName());
             sqlEngine.setStringField(3, tenantTable.hashStart(), ps);
             sqlEngine.setStringField(4, tenantTable.hashEnd(), ps);
             ps.setInt(5, tenantTable.estimatedQuantity());
@@ -100,8 +102,8 @@ public class TenantTableDao {
             ps.setInt(3, tenantTable.estimatedQuantity());
             ps.setBoolean(4, tenantTable.enabled());
             ps.setString(5, tenantTable.tableVersion());
-            ps.setString(6, tenantTable.tenantId());
-            ps.setString(7, tenantTable.tableName());
+            ps.setString(6, tenantTable.identifier().tenantId());
+            ps.setString(7, tenantTable.identifier().tableName());
             ps.setString(8, tenantTable.key());
             ps.setString(9, tenantTable.nonce());
             ps.execute();
@@ -128,9 +130,12 @@ public class TenantTableDao {
    */
   private TenantTable fromResultSet(final ResultSet rs) {
     try {
-      return ImmutableTenantTable.builder()
+      final TenantTableIdentifier identifier = ImmutableTenantTableIdentifier.builder()
           .tenantId(rs.getString("RID_TENANT"))
           .tableName(rs.getString("TABLE_NAME"))
+          .build();
+      return ImmutableTenantTable.builder()
+          .identifier(identifier)
           .hashStart(Optional.ofNullable(rs.getString("HASH_START")))
           .hashEnd(Optional.ofNullable(rs.getString("HASH_END")))
           .estimatedQuantity(rs.getInt("QUANTITY_EST"))

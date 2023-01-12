@@ -26,18 +26,11 @@ import org.immutables.value.Value;
 public interface TenantTable {
 
   /**
-   * Identifier of the tenant.
+   * The identifier for this tenant table.
    *
-   * @return value.
+   * @return identifier.
    */
-  String tenantId();
-
-  /**
-   * Name of the table.
-   *
-   * @return value.
-   */
-  String tableName();
+  TenantTableIdentifier identifier();
 
   /**
    * The starting hash. Can be null in which it starts at the beginning.

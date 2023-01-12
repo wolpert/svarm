@@ -46,7 +46,7 @@ public class DataSourceManager implements Managed {
   /**
    * Identifier for tenant liquibase files.
    */
-  public static final String TENANT = "liquibase/tenant";
+  public static final String TENANT = "liquibase/V1SingleEntryEngine";
   private static final Logger LOGGER = LoggerFactory.getLogger(DataSourceManager.class);
   private static final int INTERNAL_MIN_POOL_SIZE = 1;
   private static final int TENANT_MIN_POOL_SIZE = 0;

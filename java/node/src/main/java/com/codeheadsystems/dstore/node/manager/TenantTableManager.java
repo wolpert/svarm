@@ -20,7 +20,9 @@ import com.codeheadsystems.dstore.common.crypt.AesGcmSivManager;
 import com.codeheadsystems.dstore.node.dao.TenantTableDao;
 import com.codeheadsystems.dstore.node.engine.TableDefinitionEngine;
 import com.codeheadsystems.dstore.node.model.ImmutableTenantTable;
+import com.codeheadsystems.dstore.node.model.ImmutableTenantTableIdentifier;
 import com.codeheadsystems.dstore.node.model.TenantTable;
+import com.codeheadsystems.dstore.node.model.TenantTableIdentifier;
 import com.codeheadsystems.metrics.Metrics;
 import java.util.List;
 import java.util.Map;
@@ -96,9 +98,12 @@ public class TenantTableManager {
     if (!tableDefinitionEngineMap.containsKey(tableVersion)) {
       throw new IllegalArgumentException("Unknown table version: " + tableVersion);
     }
-    return ImmutableTenantTable.builder()
+    final TenantTableIdentifier identifier = ImmutableTenantTableIdentifier.builder()
         .tenantId(tenantId)
         .tableName(tableName)
+        .build();
+    return ImmutableTenantTable.builder()
+        .identifier(identifier)
         .enabled(true)
         .estimatedQuantity(0)
         .tableVersion(tableVersion)

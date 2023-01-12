@@ -76,11 +76,12 @@ class TenantTableManagerTest extends BaseMetricTest {
     when(dao.create(tenantTableArgumentCaptor.capture())).thenReturn(tenantTable);
     assertThat(manager.create(TENANT_ID, TABLE_NAME, ENGINE)).isEqualTo(tenantTable);
     assertThat(tenantTableArgumentCaptor.getValue())
-        .hasFieldOrPropertyWithValue("tenantId", TENANT_ID)
-        .hasFieldOrPropertyWithValue("tableName", TABLE_NAME)
         .hasFieldOrPropertyWithValue("tableVersion", ENGINE)
         .hasFieldOrPropertyWithValue("key", KEY)
-        .hasFieldOrPropertyWithValue("nonce", NONCE);
+        .hasFieldOrPropertyWithValue("nonce", NONCE)
+        .extracting("identifier")
+        .hasFieldOrPropertyWithValue("tenantId", TENANT_ID)
+        .hasFieldOrPropertyWithValue("tableName", TABLE_NAME);
   }
 
   @Test
