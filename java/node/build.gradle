@@ -31,7 +31,6 @@ checkstyle {
 
 dependencies {
     implementation project(":common")
-    implementation project(":tiny-orm")
     implementation libs.hsqldb
     implementation libs.liquibase.core
     implementation libs.c3p0
