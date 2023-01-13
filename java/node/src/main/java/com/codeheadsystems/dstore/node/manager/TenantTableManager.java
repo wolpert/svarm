@@ -51,6 +51,7 @@ public class TenantTableManager {
   private final AesGcmSivManager aesGcmSivManager;
   private final Map<String, TableDefinitionEngine> tableDefinitionEngineMap;
   private final LoadingCache<TenantTableIdentifier, TenantTable> tenantTableCacheLoader;
+  private final DataSourceManager dataSourceManager;
 
   /**
    * Default constructor.
@@ -59,12 +60,15 @@ public class TenantTableManager {
    * @param dao                      to use.
    * @param aesGcmSivManager         to crypt controls.
    * @param tableDefinitionEngineMap map of available engines.
+   * @param dataSourceManager        to ensure the data source exists.
    */
   @Inject
   public TenantTableManager(final Metrics metrics,
                             final TenantTableDao dao,
                             final AesGcmSivManager aesGcmSivManager,
-                            final Map<String, TableDefinitionEngine> tableDefinitionEngineMap) {
+                            final Map<String, TableDefinitionEngine> tableDefinitionEngineMap,
+                            final DataSourceManager dataSourceManager) {
+    this.dataSourceManager = dataSourceManager;
     LOGGER.info("TenantManager({},{},{},{})", metrics, dao, aesGcmSivManager, tableDefinitionEngineMap);
     this.metrics = metrics;
     this.dao = dao;
@@ -120,7 +124,7 @@ public class TenantTableManager {
     LOGGER.debug("create({}, {}, {})", tenantId, tableName, tableVersion);
     return get(tenantId, tableName).orElseGet(() ->
         metrics.time("TenantTableManager.create",
-            () -> dao.create(buildTenantTable(tenantId, tableName, tableVersion))));
+            () -> buildTenantTable(tenantId, tableName, tableVersion)));
   }
 
   private TenantTable buildTenantTable(final String tenantId, final String tableName, final String tableVersion) {
@@ -132,7 +136,7 @@ public class TenantTableManager {
         .tenantId(tenantId)
         .tableName(tableName)
         .build();
-    return ImmutableTenantTable.builder()
+    final TenantTable tenantTable = ImmutableTenantTable.builder()
         .identifier(identifier)
         .enabled(true)
         .estimatedQuantity(0)
@@ -140,6 +144,15 @@ public class TenantTableManager {
         .key(aesGcmSivManager.randomKeyBase64Encoded())
         .nonce(aesGcmSivManager.randomNonceBase64Encoded())
         .build();
+    try {
+      final TenantTable result = dao.create(tenantTable);
+      dataSourceManager.getDataSource(tenantTable);
+      return result;
+    } catch (RuntimeException re) {
+      LOGGER.error("Unable to create data source for {}, destroying", tenantTable);
+      dao.delete(tenantId, tableName);
+      throw re;
+    }
   }
 
   /**

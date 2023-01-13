@@ -21,18 +21,17 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
 		http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
-    <!--
-        - RID_ID: Indexed, first part of the primary composite key.
-        - C_COL:  Indexed, second part of the primary composite key.
-        - C_DATA_TYPE: Enum, either String or Integer.
-        - C_DATA: Nullable String.
-    -->
+        <changeSet  id="2023-01-13-001"  author="wolpert">
+            <createTable  tableName="TENANT_DATA">
+                <column  name="ID"  type="varchar(256)"><constraints  primaryKey="true"  nullable="false"/></column>
+                <column  name="C_COL"  type="varchar(256)"><constraints primaryKey="true"  nullable="false"/></column>
+                <column  name="HASH"  type="bigint"><constraints  nullable="false"/></column>
+                <column  name="C_DATA_TYPE"  type="varchar(256)"><constraints  nullable="false"/></column>
+                <column  name="C_DATA"  type="varchar(4096)"><constraints  nullable="false"/></column>
+            </createTable>
+            <createIndex tableName="TENANT_DATA" indexName="TENANT_DATA_HASH_IDX" unique="false">
+                <column name="HASH"/>
+            </createIndex>
+        </changeSet>
 
-    <!--    <changeSet  id="1"  author="wolpert">-->
-    <!--        <createTable  tableName="NODE_INTERNAL">-->
-    <!--            <column  name="RID_TABLE"  type="varchar(256)"><constraints  primaryKey="true"  nullable="false"/></column>-->
-    <!--            <column  name="C_COL"  type="varchar(256)"><constraints  nullable="false"/></column>-->
-    <!--            <column  name="C_DATA_TYPE"  type="varchar(256)"><constraints  nullable="false"/></column>-->
-    <!--        </createTable>-->
-    <!--    </changeSet>-->
 </databaseChangeLog>

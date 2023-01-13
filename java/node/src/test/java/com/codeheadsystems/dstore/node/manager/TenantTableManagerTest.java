@@ -50,6 +50,7 @@ class TenantTableManagerTest extends BaseMetricTest {
   @Mock private Tenant tenant;
   @Mock private TenantTable tenantTable;
   @Mock private List<String> list;
+  @Mock private DataSourceManager dataSourceManager;
   @Captor private ArgumentCaptor<Tenant> tenantArgumentCaptor;
   @Captor private ArgumentCaptor<TenantTable> tenantTableArgumentCaptor;
   @Captor private ArgumentCaptor<String> stringArgumentCaptor;
@@ -60,7 +61,7 @@ class TenantTableManagerTest extends BaseMetricTest {
   @BeforeEach
   void setup() {
     tableDefinitionEngineMap = Map.of(ENGINE, engine);
-    manager = new TenantTableManager(metrics, dao, aesManager, tableDefinitionEngineMap);
+    manager = new TenantTableManager(metrics, dao, aesManager, tableDefinitionEngineMap, dataSourceManager);
   }
 
   @Test

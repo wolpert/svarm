@@ -46,7 +46,7 @@ class DatabaseInitializationEngineTest {
     return Stream.of(
         Arguments.of("liquibasetest", new String[]{"DATABASECHANGELOGLOCK", "DATABASECHANGELOG", "PERSON", "OTHERTABLE"}),
         Arguments.of(INTERNAL, new String[]{"DATABASECHANGELOGLOCK", "DATABASECHANGELOG", "NODE_TENANT", "NODE_TENANT_TABLES"}),
-        Arguments.of(TENANT, new String[]{"DATABASECHANGELOGLOCK", "DATABASECHANGELOG"})
+        Arguments.of(TENANT, new String[]{"DATABASECHANGELOGLOCK", "DATABASECHANGELOG", "TENANT_DATA"})
     );
   }
 
