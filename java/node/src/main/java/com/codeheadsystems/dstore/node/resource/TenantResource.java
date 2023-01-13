@@ -42,7 +42,7 @@ import org.slf4j.LoggerFactory;
  * Resource for the tenant requests. (Control plane)
  */
 @Singleton
-@Path("/v1")
+@Path("/v1/tenant")
 public class TenantResource implements JerseyResource {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(TenantResource.class);
@@ -73,7 +73,7 @@ public class TenantResource implements JerseyResource {
   @Timed
   @ExceptionMetered
   @ResponseMetered
-  @Path("/tenant")
+  @Path("/")
   @Produces(MediaType.APPLICATION_JSON)
   public List<String> list() {
     return tenantManager.tenants();
@@ -89,7 +89,7 @@ public class TenantResource implements JerseyResource {
   @Timed
   @ExceptionMetered
   @ResponseMetered
-  @Path("/tenant/{tenant}")
+  @Path("/{tenant}")
   @Produces(MediaType.APPLICATION_JSON)
   public Optional<TenantInfo> read(@PathParam("tenant") final String tenant) {
     return tenantManager.get(tenant)
@@ -106,7 +106,7 @@ public class TenantResource implements JerseyResource {
   @Timed
   @ExceptionMetered
   @ResponseMetered
-  @Path("/tenant/{tenant}")
+  @Path("/{tenant}")
   @Produces(MediaType.APPLICATION_JSON)
   public TenantInfo create(@PathParam("tenant") final String tenantId) {
     final Tenant tenant = tenantManager.create(tenantId);
@@ -124,7 +124,7 @@ public class TenantResource implements JerseyResource {
   @Timed
   @ExceptionMetered
   @ResponseMetered
-  @Path("/tenant/{tenant}")
+  @Path("/{tenant}")
   public Response delete(@PathParam("tenant") final String tenant) {
     if (tenantManager.delete(tenant)) {
       return Response.noContent().build();

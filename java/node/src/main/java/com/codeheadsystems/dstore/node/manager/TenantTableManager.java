@@ -113,6 +113,18 @@ public class TenantTableManager {
 
   /**
    * Created the tenant table. If it already exists, simply return the one we already have. Idempotent. Does not set the
+   * hash values. Uses the default tenant table identifier.
+   *
+   * @param tenantId  tenant to create.
+   * @param tableName table name to create.
+   * @return a tenant.
+   */
+  public TenantTable create(final String tenantId, final String tableName) {
+    return this.create(tenantId, tableName, TableDefinitionEngine.V1SingleEntryEngine.DEFINITION_NAME);
+  }
+
+  /**
+   * Created the tenant table. If it already exists, simply return the one we already have. Idempotent. Does not set the
    * hash values.
    *
    * @param tenantId     tenant to create.
