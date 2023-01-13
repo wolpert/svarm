@@ -22,6 +22,8 @@ import com.codeheadsystems.dstore.common.crypt.CryptUtils;
 import com.codeheadsystems.dstore.node.NodeConfiguration;
 import com.codeheadsystems.dstore.node.manager.ControlPlaneManager;
 import com.codeheadsystems.dstore.node.model.NodeInternalConfiguration;
+import com.codeheadsystems.dstore.node.model.TenantTable;
+import com.codeheadsystems.dstore.node.model.TenantTableIdentifier;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -99,18 +101,16 @@ public class DatabaseConnectionEngine {
   /**
    * Gets the connection URL for the tenant.
    *
-   * @param tenantId    to use.
-   * @param tenantKey   to use with the one from the control plane.
-   * @param tenantNonce to use, from us.
+   * @param tenantTable to use, from us.
    * @return the URL.
    */
-  public String getTenantConnectionUrl(final String tenantId,
-                                       final String tenantKey,
-                                       final String tenantNonce) {
-    LOGGER.debug("getTenantConnectionUrl({})", tenantId);
-    final String directory = getDatabasePath(tenantId);
-    final byte[] key = cryptUtils.xor(tenantKey, controlPlaneManager.keyForTenant(tenantId));
-    final byte[] nonce = cryptUtils.fromBase64(tenantNonce);
+  public String getTenantConnectionUrl(final TenantTable tenantTable) {
+    LOGGER.debug("getTenantConnectionUrl({})", tenantTable);
+    final TenantTableIdentifier identifier = tenantTable.identifier();
+    final String name = String.format("%s-%s", identifier.tenantId(), identifier.tableName());
+    final String directory = getDatabasePath(name);
+    final byte[] key = cryptUtils.xor(tenantTable.key(), controlPlaneManager.keyForTenant(tenantTable.identifier().tenantId()));
+    final byte[] nonce = cryptUtils.fromBase64(tenantTable.nonce());
     return getConnectionUrl(directory, key, nonce);
   }
 

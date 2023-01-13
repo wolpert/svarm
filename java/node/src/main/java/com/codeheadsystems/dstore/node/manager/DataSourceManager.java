@@ -19,6 +19,8 @@ package com.codeheadsystems.dstore.node.manager;
 import com.codeheadsystems.dstore.node.engine.DatabaseConnectionEngine;
 import com.codeheadsystems.dstore.node.engine.DatabaseInitializationEngine;
 import com.codeheadsystems.dstore.node.model.Tenant;
+import com.codeheadsystems.dstore.node.model.TenantTable;
+import com.codeheadsystems.dstore.node.model.TenantTableIdentifier;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -53,7 +55,7 @@ public class DataSourceManager implements Managed {
 
   private final DatabaseConnectionEngine databaseConnectionEngine;
   private final DatabaseInitializationEngine databaseInitializationEngine;
-  private final LoadingCache<Tenant, DataSource> tenantDataSourceLoadingCache;
+  private final LoadingCache<TenantTable, DataSource> tenantDataSourceLoadingCache;
 
   private volatile DataSource internalDataSource = null;
 
@@ -72,7 +74,7 @@ public class DataSourceManager implements Managed {
     this.tenantDataSourceLoadingCache = CacheBuilder.newBuilder()
         .maximumSize(1000)
         .removalListener(this::onRemoval)
-        .build(CacheLoader.from(this::loadTenant));
+        .build(CacheLoader.from(this::loadTenantTable));
   }
 
   private static DataSource getComboPooledDataSource(final int minPoolSize, final String url) {
@@ -100,11 +102,11 @@ public class DataSourceManager implements Managed {
   /**
    * Gets the data source for the tenant.
    *
-   * @param tenant to get the source for.
+   * @param tenantTable to get the source for.
    * @return the source.
    */
-  public DataSource getDataSource(final Tenant tenant) {
-    return tenantDataSourceLoadingCache.getUnchecked(tenant);
+  public DataSource getDataSource(final TenantTable tenantTable) {
+    return tenantDataSourceLoadingCache.getUnchecked(tenantTable);
   }
 
   /**
@@ -125,13 +127,13 @@ public class DataSourceManager implements Managed {
     return Optional.ofNullable(internalDataSource);
   }
 
-  private void onRemoval(RemovalNotification<Tenant, DataSource> notification) {
+  private void onRemoval(RemovalNotification<TenantTable, DataSource> notification) {
     LOGGER.info("onRemoval({},{})", notification.getKey(), notification.getCause());
   }
 
-  private DataSource loadTenant(final Tenant tenant) {
-    LOGGER.info("loadTenant({})", tenant.id());
-    final String url = databaseConnectionEngine.getTenantConnectionUrl(tenant.id(), tenant.key(), tenant.nonce());
+  private DataSource loadTenantTable(final TenantTable tenantTable) {
+    LOGGER.info("loadTenantTable({})", tenantTable);
+    final String url = databaseConnectionEngine.getTenantConnectionUrl(tenantTable);
     final DataSource dataSource = getComboPooledDataSource(TENANT_MIN_POOL_SIZE, url);
     try {
       final Connection connection = dataSource.getConnection();

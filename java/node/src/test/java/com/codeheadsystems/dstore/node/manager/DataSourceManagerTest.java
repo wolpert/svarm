@@ -25,6 +25,8 @@ import static org.mockito.Mockito.when;
 import com.codeheadsystems.dstore.node.engine.DatabaseConnectionEngine;
 import com.codeheadsystems.dstore.node.engine.DatabaseInitializationEngine;
 import com.codeheadsystems.dstore.node.model.Tenant;
+import com.codeheadsystems.dstore.node.model.TenantTable;
+import com.codeheadsystems.dstore.node.model.TenantTableIdentifier;
 import java.sql.Connection;
 import java.util.Optional;
 import javax.sql.DataSource;
@@ -45,25 +47,19 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class DataSourceManagerTest {
 
-  private static final String TENANT_ID = "tenantId";
-  private static final String KEY = "key";
-  private static final String NONCE = "nonce";
   private static final String CONNECTION_URL = "jdbc:hsqldb:mem:DataSourceManagerTest";
 
   @Mock private DatabaseInitializationEngine databaseInitializationEngine;
   @Mock private DatabaseConnectionEngine databaseConnectionEngine;
-  @Mock private Tenant tenant;
+  @Mock private TenantTable tenantTable;
   @Captor private ArgumentCaptor<Connection> connectionArgumentCaptor;
 
   @InjectMocks private DataSourceManager dataSourceManager;
 
   @Test
   void loadTenant_realInitialization() {
-    when(tenant.id()).thenReturn(TENANT_ID);
-    when(tenant.key()).thenReturn(KEY);
-    when(tenant.nonce()).thenReturn(NONCE);
-    when(databaseConnectionEngine.getTenantConnectionUrl(TENANT_ID, KEY, NONCE)).thenReturn(CONNECTION_URL);
-    final DataSource dataSource = dataSourceManager.getDataSource(tenant);
+    when(databaseConnectionEngine.getTenantConnectionUrl(tenantTable)).thenReturn(CONNECTION_URL);
+    final DataSource dataSource = dataSourceManager.getDataSource(tenantTable);
     assertThat(dataSource).isNotNull();
   }
 

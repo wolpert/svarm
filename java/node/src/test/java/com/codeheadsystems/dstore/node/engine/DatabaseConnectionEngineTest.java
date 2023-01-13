@@ -23,6 +23,8 @@ import com.codeheadsystems.dstore.common.crypt.CryptUtils;
 import com.codeheadsystems.dstore.node.NodeConfiguration;
 import com.codeheadsystems.dstore.node.manager.ControlPlaneManager;
 import com.codeheadsystems.dstore.node.model.NodeInternalConfiguration;
+import com.codeheadsystems.dstore.node.model.TenantTable;
+import com.codeheadsystems.dstore.node.model.TenantTableIdentifier;
 import com.codeheadsystems.dstore.node.util.DeletingFileVisitor;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -46,12 +48,15 @@ class DatabaseConnectionEngineTest {
   private static final String NONCE = "NONCE";
   private static final String TENANT = "TENANT";
   private static final String TENANT_NONCE = "TENANT_NONCE";
+  private static final String TABLE_NAME = "table name";
   private static Path TEMP_DIR;
   private Random random = new Random();
   @Mock private NodeConfiguration nodeConfiguration;
   @Mock private CryptUtils cryptUtils;
   @Mock private NodeInternalConfiguration nodeInternalConfiguration;
   @Mock private ControlPlaneManager controlPlaneManager;
+  @Mock private TenantTableIdentifier identifier;
+  @Mock private TenantTable tenantTable;
   @InjectMocks private DatabaseConnectionEngine manager;
 
   @BeforeAll
@@ -96,9 +101,14 @@ class DatabaseConnectionEngineTest {
     when(controlPlaneManager.keyForTenant(TENANT)).thenReturn(TENANT_NONCE);
     when(cryptUtils.xor(KEY, TENANT_NONCE)).thenReturn(key);
     when(cryptUtils.fromBase64(NONCE)).thenReturn(nonce);
-    assertThat(manager.getTenantConnectionUrl(TENANT, KEY, NONCE))
+    when(identifier.tenantId()).thenReturn(TENANT);
+    when(identifier.tableName()).thenReturn(TABLE_NAME);
+    when(tenantTable.identifier()).thenReturn(identifier);
+    when(tenantTable.key()).thenReturn(KEY);
+    when(tenantTable.nonce()).thenReturn(NONCE);
+    assertThat(manager.getTenantConnectionUrl(tenantTable))
         .isNotNull()
-        .isEqualTo("jdbc:hsqldb:file:" + TEMP_DIR.toString() + "/" + TENANT +
+        .isEqualTo("jdbc:hsqldb:file:" + TEMP_DIR.toString() + "/" + TENANT + "-" + TABLE_NAME +
             "/database;crypt_key=0101;crypt_iv=0202;crypt_type=AES/GCM-SIV/NoPadding;crypt_provider=BC;");
   }
 

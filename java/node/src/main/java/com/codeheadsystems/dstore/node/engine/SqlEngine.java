@@ -17,7 +17,7 @@
 package com.codeheadsystems.dstore.node.engine;
 
 import com.codeheadsystems.dstore.node.manager.DataSourceManager;
-import com.codeheadsystems.dstore.node.model.Tenant;
+import com.codeheadsystems.dstore.node.model.TenantTable;
 import com.codeheadsystems.metrics.Metrics;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -111,17 +111,17 @@ public class SqlEngine {
   /**
    * Executes the query on the tenant dataSource using metrics against the object itself.
    *
-   * @param tenant   tenant.
-   * @param query    to execute.
-   * @param function that will process the result set.
-   * @param <R>      the type.
+   * @param tenantTable tenant.
+   * @param query       to execute.
+   * @param function    that will process the result set.
+   * @param <R>         the type.
    * @return a instance of type-r.
    */
-  public <R> R executeQueryTenant(final Tenant tenant,
+  public <R> R executeQueryTenant(final TenantTable tenantTable,
                                   final String query,
                                   final Function<ResultSet, R> function) {
-    return executeQuery(tenant.id(),
-        dataSourceManager.getDataSource(tenant),
+    return executeQuery(tenantTable.identifier().toString(),
+        dataSourceManager.getDataSource(tenantTable),
         query,
         function);
   }
@@ -129,17 +129,17 @@ public class SqlEngine {
   /**
    * Executes the prepared statement on the tenant dataSource using metrics against the object itself.
    *
-   * @param tenant   tenant.
-   * @param query    to execute.
-   * @param function that will process the prepared statement.
-   * @param <R>      the type.
+   * @param tenantTable tenant.
+   * @param query       to execute.
+   * @param function    that will process the prepared statement.
+   * @param <R>         the type.
    * @return a instance of type-r.
    */
-  public <R> R executePreparedTenant(final Tenant tenant,
+  public <R> R executePreparedTenant(final TenantTable tenantTable,
                                      final String query,
                                      final Function<PreparedStatement, R> function) {
-    return executePrepared(tenant.id(),
-        dataSourceManager.getDataSource(tenant),
+    return executePrepared(tenantTable.identifier().toString(),
+        dataSourceManager.getDataSource(tenantTable),
         query,
         function);
   }
