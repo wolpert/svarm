@@ -24,9 +24,7 @@ import static org.mockito.Mockito.when;
 
 import com.codeheadsystems.dstore.node.engine.DatabaseConnectionEngine;
 import com.codeheadsystems.dstore.node.engine.DatabaseInitializationEngine;
-import com.codeheadsystems.dstore.node.model.Tenant;
 import com.codeheadsystems.dstore.node.model.TenantTable;
-import com.codeheadsystems.dstore.node.model.TenantTableIdentifier;
 import java.sql.Connection;
 import java.util.Optional;
 import javax.sql.DataSource;

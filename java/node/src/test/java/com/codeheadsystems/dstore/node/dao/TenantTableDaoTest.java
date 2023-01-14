@@ -36,7 +36,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 class TenantTableDaoTest extends BaseSQLTest {
 
-  private static Random random = new Random();
+  private static final Random random = new Random();
 
   private TenantTableDao dao;
 

@@ -50,7 +50,7 @@ class DatabaseConnectionEngineTest {
   private static final String TENANT_NONCE = "TENANT_NONCE";
   private static final String TABLE_NAME = "table name";
   private static Path TEMP_DIR;
-  private Random random = new Random();
+  private final Random random = new Random();
   @Mock private NodeConfiguration nodeConfiguration;
   @Mock private CryptUtils cryptUtils;
   @Mock private NodeInternalConfiguration nodeInternalConfiguration;

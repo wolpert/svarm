@@ -39,13 +39,10 @@ class DatabaseInitializationEngineTest {
 
   private static final Random RANDOM = new Random();
 
-  private String key;
-  private String nonce;
-
   public static Stream<Arguments> pathToTableNames() {
     return Stream.of(
         Arguments.of("liquibasetest", new String[]{"DATABASECHANGELOGLOCK", "DATABASECHANGELOG", "PERSON", "OTHERTABLE"}),
-        Arguments.of(INTERNAL, new String[]{"DATABASECHANGELOGLOCK", "DATABASECHANGELOG", "NODE_TENANT", "NODE_TENANT_TABLES"}),
+        Arguments.of(INTERNAL, new String[]{"DATABASECHANGELOGLOCK", "DATABASECHANGELOG", "NODE_TENANT", "NODE_TENANT_TABLES", "NODE_TENANT_TABLES_CONFIGURATION"}),
         Arguments.of(TENANT, new String[]{"DATABASECHANGELOGLOCK", "DATABASECHANGELOG", "TENANT_DATA"})
     );
   }

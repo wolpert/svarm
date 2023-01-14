@@ -17,7 +17,6 @@
 package com.codeheadsystems.dstore.node.converter;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 import com.codeheadsystems.dstore.node.model.Tenant;
@@ -37,7 +36,7 @@ class TenantInfoConverterTest {
   @InjectMocks private TenantInfoConverter converter;
 
   @Test
-  void from(){
+  void from() {
     when(tenant.id()).thenReturn(UUID);
     assertThat(converter.from(tenant))
         .isNotNull()

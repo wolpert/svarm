@@ -22,7 +22,6 @@ import static org.mockito.Mockito.when;
 import com.codeheadsystems.dstore.common.crypt.AesGcmSivManager;
 import com.codeheadsystems.dstore.node.dao.TenantTableDao;
 import com.codeheadsystems.dstore.node.engine.TableDefinitionEngine;
-import com.codeheadsystems.dstore.node.model.Tenant;
 import com.codeheadsystems.dstore.node.model.TenantTable;
 import com.codeheadsystems.metrics.test.BaseMetricTest;
 import java.util.List;
@@ -47,11 +46,9 @@ class TenantTableManagerTest extends BaseMetricTest {
   @Mock private TenantTableDao dao;
   @Mock private AesGcmSivManager aesManager;
   @Mock private TableDefinitionEngine engine;
-  @Mock private Tenant tenant;
   @Mock private TenantTable tenantTable;
   @Mock private List<String> list;
   @Mock private DataSourceManager dataSourceManager;
-  @Captor private ArgumentCaptor<Tenant> tenantArgumentCaptor;
   @Captor private ArgumentCaptor<TenantTable> tenantTableArgumentCaptor;
   @Captor private ArgumentCaptor<String> stringArgumentCaptor;
 
