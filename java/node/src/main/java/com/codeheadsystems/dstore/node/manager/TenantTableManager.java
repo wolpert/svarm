@@ -113,33 +113,28 @@ public class TenantTableManager {
 
   /**
    * Created the tenant table. If it already exists, simply return the one we already have. Idempotent. Does not set the
-   * hash values. Uses the default tenant table identifier.
-   *
-   * @param tenantId  tenant to create.
-   * @param tableName table name to create.
-   * @return a tenant.
-   */
-  public TenantTable create(final String tenantId, final String tableName) {
-    return this.create(tenantId, tableName, TableDefinitionEngine.V1SingleEntryEngine.DEFINITION_NAME);
-  }
-
-  /**
-   * Created the tenant table. If it already exists, simply return the one we already have. Idempotent. Does not set the
    * hash values.
    *
    * @param tenantId     tenant to create.
    * @param tableName    table name to create.
    * @param tableVersion the version of the table we are creating.
+   * @param primaryKey   primary key of a row.
    * @return a tenant.
    */
-  public TenantTable create(final String tenantId, final String tableName, final String tableVersion) {
-    LOGGER.debug("create({}, {}, {})", tenantId, tableName, tableVersion);
+  public TenantTable create(final String tenantId,
+                            final String tableName,
+                            final String tableVersion,
+                            final String primaryKey) {
+    LOGGER.debug("create({}, {}, {}, {})", tenantId, tableName, tableVersion, primaryKey);
     return get(tenantId, tableName).orElseGet(() ->
         metrics.time("TenantTableManager.create",
-            () -> buildTenantTable(tenantId, tableName, tableVersion)));
+            () -> buildTenantTable(tenantId, tableName, tableVersion, primaryKey)));
   }
 
-  private TenantTable buildTenantTable(final String tenantId, final String tableName, final String tableVersion) {
+  private TenantTable buildTenantTable(final String tenantId,
+                                       final String tableName,
+                                       final String tableVersion,
+                                       final String primaryKey) {
     LOGGER.debug("buildTenantTable({}, {}, {})", tenantId, tableName, tableVersion);
     if (!tableDefinitionEngineMap.containsKey(tableVersion)) {
       throw new IllegalArgumentException("Unknown table version: " + tableVersion);
@@ -155,6 +150,7 @@ public class TenantTableManager {
         .tableVersion(tableVersion)
         .key(aesGcmSivManager.randomKeyBase64Encoded())
         .nonce(aesGcmSivManager.randomNonceBase64Encoded())
+        .primaryKey(primaryKey)
         .build();
     try {
       final TenantTable result = dao.create(tenantTable);

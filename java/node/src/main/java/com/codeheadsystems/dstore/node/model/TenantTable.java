@@ -90,6 +90,14 @@ public interface TenantTable {
   String nonce();
 
   /**
+   * Primary key of the table.
+   *
+   * @return value.
+   */
+  @Value.Auxiliary
+  String primaryKey();
+
+  /**
    * Properties used to define the table. Specific to the table version.
    *
    * @return the map.

@@ -21,6 +21,7 @@ import com.codahale.metrics.annotation.ResponseMetered;
 import com.codahale.metrics.annotation.Timed;
 import com.codeheadsystems.dstore.node.api.TenantTableInfo;
 import com.codeheadsystems.dstore.node.converter.TenantTableInfoConverter;
+import com.codeheadsystems.dstore.node.engine.TableDefinitionEngine;
 import com.codeheadsystems.dstore.node.manager.TenantTableManager;
 import com.codeheadsystems.dstore.node.model.TenantTable;
 import java.util.List;
@@ -33,6 +34,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.slf4j.Logger;
@@ -105,6 +107,7 @@ public class TenantTableResource implements JerseyResource {
    *
    * @param tenantId that owns the table.
    * @param table    the table.
+   * @param primaryKey for the table.
    * @return response.
    */
   @PUT
@@ -114,8 +117,10 @@ public class TenantTableResource implements JerseyResource {
   @Path("/{table}")
   @Produces(MediaType.APPLICATION_JSON)
   public TenantTableInfo create(@PathParam("tenant") final String tenantId,
-                                @PathParam("table") final String table) {
-    final TenantTable tenantTable = tenantTableManager.create(tenantId, table);
+                                @PathParam("table") final String table,
+                                @QueryParam("primaryKey") final String primaryKey) {
+    final TenantTable tenantTable = tenantTableManager
+        .create(tenantId, table, TableDefinitionEngine.V1SingleEntryEngine.DEFINITION_NAME, primaryKey);
     return converter.from(tenantTable.identifier());
   }
 
