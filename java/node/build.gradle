@@ -31,10 +31,16 @@ checkstyle {
 
 dependencies {
     implementation project(":common")
+    implementation libs.guava
+
+    // SQL
     implementation libs.hsqldb
     implementation libs.liquibase.core
     implementation libs.c3p0
-    implementation libs.guava
+    implementation libs.jdbi.core
+    implementation libs.jdbi.testing
+    implementation libs.jdbi.guava
+    implementation libs.jdbi.jackson2
 
     implementation libs.javax.inject
     implementation libs.dagger
@@ -54,7 +60,7 @@ dependencies {
     testImplementation libs.jackson.dataformat.yaml
     testAnnotationProcessor libs.dagger.compiler
 
-    // Logging stuff... need all thos for logback changes
+    // Logging stuff... need all these for logback changes
     implementation libs.logback.classic
     implementation libs.logback.core
     implementation libs.logback.access
