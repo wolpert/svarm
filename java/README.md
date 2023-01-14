@@ -13,6 +13,15 @@ gradle clean build test
 gradle :node:run
 ```
 
+### Troubleshooting
+
+If you run into problems when trying to run :node:run, remove
+
+* /tmp/dataNodeConfig.json: This is the configuration file with local keys.
+* /tmp/nodeInternalDb: this is the directory with the node's database.
+```shell
+rm -rf /tmp/dataNodeConfig.json /tmp/nodeInternalDb
+```
 ## Package layout.
 
 Layout is based on the Managed Model format updated for Dropwizard/Dagger friendliness. Flat hierarchy. Packages are as
