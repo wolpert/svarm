@@ -16,6 +16,7 @@
 
 package com.codeheadsystems.dstore.node.model;
 
+import java.util.Map;
 import java.util.Optional;
 import org.immutables.value.Value;
 
@@ -87,4 +88,12 @@ public interface TenantTable {
    */
   @Value.Auxiliary
   String nonce();
+
+  /**
+   * Properties used to define the table. Specific to the table version.
+   *
+   * @return the map.
+   */
+  @Value.Auxiliary
+  Map<String, String> properties();
 }

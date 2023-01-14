@@ -51,6 +51,10 @@ public class SqlEngine {
    * Identifier for metrics name.
    */
   public static final String SQLENGINE_EXECUTE_PREPARED = "SqlEngine.executePrepared";
+  /**
+   * Identifier for metrics name.
+   */
+  public static final String SQLENGINE_EXECUTE_CONNECTION = "SqlEngine.executeConnection";
 
   /**
    * Used to identify internal queries.
@@ -105,6 +109,19 @@ public class SqlEngine {
     return executePrepared(INTERNAL,
         dataSourceManager.getInternalDataSource().orElseThrow(() -> new IllegalStateException("Database not setup")),
         query,
+        function);
+  }
+
+  /**
+   * Executes the prepared statement on the internal dataSource using metrics against the object itself.
+   *
+   * @param function that will process the prepared statement.
+   * @param <R>      the type.
+   * @return a instance of type-r.
+   */
+  public <R> R executeConnectionInternal(final Function<Connection, R> function) {
+    return executeWithConnection(INTERNAL,
+        dataSourceManager.getInternalDataSource().orElseThrow(() -> new IllegalStateException("Database not setup")),
         function);
   }
 
@@ -202,6 +219,33 @@ public class SqlEngine {
         try (final PreparedStatement statement = connection.prepareStatement(query)) {
           return function.apply(statement);
         }
+      } catch (SQLException e) {
+        throw new IllegalArgumentException("Unable to complete sql call", e);
+      }
+    });
+  }
+
+  /**
+   * Executes the prepared using metrics against the object itself. You are required to close the result set.
+   *
+   * @param datasourceLookup to get the datasource to use.
+   * @param dataSource       to execute against.
+   * @param function         that will process the result set.
+   * @param <R>              the type.
+   * @return a instance of type-r.
+   */
+  private <R> R executeWithConnection(final String datasourceLookup,
+                                      final DataSource dataSource,
+                                      final Function<Connection, R> function) {
+    LOGGER.debug("executeWithConnection({})", datasourceLookup);
+    final Counter success =
+        meterRegistry.counter(SQLENGINE_EXECUTE_CONNECTION, "datasource", datasourceLookup, "success", "true");
+    final Counter failure =
+        meterRegistry.counter(SQLENGINE_EXECUTE_CONNECTION, "datasource", datasourceLookup, "success", "false");
+    final Timer timer = meterRegistry.timer(SQLENGINE_EXECUTE_CONNECTION, "datasource", datasourceLookup);
+    return metrics.time(timer, success, failure, () -> {
+      try (final Connection connection = dataSource.getConnection()) {
+        return function.apply(connection);
       } catch (SQLException e) {
         throw new IllegalArgumentException("Unable to complete sql call", e);
       }
