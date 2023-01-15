@@ -17,8 +17,8 @@
 package com.codeheadsystems.dstore.node.module;
 
 import com.codeheadsystems.dstore.node.resource.JerseyResource;
-import com.codeheadsystems.dstore.node.resource.PingResource;
 import com.codeheadsystems.dstore.node.resource.TenantResource;
+import com.codeheadsystems.dstore.node.resource.TenantTableEntryResource;
 import com.codeheadsystems.dstore.node.resource.TenantTableResource;
 import com.codeheadsystems.dstore.node.resource.TraceUuid;
 import dagger.Binds;
@@ -30,16 +30,6 @@ import dagger.multibindings.IntoSet;
  */
 @Module
 public interface ResourceModule {
-
-  /**
-   * Fake resource.
-   *
-   * @param resource resource
-   * @return JerseyResource.
-   */
-  @Binds
-  @IntoSet
-  JerseyResource pingResource(PingResource resource);
 
   /**
    * Tenant resource.
@@ -60,6 +50,16 @@ public interface ResourceModule {
   @Binds
   @IntoSet
   JerseyResource tenantTableResource(TenantTableResource resource);
+
+  /**
+   * Tenant table entry resource.
+   *
+   * @param resource resource
+   * @return JerseyResource.
+   */
+  @Binds
+  @IntoSet
+  JerseyResource tenantTableEntryResource(TenantTableEntryResource resource);
 
   /**
    * TraceUuid resource.

@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
@@ -121,7 +122,7 @@ public class TenantTableResource implements JerseyResource {
   @Produces(MediaType.APPLICATION_JSON)
   public TenantTableInfo create(@PathParam("tenant") final String tenantId,
                                 @PathParam("table") final String table,
-                                @QueryParam("primaryKey") final String primaryKey) {
+                                @NotNull @QueryParam("primaryKey") final String primaryKey) {
     LOGGER.debug("create({},{},{})", tenantId, table, primaryKey);
     if (primaryKey == null) {
       throw new WebApplicationException("Missing primary key", Response.Status.BAD_REQUEST);
