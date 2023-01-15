@@ -18,12 +18,16 @@ package com.codeheadsystems.dstore.node.engine.impl;
 
 import com.codeheadsystems.dstore.node.engine.SqlEngine;
 import com.codeheadsystems.dstore.node.engine.TableDefinitionEngine;
+import com.codeheadsystems.dstore.node.model.TenantTable;
 import com.codeheadsystems.metrics.Metrics;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
+import java.util.Optional;
 import java.util.function.Supplier;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,5 +77,41 @@ public class V1SingleEntryEngine implements TableDefinitionEngine {
   @Override
   public String definitionName() {
     return DEFINITION_NAME;
+  }
+
+  /**
+   * Reads the entity from the table, returning the JsonNode.
+   *
+   * @param tenantTable table to read from.
+   * @param entity      the entity id.
+   * @return a json node if found.
+   */
+  @Override
+  public Optional<JsonNode> read(final TenantTable tenantTable, final String entity) {
+    throw new NotImplementedException();
+  }
+
+  /**
+   * Writes the entity to the table.
+   *
+   * @param tenantTable table to write to.
+   * @param entity      the entity id.
+   * @param data        the data.
+   */
+  @Override
+  public void write(final TenantTable tenantTable, final String entity, final JsonNode data) {
+    throw new NotImplementedException();
+  }
+
+  /**
+   * Delete the entity from the table, returning the JsonNode.
+   *
+   * @param tenantTable table to delete from.
+   * @param entity      the entity id.
+   * @return boolean if anything was deleted.
+   */
+  @Override
+  public boolean delete(final TenantTable tenantTable, final String entity) {
+    throw new NotImplementedException();
   }
 }

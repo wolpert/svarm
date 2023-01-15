@@ -89,15 +89,26 @@ public class TenantTableManager {
   public Optional<TenantTable> get(final String tenantId, final String tableName) {
     LOGGER.trace("get({}, {})", tenantId, tableName);
     final TenantTableIdentifier identifier = TenantTableIdentifier.from(tenantId, tableName);
+    return get(identifier);
+  }
+
+
+  /**
+   * Gets the current tenant table if it exists.
+   *
+   * @param identifier to get.
+   * @return the tenant.
+   */
+  public Optional<TenantTable> get(final TenantTableIdentifier identifier) {
     try {
       return Optional.of(tenantTableCacheLoader.get(identifier));
     } catch (NotFoundException nfe) {
-      LOGGER.trace("Tenant not found (unchecked): {}", tenantId);
+      LOGGER.trace("Tenant not found (unchecked): {}", identifier);
       return Optional.empty();
     } catch (ExecutionException | UncheckedExecutionException e) {
       final Throwable cause = e.getCause();
       if (cause instanceof NotFoundException) {
-        LOGGER.trace("Tenant not found (checked): {}", tenantId);
+        LOGGER.trace("Tenant not found (checked): {}", identifier);
         return Optional.empty();
       } else {
         LOGGER.error("Loading tenant failed", cause);

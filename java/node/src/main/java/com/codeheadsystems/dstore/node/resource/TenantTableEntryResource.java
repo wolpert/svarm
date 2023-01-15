@@ -19,8 +19,8 @@ package com.codeheadsystems.dstore.node.resource;
 import com.codahale.metrics.annotation.ExceptionMetered;
 import com.codahale.metrics.annotation.ResponseMetered;
 import com.codahale.metrics.annotation.Timed;
-import com.codeheadsystems.dstore.node.api.TenantTableInfo;
 import com.codeheadsystems.dstore.node.manager.TenantTableEntryManager;
+import com.codeheadsystems.dstore.node.model.TenantTableIdentifier;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -36,7 +36,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,11 +75,11 @@ public class TenantTableEntryResource implements JerseyResource {
   @ResponseMetered
   @Path("/{entry}")
   @Produces(MediaType.APPLICATION_JSON)
-  public Optional<TenantTableInfo> read(@PathParam("tenant") final String tenantId,
-                                        @PathParam("table") final String table,
-                                        @PathParam("entry") final String entry) {
+  public Optional<JsonNode> read(@PathParam("tenant") final String tenantId,
+                                 @PathParam("table") final String table,
+                                 @PathParam("entry") final String entry) {
     LOGGER.debug("read({},{},{})", tenantId, table, entry);
-    throw new NotImplementedException();
+    return tenantTableEntryManager.read(TenantTableIdentifier.from(tenantId, table), entry);
   }
 
   /**
@@ -99,12 +98,13 @@ public class TenantTableEntryResource implements JerseyResource {
   @Path("/{entry}")
   @Consumes(MediaType.APPLICATION_JSON)
   @Produces(MediaType.APPLICATION_JSON)
-  public TenantTableInfo write(@PathParam("tenant") final String tenantId,
-                               @PathParam("table") final String table,
-                               @PathParam("entry") final String entry,
-                               @NotNull @Valid final JsonNode data) { // Do NOT log this data!
+  public Response write(@PathParam("tenant") final String tenantId,
+                        @PathParam("table") final String table,
+                        @PathParam("entry") final String entry,
+                        @NotNull @Valid final JsonNode data) { // Do NOT log this data!
     LOGGER.debug("write({},{},{})", tenantId, table, entry);
-    throw new NotImplementedException();
+    tenantTableEntryManager.write(TenantTableIdentifier.from(tenantId, table), entry, data);
+    return Response.noContent().build();
   }
 
   /**
@@ -124,7 +124,11 @@ public class TenantTableEntryResource implements JerseyResource {
                          @PathParam("table") final String table,
                          @PathParam("entry") final String entry) {
     LOGGER.debug("delete({},{},{})", tenantId, table, entry);
-    throw new NotImplementedException();
+    if (tenantTableEntryManager.delete(TenantTableIdentifier.from(tenantId, table), entry)) {
+      return Response.noContent().build();
+    } else {
+      return Response.status(Response.Status.NOT_FOUND).build();
+    }
   }
 
 }

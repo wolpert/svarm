@@ -16,7 +16,10 @@
 
 package com.codeheadsystems.dstore.node.engine;
 
+import com.codeheadsystems.dstore.node.model.TenantTable;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.hash.HashFunction;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 /**
@@ -48,4 +51,30 @@ public interface TableDefinitionEngine {
     return hashFunctionSupplier().get().hashUnencodedChars(string).asInt();
   }
 
+  /**
+   * Reads the entity from the table, returning the JsonNode.
+   *
+   * @param tenantTable table to read from.
+   * @param entity      the entity id.
+   * @return a json node if found.
+   */
+  Optional<JsonNode> read(TenantTable tenantTable, String entity);
+
+  /**
+   * Writes the entity to the table.
+   *
+   * @param tenantTable table to write to.
+   * @param entity      the entity id.
+   * @param data        the data.
+   */
+  void write(TenantTable tenantTable, String entity, final JsonNode data);
+
+  /**
+   * Delete the entity from the table, returning the JsonNode.
+   *
+   * @param tenantTable table to delete from.
+   * @param entity      the entity id.
+   * @return boolean if anything was deleted.
+   */
+  boolean delete(TenantTable tenantTable, String entity);
 }
