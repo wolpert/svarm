@@ -16,9 +16,10 @@
 
 package com.codeheadsystems.dstore.node.module;
 
-import static com.codeheadsystems.dstore.node.engine.TableDefinitionEngine.V1SingleEntryEngine.DEFINITION_NAME;
+import static com.codeheadsystems.dstore.node.engine.impl.V1SingleEntryEngine.DEFINITION_NAME;
 
 import com.codeheadsystems.dstore.node.engine.TableDefinitionEngine;
+import com.codeheadsystems.dstore.node.engine.impl.V1SingleEntryEngine;
 import dagger.Binds;
 import dagger.Module;
 import dagger.multibindings.IntoMap;
@@ -39,6 +40,6 @@ public interface TableDefinitionEngineModule {
   @Binds
   @IntoMap
   @StringKey(DEFINITION_NAME)
-  TableDefinitionEngine v1SingleEntry(TableDefinitionEngine.V1SingleEntryEngine engine);
+  TableDefinitionEngine v1SingleEntry(V1SingleEntryEngine engine);
 
 }

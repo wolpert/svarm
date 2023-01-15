@@ -21,7 +21,7 @@ import com.codahale.metrics.annotation.ResponseMetered;
 import com.codahale.metrics.annotation.Timed;
 import com.codeheadsystems.dstore.node.api.TenantTableInfo;
 import com.codeheadsystems.dstore.node.converter.TenantTableInfoConverter;
-import com.codeheadsystems.dstore.node.engine.TableDefinitionEngine;
+import com.codeheadsystems.dstore.node.engine.impl.V1SingleEntryEngine;
 import com.codeheadsystems.dstore.node.manager.TenantTableManager;
 import com.codeheadsystems.dstore.node.model.TenantTable;
 import java.util.List;
@@ -35,6 +35,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.slf4j.Logger;
@@ -105,8 +106,8 @@ public class TenantTableResource implements JerseyResource {
   /**
    * Create the tenant.
    *
-   * @param tenantId that owns the table.
-   * @param table    the table.
+   * @param tenantId   that owns the table.
+   * @param table      the table.
    * @param primaryKey for the table.
    * @return response.
    */
@@ -119,8 +120,11 @@ public class TenantTableResource implements JerseyResource {
   public TenantTableInfo create(@PathParam("tenant") final String tenantId,
                                 @PathParam("table") final String table,
                                 @QueryParam("primaryKey") final String primaryKey) {
+    if (primaryKey == null) {
+      throw new WebApplicationException("Missing primary key", Response.Status.BAD_REQUEST);
+    }
     final TenantTable tenantTable = tenantTableManager
-        .create(tenantId, table, TableDefinitionEngine.V1SingleEntryEngine.DEFINITION_NAME, primaryKey);
+        .create(tenantId, table, V1SingleEntryEngine.DEFINITION_NAME, primaryKey);
     return converter.from(tenantTable.identifier());
   }
 
@@ -145,6 +149,5 @@ public class TenantTableResource implements JerseyResource {
       return Response.status(Response.Status.NOT_FOUND).build();
     }
   }
-
 
 }
