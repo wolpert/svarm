@@ -19,6 +19,7 @@ package com.codeheadsystems.dstore.common.engine;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.File;
 import java.io.IOException;
 import javax.inject.Inject;
@@ -146,4 +147,12 @@ public class JsonEngine {
     }
   }
 
+  /**
+   * Generates a object node.
+   *
+   * @return an object node.
+   */
+  public ObjectNode createObjectNode() {
+    return objectMapper.createObjectNode();
+  }
 }

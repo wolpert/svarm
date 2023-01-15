@@ -142,10 +142,10 @@ public class TenantTableDao {
           .hashEnd(Optional.ofNullable(rs.getString("HASH_END")))
           .estimatedQuantity(rs.getInt("QUANTITY_EST"))
           .enabled(rs.getBoolean("ENABLED"))
-          .tableVersion("HASH_ALGO")
-          .key("KEY")
-          .nonce("NONCE")
-          .primaryKey("PRIMARY_KEY")
+          .tableVersion(rs.getString("TABLE_VERSION"))
+          .key(rs.getString("KEY"))
+          .nonce(rs.getString("NONCE"))
+          .primaryKey(rs.getString("PRIMARY_KEY"))
           .build();
     } catch (SQLException e) {
       throw new IllegalArgumentException("Unable to read tenant table", e);

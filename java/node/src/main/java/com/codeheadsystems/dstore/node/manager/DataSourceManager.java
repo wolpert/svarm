@@ -77,7 +77,8 @@ public class DataSourceManager implements Managed {
   }
 
   private static DataSource getComboPooledDataSource(final int minPoolSize, final String url) {
-    ComboPooledDataSource cpds = new ComboPooledDataSource();
+    LOGGER.trace("getComboPooledDataSource() (If you are stuck here, AES failure may happen, you db and keys do not match)");
+    final ComboPooledDataSource cpds = new ComboPooledDataSource();
     cpds.setJdbcUrl(url);
     cpds.setUser("SA");
     cpds.setPassword("");
@@ -137,6 +138,7 @@ public class DataSourceManager implements Managed {
     final String url = databaseConnectionEngine.getTenantConnectionUrl(tenantTable);
     final DataSource dataSource = getComboPooledDataSource(TENANT_MIN_POOL_SIZE, url);
     try {
+      LOGGER.trace("Getting connection");
       final Connection connection = dataSource.getConnection();
       databaseInitializationEngine.initialize(connection, TENANT);
       return dataSource;

@@ -47,3 +47,15 @@ follows;
 * Every internal public method for the classes are logged at trace.
 * Adding extra logs as needed, but when in doubt, consider metrics.
 
+## Testing with curl
+```shell
+curl -v -X PUT 'http://localhost:8080/v1/tenant/customer01'
+curl -v -X PUT 'http://localhost:8080/v1/tenant/customer01/table/testtable?primaryKey=fred'
+curl -v -X PUT  -H "Content-Type: application/json" \
+    -d '{"name": "a test field", "something": 55443}' \
+     'http://localhost:8080/v1/tenant/customer01/table/testtable/entry/0001'
+curl -v 'http://localhost:8080/v1/tenant/customer01/table/testtable/entry/0001'
+curl -v -X DELETE 'http://localhost:8080/v1/tenant/customer01/table/testtable/entry/0001'
+curl -v -X DELETE 'http://localhost:8080/v1/tenant/customer01/table/testtable'
+curl -v -X DELETE 'http://localhost:8080/v1/tenant/customer01'
+```
