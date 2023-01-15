@@ -70,7 +70,7 @@ public class DatabaseConnectionEngine {
                                   final NodeInternalConfiguration nodeInternalConfiguration,
                                   final NodeConfiguration nodeConfiguration,
                                   final CryptUtils cryptUtils) {
-    LOGGER.info("DatabaseManager({})", nodeConfiguration);
+    LOGGER.info("DatabaseManager({},{},{},{})", controlPlaneManager, nodeInternalConfiguration, nodeConfiguration, cryptUtils);
     this.controlPlaneManager = controlPlaneManager;
     this.nodeInternalConfiguration = nodeInternalConfiguration;
     this.nodeConfiguration = nodeConfiguration;
@@ -90,7 +90,7 @@ public class DatabaseConnectionEngine {
    * @return the connection.
    */
   public Connection connection(final String connectionUrl) {
-    LOGGER.debug("connection()");
+    LOGGER.trace("connection()"); // DO NOT LOG THE CONNECTION URL EVER!
     try {
       return DriverManager.getConnection(connectionUrl, "SA", "");
     } catch (SQLException e) {
@@ -105,7 +105,7 @@ public class DatabaseConnectionEngine {
    * @return the URL.
    */
   public String getTenantConnectionUrl(final TenantTable tenantTable) {
-    LOGGER.debug("getTenantConnectionUrl({})", tenantTable);
+    LOGGER.trace("getTenantConnectionUrl({})", tenantTable);
     final TenantTableIdentifier identifier = tenantTable.identifier();
     final String name = String.format("%s-%s", identifier.tenantId(), identifier.tableName());
     final String directory = getDatabasePath(name);
@@ -120,7 +120,7 @@ public class DatabaseConnectionEngine {
    * @return the URL.
    */
   public String getInternalConnectionUrl() {
-    LOGGER.debug("getInternalConnectionUrl()");
+    LOGGER.trace("getInternalConnectionUrl()");
     final String directory = getDatabasePath(INTERNAL_DB_NAME);
     final byte[] key = cryptUtils.xor(nodeInternalConfiguration.key(), controlPlaneManager.keyForNode());
     final byte[] nonce = cryptUtils.fromBase64(nodeInternalConfiguration.nonce());
@@ -134,7 +134,7 @@ public class DatabaseConnectionEngine {
    * @return boolean if true or not.
    */
   public boolean isDatabaseSetup(final String name) {
-    LOGGER.debug("isDatabaseSetup({})", name);
+    LOGGER.trace("isDatabaseSetup({})", name);
     final Path path = Path.of(nodeConfiguration.getDatabaseDirectory(), name);
     return Files.exists(path) && Files.isWritable(path) && Files.isDirectory(path);
   }
@@ -165,7 +165,7 @@ public class DatabaseConnectionEngine {
   public String getConnectionUrl(final String databaseDirectory,
                                  final byte[] key,
                                  final byte[] nonce) {
-    LOGGER.debug("getConnectionUrl({})", databaseDirectory);
+    LOGGER.trace("getConnectionUrl({})", databaseDirectory);
     // Details: http://hsqldb.org/doc/2.0/guide/management-chapt.html#mtc_encrypted_create
     return String.format(CONNECTION_URL, databaseDirectory, toHexString(key), toHexString(nonce));
   }

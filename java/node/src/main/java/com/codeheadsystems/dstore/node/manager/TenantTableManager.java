@@ -68,8 +68,8 @@ public class TenantTableManager {
                             final AesGcmSivManager aesGcmSivManager,
                             final Map<String, TableDefinitionEngine> tableDefinitionEngineMap,
                             final DataSourceManager dataSourceManager) {
-    this.dataSourceManager = dataSourceManager;
     LOGGER.info("TenantManager({},{},{},{})", metrics, dao, aesGcmSivManager, tableDefinitionEngineMap);
+    this.dataSourceManager = dataSourceManager;
     this.metrics = metrics;
     this.dao = dao;
     this.aesGcmSivManager = aesGcmSivManager;
@@ -87,17 +87,17 @@ public class TenantTableManager {
    * @return the tenant.
    */
   public Optional<TenantTable> get(final String tenantId, final String tableName) {
-    LOGGER.debug("get({}, {})", tenantId, tableName);
+    LOGGER.trace("get({}, {})", tenantId, tableName);
     final TenantTableIdentifier identifier = TenantTableIdentifier.from(tenantId, tableName);
     try {
       return Optional.of(tenantTableCacheLoader.get(identifier));
     } catch (NotFoundException nfe) {
-      LOGGER.debug("Tenant not found (unchecked): {}", tenantId);
+      LOGGER.trace("Tenant not found (unchecked): {}", tenantId);
       return Optional.empty();
     } catch (ExecutionException | UncheckedExecutionException e) {
       final Throwable cause = e.getCause();
       if (cause instanceof NotFoundException) {
-        LOGGER.debug("Tenant not found (checked): {}", tenantId);
+        LOGGER.trace("Tenant not found (checked): {}", tenantId);
         return Optional.empty();
       } else {
         LOGGER.error("Loading tenant failed", cause);
@@ -170,7 +170,7 @@ public class TenantTableManager {
    * @return a list of tables.
    */
   public List<String> tables(final String tenantId) {
-    LOGGER.debug("tables({})", tenantId);
+    LOGGER.trace("tables({})", tenantId);
     return metrics.time("TenantTableManager.tenants", () -> dao.allTenantTables(tenantId));
   }
 
@@ -183,7 +183,7 @@ public class TenantTableManager {
    * @return boolean if deleted or not.
    */
   public boolean delete(final String tenantId, final String tableName) {
-    LOGGER.debug("delete({}, {})", tenantId, tableName);
+    LOGGER.trace("delete({}, {})", tenantId, tableName);
     return metrics.time("TenantTableManager.delete", () -> dao.delete(tenantId, tableName));
   }
 

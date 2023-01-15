@@ -57,7 +57,7 @@ public class TenantDao {
    * @return The tenant... either the one that was created or the existing one.
    */
   public Tenant create(final Tenant tenant) {
-    LOGGER.debug("create({})", tenant.id());
+    LOGGER.trace("create({})", tenant);
     sqlEngine.executePreparedInternal("insert into NODE_TENANT (RID_TENANT,UUID,KEY,NONCE) values (?,?,?,?)", (ps) -> {
       try {
         ps.setString(1, tenant.id());
@@ -102,7 +102,7 @@ public class TenantDao {
    * @return optional tenant if it exists.
    */
   public Optional<Tenant> read(final String tenantId) {
-    LOGGER.debug("read({})", tenantId);
+    LOGGER.trace("read({})", tenantId);
     return sqlEngine.executePreparedInternal("select * from NODE_TENANT where RID_TENANT = ?", (ps) -> {
       try {
         ps.setString(1, tenantId);
@@ -125,7 +125,7 @@ public class TenantDao {
    * @return list ot tenant ids.
    */
   public List<String> allTenants() {
-    LOGGER.debug("allTenants()");
+    LOGGER.trace("allTenants()");
     return sqlEngine.executeQueryInternal("select RID_TENANT from NODE_TENANT", (rs) -> {
       final ImmutableList.Builder<String> builder = ImmutableList.builder();
       try {
@@ -146,7 +146,7 @@ public class TenantDao {
    * @return boolean if anyone was found to delete.
    */
   public boolean delete(final String tenantId) {
-    LOGGER.debug("delete({})", tenantId);
+    LOGGER.trace("delete({})", tenantId);
     return sqlEngine.executePreparedInternal("delete from NODE_TENANT where RID_TENANT = ?", (ps) -> {
       try {
         ps.setString(1, tenantId);

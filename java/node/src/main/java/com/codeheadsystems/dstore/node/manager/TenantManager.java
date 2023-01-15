@@ -75,16 +75,16 @@ public class TenantManager {
    * @return the tenant.
    */
   public Optional<Tenant> get(final String tenantId) {
-    LOGGER.debug("get({})", tenantId);
+    LOGGER.trace("get({})", tenantId);
     try {
       return Optional.of(tenantLoadingCache.get(tenantId));
     } catch (NotFoundException nfe) {
-      LOGGER.debug("Tenant not found (unchecked): {}", tenantId);
+      LOGGER.trace("Tenant not found (unchecked): {}", tenantId);
       return Optional.empty();
     } catch (ExecutionException | UncheckedExecutionException e) {
       final Throwable cause = e.getCause();
       if (cause instanceof NotFoundException) {
-        LOGGER.debug("Tenant not found (checked): {}", tenantId);
+        LOGGER.trace("Tenant not found (checked): {}", tenantId);
         return Optional.empty();
       } else {
         LOGGER.error("Loading tenant failed", cause);
@@ -94,7 +94,7 @@ public class TenantManager {
   }
 
   private Tenant load(final String tenantId) {
-    LOGGER.debug("load({})", tenantId);
+    LOGGER.trace("load({})", tenantId);
     final Optional<Tenant> tenant = metrics.time("TenantManager.load", () -> dao.read(tenantId));
     return tenant.orElseThrow(() -> new NotFoundException("No such tenant: " + tenantId));
   }
@@ -127,7 +127,7 @@ public class TenantManager {
    * @return a list of tenants.
    */
   public List<String> tenants() {
-    LOGGER.debug("tenants()");
+    LOGGER.trace("tenants()");
     return metrics.time("TenantManager.tenants", dao::allTenants);
   }
 
@@ -139,7 +139,7 @@ public class TenantManager {
    * @return boolean if deleted or not.
    */
   public boolean delete(final String tenantId) {
-    LOGGER.debug("delete({})", tenantId);
+    LOGGER.trace("delete({})", tenantId);
     final boolean result = metrics.time("TenantManager.tenants", () -> dao.delete(tenantId));
     tenantLoadingCache.invalidate(tenantId);
     return result;

@@ -90,6 +90,7 @@ public class SqlEngine {
    */
   public <R> R executeQueryInternal(final String query,
                                     final Function<ResultSet, R> function) {
+    LOGGER.trace("executeQueryInternal({})", query);
     return executeQuery(INTERNAL,
         dataSourceManager.getInternalDataSource().orElseThrow(() -> new IllegalStateException("Database not setup")),
         query,
@@ -106,6 +107,7 @@ public class SqlEngine {
    */
   public <R> R executePreparedInternal(final String query,
                                        final Function<PreparedStatement, R> function) {
+    LOGGER.trace("executePreparedInternal({})", query);
     return executePrepared(INTERNAL,
         dataSourceManager.getInternalDataSource().orElseThrow(() -> new IllegalStateException("Database not setup")),
         query,
@@ -120,6 +122,7 @@ public class SqlEngine {
    * @return a instance of type-r.
    */
   public <R> R executeConnectionInternal(final Function<Connection, R> function) {
+    LOGGER.trace("executeConnectionInternal()");
     return executeWithConnection(INTERNAL,
         dataSourceManager.getInternalDataSource().orElseThrow(() -> new IllegalStateException("Database not setup")),
         function);
@@ -137,6 +140,7 @@ public class SqlEngine {
   public <R> R executeQueryTenant(final TenantTable tenantTable,
                                   final String query,
                                   final Function<ResultSet, R> function) {
+    LOGGER.trace("executeQueryTenant({})", query);
     return executeQuery(tenantTable.identifier().toString(),
         dataSourceManager.getDataSource(tenantTable),
         query,
@@ -155,6 +159,7 @@ public class SqlEngine {
   public <R> R executePreparedTenant(final TenantTable tenantTable,
                                      final String query,
                                      final Function<PreparedStatement, R> function) {
+    LOGGER.trace("executePreparedTenant({})", query);
     return executePrepared(tenantTable.identifier().toString(),
         dataSourceManager.getDataSource(tenantTable),
         query,
@@ -175,7 +180,7 @@ public class SqlEngine {
                              final DataSource dataSource,
                              final String query,
                              final Function<ResultSet, R> function) {
-    LOGGER.debug("executeQuery({},{})", datasourceLookup, query);
+    LOGGER.trace("executeQuery({},{})", datasourceLookup, query);
     final Counter success =
         meterRegistry.counter(SQLENGINE_EXECUTE, "datasource", datasourceLookup, "success", "true");
     final Counter failure =
@@ -208,7 +213,7 @@ public class SqlEngine {
                                 final DataSource dataSource,
                                 final String query,
                                 final Function<PreparedStatement, R> function) {
-    LOGGER.debug("executePrepared({},{})", datasourceLookup, query);
+    LOGGER.trace("executePrepared({},{})", datasourceLookup, query);
     final Counter success =
         meterRegistry.counter(SQLENGINE_EXECUTE_PREPARED, "datasource", datasourceLookup, "success", "true");
     final Counter failure =
@@ -237,7 +242,7 @@ public class SqlEngine {
   private <R> R executeWithConnection(final String datasourceLookup,
                                       final DataSource dataSource,
                                       final Function<Connection, R> function) {
-    LOGGER.debug("executeWithConnection({})", datasourceLookup);
+    LOGGER.trace("executeWithConnection({})", datasourceLookup);
     final Counter success =
         meterRegistry.counter(SQLENGINE_EXECUTE_CONNECTION, "datasource", datasourceLookup, "success", "true");
     final Counter failure =

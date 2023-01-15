@@ -76,13 +76,14 @@ public class TenantResource implements JerseyResource {
   @Path("/")
   @Produces(MediaType.APPLICATION_JSON)
   public List<String> list() {
+    LOGGER.debug("list()");
     return tenantManager.tenants();
   }
 
   /**
    * Gets the tenant.
    *
-   * @param tenant to get.
+   * @param tenantId to get.
    * @return response.
    */
   @GET
@@ -91,8 +92,9 @@ public class TenantResource implements JerseyResource {
   @ResponseMetered
   @Path("/{tenant}")
   @Produces(MediaType.APPLICATION_JSON)
-  public Optional<TenantInfo> read(@PathParam("tenant") final String tenant) {
-    return tenantManager.get(tenant)
+  public Optional<TenantInfo> read(@PathParam("tenant") final String tenantId) {
+    LOGGER.debug("read({})", tenantId);
+    return tenantManager.get(tenantId)
         .map(tenantInfoConverter::from);
   }
 
@@ -109,6 +111,7 @@ public class TenantResource implements JerseyResource {
   @Path("/{tenant}")
   @Produces(MediaType.APPLICATION_JSON)
   public TenantInfo create(@PathParam("tenant") final String tenantId) {
+    LOGGER.debug("create({})", tenantId);
     final Tenant tenant = tenantManager.create(tenantId);
     return tenantInfoConverter.from(tenant);
   }
@@ -117,7 +120,7 @@ public class TenantResource implements JerseyResource {
   /**
    * Delete the tenant.
    *
-   * @param tenant to delete.
+   * @param tenantId to delete.
    * @return response.
    */
   @DELETE
@@ -125,8 +128,9 @@ public class TenantResource implements JerseyResource {
   @ExceptionMetered
   @ResponseMetered
   @Path("/{tenant}")
-  public Response delete(@PathParam("tenant") final String tenant) {
-    if (tenantManager.delete(tenant)) {
+  public Response delete(@PathParam("tenant") final String tenantId) {
+    LOGGER.debug("delete({})", tenantId);
+    if (tenantManager.delete(tenantId)) {
       return Response.noContent().build();
     } else {
       return Response.status(Response.Status.NOT_FOUND).build();

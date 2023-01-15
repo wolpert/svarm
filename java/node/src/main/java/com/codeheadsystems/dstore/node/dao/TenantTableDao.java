@@ -59,7 +59,7 @@ public class TenantTableDao {
    * @return The tenant... either the one that was created or the existing one.
    */
   public TenantTable create(final TenantTable tenantTable) {
-    LOGGER.debug("create({})", tenantTable);
+    LOGGER.trace("create({})", tenantTable);
     sqlEngine.executePreparedInternal(
         "insert into NODE_TENANT_TABLES (RID_TENANT,TABLE_NAME,HASH_START,HASH_END, QUANTITY_EST, ENABLED, TABLE_VERSION, KEY, NONCE, PRIMARY_KEY) values (?,?,?,?,?,?,?,?,?,?)",
         (ps) -> {
@@ -93,7 +93,7 @@ public class TenantTableDao {
    * @return the tenant table.
    */
   public TenantTable update(final TenantTable tenantTable) {
-    LOGGER.debug("update({})", tenantTable);
+    LOGGER.trace("update({})", tenantTable);
     sqlEngine.executePreparedInternal(
         "update NODE_TENANT_TABLES set HASH_START = ?, HASH_END = ?, QUANTITY_EST = ?, ENABLED = ?, TABLE_VERSION = ?, PRIMARY_KEY = ? where RID_TENANT = ? and TABLE_NAME = ? and KEY = ? and NONCE = ?",
         (ps) -> {
@@ -160,7 +160,7 @@ public class TenantTableDao {
    * @return optional tenant if it exists.
    */
   public Optional<TenantTable> read(final String tenantId, final String tableName) {
-    LOGGER.debug("read({},{})", tenantId, tableName);
+    LOGGER.trace("read({},{})", tenantId, tableName);
     return sqlEngine.executePreparedInternal(
         "select * from NODE_TENANT_TABLES where RID_TENANT = ? and TABLE_NAME = ?",
         (ps) -> {
@@ -187,7 +187,7 @@ public class TenantTableDao {
    * @return list ot tenant ids.
    */
   public List<String> allTenantTables(final String tenantId) {
-    LOGGER.debug("allTenantTables({})", tenantId);
+    LOGGER.trace("allTenantTables({})", tenantId);
     return sqlEngine.executePreparedInternal("select TABLE_NAME from NODE_TENANT_TABLES where RID_TENANT = ?", (ps) -> {
       try {
         ps.setString(1, tenantId);
@@ -212,7 +212,7 @@ public class TenantTableDao {
    * @return boolean if anyone was found to delete.
    */
   public boolean delete(final String tenantId, final String tableName) {
-    LOGGER.debug("delete({})", tenantId);
+    LOGGER.trace("delete({})", tenantId);
     return sqlEngine.executePreparedInternal("delete from NODE_TENANT_TABLES where RID_TENANT = ? and TABLE_NAME = ?", (ps) -> {
       try {
         ps.setString(1, tenantId);

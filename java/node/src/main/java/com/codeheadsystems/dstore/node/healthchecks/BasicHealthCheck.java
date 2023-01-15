@@ -46,7 +46,7 @@ public class BasicHealthCheck extends HealthCheck {
    */
   @Override
   protected Result check() throws Exception {
-    LOGGER.debug("check()");
+    LOGGER.trace("check()");
     return Result.healthy();
   }
 }

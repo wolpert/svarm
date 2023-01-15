@@ -47,6 +47,7 @@ public class TenantTableInfoConverter {
    * @return result.
    */
   public TenantTableInfo from(final TenantTableIdentifier identifier) {
+    LOGGER.trace("from({})", identifier);
     return ImmutableTenantTableInfo.builder().id(identifier.tableName()).build();
   }
 

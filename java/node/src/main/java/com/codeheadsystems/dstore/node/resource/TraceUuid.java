@@ -75,7 +75,7 @@ public class TraceUuid implements ContainerRequestFilter, ContainerResponseFilte
   public void filter(final ContainerRequestContext requestContext) throws IOException {
     final String uuid = requestContext.getHeaderString(TRACE_UUID_HEADER);
     MDC.put(MDC_ID, uuid);
-    LOGGER.debug("filter(request):{}", uuid);
+    LOGGER.info("filter(request):{}", uuid);
     traceThreadLocal.set(getOrCreatedUuid(uuid));
   }
 
@@ -90,7 +90,7 @@ public class TraceUuid implements ContainerRequestFilter, ContainerResponseFilte
   public void filter(final ContainerRequestContext requestContext,
                      final ContainerResponseContext responseContext) throws IOException {
     final String uuid = get();
-    LOGGER.debug("filter(response):{}", uuid);
+    LOGGER.info("filter(response):{}", uuid);
     responseContext.getHeaders().add(TRACE_UUID_HEADER, getOrCreatedUuid(uuid));
     traceThreadLocal.set(null);
     MDC.remove(MDC_ID);

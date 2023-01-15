@@ -105,6 +105,7 @@ public class DataSourceManager implements Managed {
    * @return the source.
    */
   public DataSource getDataSource(final TenantTable tenantTable) {
+    LOGGER.trace("getDataSource({})", tenantTable);
     return tenantDataSourceLoadingCache.getUnchecked(tenantTable);
   }
 
@@ -114,6 +115,7 @@ public class DataSourceManager implements Managed {
    * @param tenant to remove.
    */
   public void evictTenant(Tenant tenant) {
+    LOGGER.trace("evictTenant({})", tenant);
     tenantDataSourceLoadingCache.invalidate(tenant);
   }
 
@@ -127,11 +129,11 @@ public class DataSourceManager implements Managed {
   }
 
   private void onRemoval(RemovalNotification<TenantTable, DataSource> notification) {
-    LOGGER.info("onRemoval({},{})", notification.getKey(), notification.getCause());
+    LOGGER.debug("onRemoval({},{})", notification.getKey(), notification.getCause());
   }
 
   private DataSource loadTenantTable(final TenantTable tenantTable) {
-    LOGGER.info("loadTenantTable({})", tenantTable);
+    LOGGER.debug("loadTenantTable({})", tenantTable);
     final String url = databaseConnectionEngine.getTenantConnectionUrl(tenantTable);
     final DataSource dataSource = getComboPooledDataSource(TENANT_MIN_POOL_SIZE, url);
     try {
@@ -148,6 +150,7 @@ public class DataSourceManager implements Managed {
    */
   @Override
   public void start() {
+    LOGGER.info("start()");
     if (internalDataSource == null) {
       try {
         LOGGER.info("setupInternalDataSource(): inProgress");
@@ -175,12 +178,12 @@ public class DataSourceManager implements Managed {
   public boolean isHealthy() throws SQLException {
     final Optional<DataSource> ds = getInternalDataSource();
     if (ds.isEmpty()) {
-      LOGGER.info("isHealthy(): Internal datasource not created yet.");
+      LOGGER.debug("isHealthy(): Internal datasource not created yet.");
       return false;
     }
     final boolean result = ds.get().getConnection().isValid(INTERNAL_MIN_POOL_SIZE);
     if (result) {
-      LOGGER.debug("isHealthy(): true");
+      LOGGER.trace("isHealthy(): true");
     } else {
       LOGGER.error("isHealthy(): not valid connection");
     }

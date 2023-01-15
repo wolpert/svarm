@@ -80,6 +80,7 @@ public class TenantTableResource implements JerseyResource {
   @Path("/")
   @Produces(MediaType.APPLICATION_JSON)
   public List<String> list(@PathParam("tenant") final String tenantId) {
+    LOGGER.debug("list({})", tenantId);
     return tenantTableManager.tables(tenantId);
   }
 
@@ -98,6 +99,7 @@ public class TenantTableResource implements JerseyResource {
   @Produces(MediaType.APPLICATION_JSON)
   public Optional<TenantTableInfo> read(@PathParam("tenant") final String tenantId,
                                         @PathParam("table") final String table) {
+    LOGGER.debug("read({},{})", tenantId, table);
     return tenantTableManager.get(tenantId, table)
         .map(TenantTable::identifier)
         .map(converter::from);
@@ -120,6 +122,7 @@ public class TenantTableResource implements JerseyResource {
   public TenantTableInfo create(@PathParam("tenant") final String tenantId,
                                 @PathParam("table") final String table,
                                 @QueryParam("primaryKey") final String primaryKey) {
+    LOGGER.debug("create({},{},{})", tenantId, table, primaryKey);
     if (primaryKey == null) {
       throw new WebApplicationException("Missing primary key", Response.Status.BAD_REQUEST);
     }
@@ -143,9 +146,12 @@ public class TenantTableResource implements JerseyResource {
   @Path("/{table}")
   public Response delete(@PathParam("tenant") final String tenantId,
                          @PathParam("table") final String table) {
+    LOGGER.debug("delete({},{})", tenantId, table);
     if (tenantTableManager.delete(tenantId, table)) {
+      LOGGER.debug("deleted {}:{}", tenantId, table);
       return Response.noContent().build();
     } else {
+      LOGGER.debug("not found {}:{}", tenantId, table);
       return Response.status(Response.Status.NOT_FOUND).build();
     }
   }

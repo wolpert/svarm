@@ -58,7 +58,7 @@ public class InternalDataSourceHealthCheck extends HealthCheck {
    */
   @Override
   protected Result check() throws Exception {
-    LOGGER.debug("check()");
+    LOGGER.trace("check()");
     try {
       if (dataSourceManager.isHealthy()) {
         return Result.healthy();

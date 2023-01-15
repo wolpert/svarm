@@ -54,7 +54,7 @@ public class DatabaseInitializationEngine {
    */
   public void initialize(final Connection connection,
                          final String path) {
-    LOGGER.info("initialize({})", path);
+    LOGGER.info("initialize({})", path); // INFO because this is rare
     try {
       Database database = DatabaseFactory.getInstance()
           .findCorrectDatabaseImplementation(new JdbcConnection(connection));
