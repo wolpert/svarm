@@ -38,3 +38,12 @@ follows;
 * **model**: Internal structure of data.
 * **module**: Dagger modules used for IoC/Injection.
 * **resources**: How upstream clients call into the dropwizard application. They do conversion of the data as needed and call the proper manager.
+
+## Logging
+
+* All constructors that are injected are logged at INFO.
+* Any table creation commands are logged at INFO since those are fairly important.
+* Customers actions are logged at debug.
+* Every internal public method for the classes are logged at trace.
+* Adding extra logs as needed, but when in doubt, consider metrics.
+
