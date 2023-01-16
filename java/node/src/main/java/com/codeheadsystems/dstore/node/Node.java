@@ -16,6 +16,7 @@
 
 package com.codeheadsystems.dstore.node;
 
+import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.health.HealthCheck;
 import com.codeheadsystems.dstore.node.component.DaggerDropWizardComponent;
 import com.codeheadsystems.dstore.node.component.DropWizardComponent;
@@ -66,9 +67,10 @@ public class Node extends Application<NodeConfiguration> {
   public void run(final NodeConfiguration configuration,
                   final Environment environment) throws Exception {
     LOGGER.info("run({},{})", configuration, environment);
-    final MeterRegistry meterRegistry = new DropwizardMetricsHelper().instrument(environment.metrics());
+    final MetricRegistry metricRegistry = environment.metrics();
+    final MeterRegistry meterRegistry = new DropwizardMetricsHelper().instrument(metricRegistry);
     final DropWizardComponent component = DaggerDropWizardComponent.builder()
-        .configurationModule(new ConfigurationModule(configuration))
+        .configurationModule(new ConfigurationModule(configuration, metricRegistry))
         .metricsModule(new MetricsModule(meterRegistry))
         .build();
     final JerseyEnvironment jerseyEnvironment = environment.jersey();

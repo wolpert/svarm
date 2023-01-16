@@ -15,6 +15,8 @@ gradle :node:run
 
 ### Troubleshooting
 
+#### :node:run
+
 If you run into problems when trying to run :node:run, remove
 
 * /tmp/dataNodeConfig.json: This is the configuration file with local keys.
@@ -22,6 +24,12 @@ If you run into problems when trying to run :node:run, remove
 ```shell
 rm -rf /tmp/dataNodeConfig.json /tmp/nodeInternalDb
 ```
+
+#### AES Failure
+
+* If you deleted your configuration, the data is lost. Remember to replace all databases.
+* Shows up as grabbing the connection just hangs.
+
 ## Package layout.
 
 Layout is based on the Managed Model format updated for Dropwizard/Dagger friendliness. Flat hierarchy. Packages are as

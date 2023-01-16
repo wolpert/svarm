@@ -17,6 +17,7 @@
 package com.codeheadsystems.dstore.node.module;
 
 import com.codeheadsystems.dstore.node.resource.JerseyResource;
+import com.codeheadsystems.dstore.node.resource.NotFoundExceptionMapper;
 import com.codeheadsystems.dstore.node.resource.TenantResource;
 import com.codeheadsystems.dstore.node.resource.TenantTableEntryResource;
 import com.codeheadsystems.dstore.node.resource.TenantTableResource;
@@ -70,4 +71,15 @@ public interface ResourceModule {
   @Binds
   @IntoSet
   JerseyResource traceUuid(TraceUuid resource);
+
+  /**
+   * Not found exception mapper.
+   *
+   * @param resource resource.
+   * @return JerseyResource.
+   */
+  @Binds
+  @IntoSet
+  JerseyResource notFoundExceptionMapper(NotFoundExceptionMapper resource);
+
 }

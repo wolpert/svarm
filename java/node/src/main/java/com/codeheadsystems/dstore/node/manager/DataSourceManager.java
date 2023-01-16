@@ -77,7 +77,7 @@ public class DataSourceManager implements Managed {
   }
 
   private static DataSource getComboPooledDataSource(final int minPoolSize, final String url) {
-    LOGGER.trace("getComboPooledDataSource() (If you are stuck here, AES failure may happen, you db and keys do not match)");
+    LOGGER.trace("getComboPooledDataSource() (If you are stuck here, Likely AES failure, your db and keys do not match)");
     final ComboPooledDataSource cpds = new ComboPooledDataSource();
     cpds.setJdbcUrl(url);
     cpds.setUser("SA");

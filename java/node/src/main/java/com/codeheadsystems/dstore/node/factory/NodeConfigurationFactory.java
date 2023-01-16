@@ -59,6 +59,19 @@ public class NodeConfigurationFactory {
   }
 
   /**
+   * Generates a fresh internal configuration.
+   *
+   * @return the configuration.
+   */
+  public NodeInternalConfiguration freshlyGenerated() {
+    return ImmutableNodeInternalConfiguration.builder()
+        .uuid(UUID.randomUUID().toString())
+        .key(cryptUtils.toBase64(cryptUtils.randomKey(32)))
+        .nonce(cryptUtils.toBase64(cryptUtils.randomKey(12)))
+        .build();
+  }
+
+  /**
    * Given the directory, will get the node internal configuration to use. If it does not exist,
    * this will generate the configuration since all values will be random.
    *
@@ -77,11 +90,7 @@ public class NodeConfigurationFactory {
       return jsonEngine.readValue(configureFile, NodeInternalConfiguration.class);
     } else {
       LOGGER.info("Generating.");
-      final NodeInternalConfiguration configuration = ImmutableNodeInternalConfiguration.builder()
-          .uuid(UUID.randomUUID().toString())
-          .key(cryptUtils.toBase64(cryptUtils.randomKey(32)))
-          .nonce(cryptUtils.toBase64(cryptUtils.randomKey(12)))
-          .build();
+      final NodeInternalConfiguration configuration = freshlyGenerated();
       jsonEngine.writeValue(configureFile, configuration);
       return configuration;
     }

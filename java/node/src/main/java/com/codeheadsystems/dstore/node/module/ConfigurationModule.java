@@ -16,6 +16,7 @@
 
 package com.codeheadsystems.dstore.node.module;
 
+import com.codahale.metrics.MetricRegistry;
 import com.codeheadsystems.dstore.node.NodeConfiguration;
 import com.codeheadsystems.dstore.node.factory.NodeConfigurationFactory;
 import com.codeheadsystems.dstore.node.model.NodeInternalConfiguration;
@@ -30,14 +31,29 @@ import javax.inject.Singleton;
 public class ConfigurationModule {
 
   private final NodeConfiguration nodeConfiguration;
+  private final MetricRegistry metricRegistry;
 
   /**
    * Default constructor.
    *
-   * @param configuration node configuration from dropwizard.
+   * @param configuration  node configuration from dropwizard.
+   * @param metricRegistry metric registry.
    */
-  public ConfigurationModule(final NodeConfiguration configuration) {
+  public ConfigurationModule(final NodeConfiguration configuration,
+                             final MetricRegistry metricRegistry) {
     this.nodeConfiguration = configuration;
+    this.metricRegistry = metricRegistry;
+  }
+
+  /**
+   * The dropwizard metric registry.
+   *
+   * @return the metric registry.
+   */
+  @Provides
+  @Singleton
+  public MetricRegistry metricRegistry() {
+    return metricRegistry;
   }
 
   /**
