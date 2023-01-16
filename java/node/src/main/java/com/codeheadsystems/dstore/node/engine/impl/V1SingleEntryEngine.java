@@ -161,7 +161,7 @@ public class V1SingleEntryEngine implements TableDefinitionEngine {
                 } else {
                   throw new IllegalArgumentException("Unknown type: " + element.getNodeType());
                 }
-                ps.setString(5, element.toString());
+                ps.setString(5, element.asText());
                 ps.addBatch();
               } catch (SQLException e) {
                 LOGGER.error("Unable to add row: {},{}", tenantTable, entity, e);

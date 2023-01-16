@@ -124,7 +124,7 @@ public interface NodeService {
    * @return response.
    */
   @GET
-  @Path("/v1/tenant/{tenant}/table/{table}/entry//{entry}")
+  @Path("/v1/tenant/{tenant}/table/{table}/entry/{entry}")
   @Produces(MediaType.APPLICATION_JSON)
   JsonNode readTenantTableEntry(@PathParam("tenant") final String tenantId,
                                 @PathParam("table") final String table,
@@ -139,7 +139,7 @@ public interface NodeService {
    * @param data     the data we care about in JSON form.
    */
   @PUT
-  @Path("/v1/tenant/{tenant}/table/{table}/entry//{entry}")
+  @Path("/v1/tenant/{tenant}/table/{table}/entry/{entry}")
   @Consumes(MediaType.APPLICATION_JSON)
   void createTenantTableEntry(@PathParam("tenant") final String tenantId,
                               @PathParam("table") final String table,
@@ -154,7 +154,7 @@ public interface NodeService {
    * @param entry    to delete.
    */
   @DELETE
-  @Path("/v1/tenant/{tenant}/table/{table}/entry//{entry}")
+  @Path("/v1/tenant/{tenant}/table/{table}/entry/{entry}")
   void deleteTenantTableEntry(@PathParam("tenant") final String tenantId,
                               @PathParam("table") final String table,
                               @PathParam("entry") final String entry);

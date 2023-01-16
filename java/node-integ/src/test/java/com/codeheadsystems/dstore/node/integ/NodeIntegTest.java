@@ -17,18 +17,32 @@
 package com.codeheadsystems.dstore.node.integ;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
+import com.codeheadsystems.dstore.common.factory.ObjectMapperFactory;
 import com.codeheadsystems.dstore.node.Node;
 import com.codeheadsystems.dstore.node.NodeConfiguration;
 import com.codeheadsystems.dstore.node.api.NodeService;
 import com.codeheadsystems.dstore.node.javaclient.NodeServiceComponent;
 import com.codeheadsystems.test.utils.DeletingFileVisitor;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableMap;
+import feign.FeignException;
 import io.dropwizard.testing.ConfigOverride;
 import io.dropwizard.testing.DropwizardTestSupport;
 import io.dropwizard.testing.ResourceHelpers;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.UUID;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.ForkJoinTask;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -38,6 +52,8 @@ public class NodeIntegTest {
   private static DropwizardTestSupport<NodeConfiguration> SUPPORT;
   private static Path BASE_DIRECTORY_PATH;
   private static NodeService NODE_SERVICE;
+  private static ObjectMapper OBJECT_MAPPER;
+  private static Random RANDOM;
 
   @BeforeAll
   static void setup() throws Exception {
@@ -50,6 +66,8 @@ public class NodeIntegTest {
     );
     SUPPORT.before();
     NODE_SERVICE = NodeServiceComponent.generate("http://localhost:" + SUPPORT.getLocalPort() + "/");
+    OBJECT_MAPPER = new ObjectMapperFactory().generate();
+    RANDOM = new Random();
   }
 
   @AfterAll
@@ -64,6 +82,62 @@ public class NodeIntegTest {
   }
 
   @Test
+  void oneTenantMultipleTables() {
+    final String tenant = "oneTenantMultipleTables";
+    final String table1 = UUID.randomUUID().toString();
+    final String table2 = UUID.randomUUID().toString();
+
+    final Map<String, JsonNode> t1Data = randomData(5);
+    final Map<String, JsonNode> t2Data = randomData(6);
+    NODE_SERVICE.createTenant(tenant);
+    NODE_SERVICE.createTenantTable(tenant, table1, "ignored");
+    NODE_SERVICE.createTenantTable(tenant, table2, "ignored");
+    t1Data.forEach((k, v) -> NODE_SERVICE.createTenantTableEntry(tenant, table1, k, v));
+    t2Data.forEach((k, v) -> NODE_SERVICE.createTenantTableEntry(tenant, table2, k, v));
+
+    // Verify
+    t1Data.forEach((k, v) -> assertThat(NODE_SERVICE.readTenantTableEntry(tenant, table1, k)).isEqualTo(v));
+    t2Data.forEach((k, v) -> assertThat(NODE_SERVICE.readTenantTableEntry(tenant, table2, k)).isEqualTo(v));
+
+    NODE_SERVICE.deleteTenantTable(tenant, table1);
+    NODE_SERVICE.deleteTenantTable(tenant, table2);
+    NODE_SERVICE.deleteTenant(tenant);
+  }
+
+  // This is disabled because we gots a problem it shows.
+  void oneTenantLotsOfConcurrentThreadsWriting() {
+    final String tenant = "oneTenantLotsOfConcurrentThreadsWriting";
+    final String table = UUID.randomUUID().toString();
+    final int threads = 10;
+
+    final Map<String, JsonNode> data = randomData(threads);
+    NODE_SERVICE.createTenant(tenant);
+    NODE_SERVICE.createTenantTable(tenant, table, "ignored");
+
+    final ForkJoinPool pool = new ForkJoinPool(threads);
+    final List<ForkJoinTask<?>> tasks = data.entrySet().stream()
+        .map((e) -> pool.submit(() -> NODE_SERVICE.createTenantTableEntry(tenant, table, e.getKey(), e.getValue())))
+        .collect(Collectors.toList());
+    tasks.forEach(ForkJoinTask::join);
+    data.forEach((k, v) -> assertThat(NODE_SERVICE.readTenantTableEntry(tenant, table, k)).isEqualTo(v));
+
+    NODE_SERVICE.deleteTenantTable(tenant, table);
+    NODE_SERVICE.deleteTenant(tenant);
+  }
+
+  private Map<String, JsonNode> randomData(final int elements) {
+    final ImmutableMap.Builder<String, JsonNode> builder = ImmutableMap.builder();
+    IntStream.range(0, elements).forEach(i -> builder.put(
+        "data-" + i + "-" + UUID.randomUUID(),
+        OBJECT_MAPPER.createObjectNode()
+            .put(UUID.randomUUID().toString(), UUID.randomUUID().toString())
+            .put(UUID.randomUUID().toString(), UUID.randomUUID().toString())
+            .put(UUID.randomUUID().toString(), RANDOM.nextInt())
+    ));
+    return builder.build();
+  }
+
+  @Test
   void fullRoundTrip() {
     final String tenant = "fullRoundTrip";
     final String table = "tableName";
@@ -75,6 +149,22 @@ public class NodeIntegTest {
     assertThat(NODE_SERVICE.listTenantTables(tenant)).isEmpty();
     assertThat(NODE_SERVICE.createTenantTable(tenant, table, "ignored")).hasFieldOrPropertyWithValue("id", table);
     assertThat(NODE_SERVICE.listTenantTables(tenant)).containsExactly(table);
+
+    final JsonNode j1 = OBJECT_MAPPER.createObjectNode().put("One", "a thing").put("two", 2);
+    final JsonNode j2 = OBJECT_MAPPER.createObjectNode().put("Free", "a different thing").put("four", 4);
+
+    final String j1Entry = "something";
+    final String j2Entry = "different";
+
+    NODE_SERVICE.createTenantTableEntry(tenant, table, j1Entry, j1);
+    NODE_SERVICE.createTenantTableEntry(tenant, table, j2Entry, j2);
+
+    assertThat(NODE_SERVICE.readTenantTableEntry(tenant, table, j1Entry)).isEqualTo(j1);
+    assertThat(NODE_SERVICE.readTenantTableEntry(tenant, table, j2Entry)).isEqualTo(j2);
+
+    NODE_SERVICE.deleteTenantTableEntry(tenant, table, j1Entry);
+    assertThatExceptionOfType(FeignException.NotFound.class)
+        .isThrownBy(() -> NODE_SERVICE.readTenantTableEntry(tenant, table, j1Entry));
 
     NODE_SERVICE.deleteTenantTable(tenant, table);
     assertThat(NODE_SERVICE.listTenantTables(tenant)).isEmpty();

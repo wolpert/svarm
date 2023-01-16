@@ -33,6 +33,12 @@ rm -rf /tmp/dataNodeConfig.json /tmp/nodeInternalDb
   databases.
 * Shows up as grabbing the connection just hangs.
 
+#### Gradle version
+
+There have been issues with plugins like checkstyle if the gradle version
+is mismatched. Officially the version in the gradle-wrapper.properties
+is the version we should build with. 7.6 as of last checked.
+
 ## Package layout.
 
 Layout is based on the Managed Model format updated for Dropwizard/Dagger
