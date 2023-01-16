@@ -51,7 +51,7 @@ class AesGcmSivManagerTest {
   }
 
   @Test
-  public void roundTrip(){
+  public void roundTrip() {
     final byte[] payload = bytes(1024);
     final byte[] key = bytes(AesGcmSivManager.KEY_LENGTH);
     final byte[] nonce = bytes(AesGcmSivManager.NONCE_LENGTH);
@@ -62,7 +62,7 @@ class AesGcmSivManagerTest {
     assertThat(payload).describedAs("decrypting works").isEqualTo(decrypted);
   }
 
-  private byte[] bytes(int length){
+  private byte[] bytes(int length) {
     final byte[] bytes = new byte[length];
     random.nextBytes(bytes);
     return bytes;

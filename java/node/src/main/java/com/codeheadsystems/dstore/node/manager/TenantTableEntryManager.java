@@ -57,7 +57,7 @@ public class TenantTableEntryManager {
    * Reads the entry.
    *
    * @param identifier of the table.
-   * @param entity to read.
+   * @param entity     to read.
    * @return the data, if found.
    */
   public Optional<JsonNode> read(final TenantTableIdentifier identifier,
@@ -72,8 +72,8 @@ public class TenantTableEntryManager {
    * Writes the entry.
    *
    * @param identifier of the table.
-   * @param entity to write.
-   * @param jsonNode the data, if found.
+   * @param entity     to write.
+   * @param jsonNode   the data, if found.
    */
   public void write(final TenantTableIdentifier identifier,
                     final String entity,
@@ -88,7 +88,7 @@ public class TenantTableEntryManager {
    * Deletes the entry.
    *
    * @param identifier of the table.
-   * @param entity the entity.
+   * @param entity     the entity.
    * @return if it was deleted or not.
    */
   public boolean delete(final TenantTableIdentifier identifier,

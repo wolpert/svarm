@@ -21,7 +21,7 @@ public interface NodeServiceComponent {
    * @param connectionUrl to connect to.
    * @return a node service impl.
    */
-  static  NodeService generate(final String connectionUrl) {
+  static NodeService generate(final String connectionUrl) {
     return DaggerNodeServiceComponent.builder()
         .nodeServiceModule(new NodeServiceModule(connectionUrl))
         .build().nodeService();

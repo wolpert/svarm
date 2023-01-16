@@ -97,8 +97,8 @@ public class JsonEngine {
    * Writes the value to the file in question.
    *
    * @param configurationFile to write to.
-   * @param object we want to write into JSON.
-   * @param <T> type of object we are wriing.
+   * @param object            we want to write into JSON.
+   * @param <T>               type of object we are wriing.
    */
   public <T> void writeValue(final File configurationFile,
                              final T object) {
@@ -115,9 +115,9 @@ public class JsonEngine {
    * Reads the file and returns an object based on the class.
    *
    * @param configureFile to read.
-   * @param clazz we are converting to.
+   * @param clazz         we are converting to.
+   * @param <T>           the type of object.
    * @return an instance of the clazz.
-   * @param <T> the type of object.
    */
   public <T> T readValue(final File configureFile,
                          final Class<T> clazz) {

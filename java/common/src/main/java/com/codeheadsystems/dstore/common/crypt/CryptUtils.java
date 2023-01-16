@@ -48,6 +48,7 @@ public class CryptUtils {
 
   /**
    * Generates a random key assuming default bit length.
+   *
    * @return the key.
    */
   public byte[] randomKey() {
@@ -110,7 +111,7 @@ public class CryptUtils {
   /**
    * XOR two byte arrays.
    *
-   * @param left array.
+   * @param left  array.
    * @param right array.
    * @return a new array from XOR of the other two.
    */

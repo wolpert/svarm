@@ -1,6 +1,5 @@
 package com.codeheadsystems.dstore.node.client;
 
-import com.codeheadsystems.dstore.common.factory.ObjectMapperFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dagger.Module;
 import dagger.Provides;
