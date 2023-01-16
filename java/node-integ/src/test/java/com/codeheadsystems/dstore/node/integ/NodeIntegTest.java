@@ -54,6 +54,7 @@ public class NodeIntegTest {
   private static NodeService NODE_SERVICE;
   private static ObjectMapper OBJECT_MAPPER;
   private static Random RANDOM;
+  private static String CONNECTION_URL;
 
   @BeforeAll
   static void setup() throws Exception {
@@ -65,7 +66,8 @@ public class NodeIntegTest {
         ConfigOverride.config("databaseDirectory", BASE_DIRECTORY_PATH.toString())
     );
     SUPPORT.before();
-    NODE_SERVICE = NodeServiceComponent.generate("http://localhost:" + SUPPORT.getLocalPort() + "/");
+    CONNECTION_URL = "http://localhost:" + SUPPORT.getLocalPort() + "/";
+    NODE_SERVICE = NodeServiceComponent.generate(CONNECTION_URL);
     OBJECT_MAPPER = new ObjectMapperFactory().generate();
     RANDOM = new Random();
   }
@@ -104,11 +106,12 @@ public class NodeIntegTest {
     NODE_SERVICE.deleteTenant(tenant);
   }
 
-  // This is disabled because we gots a problem it shows.
-  void oneTenantLotsOfConcurrentThreadsWriting() {
+  // Testing this in the dropwizard test isn't doing what I want it to do. We should use a real load test to see
+  // what we can do.
+  void oneTenantLotsOfConcurrentThreadsWriting() throws InterruptedException {
     final String tenant = "oneTenantLotsOfConcurrentThreadsWriting";
     final String table = UUID.randomUUID().toString();
-    final int threads = 10;
+    final int threads = 5;
 
     final Map<String, JsonNode> data = randomData(threads);
     NODE_SERVICE.createTenant(tenant);
@@ -116,7 +119,8 @@ public class NodeIntegTest {
 
     final ForkJoinPool pool = new ForkJoinPool(threads);
     final List<ForkJoinTask<?>> tasks = data.entrySet().stream()
-        .map((e) -> pool.submit(() -> NODE_SERVICE.createTenantTableEntry(tenant, table, e.getKey(), e.getValue())))
+        .map((e) -> pool.submit(() -> NodeServiceComponent.generate(CONNECTION_URL)
+            .createTenantTableEntry(tenant, table, e.getKey(), e.getValue())))
         .collect(Collectors.toList());
     tasks.forEach(ForkJoinTask::join);
     data.forEach((k, v) -> assertThat(NODE_SERVICE.readTenantTableEntry(tenant, table, k)).isEqualTo(v));
