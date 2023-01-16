@@ -60,7 +60,7 @@ public class TenantDao {
     LOGGER.trace("create({})", tenant);
     sqlEngine.executePreparedInternal("insert into NODE_TENANT (RID_TENANT,UUID,KEY,NONCE) values (?,?,?,?)", (ps) -> {
       try {
-        ps.setString(1, tenant.id());
+        ps.setString(1, tenant.ridTenant());
         ps.setString(2, tenant.uuid());
         ps.setString(3, tenant.key());
         ps.setString(4, tenant.nonce());
@@ -85,7 +85,7 @@ public class TenantDao {
   private Tenant fromResultSet(final ResultSet rs) {
     try {
       return ImmutableTenant.builder()
-          .id(rs.getString("RID_TENANT"))
+          .ridTenant(rs.getString("RID_TENANT"))
           .uuid(rs.getString("UUID"))
           .key(rs.getString("KEY"))
           .nonce(rs.getString("NONCE"))

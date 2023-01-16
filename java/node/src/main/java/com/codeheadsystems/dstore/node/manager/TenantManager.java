@@ -103,7 +103,7 @@ public class TenantManager {
   private Tenant buildTenant(final String tenantId) {
     LOGGER.debug("buildTenant({})", tenantId);
     return ImmutableTenant.builder()
-        .id(tenantId)
+        .ridTenant(tenantId)
         .uuid(UUID.randomUUID().toString())
         .key(aesGcmSivManager.randomKeyBase64Encoded())
         .nonce(aesGcmSivManager.randomNonceBase64Encoded())

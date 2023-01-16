@@ -29,7 +29,7 @@ public interface Tenant {
    *
    * @return value.
    */
-  String id();
+  String ridTenant();
 
   /**
    * Uuid of the tenant. This is local to us.

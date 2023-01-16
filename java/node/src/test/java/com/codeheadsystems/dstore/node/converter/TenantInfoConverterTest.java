@@ -37,7 +37,7 @@ class TenantInfoConverterTest {
 
   @Test
   void from() {
-    when(tenant.id()).thenReturn(UUID);
+    when(tenant.ridTenant()).thenReturn(UUID);
     assertThat(converter.from(tenant))
         .isNotNull()
         .hasFieldOrPropertyWithValue("id", UUID);

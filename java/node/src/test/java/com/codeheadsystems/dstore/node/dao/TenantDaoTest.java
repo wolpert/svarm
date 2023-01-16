@@ -38,30 +38,30 @@ class TenantDaoTest extends BaseSQLTest {
   @Test
   void roundTrip() {
     final Tenant tenant = randomTenant();
-    assertThat(dao.read(tenant.id())).isEmpty();
+    assertThat(dao.read(tenant.ridTenant())).isEmpty();
     assertThat(dao.create(tenant)).isEqualTo(tenant);
-    assertThat(dao.read(tenant.id())).isPresent().contains(tenant);
+    assertThat(dao.read(tenant.ridTenant())).isPresent().contains(tenant);
   }
 
   @Test
   void list() {
     final List<Tenant> tenants = List.of(randomTenant(), randomTenant(), randomTenant());
     tenants.forEach(dao::create);
-    final List<String> ids = tenants.stream().map(Tenant::id).toList();
+    final List<String> ids = tenants.stream().map(Tenant::ridTenant).toList();
     assertThat(dao.allTenants()).containsOnlyOnceElementsOf(ids);
   }
 
   @Test
   void delete() {
     final Tenant tenant = randomTenant();
-    assertThat(dao.delete(tenant.id())).isFalse();
+    assertThat(dao.delete(tenant.ridTenant())).isFalse();
     dao.create(tenant);
-    assertThat(dao.delete(tenant.id())).isTrue();
+    assertThat(dao.delete(tenant.ridTenant())).isTrue();
   }
 
   private Tenant randomTenant() {
     return ImmutableTenant.builder()
-        .id(UUID.randomUUID().toString())
+        .ridTenant(UUID.randomUUID().toString())
         .nonce(UUID.randomUUID().toString())
         .key(UUID.randomUUID().toString())
         .uuid(UUID.randomUUID().toString())

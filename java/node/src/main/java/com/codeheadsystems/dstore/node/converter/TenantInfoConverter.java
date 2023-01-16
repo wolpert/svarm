@@ -48,7 +48,7 @@ public class TenantInfoConverter {
    */
   public TenantInfo from(final Tenant tenant) {
     LOGGER.trace("from({})", tenant);
-    return ImmutableTenantInfo.builder().id(tenant.id()).build();
+    return ImmutableTenantInfo.builder().id(tenant.ridTenant()).build();
   }
 
 }
