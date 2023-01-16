@@ -67,7 +67,7 @@ class TenantManagerTest extends BaseMetricTest {
     when(dao.create(tenantArgumentCaptor.capture())).thenReturn(tenant);
     assertThat(manager.create(TENANT_ID)).isEqualTo(tenant);
     assertThat(tenantArgumentCaptor.getValue())
-        .hasFieldOrPropertyWithValue("id", TENANT_ID)
+        .hasFieldOrPropertyWithValue("ridTenant", TENANT_ID)
         .hasFieldOrPropertyWithValue("key", KEY)
         .hasFieldOrPropertyWithValue("nonce", NONCE);
   }
