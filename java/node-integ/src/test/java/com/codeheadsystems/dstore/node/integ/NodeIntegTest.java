@@ -20,6 +20,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.codeheadsystems.dstore.node.Node;
 import com.codeheadsystems.dstore.node.NodeConfiguration;
+import com.codeheadsystems.dstore.node.client.NodeService;
+import com.codeheadsystems.dstore.node.client.NodeServiceComponent;
 import com.codeheadsystems.test.utils.DeletingFileVisitor;
 import io.dropwizard.testing.ConfigOverride;
 import io.dropwizard.testing.DropwizardTestSupport;
@@ -35,6 +37,7 @@ public class NodeIntegTest {
 
   private static DropwizardTestSupport<NodeConfiguration> SUPPORT;
   private static Path BASE_DIRECTORY_PATH;
+  private static NodeService NODE_SERVICE;
 
   @BeforeAll
   static void setup() throws Exception {
@@ -46,6 +49,7 @@ public class NodeIntegTest {
         ConfigOverride.config("databaseDirectory", BASE_DIRECTORY_PATH.toString())
     );
     SUPPORT.before();
+    NODE_SERVICE = NodeServiceComponent.generate("http://localhost:" + SUPPORT.getLocalPort() + "/");
   }
 
   @AfterAll
