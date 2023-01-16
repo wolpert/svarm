@@ -21,6 +21,7 @@ import static org.mockito.Mockito.when;
 
 import com.codeheadsystems.dstore.common.crypt.AesGcmSivManager;
 import com.codeheadsystems.dstore.node.dao.TenantDao;
+import com.codeheadsystems.dstore.node.exception.ExceptionUtils;
 import com.codeheadsystems.dstore.node.model.Tenant;
 import com.codeheadsystems.metrics.test.BaseMetricTest;
 import java.util.List;
@@ -50,7 +51,7 @@ class TenantManagerTest extends BaseMetricTest {
 
   @BeforeEach
   void setup() {
-    manager = new TenantManager(metrics, dao, aesManager);
+    manager = new TenantManager(metrics, dao, aesManager, new ExceptionUtils());
   }
 
   @Test

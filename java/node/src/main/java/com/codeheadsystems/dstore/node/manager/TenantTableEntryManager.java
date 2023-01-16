@@ -102,7 +102,7 @@ public class TenantTableEntryManager {
   private TableDefinitionEngine engine(final TenantTable tenantTable) {
     final String tableVersion = tenantTable.tableVersion();
     LOGGER.trace("engine({})", tableVersion);
-    final TableDefinitionEngine engine = tableDefinitionEngineMap.get(tenantTable.tableVersion());
+    final TableDefinitionEngine engine = tableDefinitionEngineMap.get(tableVersion);
     if (engine == null) {
       LOGGER.error("Bad version: {}", tableVersion);
       throw new IllegalArgumentException("No such version:" + tableVersion);

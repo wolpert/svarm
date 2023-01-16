@@ -19,6 +19,7 @@ package com.codeheadsystems.dstore.node.manager;
 import com.codeheadsystems.dstore.common.crypt.AesGcmSivManager;
 import com.codeheadsystems.dstore.node.dao.TenantTableDao;
 import com.codeheadsystems.dstore.node.engine.TableDefinitionEngine;
+import com.codeheadsystems.dstore.node.exception.ExceptionUtils;
 import com.codeheadsystems.dstore.node.exception.NotFoundException;
 import com.codeheadsystems.dstore.node.model.ImmutableTenantTable;
 import com.codeheadsystems.dstore.node.model.ImmutableTenantTableIdentifier;
@@ -28,11 +29,9 @@ import com.codeheadsystems.metrics.Metrics;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import com.google.common.util.concurrent.UncheckedExecutionException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.slf4j.Logger;
@@ -52,6 +51,7 @@ public class TenantTableManager {
   private final Map<String, TableDefinitionEngine> tableDefinitionEngineMap;
   private final LoadingCache<TenantTableIdentifier, TenantTable> tenantTableCacheLoader;
   private final DataSourceManager dataSourceManager;
+  private final ExceptionUtils exceptionUtils;
 
   /**
    * Default constructor.
@@ -61,14 +61,17 @@ public class TenantTableManager {
    * @param aesGcmSivManager         to crypt controls.
    * @param tableDefinitionEngineMap map of available engines.
    * @param dataSourceManager        to ensure the data source exists.
+   * @param exceptionUtils           for exception processing.
    */
   @Inject
   public TenantTableManager(final Metrics metrics,
                             final TenantTableDao dao,
                             final AesGcmSivManager aesGcmSivManager,
                             final Map<String, TableDefinitionEngine> tableDefinitionEngineMap,
-                            final DataSourceManager dataSourceManager) {
+                            final DataSourceManager dataSourceManager,
+                            final ExceptionUtils exceptionUtils) {
     LOGGER.info("TenantManager({},{},{},{})", metrics, dao, aesGcmSivManager, tableDefinitionEngineMap);
+    this.exceptionUtils = exceptionUtils;
     this.dataSourceManager = dataSourceManager;
     this.metrics = metrics;
     this.dao = dao;
@@ -100,21 +103,8 @@ public class TenantTableManager {
    * @return the tenant.
    */
   public Optional<TenantTable> get(final TenantTableIdentifier identifier) {
-    try {
-      return Optional.of(tenantTableCacheLoader.get(identifier));
-    } catch (NotFoundException nfe) {
-      LOGGER.trace("Tenant not found (unchecked): {}", identifier);
-      return Optional.empty();
-    } catch (ExecutionException | UncheckedExecutionException e) {
-      final Throwable cause = e.getCause();
-      if (cause instanceof NotFoundException) {
-        LOGGER.trace("Tenant not found (checked): {}", identifier);
-        return Optional.empty();
-      } else {
-        LOGGER.error("Loading tenant failed", cause);
-        throw new RuntimeException(e);
-      }
-    }
+    LOGGER.trace("get({})", identifier);
+    return exceptionUtils.loadingCacheExecutionExceptionWrapper(() -> tenantTableCacheLoader.get(identifier));
   }
 
   private TenantTable load(final TenantTableIdentifier identifier) {

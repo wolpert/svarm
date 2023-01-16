@@ -22,6 +22,7 @@ import static org.mockito.Mockito.when;
 import com.codeheadsystems.dstore.common.crypt.AesGcmSivManager;
 import com.codeheadsystems.dstore.node.dao.TenantTableDao;
 import com.codeheadsystems.dstore.node.engine.TableDefinitionEngine;
+import com.codeheadsystems.dstore.node.exception.ExceptionUtils;
 import com.codeheadsystems.dstore.node.model.TenantTable;
 import com.codeheadsystems.metrics.test.BaseMetricTest;
 import java.util.List;
@@ -59,7 +60,7 @@ class TenantTableManagerTest extends BaseMetricTest {
   @BeforeEach
   void setup() {
     tableDefinitionEngineMap = Map.of(ENGINE, engine);
-    manager = new TenantTableManager(metrics, dao, aesManager, tableDefinitionEngineMap, dataSourceManager);
+    manager = new TenantTableManager(metrics, dao, aesManager, tableDefinitionEngineMap, dataSourceManager, new ExceptionUtils());
   }
 
   @Test

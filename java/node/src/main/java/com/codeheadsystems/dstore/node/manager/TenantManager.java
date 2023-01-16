@@ -18,6 +18,7 @@ package com.codeheadsystems.dstore.node.manager;
 
 import com.codeheadsystems.dstore.common.crypt.AesGcmSivManager;
 import com.codeheadsystems.dstore.node.dao.TenantDao;
+import com.codeheadsystems.dstore.node.exception.ExceptionUtils;
 import com.codeheadsystems.dstore.node.exception.NotFoundException;
 import com.codeheadsystems.dstore.node.model.ImmutableTenant;
 import com.codeheadsystems.dstore.node.model.Tenant;
@@ -25,11 +26,9 @@ import com.codeheadsystems.metrics.Metrics;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import com.google.common.util.concurrent.UncheckedExecutionException;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.slf4j.Logger;
@@ -46,6 +45,7 @@ public class TenantManager {
   private final Metrics metrics;
   private final TenantDao dao;
   private final AesGcmSivManager aesGcmSivManager;
+  private final ExceptionUtils exceptionUtils;
   private final LoadingCache<String, Tenant> tenantLoadingCache;
 
   /**
@@ -54,11 +54,14 @@ public class TenantManager {
    * @param metrics          to use.
    * @param dao              to use.
    * @param aesGcmSivManager to key generation.
+   * @param exceptionUtils   for exception processing.
    */
   @Inject
   public TenantManager(final Metrics metrics,
                        final TenantDao dao,
-                       final AesGcmSivManager aesGcmSivManager) {
+                       final AesGcmSivManager aesGcmSivManager,
+                       final ExceptionUtils exceptionUtils) {
+    this.exceptionUtils = exceptionUtils;
     LOGGER.info("TenantManager({},{},{})", metrics, dao, aesGcmSivManager);
     this.metrics = metrics;
     this.dao = dao;
@@ -76,21 +79,7 @@ public class TenantManager {
    */
   public Optional<Tenant> get(final String tenantId) {
     LOGGER.trace("get({})", tenantId);
-    try {
-      return Optional.of(tenantLoadingCache.get(tenantId));
-    } catch (NotFoundException nfe) {
-      LOGGER.trace("Tenant not found (unchecked): {}", tenantId);
-      return Optional.empty();
-    } catch (ExecutionException | UncheckedExecutionException e) {
-      final Throwable cause = e.getCause();
-      if (cause instanceof NotFoundException) {
-        LOGGER.trace("Tenant not found (checked): {}", tenantId);
-        return Optional.empty();
-      } else {
-        LOGGER.error("Loading tenant failed", cause);
-        throw new RuntimeException(e);
-      }
-    }
+    return exceptionUtils.loadingCacheExecutionExceptionWrapper(() -> tenantLoadingCache.get(tenantId));
   }
 
   private Tenant load(final String tenantId) {
