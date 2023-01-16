@@ -16,107 +16,73 @@
 
 package com.codeheadsystems.dstore.node.dao;
 
-import com.codeheadsystems.dstore.node.engine.SqlEngine;
-import com.codeheadsystems.dstore.node.model.ImmutableTenant;
+import com.codeheadsystems.dstore.node.manager.DataSourceManager;
 import com.codeheadsystems.dstore.node.model.Tenant;
-import com.google.common.collect.ImmutableList;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import org.jdbi.v3.core.Jdbi;
+import org.jdbi.v3.core.mapper.immutables.JdbiImmutables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Accessor to tenant records in the node. This are not the tenant tables, but the tenant itself.
+ * Accessor to tenant records in the node. These are not the tenant tables, but the tenant itself.
  */
 @Singleton
 public class TenantDao {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(TenantDao.class);
 
-  private final SqlEngine sqlEngine;
+  private final DataSourceManager dataSourceManager;
+  // lazy instantiation as the datastore may not be initialized when this class is constructed.
+  private volatile Jdbi jdbiInstance;
 
   /**
    * Default constructor.
    *
-   * @param sqlEngine to execute sql.
+   * @param dataSourceManager to get the internal datasource for tenant info
    */
   @Inject
-  public TenantDao(final SqlEngine sqlEngine) {
-    LOGGER.info("TenantDao({})", sqlEngine);
-    this.sqlEngine = sqlEngine;
+  public TenantDao(final DataSourceManager dataSourceManager) {
+    this.dataSourceManager = dataSourceManager;
+    LOGGER.trace("TenantDao({})", dataSourceManager);
+
   }
 
   /**
-   * Creates the tenant in the database. If it already exists, does nothing but returns the existing tenant.
+   * Creates the tenant in the database. If it already exists, it does nothing but returns the existing tenant.
    *
    * @param tenant to create.
    * @return The tenant... either the one that was created or the existing one.
    */
   public Tenant create(final Tenant tenant) {
     LOGGER.trace("create({})", tenant);
-    sqlEngine.executePreparedInternal("insert into NODE_TENANT (RID_TENANT,UUID,KEY,NONCE) values (?,?,?,?)", (ps) -> {
-      try {
-        ps.setString(1, tenant.ridTenant());
-        ps.setString(2, tenant.uuid());
-        ps.setString(3, tenant.key());
-        ps.setString(4, tenant.nonce());
-        ps.execute();
-        if (ps.getUpdateCount() != 1) {
-          throw new IllegalArgumentException("Unable to create tenant");
-        }
-      } catch (SQLException e) {
-        throw new IllegalArgumentException("Unable to read a tenant", e);
-      }
-      return null;
-    });
+    final Integer updateCount = jdbi().withHandle(handle ->
+        handle.createUpdate("insert into NODE_TENANT (RID_TENANT,UUID,KEY,NONCE) values (:ridTenant, :uuid, :key, :nonce)")
+            .bindPojo(tenant)
+            .execute()
+    );
+    if (updateCount != 1) {
+      throw new IllegalArgumentException("Unable to create tenant");
+    }
     return tenant;
   }
 
   /**
-   * Reads a tenant from the database result set. Does not advance the cursor.
-   *
-   * @param rs result set to read from. Must be on a row.
-   * @return a tenant.
-   */
-  private Tenant fromResultSet(final ResultSet rs) {
-    try {
-      return ImmutableTenant.builder()
-          .ridTenant(rs.getString("RID_TENANT"))
-          .uuid(rs.getString("UUID"))
-          .key(rs.getString("KEY"))
-          .nonce(rs.getString("NONCE"))
-          .build();
-    } catch (SQLException e) {
-      throw new IllegalArgumentException("Unable to read tenant", e);
-    }
-  }
-
-  /**
-   * Reads from the current database, if the tenant exists.
+   * Reads from the current database if the tenant exists.
    *
    * @param tenantId tenant to read.
    * @return optional tenant if it exists.
    */
   public Optional<Tenant> read(final String tenantId) {
     LOGGER.trace("read({})", tenantId);
-    return sqlEngine.executePreparedInternal("select * from NODE_TENANT where RID_TENANT = ?", (ps) -> {
-      try {
-        ps.setString(1, tenantId);
-        try (final ResultSet rs = ps.executeQuery()) {
-          if (rs.next()) {
-            return Optional.of(fromResultSet(rs));
-          } else {
-            return Optional.empty();
-          }
-        }
-      } catch (SQLException e) {
-        throw new IllegalArgumentException("Unable to read a tenant", e);
-      }
-    });
+    return jdbi().withHandle(handle ->
+        handle.createQuery("select * from NODE_TENANT where RID_TENANT = :tenantId")
+            .bind("tenantId", tenantId)
+            .mapTo(Tenant.class)
+            .findFirst());
   }
 
   /**
@@ -126,17 +92,10 @@ public class TenantDao {
    */
   public List<String> allTenants() {
     LOGGER.trace("allTenants()");
-    return sqlEngine.executeQueryInternal("select RID_TENANT from NODE_TENANT", (rs) -> {
-      final ImmutableList.Builder<String> builder = ImmutableList.builder();
-      try {
-        while (rs.next()) {
-          builder.add(rs.getString(1));
-        }
-      } catch (SQLException e) {
-        throw new IllegalArgumentException("Unable to list tenants", e);
-      }
-      return builder.build();
-    });
+    return jdbi().withHandle(handle ->
+        handle.createQuery("select RID_TENANT from NODE_TENANT")
+            .mapTo(String.class)
+            .list());
   }
 
   /**
@@ -147,14 +106,24 @@ public class TenantDao {
    */
   public boolean delete(final String tenantId) {
     LOGGER.trace("delete({})", tenantId);
-    return sqlEngine.executePreparedInternal("delete from NODE_TENANT where RID_TENANT = ?", (ps) -> {
-      try {
-        ps.setString(1, tenantId);
-        ps.execute();
-        return ps.getUpdateCount() > 0;
-      } catch (SQLException e) {
-        throw new IllegalArgumentException("Unable to delete a tenant", e);
+    return jdbi().withHandle(handle ->
+        handle.createUpdate("delete from NODE_TENANT where RID_TENANT = :tenantId")
+            .bind("tenantId", tenantId)
+            .execute() > 0);
+  }
+
+  private Jdbi jdbi() {
+    // good old double-checked locking - should probably be replaced with a better lazy instantiation approach
+    if (jdbiInstance == null) {
+      // TODO: create simple factory for creating & configuring jdbi instances
+      synchronized (TenantDao.class) {
+        if (jdbiInstance == null) {
+          jdbiInstance = Jdbi.create(dataSourceManager.getInternalDataSource().orElseThrow());
+          jdbiInstance.getConfig(JdbiImmutables.class).registerImmutable(Tenant.class);
+        }
       }
-    });
+    }
+
+    return jdbiInstance;
   }
 }

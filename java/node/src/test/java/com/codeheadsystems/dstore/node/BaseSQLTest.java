@@ -39,7 +39,7 @@ public abstract class BaseSQLTest extends BaseMetricTest {
   private static final Logger log = LoggerFactory.getLogger(BaseSQLTest.class);
 
   protected SqlEngine sqlEngine;
-  private DataSourceManager dataSourceManager;
+  protected DataSourceManager dataSourceManager;
   private DatabaseInitializationEngine databaseInitializationEngine;
   @Mock private DatabaseConnectionEngine databaseConnectionEngine;
 
