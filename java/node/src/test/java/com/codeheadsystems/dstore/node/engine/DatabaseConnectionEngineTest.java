@@ -25,7 +25,7 @@ import com.codeheadsystems.dstore.node.manager.ControlPlaneManager;
 import com.codeheadsystems.dstore.node.model.NodeInternalConfiguration;
 import com.codeheadsystems.dstore.node.model.TenantTable;
 import com.codeheadsystems.dstore.node.model.TenantTableIdentifier;
-import com.codeheadsystems.dstore.node.util.DeletingFileVisitor;
+import com.codeheadsystems.test.utils.DeletingFileVisitor;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;

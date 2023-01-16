@@ -54,6 +54,9 @@ dependencies {
     implementation libs.openfeign.java11
     implementation libs.openfeign.jaxrs2
 
+    implementation libs.retrofit
+    implementation libs.retrofit2.converter.jackson
+
     testImplementation libs.dropwizard.testing
 
     testImplementation libs.jackson.dataformat.yaml
