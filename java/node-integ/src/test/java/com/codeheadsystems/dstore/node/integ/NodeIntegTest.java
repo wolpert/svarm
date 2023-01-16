@@ -64,7 +64,21 @@ public class NodeIntegTest {
   }
 
   @Test
-  void doSomething() {
-    assertThat(true).isTrue();
+  void fullRoundTrip() {
+    final String tenant = "fullRoundTrip";
+    final String table = "tableName";
+
+    assertThat(NODE_SERVICE.listTenants()).doesNotContain(tenant);
+    assertThat(NODE_SERVICE.createTenant(tenant)).hasFieldOrPropertyWithValue("id", tenant);
+    assertThat(NODE_SERVICE.listTenants()).contains(tenant);
+
+    assertThat(NODE_SERVICE.listTenantTables(tenant)).isEmpty();
+    assertThat(NODE_SERVICE.createTenantTable(tenant, table, "ignored")).hasFieldOrPropertyWithValue("id", table);
+    assertThat(NODE_SERVICE.listTenantTables(tenant)).containsExactly(table);
+
+    NODE_SERVICE.deleteTenantTable(tenant, table);
+    assertThat(NODE_SERVICE.listTenantTables(tenant)).isEmpty();
+    NODE_SERVICE.deleteTenant(tenant);
+    assertThat(NODE_SERVICE.listTenants()).doesNotContain(tenant);
   }
 }
