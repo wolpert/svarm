@@ -19,15 +19,14 @@ package com.codeheadsystems.dstore.node.component;
 import com.codahale.metrics.health.HealthCheck;
 import com.codeheadsystems.dstore.common.module.JsonModule;
 import com.codeheadsystems.dstore.node.module.ConfigurationModule;
+import com.codeheadsystems.dstore.node.module.DataSourceModule;
 import com.codeheadsystems.dstore.node.module.HealthCheckModule;
 import com.codeheadsystems.dstore.node.module.ResourceModule;
-import com.codeheadsystems.dstore.node.module.StartupModule;
 import com.codeheadsystems.dstore.node.module.TableDefinitionEngineModule;
 import com.codeheadsystems.dstore.node.module.UtilitiesModule;
 import com.codeheadsystems.dstore.node.resource.JerseyResource;
 import com.codeheadsystems.metrics.dagger.MetricsModule;
 import dagger.Component;
-import io.dropwizard.lifecycle.Managed;
 import java.util.Set;
 import javax.inject.Singleton;
 
@@ -37,11 +36,11 @@ import javax.inject.Singleton;
 @Singleton
 @Component(modules = {
     ConfigurationModule.class,
+    DataSourceModule.class,
     HealthCheckModule.class,
     JsonModule.class,
     MetricsModule.class,
     ResourceModule.class,
-    StartupModule.class,
     TableDefinitionEngineModule.class,
     UtilitiesModule.class
 })
@@ -61,10 +60,4 @@ public interface DropWizardComponent {
    */
   Set<HealthCheck> healthChecks();
 
-  /**
-   * Returns the startup services that need to function before registering resources and health checks.
-   *
-   * @return the managed services.
-   */
-  Set<Managed> managed();
 }

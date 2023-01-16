@@ -16,18 +16,15 @@
 
 package com.codeheadsystems.dstore.node.manager;
 
-import static com.codeheadsystems.dstore.node.manager.DataSourceManager.INTERNAL;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.codeheadsystems.dstore.node.engine.DatabaseConnectionEngine;
 import com.codeheadsystems.dstore.node.engine.DatabaseInitializationEngine;
 import com.codeheadsystems.dstore.node.model.TenantTable;
 import java.sql.Connection;
-import java.util.Optional;
 import javax.sql.DataSource;
+import org.jdbi.v3.core.Jdbi;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -50,6 +47,10 @@ class DataSourceManagerTest {
   @Mock private DatabaseInitializationEngine databaseInitializationEngine;
   @Mock private DatabaseConnectionEngine databaseConnectionEngine;
   @Mock private TenantTable tenantTable;
+
+  @Mock private DataSource internalDataSource;
+
+  @Mock private Jdbi internalJdbi;
   @Captor private ArgumentCaptor<Connection> connectionArgumentCaptor;
 
   @InjectMocks private DataSourceManager dataSourceManager;
@@ -59,18 +60,6 @@ class DataSourceManagerTest {
     when(databaseConnectionEngine.getTenantConnectionUrl(tenantTable)).thenReturn(CONNECTION_URL);
     final DataSource dataSource = dataSourceManager.getDataSource(tenantTable);
     assertThat(dataSource).isNotNull();
-  }
-
-  @Test
-  void internalSetup() {
-    when(databaseConnectionEngine.getInternalConnectionUrl()).thenReturn(CONNECTION_URL);
-    dataSourceManager.start();
-    final Optional<DataSource> internalDataSource = dataSourceManager.getInternalDataSource();
-    assertThat(internalDataSource)
-        .isNotNull()
-        .isNotEmpty();
-    assertThat(dataSourceManager.isReady()).isTrue();
-    verify(databaseInitializationEngine).initialize(connectionArgumentCaptor.capture(), eq(INTERNAL));
   }
 
 }

@@ -25,7 +25,6 @@ import com.codeheadsystems.metrics.dagger.MetricsModule;
 import com.codeheadsystems.metrics.helper.DropwizardMetricsHelper;
 import io.dropwizard.Application;
 import io.dropwizard.jersey.setup.JerseyEnvironment;
-import io.dropwizard.lifecycle.Managed;
 import io.dropwizard.setup.Environment;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.slf4j.Logger;
@@ -74,10 +73,6 @@ public class Node extends Application<NodeConfiguration> {
         .metricsModule(new MetricsModule(meterRegistry))
         .build();
     final JerseyEnvironment jerseyEnvironment = environment.jersey();
-    for (Managed managed : component.managed()) {
-      LOGGER.info("Registering managed services: {}", managed.getClass().getSimpleName());
-      environment.lifecycle().manage(managed);
-    }
     for (Object resource : component.resources()) {
       LOGGER.info("Registering resource: {}", resource.getClass().getSimpleName());
       jerseyEnvironment.register(resource);

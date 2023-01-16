@@ -34,7 +34,7 @@ class TenantDaoTest extends BaseSQLTest {
 
   @BeforeEach
   void setup() {
-    dao = new TenantDao(super.dataSourceManager);
+    dao = new TenantDao(internalJdbi);
   }
 
   @Test

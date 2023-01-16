@@ -32,6 +32,7 @@ import java.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.sql.DataSource;
+import org.jdbi.v3.core.Jdbi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,11 +40,7 @@ import org.slf4j.LoggerFactory;
  * Provides datasources either of type tenant or internal. Responsible for generating and maintaining.
  */
 @Singleton
-public class DataSourceManager implements Managed {
-  /**
-   * Identifier for internal liquibase files.
-   */
-  public static final String INTERNAL = "liquibase/internal";
+public class DataSourceManager {
   /**
    * Identifier for tenant liquibase files.
    */
@@ -56,18 +53,25 @@ public class DataSourceManager implements Managed {
   private final DatabaseInitializationEngine databaseInitializationEngine;
   private final LoadingCache<TenantTable, DataSource> tenantDataSourceLoadingCache;
 
-  private volatile DataSource internalDataSource = null;
+  private final DataSource internalDataSource;
+  private final Jdbi internalJdbi;
 
   /**
    * Default constructor for the DSM.
    *
    * @param databaseConnectionEngine     used to create URLs to the database to connect to.
    * @param databaseInitializationEngine Used to initialize the database with default tables.
+   * @param internalDataSource           internal data source to use.
+   * @param internalJdbi                 internal jdbi to use.
    */
   @Inject
   public DataSourceManager(final DatabaseConnectionEngine databaseConnectionEngine,
-                           final DatabaseInitializationEngine databaseInitializationEngine) {
+                           final DatabaseInitializationEngine databaseInitializationEngine,
+                           final DataSource internalDataSource,
+                           final Jdbi internalJdbi) {
     LOGGER.info("DataSourceManager({},{})", databaseConnectionEngine, databaseInitializationEngine);
+    this.internalJdbi = internalJdbi;
+    this.internalDataSource = internalDataSource;
     this.databaseConnectionEngine = databaseConnectionEngine;
     this.databaseInitializationEngine = databaseInitializationEngine;
     this.tenantDataSourceLoadingCache = CacheBuilder.newBuilder()
@@ -91,15 +95,6 @@ public class DataSourceManager implements Managed {
   }
 
   /**
-   * Lets us know if the internal datasource is ready.
-   *
-   * @return if we can function.
-   */
-  public boolean isReady() {
-    return getInternalDataSource().isPresent();
-  }
-
-  /**
    * Gets the data source for the tenant.
    *
    * @param tenantTable to get the source for.
@@ -118,15 +113,6 @@ public class DataSourceManager implements Managed {
   public void evictTenant(Tenant tenant) {
     LOGGER.trace("evictTenant({})", tenant);
     tenantDataSourceLoadingCache.invalidate(tenant);
-  }
-
-  /**
-   * Gets the internal datastore, if set.
-   *
-   * @return datastore.
-   */
-  public Optional<DataSource> getInternalDataSource() {
-    return Optional.ofNullable(internalDataSource);
   }
 
   private void onRemoval(RemovalNotification<TenantTable, DataSource> notification) {
@@ -148,42 +134,13 @@ public class DataSourceManager implements Managed {
   }
 
   /**
-   * Sets up the internal database. Called once. Immutable. No issue if you call it twice.
-   */
-  @Override
-  public void start() {
-    LOGGER.info("start()");
-    if (internalDataSource == null) {
-      try {
-        LOGGER.info("setupInternalDataSource(): inProgress");
-        final String url = databaseConnectionEngine.getInternalConnectionUrl();
-        final DataSource dataSource = getComboPooledDataSource(INTERNAL_MIN_POOL_SIZE, url);
-        final Connection connection = dataSource.getConnection();
-        databaseInitializationEngine.initialize(connection, INTERNAL);
-        internalDataSource = dataSource;
-        LOGGER.info("setupInternalDataSource(): complete");
-      } catch (SQLException e) {
-        LOGGER.error("Setup internal datasource failed", e);
-        throw new IllegalArgumentException("Unable to init the internal db:", e);
-      }
-    } else {
-      LOGGER.info("setupInternalDataSource(): already setup");
-    }
-  }
-
-  /**
    * Lets us know if we're healthy.
    *
    * @return boolean if healthy.
    * @throws SQLException if we're fucked.
    */
   public boolean isHealthy() throws SQLException {
-    final Optional<DataSource> ds = getInternalDataSource();
-    if (ds.isEmpty()) {
-      LOGGER.debug("isHealthy(): Internal datasource not created yet.");
-      return false;
-    }
-    final boolean result = ds.get().getConnection().isValid(INTERNAL_MIN_POOL_SIZE);
+    final boolean result = internalDataSource.getConnection().isValid(INTERNAL_MIN_POOL_SIZE);
     if (result) {
       LOGGER.trace("isHealthy(): true");
     } else {

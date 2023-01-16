@@ -65,19 +65,24 @@ public class SqlEngine {
   private final Metrics metrics;
   private final MeterRegistry meterRegistry;
   private final DataSourceManager dataSourceManager;
+  private final DataSource internalDataSource;
 
   /**
    * Default constructor.
    *
-   * @param metrics           object to use.
-   * @param dataSourceManager manager for the ds.
+   * @param metrics            object to use.
+   * @param dataSourceManager  manager for the ds.
+   * @param internalDataSource internal data source.
    */
   @Inject
-  public SqlEngine(final Metrics metrics, final DataSourceManager dataSourceManager) {
+  public SqlEngine(final Metrics metrics,
+                   final DataSourceManager dataSourceManager,
+                   final DataSource internalDataSource) {
     LOGGER.info("SqlEngine({},{})", metrics, dataSourceManager);
     this.metrics = metrics;
     this.dataSourceManager = dataSourceManager;
     this.meterRegistry = metrics.registry();
+    this.internalDataSource = internalDataSource;
   }
 
   /**
@@ -92,7 +97,7 @@ public class SqlEngine {
                                     final Function<ResultSet, R> function) {
     LOGGER.trace("executeQueryInternal({})", query);
     return executeQuery(INTERNAL,
-        dataSourceManager.getInternalDataSource().orElseThrow(() -> new IllegalStateException("Database not setup")),
+        internalDataSource,
         query,
         function);
   }
@@ -109,7 +114,7 @@ public class SqlEngine {
                                        final Function<PreparedStatement, R> function) {
     LOGGER.trace("executePreparedInternal({})", query);
     return executePrepared(INTERNAL,
-        dataSourceManager.getInternalDataSource().orElseThrow(() -> new IllegalStateException("Database not setup")),
+        internalDataSource,
         query,
         function);
   }
@@ -124,7 +129,7 @@ public class SqlEngine {
   public <R> R executeConnectionInternal(final Function<Connection, R> function) {
     LOGGER.trace("executeConnectionInternal()");
     return executeWithConnection(INTERNAL,
-        dataSourceManager.getInternalDataSource().orElseThrow(() -> new IllegalStateException("Database not setup")),
+        internalDataSource,
         function);
   }
 

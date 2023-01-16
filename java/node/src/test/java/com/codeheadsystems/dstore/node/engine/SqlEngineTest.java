@@ -55,12 +55,11 @@ class SqlEngineTest extends BaseMetricTest {
   @BeforeEach
   void setup() {
     atomicInteger = new AtomicInteger(1);
-    sqlEngine = new SqlEngine(metrics, dataSourceManager);
+    sqlEngine = new SqlEngine(metrics, dataSourceManager, dataSource);
   }
 
   @Test
   void testExecuteQueryInternal() throws SQLException {
-    when(dataSourceManager.getInternalDataSource()).thenReturn(Optional.of(dataSource));
     when(dataSource.getConnection()).thenReturn(connection);
     when(connection.createStatement()).thenReturn(statement);
     when(statement.executeQuery(QUERY)).thenReturn(resultSet);

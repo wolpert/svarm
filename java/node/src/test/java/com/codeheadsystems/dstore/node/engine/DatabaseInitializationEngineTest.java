@@ -16,8 +16,8 @@
 
 package com.codeheadsystems.dstore.node.engine;
 
-import static com.codeheadsystems.dstore.node.manager.DataSourceManager.INTERNAL;
 import static com.codeheadsystems.dstore.node.manager.DataSourceManager.TENANT;
+import static com.codeheadsystems.dstore.node.module.DataSourceModule.INTERNAL;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.security.Security;

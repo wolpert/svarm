@@ -16,14 +16,12 @@
 
 package com.codeheadsystems.dstore.node.dao;
 
-import com.codeheadsystems.dstore.node.manager.DataSourceManager;
 import com.codeheadsystems.dstore.node.model.Tenant;
 import java.util.List;
 import java.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.jdbi.v3.core.Jdbi;
-import org.jdbi.v3.core.mapper.immutables.JdbiImmutables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,20 +33,17 @@ public class TenantDao {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(TenantDao.class);
 
-  private final DataSourceManager dataSourceManager;
-  // lazy instantiation as the datastore may not be initialized when this class is constructed.
-  private volatile Jdbi jdbiInstance;
+  private final Jdbi internalJdbi;
 
   /**
    * Default constructor.
    *
-   * @param dataSourceManager to get the internal datasource for tenant info
+   * @param internalJdbi to get the internal datasource for tenant info
    */
   @Inject
-  public TenantDao(final DataSourceManager dataSourceManager) {
-    this.dataSourceManager = dataSourceManager;
-    LOGGER.trace("TenantDao({})", dataSourceManager);
-
+  public TenantDao(final Jdbi internalJdbi) {
+    LOGGER.trace("TenantDao({})", internalJdbi);
+    this.internalJdbi = internalJdbi;
   }
 
   /**
@@ -59,7 +54,7 @@ public class TenantDao {
    */
   public Tenant create(final Tenant tenant) {
     LOGGER.trace("create({})", tenant);
-    final Integer updateCount = jdbi().withHandle(handle ->
+    final Integer updateCount = internalJdbi.withHandle(handle ->
         handle.createUpdate("insert into NODE_TENANT (RID_TENANT,UUID,KEY,NONCE) values (:ridTenant, :uuid, :key, :nonce)")
             .bindPojo(tenant)
             .execute()
@@ -78,7 +73,7 @@ public class TenantDao {
    */
   public Optional<Tenant> read(final String tenantId) {
     LOGGER.trace("read({})", tenantId);
-    return jdbi().withHandle(handle ->
+    return internalJdbi.withHandle(handle ->
         handle.createQuery("select * from NODE_TENANT where RID_TENANT = :tenantId")
             .bind("tenantId", tenantId)
             .mapTo(Tenant.class)
@@ -92,7 +87,7 @@ public class TenantDao {
    */
   public List<String> allTenants() {
     LOGGER.trace("allTenants()");
-    return jdbi().withHandle(handle ->
+    return internalJdbi.withHandle(handle ->
         handle.createQuery("select RID_TENANT from NODE_TENANT")
             .mapTo(String.class)
             .list());
@@ -106,24 +101,10 @@ public class TenantDao {
    */
   public boolean delete(final String tenantId) {
     LOGGER.trace("delete({})", tenantId);
-    return jdbi().withHandle(handle ->
+    return internalJdbi.withHandle(handle ->
         handle.createUpdate("delete from NODE_TENANT where RID_TENANT = :tenantId")
             .bind("tenantId", tenantId)
             .execute() > 0);
   }
 
-  private Jdbi jdbi() {
-    // good old double-checked locking - should probably be replaced with a better lazy instantiation approach
-    if (jdbiInstance == null) {
-      // TODO: create simple factory for creating & configuring jdbi instances
-      synchronized (TenantDao.class) {
-        if (jdbiInstance == null) {
-          jdbiInstance = Jdbi.create(dataSourceManager.getInternalDataSource().orElseThrow());
-          jdbiInstance.getConfig(JdbiImmutables.class).registerImmutable(Tenant.class);
-        }
-      }
-    }
-
-    return jdbiInstance;
-  }
 }

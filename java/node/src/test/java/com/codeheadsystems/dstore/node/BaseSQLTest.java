@@ -22,9 +22,12 @@ import com.codeheadsystems.dstore.node.engine.DatabaseConnectionEngine;
 import com.codeheadsystems.dstore.node.engine.DatabaseInitializationEngine;
 import com.codeheadsystems.dstore.node.engine.SqlEngine;
 import com.codeheadsystems.dstore.node.manager.DataSourceManager;
+import com.codeheadsystems.dstore.node.module.DataSourceModule;
 import com.codeheadsystems.metrics.test.BaseMetricTest;
 import java.sql.SQLException;
 import java.util.UUID;
+import javax.sql.DataSource;
+import org.jdbi.v3.core.Jdbi;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -40,6 +43,8 @@ public abstract class BaseSQLTest extends BaseMetricTest {
 
   protected SqlEngine sqlEngine;
   protected DataSourceManager dataSourceManager;
+  protected DataSource internalDataSource;
+  protected Jdbi internalJdbi;
   private DatabaseInitializationEngine databaseInitializationEngine;
   @Mock private DatabaseConnectionEngine databaseConnectionEngine;
 
@@ -49,14 +54,21 @@ public abstract class BaseSQLTest extends BaseMetricTest {
     final String url = "jdbc:hsqldb:mem:" + getClass().getSimpleName() + ":" + UUID.randomUUID();
     log.info("Init {}", url);
     lenient().when(databaseConnectionEngine.getInternalConnectionUrl()).thenReturn(url);
-    dataSourceManager = new DataSourceManager(databaseConnectionEngine, databaseInitializationEngine);
-    dataSourceManager.start();
-    sqlEngine = new SqlEngine(metrics, dataSourceManager);
+    final DataSourceModule dataSourceModule = new DataSourceModule();
+    internalDataSource = dataSourceModule.internalDataSource(databaseConnectionEngine, databaseInitializationEngine);
+    internalJdbi = dataSourceModule.internalJdbi(internalDataSource);
+    dataSourceManager = new DataSourceManager(
+        databaseConnectionEngine,
+        databaseInitializationEngine,
+        internalDataSource,
+        internalJdbi
+    );
+    sqlEngine = new SqlEngine(metrics, dataSourceManager, internalDataSource);
   }
 
   @AfterEach
   void shutdownSQLEngine() throws SQLException {
-    dataSourceManager.getInternalDataSource().get().getConnection().createStatement().execute("shutdown;");
+    internalDataSource.getConnection().createStatement().execute("shutdown;");
   }
 
 }
