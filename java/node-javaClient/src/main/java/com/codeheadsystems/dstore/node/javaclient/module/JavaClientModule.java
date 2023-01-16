@@ -1,4 +1,4 @@
-package com.codeheadsystems.dstore.node.client;
+package com.codeheadsystems.dstore.node.javaclient.module;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dagger.Module;

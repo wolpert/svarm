@@ -20,8 +20,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.codeheadsystems.dstore.node.Node;
 import com.codeheadsystems.dstore.node.NodeConfiguration;
-import com.codeheadsystems.dstore.node.client.NodeService;
-import com.codeheadsystems.dstore.node.client.NodeServiceComponent;
+import com.codeheadsystems.dstore.node.api.NodeService;
+import com.codeheadsystems.dstore.node.javaclient.NodeServiceComponent;
 import com.codeheadsystems.test.utils.DeletingFileVisitor;
 import io.dropwizard.testing.ConfigOverride;
 import io.dropwizard.testing.DropwizardTestSupport;

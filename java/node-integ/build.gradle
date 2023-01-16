@@ -29,7 +29,9 @@ checkstyle {
 
 dependencies {
     implementation project(":common")
-    implementation project(":node")
+    implementation project(":node-common")
+    implementation project(":node-javaClient")
+    implementation project(":node") // needed for dropwizard config
     implementation libs.guava
 
     implementation libs.javax.inject

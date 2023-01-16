@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.codeheadsystems.dstore.node.client.api;
+package com.codeheadsystems.dstore.node.api;
 
 import com.codeheadsystems.dstore.node.api.ImmutableTenantTableInfo;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;

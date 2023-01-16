@@ -1,7 +1,5 @@
-package com.codeheadsystems.dstore.node.client;
+package com.codeheadsystems.dstore.node.api;
 
-import com.codeheadsystems.dstore.node.api.TenantInfo;
-import com.codeheadsystems.dstore.node.api.TenantTableInfo;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.util.List;
 import javax.validation.Valid;

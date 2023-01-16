@@ -1,6 +1,9 @@
-package com.codeheadsystems.dstore.node.client;
+package com.codeheadsystems.dstore.node.javaclient;
 
 import com.codeheadsystems.dstore.common.module.JsonModule;
+import com.codeheadsystems.dstore.node.api.NodeService;
+import com.codeheadsystems.dstore.node.javaclient.module.JavaClientModule;
+import com.codeheadsystems.dstore.node.javaclient.module.NodeServiceModule;
 import dagger.Component;
 import javax.inject.Singleton;
 
@@ -24,7 +27,7 @@ public interface NodeServiceComponent {
   static NodeService generate(final String connectionUrl) {
     return DaggerNodeServiceComponent.builder()
         .nodeServiceModule(new NodeServiceModule(connectionUrl))
-        .build().nodeService();
+        .build().javaClient();
   }
 
   /**
@@ -32,6 +35,6 @@ public interface NodeServiceComponent {
    *
    * @return a node service.
    */
-  NodeService nodeService();
+  NodeService javaClient();
 
 }

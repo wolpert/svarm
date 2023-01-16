@@ -1,5 +1,6 @@
-package com.codeheadsystems.dstore.node.client;
+package com.codeheadsystems.dstore.node.javaclient.module;
 
+import com.codeheadsystems.dstore.node.api.NodeService;
 import dagger.Module;
 import dagger.Provides;
 import feign.Feign;
