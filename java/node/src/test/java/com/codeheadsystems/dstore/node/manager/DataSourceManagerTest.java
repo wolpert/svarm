@@ -21,10 +21,10 @@ import static org.mockito.Mockito.when;
 
 import com.codeheadsystems.dstore.node.engine.DatabaseConnectionEngine;
 import com.codeheadsystems.dstore.node.engine.DatabaseInitializationEngine;
+import com.codeheadsystems.dstore.node.factory.TenantTableDataSourceFactory;
 import com.codeheadsystems.dstore.node.model.TenantTable;
 import java.sql.Connection;
 import javax.sql.DataSource;
-import org.jdbi.v3.core.Jdbi;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -48,18 +48,18 @@ class DataSourceManagerTest {
   @Mock private DatabaseConnectionEngine databaseConnectionEngine;
   @Mock private TenantTable tenantTable;
 
-  @Mock private DataSource internalDataSource;
+  @Mock private DataSource dataSource;
 
-  @Mock private Jdbi internalJdbi;
+  @Mock private TenantTableDataSourceFactory factory;
   @Captor private ArgumentCaptor<Connection> connectionArgumentCaptor;
 
   @InjectMocks private DataSourceManager dataSourceManager;
 
   @Test
   void loadTenant_realInitialization() {
-    when(databaseConnectionEngine.getTenantConnectionUrl(tenantTable)).thenReturn(CONNECTION_URL);
+    when(factory.generate(tenantTable)).thenReturn(dataSource);
     final DataSource dataSource = dataSourceManager.getDataSource(tenantTable);
-    assertThat(dataSource).isNotNull();
+    assertThat(dataSource).isEqualTo(dataSource);
   }
 
 }

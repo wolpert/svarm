@@ -59,7 +59,7 @@ public class DatabaseInitializationEngine {
       Database database = DatabaseFactory.getInstance()
           .findCorrectDatabaseImplementation(new JdbcConnection(connection));
       Liquibase liquibase = new liquibase.Liquibase(
-          path + "/liquibase-setup.xml",
+          "liquibase/" + path + "/liquibase-setup.xml",
           new ClassLoaderResourceAccessor(),
           database
       );

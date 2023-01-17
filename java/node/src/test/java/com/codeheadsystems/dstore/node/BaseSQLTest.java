@@ -21,6 +21,7 @@ import static org.mockito.Mockito.lenient;
 import com.codeheadsystems.dstore.node.engine.DatabaseConnectionEngine;
 import com.codeheadsystems.dstore.node.engine.DatabaseInitializationEngine;
 import com.codeheadsystems.dstore.node.engine.SqlEngine;
+import com.codeheadsystems.dstore.node.factory.TenantTableDataSourceFactory;
 import com.codeheadsystems.dstore.node.manager.DataSourceManager;
 import com.codeheadsystems.dstore.node.module.DataSourceModule;
 import com.codeheadsystems.metrics.test.BaseMetricTest;
@@ -57,12 +58,8 @@ public abstract class BaseSQLTest extends BaseMetricTest {
     final DataSourceModule dataSourceModule = new DataSourceModule();
     internalDataSource = dataSourceModule.internalDataSource(databaseConnectionEngine, databaseInitializationEngine);
     internalJdbi = dataSourceModule.internalJdbi(internalDataSource);
-    dataSourceManager = new DataSourceManager(
-        databaseConnectionEngine,
-        databaseInitializationEngine,
-        internalDataSource,
-        internalJdbi
-    );
+    final TenantTableDataSourceFactory factory = new TenantTableDataSourceFactory(databaseConnectionEngine, databaseInitializationEngine);
+    dataSourceManager = new DataSourceManager(factory);
     sqlEngine = new SqlEngine(metrics, dataSourceManager, internalDataSource);
   }
 

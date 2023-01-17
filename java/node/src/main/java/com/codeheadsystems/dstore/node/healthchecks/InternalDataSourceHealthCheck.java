@@ -17,11 +17,11 @@
 package com.codeheadsystems.dstore.node.healthchecks;
 
 import com.codahale.metrics.health.HealthCheck;
-import com.codeheadsystems.dstore.node.manager.DataSourceManager;
 import com.codeheadsystems.metrics.Metrics;
 import java.sql.SQLException;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,20 +33,20 @@ public class InternalDataSourceHealthCheck extends HealthCheck {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(InternalDataSourceHealthCheck.class);
 
-  private final DataSourceManager dataSourceManager;
+  private final DataSource internalDataSource;
   private final Metrics metrics;
 
   /**
    * Default health check.
    *
-   * @param dataSourceManager to use.
-   * @param metrics           to use.
+   * @param internalDataSource to use.
+   * @param metrics            to use.
    */
   @Inject
-  public InternalDataSourceHealthCheck(final DataSourceManager dataSourceManager,
+  public InternalDataSourceHealthCheck(final DataSource internalDataSource,
                                        final Metrics metrics) {
-    LOGGER.info("InternalDataSourceHealthCheck({})", dataSourceManager);
-    this.dataSourceManager = dataSourceManager;
+    LOGGER.info("InternalDataSourceHealthCheck({})", internalDataSource);
+    this.internalDataSource = internalDataSource;
     this.metrics = metrics;
   }
 
@@ -60,7 +60,7 @@ public class InternalDataSourceHealthCheck extends HealthCheck {
   protected Result check() throws Exception {
     LOGGER.trace("check()");
     try {
-      if (dataSourceManager.isHealthy()) {
+      if (internalDataSource.getConnection().isValid(1)) {
         return Result.healthy();
       } else {
         return Result.unhealthy("DB Unavailable");

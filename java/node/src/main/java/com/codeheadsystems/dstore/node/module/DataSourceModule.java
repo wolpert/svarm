@@ -22,7 +22,7 @@ public class DataSourceModule {
   /**
    * Identifier for internal liquibase files.
    */
-  public static final String INTERNAL = "liquibase/internal";
+  public static final String INTERNAL = "internal";
 
   private static final int INTERNAL_MIN_POOL_SIZE = 1;
   private static final int TENANT_MIN_POOL_SIZE = 0;

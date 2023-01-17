@@ -16,7 +16,6 @@
 
 package com.codeheadsystems.dstore.node.engine;
 
-import static com.codeheadsystems.dstore.node.manager.DataSourceManager.TENANT;
 import static com.codeheadsystems.dstore.node.module.DataSourceModule.INTERNAL;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -37,6 +36,10 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 class DatabaseInitializationEngineTest {
 
+  /**
+   * Identifier for tenant liquibase files.
+   */
+  public static final String TENANT = "V1SingleEntryEngine";
   private static final Random RANDOM = new Random();
 
   public static Stream<Arguments> pathToTableNames() {
