@@ -2,8 +2,8 @@ package com.codeheadsystems.dstore.node.module;
 
 import com.codeheadsystems.dstore.node.engine.DatabaseConnectionEngine;
 import com.codeheadsystems.dstore.node.engine.DatabaseInitializationEngine;
+import com.codeheadsystems.dstore.node.factory.DataSourceFactory;
 import com.codeheadsystems.dstore.node.model.Tenant;
-import com.mchange.v2.c3p0.ComboPooledDataSource;
 import dagger.Module;
 import dagger.Provides;
 import java.sql.Connection;
@@ -24,35 +24,21 @@ public class DataSourceModule {
    */
   public static final String INTERNAL = "internal";
 
-  private static final int INTERNAL_MIN_POOL_SIZE = 1;
-
-  private static DataSource getComboPooledDataSource(final int minPoolSize,
-                                                     final String url) {
-    final ComboPooledDataSource cpds = new ComboPooledDataSource();
-    cpds.setJdbcUrl(url);
-    cpds.setUser("SA");
-    cpds.setPassword("");
-    cpds.setMinPoolSize(minPoolSize);
-    cpds.setAcquireIncrement(5);
-    cpds.setMaxPoolSize(20);
-    cpds.setMaxIdleTime(300);
-    cpds.setTestConnectionOnCheckout(true);
-    return cpds;
-  }
-
   /**
    * Returns a built, usable data source.
    *
    * @param databaseConnectionEngine     database connection engine.
    * @param databaseInitializationEngine database initialization engine.
+   * @param dataSourceFactory            to create the data source.
    * @return the datasource.
    */
   @Provides
   @Singleton
   public DataSource internalDataSource(final DatabaseConnectionEngine databaseConnectionEngine,
-                                       final DatabaseInitializationEngine databaseInitializationEngine) {
+                                       final DatabaseInitializationEngine databaseInitializationEngine,
+                                       final DataSourceFactory dataSourceFactory) {
     final String url = databaseConnectionEngine.getInternalConnectionUrl();
-    final DataSource dataSource = getComboPooledDataSource(INTERNAL_MIN_POOL_SIZE, url);
+    final DataSource dataSource = dataSourceFactory.internalDataSource(url);
     final Connection connection;
     try {
       connection = dataSource.getConnection();

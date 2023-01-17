@@ -3,7 +3,6 @@ package com.codeheadsystems.dstore.node.factory;
 import com.codeheadsystems.dstore.node.engine.DatabaseConnectionEngine;
 import com.codeheadsystems.dstore.node.engine.DatabaseInitializationEngine;
 import com.codeheadsystems.dstore.node.model.TenantTable;
-import com.mchange.v2.c3p0.ComboPooledDataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 import javax.inject.Inject;
@@ -22,33 +21,24 @@ public class TenantTableDataSourceFactory {
 
   private final DatabaseConnectionEngine databaseConnectionEngine;
   private final DatabaseInitializationEngine databaseInitializationEngine;
+  private final DataSourceFactory dataSourceFactory;
 
   /**
    * Constructor.
    *
    * @param databaseConnectionEngine     To get the URL data.
    * @param databaseInitializationEngine to initialize the tenant table.
+   * @param dataSourceFactory            to generate the ddtasource itself.
    */
   @Inject
   public TenantTableDataSourceFactory(final DatabaseConnectionEngine databaseConnectionEngine,
-                                      final DatabaseInitializationEngine databaseInitializationEngine) {
-    LOGGER.info("TenantTableDataSourceFactory({},{})", databaseConnectionEngine, databaseInitializationEngine);
+                                      final DatabaseInitializationEngine databaseInitializationEngine,
+                                      final DataSourceFactory dataSourceFactory) {
+    LOGGER.info("TenantTableDataSourceFactory({},{},{})",
+        databaseConnectionEngine, databaseInitializationEngine, dataSourceFactory);
     this.databaseConnectionEngine = databaseConnectionEngine;
     this.databaseInitializationEngine = databaseInitializationEngine;
-  }
-
-  private static DataSource getComboPooledDataSource(final String url) {
-    LOGGER.trace("getComboPooledDataSource() (If you are stuck here, Likely AES failure, your db and keys do not match)");
-    final ComboPooledDataSource cpds = new ComboPooledDataSource();
-    cpds.setJdbcUrl(url);
-    cpds.setUser("SA");
-    cpds.setPassword("");
-    cpds.setMinPoolSize(1);
-    cpds.setAcquireIncrement(5);
-    cpds.setMaxPoolSize(20);
-    cpds.setMaxIdleTime(300);
-    cpds.setTestConnectionOnCheckout(true);
-    return cpds;
+    this.dataSourceFactory = dataSourceFactory;
   }
 
   /**
@@ -60,7 +50,7 @@ public class TenantTableDataSourceFactory {
   public DataSource generate(final TenantTable tenantTable) {
     LOGGER.debug("dataSource({})", tenantTable);
     final String url = databaseConnectionEngine.getTenantConnectionUrl(tenantTable);
-    final DataSource dataSource = getComboPooledDataSource(url);
+    final DataSource dataSource = dataSourceFactory.tenantDataSource(tenantTable, url);
     try {
       LOGGER.trace("Getting connection");
       final Connection connection = dataSource.getConnection();
