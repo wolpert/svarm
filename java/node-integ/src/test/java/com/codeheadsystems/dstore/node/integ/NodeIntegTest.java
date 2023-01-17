@@ -83,6 +83,18 @@ public class NodeIntegTest {
     BASE_DIRECTORY_PATH = null;
   }
 
+  private static void oneTest(final String tenant, final String table, final Map.Entry<String, JsonNode> e) {
+    final String key = e.getKey();
+    final JsonNode value = e.getValue();
+    System.out.println(key + " Setting nodeService");
+    final NodeService service = NodeServiceComponent.generate(CONNECTION_URL);
+    System.out.println(key + " creating entry");
+    service.createTenantTableEntry(tenant, table, key, value);
+    System.out.println(key + " reading entry");
+    service.readTenantTableEntry(tenant, table, key);
+    System.out.println(key + " done");
+  }
+
   @Test
   void oneTenantMultipleTables() {
     final String tenant = "oneTenantMultipleTables";
@@ -111,7 +123,7 @@ public class NodeIntegTest {
   void oneTenantLotsOfConcurrentThreadsWriting() throws InterruptedException {
     final String tenant = "oneTenantLotsOfConcurrentThreadsWriting";
     final String table = UUID.randomUUID().toString();
-    final int threads = 5;
+    final int threads = 10;
 
     final Map<String, JsonNode> data = randomData(threads);
     NODE_SERVICE.createTenant(tenant);
@@ -119,9 +131,9 @@ public class NodeIntegTest {
 
     final ForkJoinPool pool = new ForkJoinPool(threads);
     final List<ForkJoinTask<?>> tasks = data.entrySet().stream()
-        .map((e) -> pool.submit(() -> NodeServiceComponent.generate(CONNECTION_URL)
-            .createTenantTableEntry(tenant, table, e.getKey(), e.getValue())))
+        .map((e) -> pool.submit(() -> oneTest(tenant, table, e)))
         .collect(Collectors.toList());
+    System.out.println("Sent, now waiting to join");
     tasks.forEach(ForkJoinTask::join);
     data.forEach((k, v) -> assertThat(NODE_SERVICE.readTenantTableEntry(tenant, table, k)).isEqualTo(v));
 

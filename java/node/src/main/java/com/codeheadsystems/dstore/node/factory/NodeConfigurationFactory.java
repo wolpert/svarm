@@ -21,6 +21,9 @@ import com.codeheadsystems.dstore.common.engine.JsonEngine;
 import com.codeheadsystems.dstore.node.model.ImmutableNodeInternalConfiguration;
 import com.codeheadsystems.dstore.node.model.NodeInternalConfiguration;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.UUID;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -81,6 +84,13 @@ public class NodeConfigurationFactory {
   public NodeInternalConfiguration readOrGenerate(final String databaseDirectory) {
     LOGGER.info("readOrGenerate({})", databaseDirectory);
     final File directory = new File(databaseDirectory);
+    if (!directory.exists()) {
+      try {
+        Files.createDirectories(Path.of(directory.getAbsolutePath()));
+      } catch (IOException e) {
+        throw new IllegalStateException("Cannot create dir:" + directory, e);
+      }
+    }
     if (!directory.exists() || !directory.isDirectory() || !directory.canWrite()) {
       throw new IllegalArgumentException("Cannot use " + databaseDirectory + " as a directory");
     }

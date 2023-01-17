@@ -1,22 +1,14 @@
-databaseDirectory: /tmp
+databaseDirectory: /tmp/integtest
 
 logging:
   level: INFO
   loggers:
     com.codeheadsystems: DEBUG
     com.codeheadsystems.dstore.node: TRACE
-    com.mchange.v2.c3p0: WARN
+    com.mchange.v2.c3p0: TRACE
   appenders:
     - type: console
       logFormat: "%d{HH:mm:ss.SSS} [%thread] [%X{trace}] %-5level %logger{36} - %msg%n"
-
-metrics:
-  frequency: 1 minute
-  reportOnStop: true
-  reporters:
-    - type: log
-      logger: metrics
-      markerName: SLF4j
 
 health:
   healthCheckUrlPaths: [ "/health-check" ]
