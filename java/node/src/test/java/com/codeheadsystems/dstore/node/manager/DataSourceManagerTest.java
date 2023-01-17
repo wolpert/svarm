@@ -42,16 +42,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class DataSourceManagerTest {
 
-  private static final String CONNECTION_URL = "jdbc:hsqldb:mem:DataSourceManagerTest";
-
-  @Mock private DatabaseInitializationEngine databaseInitializationEngine;
-  @Mock private DatabaseConnectionEngine databaseConnectionEngine;
   @Mock private TenantTable tenantTable;
 
   @Mock private DataSource dataSource;
 
   @Mock private TenantTableDataSourceFactory factory;
-  @Captor private ArgumentCaptor<Connection> connectionArgumentCaptor;
 
   @InjectMocks private DataSourceManager dataSourceManager;
 

@@ -25,7 +25,6 @@ public class DataSourceModule {
   public static final String INTERNAL = "internal";
 
   private static final int INTERNAL_MIN_POOL_SIZE = 1;
-  private static final int TENANT_MIN_POOL_SIZE = 0;
 
   private static DataSource getComboPooledDataSource(final int minPoolSize,
                                                      final String url) {
