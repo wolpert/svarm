@@ -43,6 +43,7 @@ class TenantTableResourceTest {
   private static final String TENANT = "TENANT";
   private static final String TABLE_NAME = "table name";
   private static final String PRIMARY_KEY = "primary key";
+  private static final TenantTableIdentifier IDENTIFIER = TenantTableIdentifier.from(TENANT, TABLE_NAME);
   @Mock private TenantTableManager tenantTableManager;
   @Mock private TenantTableInfoConverter tenantTableInfoConverter;
   @Mock private TenantTableInfo tenantTableInfo;
@@ -60,7 +61,7 @@ class TenantTableResourceTest {
 
   @Test
   void read_found() {
-    when(tenantTableManager.get(TENANT, TABLE_NAME)).thenReturn(Optional.of(tenantTable));
+    when(tenantTableManager.get(IDENTIFIER)).thenReturn(Optional.of(tenantTable));
     when(tenantTable.identifier()).thenReturn(identifier);
     when(tenantTableInfoConverter.from(identifier)).thenReturn(tenantTableInfo);
     assertThat(resource.read(TENANT, TABLE_NAME))
@@ -86,7 +87,7 @@ class TenantTableResourceTest {
 
   @Test
   void create() {
-    when(tenantTableManager.create(TENANT, TABLE_NAME, V1SingleEntryEngine.DEFINITION_NAME, PRIMARY_KEY))
+    when(tenantTableManager.create(IDENTIFIER, V1SingleEntryEngine.DEFINITION_NAME, PRIMARY_KEY))
         .thenReturn(tenantTable);
     when(tenantTable.identifier()).thenReturn(identifier);
     when(tenantTableInfoConverter.from(identifier)).thenReturn(tenantTableInfo);
@@ -96,7 +97,7 @@ class TenantTableResourceTest {
 
   @Test
   void delete_found() {
-    when(tenantTableManager.delete(TENANT, TABLE_NAME)).thenReturn(true);
+    when(tenantTableManager.delete(IDENTIFIER)).thenReturn(true);
     assertThat(resource.delete(TENANT, TABLE_NAME))
         .hasFieldOrPropertyWithValue("status", Response.Status.NO_CONTENT.getStatusCode());
   }

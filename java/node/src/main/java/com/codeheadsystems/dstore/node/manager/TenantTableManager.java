@@ -22,7 +22,6 @@ import com.codeheadsystems.dstore.node.engine.TableDefinitionEngine;
 import com.codeheadsystems.dstore.node.exception.ExceptionUtils;
 import com.codeheadsystems.dstore.node.exception.NotFoundException;
 import com.codeheadsystems.dstore.node.model.ImmutableTenantTable;
-import com.codeheadsystems.dstore.node.model.ImmutableTenantTableIdentifier;
 import com.codeheadsystems.dstore.node.model.TenantTable;
 import com.codeheadsystems.dstore.node.model.TenantTableIdentifier;
 import com.codeheadsystems.metrics.Metrics;
@@ -85,20 +84,6 @@ public class TenantTableManager {
   /**
    * Gets the current tenant table if it exists.
    *
-   * @param tenantId  to get.
-   * @param tableName to get.
-   * @return the tenant.
-   */
-  public Optional<TenantTable> get(final String tenantId, final String tableName) {
-    LOGGER.trace("get({}, {})", tenantId, tableName);
-    final TenantTableIdentifier identifier = TenantTableIdentifier.from(tenantId, tableName);
-    return get(identifier);
-  }
-
-
-  /**
-   * Gets the current tenant table if it exists.
-   *
    * @param identifier to get.
    * @return the tenant.
    */
@@ -116,34 +101,27 @@ public class TenantTableManager {
    * Created the tenant table. If it already exists, simply return the one we already have. Idempotent. Does not set the
    * hash values.
    *
-   * @param tenantId     tenant to create.
-   * @param tableName    table name to create.
+   * @param identifier   Table to create.
    * @param tableVersion the version of the table we are creating.
    * @param primaryKey   primary key of a row.
    * @return a tenant.
    */
-  public TenantTable create(final String tenantId,
-                            final String tableName,
+  public TenantTable create(final TenantTableIdentifier identifier,
                             final String tableVersion,
                             final String primaryKey) {
-    LOGGER.debug("create({}, {}, {}, {})", tenantId, tableName, tableVersion, primaryKey);
-    return get(tenantId, tableName).orElseGet(() ->
+    LOGGER.debug("create({}, {}, {})", identifier, tableVersion, primaryKey);
+    return get(identifier).orElseGet(() ->
         metrics.time("TenantTableManager.create",
-            () -> buildTenantTable(tenantId, tableName, tableVersion, primaryKey)));
+            () -> buildTenantTable(identifier, tableVersion, primaryKey)));
   }
 
-  private TenantTable buildTenantTable(final String tenantId,
-                                       final String tableName,
+  private TenantTable buildTenantTable(final TenantTableIdentifier identifier,
                                        final String tableVersion,
                                        final String primaryKey) {
-    LOGGER.debug("buildTenantTable({}, {}, {})", tenantId, tableName, tableVersion);
+    LOGGER.debug("buildTenantTable({}, {})", identifier, tableVersion);
     if (!tableDefinitionEngineMap.containsKey(tableVersion)) {
       throw new IllegalArgumentException("Unknown table version: " + tableVersion);
     }
-    final TenantTableIdentifier identifier = ImmutableTenantTableIdentifier.builder()
-        .tenantId(tenantId)
-        .tableName(tableName)
-        .build();
     final TenantTable tenantTable = ImmutableTenantTable.builder()
         .identifier(identifier)
         .enabled(true)
@@ -159,7 +137,7 @@ public class TenantTableManager {
       return result;
     } catch (RuntimeException re) {
       LOGGER.error("Unable to create data source for {}, destroying", tenantTable);
-      dao.delete(tenantId, tableName);
+      dao.delete(identifier.tenantId(), identifier.tableName());
       throw re;
     }
   }
@@ -179,13 +157,13 @@ public class TenantTableManager {
    * Deletes the table. This will destroy the table as well.
    * TODO: delete the actual table.
    *
-   * @param tenantId  to delete.
-   * @param tableName tableName to delete.
+   * @param identifier to delete.
    * @return boolean if deleted or not.
    */
-  public boolean delete(final String tenantId, final String tableName) {
-    LOGGER.trace("delete({}, {})", tenantId, tableName);
-    return metrics.time("TenantTableManager.delete", () -> dao.delete(tenantId, tableName));
+  public boolean delete(final TenantTableIdentifier identifier) {
+    LOGGER.trace("delete({}})", identifier);
+    return metrics.time("TenantTableManager.delete",
+        () -> dao.delete(identifier.tenantId(), identifier.tableName()));
   }
 
 }

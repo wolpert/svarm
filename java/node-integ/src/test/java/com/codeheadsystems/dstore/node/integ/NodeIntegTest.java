@@ -123,7 +123,7 @@ public class NodeIntegTest {
   void oneTenantLotsOfConcurrentThreadsWriting() throws InterruptedException {
     final String tenant = "oneTenantLotsOfConcurrentThreadsWriting";
     final String table = UUID.randomUUID().toString();
-    final int threads = 10;
+    final int threads = 30;
 
     final Map<String, JsonNode> data = randomData(threads);
     NODE_SERVICE.createTenant(tenant);

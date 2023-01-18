@@ -45,7 +45,7 @@ public class DataSourceFactory {
    * Returns the data source for the tenant table. Not cached.
    *
    * @param table we want.
-   * @param url the url we have.
+   * @param url   the url we have.
    * @return the data source.
    */
   public DataSource tenantDataSource(final TenantTable table, final String url) {
@@ -55,10 +55,10 @@ public class DataSourceFactory {
     cpds.setUser("SA");
     cpds.setPassword("");
     cpds.setMinPoolSize(0);
-    cpds.setAcquireIncrement(5);
-    cpds.setMaxPoolSize(20);
+    cpds.setAcquireIncrement(10);
+    cpds.setMaxPoolSize(40);
     cpds.setMaxIdleTime(300);
-    cpds.setTestConnectionOnCheckout(true);
+    //cpds.setTestConnectionOnCheckout(true);
     return cpds;
   }
 
@@ -78,7 +78,7 @@ public class DataSourceFactory {
     cpds.setAcquireIncrement(5);
     cpds.setMaxPoolSize(20);
     cpds.setMaxIdleTime(300);
-    cpds.setTestConnectionOnCheckout(true);
+    //cpds.setTestConnectionOnCheckout(true);
     return cpds;
   }
 

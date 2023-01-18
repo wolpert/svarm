@@ -23,7 +23,9 @@ import com.codeheadsystems.dstore.common.crypt.AesGcmSivManager;
 import com.codeheadsystems.dstore.node.dao.TenantTableDao;
 import com.codeheadsystems.dstore.node.engine.TableDefinitionEngine;
 import com.codeheadsystems.dstore.node.exception.ExceptionUtils;
+import com.codeheadsystems.dstore.node.model.ImmutableTenantTableIdentifier;
 import com.codeheadsystems.dstore.node.model.TenantTable;
+import com.codeheadsystems.dstore.node.model.TenantTableIdentifier;
 import com.codeheadsystems.metrics.test.BaseMetricTest;
 import java.util.List;
 import java.util.Map;
@@ -40,10 +42,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class TenantTableManagerTest extends BaseMetricTest {
   private static final String NONCE = "NONCE";
   private static final String KEY = "KEY";
-  private final String TENANT_ID = "tenant";
-  private final String TABLE_NAME = "tablename";
-  private final String ENGINE = "engine";
-  private final String PRIMARY_KEY = "primary_key";
+  private static final String TENANT_ID = "tenant";
+  private static final String TABLE_NAME = "tablename";
+  private static final String ENGINE = "engine";
+  private static final String PRIMARY_KEY = "primary_key";
+  private static final TenantTableIdentifier IDENTIFIER = TenantTableIdentifier.from(TENANT_ID, TABLE_NAME);
 
   @Mock private TenantTableDao dao;
   @Mock private AesGcmSivManager aesManager;
@@ -66,7 +69,7 @@ class TenantTableManagerTest extends BaseMetricTest {
   @Test
   void get() {
     when(dao.read(TENANT_ID, TABLE_NAME)).thenReturn(Optional.of(tenantTable));
-    assertThat(manager.get(TENANT_ID, TABLE_NAME)).isPresent().contains(tenantTable);
+    assertThat(manager.get(IDENTIFIER)).isPresent().contains(tenantTable);
   }
 
   @Test
@@ -74,7 +77,7 @@ class TenantTableManagerTest extends BaseMetricTest {
     when(aesManager.randomKeyBase64Encoded()).thenReturn(KEY);
     when(aesManager.randomNonceBase64Encoded()).thenReturn(NONCE);
     when(dao.create(tenantTableArgumentCaptor.capture())).thenReturn(tenantTable);
-    assertThat(manager.create(TENANT_ID, TABLE_NAME, ENGINE, PRIMARY_KEY)).isEqualTo(tenantTable);
+    assertThat(manager.create(IDENTIFIER, ENGINE, PRIMARY_KEY)).isEqualTo(tenantTable);
     assertThat(tenantTableArgumentCaptor.getValue())
         .hasFieldOrPropertyWithValue("tableVersion", ENGINE)
         .hasFieldOrPropertyWithValue("key", KEY)
@@ -94,7 +97,7 @@ class TenantTableManagerTest extends BaseMetricTest {
   @Test
   void delete() {
     when(dao.delete(stringArgumentCaptor.capture(), stringArgumentCaptor.capture())).thenReturn(true);
-    manager.delete(TENANT_ID, TABLE_NAME);
+    manager.delete(IDENTIFIER);
     assertThat(stringArgumentCaptor.getAllValues())
         .containsExactly(TENANT_ID, TABLE_NAME);
   }

@@ -24,6 +24,7 @@ import com.codeheadsystems.dstore.node.converter.TenantTableInfoConverter;
 import com.codeheadsystems.dstore.node.engine.impl.V1SingleEntryEngine;
 import com.codeheadsystems.dstore.node.manager.TenantTableManager;
 import com.codeheadsystems.dstore.node.model.TenantTable;
+import com.codeheadsystems.dstore.node.model.TenantTableIdentifier;
 import java.util.List;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -101,7 +102,8 @@ public class TenantTableResource implements JerseyResource {
   public Optional<TenantTableInfo> read(@PathParam("tenant") final String tenantId,
                                         @PathParam("table") final String table) {
     LOGGER.debug("read({},{})", tenantId, table);
-    return tenantTableManager.get(tenantId, table)
+    final TenantTableIdentifier identifier = TenantTableIdentifier.from(tenantId, table);
+    return tenantTableManager.get(identifier)
         .map(TenantTable::identifier)
         .map(converter::from);
   }
@@ -127,8 +129,9 @@ public class TenantTableResource implements JerseyResource {
     if (primaryKey == null) {
       throw new WebApplicationException("Missing primary key", Response.Status.BAD_REQUEST);
     }
+    final TenantTableIdentifier identifier = TenantTableIdentifier.from(tenantId, table);
     final TenantTable tenantTable = tenantTableManager
-        .create(tenantId, table, V1SingleEntryEngine.DEFINITION_NAME, primaryKey);
+        .create(identifier, V1SingleEntryEngine.DEFINITION_NAME, primaryKey);
     return converter.from(tenantTable.identifier());
   }
 
@@ -148,7 +151,8 @@ public class TenantTableResource implements JerseyResource {
   public Response delete(@PathParam("tenant") final String tenantId,
                          @PathParam("table") final String table) {
     LOGGER.debug("delete({},{})", tenantId, table);
-    if (tenantTableManager.delete(tenantId, table)) {
+    final TenantTableIdentifier identifier = TenantTableIdentifier.from(tenantId, table);
+    if (tenantTableManager.delete(identifier)) {
       LOGGER.debug("deleted {}:{}", tenantId, table);
       return Response.noContent().build();
     } else {
