@@ -49,29 +49,29 @@ public class TenantTableManager {
   private final AesGcmSivManager aesGcmSivManager;
   private final Map<String, TableDefinitionEngine> tableDefinitionEngineMap;
   private final LoadingCache<TenantTableIdentifier, TenantTable> tenantTableCacheLoader;
-  private final DataSourceManager dataSourceManager;
+  private final TenantTableDataSourceManager tenantTableDataSourceManager;
   private final ExceptionUtils exceptionUtils;
 
   /**
    * Default constructor.
    *
-   * @param metrics                  to use.
-   * @param dao                      to use.
-   * @param aesGcmSivManager         to crypt controls.
-   * @param tableDefinitionEngineMap map of available engines.
-   * @param dataSourceManager        to ensure the data source exists.
-   * @param exceptionUtils           for exception processing.
+   * @param metrics                      to use.
+   * @param dao                          to use.
+   * @param aesGcmSivManager             to crypt controls.
+   * @param tableDefinitionEngineMap     map of available engines.
+   * @param tenantTableDataSourceManager to ensure the data source exists.
+   * @param exceptionUtils               for exception processing.
    */
   @Inject
   public TenantTableManager(final Metrics metrics,
                             final TenantTableDao dao,
                             final AesGcmSivManager aesGcmSivManager,
                             final Map<String, TableDefinitionEngine> tableDefinitionEngineMap,
-                            final DataSourceManager dataSourceManager,
+                            final TenantTableDataSourceManager tenantTableDataSourceManager,
                             final ExceptionUtils exceptionUtils) {
     LOGGER.info("TenantManager({},{},{},{})", metrics, dao, aesGcmSivManager, tableDefinitionEngineMap);
     this.exceptionUtils = exceptionUtils;
-    this.dataSourceManager = dataSourceManager;
+    this.tenantTableDataSourceManager = tenantTableDataSourceManager;
     this.metrics = metrics;
     this.dao = dao;
     this.aesGcmSivManager = aesGcmSivManager;
@@ -133,7 +133,7 @@ public class TenantTableManager {
         .build();
     try {
       final TenantTable result = dao.create(tenantTable);
-      dataSourceManager.getDataSource(tenantTable);
+      tenantTableDataSourceManager.getDataSource(tenantTable);
       return result;
     } catch (RuntimeException re) {
       LOGGER.error("Unable to create data source for {}, destroying", tenantTable);

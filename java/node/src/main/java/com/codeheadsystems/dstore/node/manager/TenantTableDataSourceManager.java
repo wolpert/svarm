@@ -16,13 +16,16 @@
 
 package com.codeheadsystems.dstore.node.manager;
 
-import com.codeheadsystems.dstore.node.factory.TenantTableDataSourceFactory;
+import com.codeheadsystems.dstore.node.engine.DatabaseEngine;
+import com.codeheadsystems.dstore.node.engine.DatabaseInitializationEngine;
 import com.codeheadsystems.dstore.node.model.Tenant;
 import com.codeheadsystems.dstore.node.model.TenantTable;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.cache.RemovalNotification;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Map;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -31,26 +34,32 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Provides datasources either of type tenant or internal. Responsible for generating and maintaining.
+ * Provides datasources of type tenant. Responsible for generating and maintaining. This caches.
  */
 @Singleton
-public class DataSourceManager {
-  private static final Logger LOGGER = LoggerFactory.getLogger(DataSourceManager.class);
+public class TenantTableDataSourceManager {
+  private static final Logger LOGGER = LoggerFactory.getLogger(TenantTableDataSourceManager.class);
 
   private final LoadingCache<TenantTable, DataSource> tenantDataSourceLoadingCache;
+  private final DatabaseEngine databaseEngine;
+  private final DatabaseInitializationEngine databaseInitializationEngine;
 
   /**
    * Default constructor for the DSM.
    *
-   * @param tenantTableDataSourceFactory used to create data sources for tenant tables.
+   * @param databaseEngine               to get new data sources.
+   * @param databaseInitializationEngine to initialize the database.
    */
   @Inject
-  public DataSourceManager(final TenantTableDataSourceFactory tenantTableDataSourceFactory) {
-    LOGGER.info("DataSourceManager({})", tenantTableDataSourceFactory);
+  public TenantTableDataSourceManager(final DatabaseEngine databaseEngine,
+                                      final DatabaseInitializationEngine databaseInitializationEngine) {
+    LOGGER.info("TenantTableDataSourceManager({},{})", databaseEngine, databaseInitializationEngine);
+    this.databaseEngine = databaseEngine;
+    this.databaseInitializationEngine = databaseInitializationEngine;
     this.tenantDataSourceLoadingCache = CacheBuilder.newBuilder()
         .maximumSize(1000)
         .removalListener(this::onRemoval)
-        .build(CacheLoader.from(tenantTableDataSourceFactory::generate));
+        .build(CacheLoader.from(this::generate));
   }
 
   /**
@@ -87,4 +96,22 @@ public class DataSourceManager {
     LOGGER.debug("onRemoval({},{})", notification.getKey(), notification.getCause());
   }
 
+  /**
+   * Generate a new data source for the tenant table. This is not cached.
+   *
+   * @param tenantTable the tenant table to use.
+   * @return the data source.
+   */
+  private DataSource generate(final TenantTable tenantTable) {
+    LOGGER.debug("dataSource({})", tenantTable);
+    final DataSource dataSource = databaseEngine.tenantDataSource(tenantTable);
+    try {
+      LOGGER.trace("Getting connection");
+      final Connection connection = dataSource.getConnection();
+      databaseInitializationEngine.initialize(connection, tenantTable.tableVersion());
+      return dataSource;
+    } catch (SQLException e) {
+      throw new IllegalArgumentException("Unable to get tenant initialized connection", e);
+    }
+  }
 }

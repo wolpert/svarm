@@ -16,7 +16,7 @@
 
 package com.codeheadsystems.dstore.node.engine;
 
-import com.codeheadsystems.dstore.node.manager.DataSourceManager;
+import com.codeheadsystems.dstore.node.manager.TenantTableDataSourceManager;
 import com.codeheadsystems.dstore.node.model.TenantTable;
 import com.codeheadsystems.metrics.Metrics;
 import io.micrometer.core.instrument.Counter;
@@ -64,23 +64,23 @@ public class SqlEngine {
 
   private final Metrics metrics;
   private final MeterRegistry meterRegistry;
-  private final DataSourceManager dataSourceManager;
+  private final TenantTableDataSourceManager tenantTableDataSourceManager;
   private final DataSource internalDataSource;
 
   /**
    * Default constructor.
    *
-   * @param metrics            object to use.
-   * @param dataSourceManager  manager for the ds.
-   * @param internalDataSource internal data source.
+   * @param metrics                      object to use.
+   * @param tenantTableDataSourceManager manager for the ds.
+   * @param internalDataSource           internal data source.
    */
   @Inject
   public SqlEngine(final Metrics metrics,
-                   final DataSourceManager dataSourceManager,
+                   final TenantTableDataSourceManager tenantTableDataSourceManager,
                    final DataSource internalDataSource) {
-    LOGGER.info("SqlEngine({},{})", metrics, dataSourceManager);
+    LOGGER.info("SqlEngine({},{})", metrics, tenantTableDataSourceManager);
     this.metrics = metrics;
-    this.dataSourceManager = dataSourceManager;
+    this.tenantTableDataSourceManager = tenantTableDataSourceManager;
     this.meterRegistry = metrics.registry();
     this.internalDataSource = internalDataSource;
   }
@@ -147,7 +147,7 @@ public class SqlEngine {
                                   final Function<ResultSet, R> function) {
     LOGGER.trace("executeQueryTenant({})", query);
     return executeQuery(tenantTable.identifier().toString(),
-        dataSourceManager.getDataSource(tenantTable),
+        tenantTableDataSourceManager.getDataSource(tenantTable),
         query,
         function);
   }
@@ -166,7 +166,7 @@ public class SqlEngine {
                                      final Function<PreparedStatement, R> function) {
     LOGGER.trace("executePreparedTenant({})", query);
     return executePrepared(tenantTable.identifier().toString(),
-        dataSourceManager.getDataSource(tenantTable),
+        tenantTableDataSourceManager.getDataSource(tenantTable),
         query,
         function);
   }

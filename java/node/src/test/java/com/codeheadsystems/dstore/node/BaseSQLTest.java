@@ -19,8 +19,7 @@ package com.codeheadsystems.dstore.node;
 import com.codeheadsystems.dstore.node.engine.DatabaseEngine;
 import com.codeheadsystems.dstore.node.engine.DatabaseInitializationEngine;
 import com.codeheadsystems.dstore.node.engine.SqlEngine;
-import com.codeheadsystems.dstore.node.factory.TenantTableDataSourceFactory;
-import com.codeheadsystems.dstore.node.manager.DataSourceManager;
+import com.codeheadsystems.dstore.node.manager.TenantTableDataSourceManager;
 import com.codeheadsystems.dstore.node.model.TenantTable;
 import com.codeheadsystems.dstore.node.module.DataSourceModule;
 import com.codeheadsystems.metrics.test.BaseMetricTest;
@@ -42,7 +41,7 @@ public abstract class BaseSQLTest extends BaseMetricTest {
   private static final Logger log = LoggerFactory.getLogger(BaseSQLTest.class);
 
   protected SqlEngine sqlEngine;
-  protected DataSourceManager dataSourceManager;
+  protected TenantTableDataSourceManager tenantTableDataSourceManager;
   protected DataSource internalDataSource;
   protected Jdbi internalJdbi;
   protected DatabaseEngine databaseEngine;
@@ -54,9 +53,8 @@ public abstract class BaseSQLTest extends BaseMetricTest {
     final DataSourceModule dataSourceModule = new DataSourceModule();
     internalDataSource = dataSourceModule.internalDataSource(databaseEngine, databaseInitializationEngine);
     internalJdbi = dataSourceModule.internalJdbi(internalDataSource);
-    final TenantTableDataSourceFactory factory = new TenantTableDataSourceFactory(databaseEngine, databaseInitializationEngine);
-    dataSourceManager = new DataSourceManager(factory);
-    sqlEngine = new SqlEngine(metrics, dataSourceManager, internalDataSource);
+    tenantTableDataSourceManager = new TenantTableDataSourceManager(databaseEngine, databaseInitializationEngine);
+    sqlEngine = new SqlEngine(metrics, tenantTableDataSourceManager, internalDataSource);
   }
 
   private DatabaseEngine databaseEngine() {

@@ -19,7 +19,8 @@ package com.codeheadsystems.dstore.node.manager;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import com.codeheadsystems.dstore.node.factory.TenantTableDataSourceFactory;
+import com.codeheadsystems.dstore.node.engine.DatabaseEngine;
+import com.codeheadsystems.dstore.node.engine.DatabaseInitializationEngine;
 import com.codeheadsystems.dstore.node.model.TenantTable;
 import javax.sql.DataSource;
 import org.junit.jupiter.api.Test;
@@ -35,20 +36,21 @@ import org.mockito.junit.jupiter.MockitoExtension;
  * Then, we can make this a proper unit test.
  */
 @ExtendWith(MockitoExtension.class)
-class DataSourceManagerTest {
+class TenantTableDataSourceManagerTest {
 
   @Mock private TenantTable tenantTable;
 
   @Mock private DataSource dataSource;
 
-  @Mock private TenantTableDataSourceFactory factory;
+  @Mock private DatabaseInitializationEngine databaseInitializationEngine;
+  @Mock private DatabaseEngine databaseEngine;
 
-  @InjectMocks private DataSourceManager dataSourceManager;
+  @InjectMocks private TenantTableDataSourceManager tenantTableDataSourceManager;
 
   @Test
   void loadTenant_realInitialization() {
-    when(factory.generate(tenantTable)).thenReturn(dataSource);
-    final DataSource dataSource = dataSourceManager.getDataSource(tenantTable);
+    when(databaseEngine.tenantDataSource(tenantTable)).thenReturn(dataSource);
+    final DataSource dataSource = tenantTableDataSourceManager.getDataSource(tenantTable);
     assertThat(dataSource).isEqualTo(dataSource);
   }
 

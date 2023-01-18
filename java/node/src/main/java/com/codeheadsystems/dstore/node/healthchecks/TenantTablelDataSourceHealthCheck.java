@@ -17,7 +17,7 @@
 package com.codeheadsystems.dstore.node.healthchecks;
 
 import com.codahale.metrics.health.HealthCheck;
-import com.codeheadsystems.dstore.node.manager.DataSourceManager;
+import com.codeheadsystems.dstore.node.manager.TenantTableDataSourceManager;
 import com.codeheadsystems.dstore.node.model.TenantTable;
 import com.codeheadsystems.metrics.Metrics;
 import java.sql.SQLException;
@@ -36,20 +36,20 @@ public class TenantTablelDataSourceHealthCheck extends HealthCheck {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(TenantTablelDataSourceHealthCheck.class);
 
-  private final DataSourceManager dataSourceManager;
+  private final TenantTableDataSourceManager tenantTableDataSourceManager;
   private final Metrics metrics;
 
   /**
    * Default health check constructor.
    *
-   * @param dataSourceManager to use.
-   * @param metrics           to use.
+   * @param tenantTableDataSourceManager to use.
+   * @param metrics                      to use.
    */
   @Inject
-  public TenantTablelDataSourceHealthCheck(final DataSourceManager dataSourceManager,
+  public TenantTablelDataSourceHealthCheck(final TenantTableDataSourceManager tenantTableDataSourceManager,
                                            final Metrics metrics) {
-    LOGGER.info("InternalDataSourceHealthCheck({})", dataSourceManager);
-    this.dataSourceManager = dataSourceManager;
+    LOGGER.info("InternalDataSourceHealthCheck({})", tenantTableDataSourceManager);
+    this.tenantTableDataSourceManager = tenantTableDataSourceManager;
     this.metrics = metrics;
   }
 
@@ -63,7 +63,7 @@ public class TenantTablelDataSourceHealthCheck extends HealthCheck {
   protected Result check() throws Exception {
     LOGGER.trace("check()");
     try {
-      final boolean isHealthy = dataSourceManager.allValues().entrySet()
+      final boolean isHealthy = tenantTableDataSourceManager.allValues().entrySet()
           .stream()
           .allMatch(this::check);
       if (isHealthy) {

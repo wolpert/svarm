@@ -19,7 +19,7 @@ package com.codeheadsystems.dstore.node.engine;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import com.codeheadsystems.dstore.node.manager.DataSourceManager;
+import com.codeheadsystems.dstore.node.manager.TenantTableDataSourceManager;
 import com.codeheadsystems.metrics.test.BaseMetricTest;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -38,7 +38,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class SqlEngineTest extends BaseMetricTest {
 
   private static final String QUERY = "QUERY";
-  @Mock private DataSourceManager dataSourceManager;
+  @Mock private TenantTableDataSourceManager tenantTableDataSourceManager;
 
   @Mock private DataSource dataSource;
   @Mock private Connection connection;
@@ -54,7 +54,7 @@ class SqlEngineTest extends BaseMetricTest {
   @BeforeEach
   void setup() {
     atomicInteger = new AtomicInteger(1);
-    sqlEngine = new SqlEngine(metrics, dataSourceManager, dataSource);
+    sqlEngine = new SqlEngine(metrics, tenantTableDataSourceManager, dataSource);
   }
 
   @Test
