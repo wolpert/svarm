@@ -1,8 +1,7 @@
 package com.codeheadsystems.dstore.node.module;
 
-import com.codeheadsystems.dstore.node.engine.DatabaseConnectionEngine;
+import com.codeheadsystems.dstore.node.engine.DatabaseEngine;
 import com.codeheadsystems.dstore.node.engine.DatabaseInitializationEngine;
-import com.codeheadsystems.dstore.node.factory.DataSourceFactory;
 import com.codeheadsystems.dstore.node.model.Tenant;
 import dagger.Module;
 import dagger.Provides;
@@ -14,9 +13,9 @@ import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.mapper.immutables.JdbiImmutables;
 
 /**
- * Provides datasources.
+ * Provides datasources. We pick the database to use here.
  */
-@Module
+@Module(includes = {HsqlDataSourceModule.class})
 public class DataSourceModule {
 
   /**
@@ -27,18 +26,15 @@ public class DataSourceModule {
   /**
    * Returns a built, usable data source.
    *
-   * @param databaseConnectionEngine     database connection engine.
+   * @param databaseEngine               database  engine.
    * @param databaseInitializationEngine database initialization engine.
-   * @param dataSourceFactory            to create the data source.
    * @return the datasource.
    */
   @Provides
   @Singleton
-  public DataSource internalDataSource(final DatabaseConnectionEngine databaseConnectionEngine,
-                                       final DatabaseInitializationEngine databaseInitializationEngine,
-                                       final DataSourceFactory dataSourceFactory) {
-    final String url = databaseConnectionEngine.getInternalConnectionUrl();
-    final DataSource dataSource = dataSourceFactory.internalDataSource(url);
+  public DataSource internalDataSource(final DatabaseEngine databaseEngine,
+                                       final DatabaseInitializationEngine databaseInitializationEngine) {
+    final DataSource dataSource = databaseEngine.internalDataSource();
     final Connection connection;
     try {
       connection = dataSource.getConnection();

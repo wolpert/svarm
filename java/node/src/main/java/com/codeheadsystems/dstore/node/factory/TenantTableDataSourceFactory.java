@@ -1,6 +1,6 @@
 package com.codeheadsystems.dstore.node.factory;
 
-import com.codeheadsystems.dstore.node.engine.DatabaseConnectionEngine;
+import com.codeheadsystems.dstore.node.engine.DatabaseEngine;
 import com.codeheadsystems.dstore.node.engine.DatabaseInitializationEngine;
 import com.codeheadsystems.dstore.node.model.TenantTable;
 import java.sql.Connection;
@@ -19,26 +19,22 @@ public class TenantTableDataSourceFactory {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(TenantTableDataSourceFactory.class);
 
-  private final DatabaseConnectionEngine databaseConnectionEngine;
+  private final DatabaseEngine databaseEngine;
   private final DatabaseInitializationEngine databaseInitializationEngine;
-  private final DataSourceFactory dataSourceFactory;
 
   /**
    * Constructor.
    *
-   * @param databaseConnectionEngine     To get the URL data.
+   * @param databaseEngine               To get the database datasource.
    * @param databaseInitializationEngine to initialize the tenant table.
-   * @param dataSourceFactory            to generate the ddtasource itself.
    */
   @Inject
-  public TenantTableDataSourceFactory(final DatabaseConnectionEngine databaseConnectionEngine,
-                                      final DatabaseInitializationEngine databaseInitializationEngine,
-                                      final DataSourceFactory dataSourceFactory) {
-    LOGGER.info("TenantTableDataSourceFactory({},{},{})",
-        databaseConnectionEngine, databaseInitializationEngine, dataSourceFactory);
-    this.databaseConnectionEngine = databaseConnectionEngine;
+  public TenantTableDataSourceFactory(final DatabaseEngine databaseEngine,
+                                      final DatabaseInitializationEngine databaseInitializationEngine) {
+    LOGGER.info("TenantTableDataSourceFactory({},{})",
+        databaseEngine, databaseInitializationEngine);
+    this.databaseEngine = databaseEngine;
     this.databaseInitializationEngine = databaseInitializationEngine;
-    this.dataSourceFactory = dataSourceFactory;
   }
 
   /**
@@ -49,8 +45,7 @@ public class TenantTableDataSourceFactory {
    */
   public DataSource generate(final TenantTable tenantTable) {
     LOGGER.debug("dataSource({})", tenantTable);
-    final String url = databaseConnectionEngine.getTenantConnectionUrl(tenantTable);
-    final DataSource dataSource = dataSourceFactory.tenantDataSource(tenantTable, url);
+    final DataSource dataSource = databaseEngine.tenantDataSource(tenantTable);
     try {
       LOGGER.trace("Getting connection");
       final Connection connection = dataSource.getConnection();

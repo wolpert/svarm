@@ -14,44 +14,43 @@
  * limitations under the License.
  */
 
-package com.codeheadsystems.dstore.node.engine;
+package com.codeheadsystems.dstore.node.engine.impl;
 
 import static org.bouncycastle.util.encoders.Hex.toHexString;
 
 import com.codeheadsystems.dstore.common.crypt.CryptUtils;
 import com.codeheadsystems.dstore.node.NodeConfiguration;
+import com.codeheadsystems.dstore.node.engine.DatabaseEngine;
 import com.codeheadsystems.dstore.node.manager.ControlPlaneManager;
 import com.codeheadsystems.dstore.node.model.NodeInternalConfiguration;
 import com.codeheadsystems.dstore.node.model.TenantTable;
 import com.codeheadsystems.dstore.node.model.TenantTableIdentifier;
+import com.mchange.v2.c3p0.ComboPooledDataSource;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.Security;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.sql.DataSource;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Handles getting the connection URL with security enabled for hsqldb. It can do the
- * actual connection itself, but odds are this will move to a pooler.
+ * Provides for a Hsql implementation of the database engine, with encryption.
  */
 @Singleton
-public class DatabaseConnectionEngine {
+public class HsqlDatabaseEngine implements DatabaseEngine {
+
 
   /**
    * Identifier.
    */
   public static final String INTERNAL_DB_NAME = "nodeInternalDb";
-  private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseConnectionEngine.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(HsqlDatabaseEngine.class);
   private static final String CONNECTION_URL =
       "jdbc:hsqldb:file:%s/database;crypt_key=%s;crypt_iv=%s;crypt_type=AES/GCM-SIV/NoPadding;crypt_provider=BC;";
-
   private final ControlPlaneManager controlPlaneManager;
   private final NodeInternalConfiguration nodeInternalConfiguration;
   private final NodeConfiguration nodeConfiguration;
@@ -66,11 +65,12 @@ public class DatabaseConnectionEngine {
    * @param cryptUtils                to use.
    */
   @Inject
-  public DatabaseConnectionEngine(final ControlPlaneManager controlPlaneManager,
-                                  final NodeInternalConfiguration nodeInternalConfiguration,
-                                  final NodeConfiguration nodeConfiguration,
-                                  final CryptUtils cryptUtils) {
-    LOGGER.info("DatabaseManager({},{},{},{})", controlPlaneManager, nodeInternalConfiguration, nodeConfiguration, cryptUtils);
+  public HsqlDatabaseEngine(final ControlPlaneManager controlPlaneManager,
+                            final NodeInternalConfiguration nodeInternalConfiguration,
+                            final NodeConfiguration nodeConfiguration,
+                            final CryptUtils cryptUtils) {
+    LOGGER.info("DatabaseManager({},{},{},{})",
+        controlPlaneManager, nodeInternalConfiguration, nodeConfiguration, cryptUtils);
     this.controlPlaneManager = controlPlaneManager;
     this.nodeInternalConfiguration = nodeInternalConfiguration;
     this.nodeConfiguration = nodeConfiguration;
@@ -83,19 +83,34 @@ public class DatabaseConnectionEngine {
     }
   }
 
-  /**
-   * Creates a connection from the url. (Obsolete as we use datasources now)
-   *
-   * @param connectionUrl to use.
-   * @return the connection.
-   */
-  public Connection connection(final String connectionUrl) {
-    LOGGER.trace("connection()"); // DO NOT LOG THE CONNECTION URL EVER!
-    try {
-      return DriverManager.getConnection(connectionUrl, "SA", "");
-    } catch (SQLException e) {
-      throw new IllegalArgumentException("Unable to create/open database", e);
-    }
+  @Override
+  public DataSource tenantDataSource(final TenantTable table) {
+    LOGGER.trace("tenantDataSource({})", table);
+    final ComboPooledDataSource cpds = new ComboPooledDataSource();
+    cpds.setJdbcUrl(getTenantConnectionUrl(table));
+    cpds.setUser("SA");
+    cpds.setPassword("");
+    cpds.setMinPoolSize(0);
+    cpds.setAcquireIncrement(10);
+    cpds.setMaxPoolSize(40);
+    cpds.setMaxIdleTime(300);
+    //cpds.setTestConnectionOnCheckout(true);
+    return cpds;
+  }
+
+  @Override
+  public DataSource internalDataSource() {
+    LOGGER.trace("internalDataSource()");
+    final ComboPooledDataSource cpds = new ComboPooledDataSource();
+    cpds.setJdbcUrl(getInternalConnectionUrl());
+    cpds.setUser("SA");
+    cpds.setPassword("");
+    cpds.setMinPoolSize(1);
+    cpds.setAcquireIncrement(5);
+    cpds.setMaxPoolSize(20);
+    cpds.setMaxIdleTime(300);
+    //cpds.setTestConnectionOnCheckout(true);
+    return cpds;
   }
 
   /**
@@ -104,12 +119,13 @@ public class DatabaseConnectionEngine {
    * @param tenantTable to use, from us.
    * @return the URL.
    */
-  public String getTenantConnectionUrl(final TenantTable tenantTable) {
+  private String getTenantConnectionUrl(final TenantTable tenantTable) {
     LOGGER.trace("getTenantConnectionUrl({})", tenantTable);
     final TenantTableIdentifier identifier = tenantTable.identifier();
     final String name = String.format("%s-%s", identifier.tenantId(), identifier.tableName());
     final String directory = getDatabasePath(name);
-    final byte[] key = cryptUtils.xor(tenantTable.key(), controlPlaneManager.keyForTenant(tenantTable.identifier().tenantId()));
+    final byte[] key = cryptUtils.xor(tenantTable.key(),
+        controlPlaneManager.keyForTenant(tenantTable.identifier().tenantId()));
     final byte[] nonce = cryptUtils.fromBase64(tenantTable.nonce());
     return getConnectionUrl(directory, key, nonce);
   }
@@ -119,24 +135,12 @@ public class DatabaseConnectionEngine {
    *
    * @return the URL.
    */
-  public String getInternalConnectionUrl() {
+  private String getInternalConnectionUrl() {
     LOGGER.trace("getInternalConnectionUrl()");
     final String directory = getDatabasePath(INTERNAL_DB_NAME);
     final byte[] key = cryptUtils.xor(nodeInternalConfiguration.key(), controlPlaneManager.keyForNode());
     final byte[] nonce = cryptUtils.fromBase64(nodeInternalConfiguration.nonce());
     return getConnectionUrl(directory, key, nonce);
-  }
-
-  /**
-   * Method to know if a database is already setup.
-   *
-   * @param name of the directory.
-   * @return boolean if true or not.
-   */
-  public boolean isDatabaseSetup(final String name) {
-    LOGGER.trace("isDatabaseSetup({})", name);
-    final Path path = Path.of(nodeConfiguration.getDatabaseDirectory(), name);
-    return Files.exists(path) && Files.isWritable(path) && Files.isDirectory(path);
   }
 
   private String getDatabasePath(final String name) {
@@ -162,12 +166,11 @@ public class DatabaseConnectionEngine {
    * @param nonce             the nonce.
    * @return a URL ready to use.
    */
-  public String getConnectionUrl(final String databaseDirectory,
-                                 final byte[] key,
-                                 final byte[] nonce) {
+  private String getConnectionUrl(final String databaseDirectory,
+                                  final byte[] key,
+                                  final byte[] nonce) {
     LOGGER.trace("getConnectionUrl({})", databaseDirectory);
     // Details: http://hsqldb.org/doc/2.0/guide/management-chapt.html#mtc_encrypted_create
     return String.format(CONNECTION_URL, databaseDirectory, toHexString(key), toHexString(nonce));
   }
-
 }

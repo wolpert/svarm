@@ -19,16 +19,11 @@ package com.codeheadsystems.dstore.node.manager;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import com.codeheadsystems.dstore.node.engine.DatabaseConnectionEngine;
-import com.codeheadsystems.dstore.node.engine.DatabaseInitializationEngine;
 import com.codeheadsystems.dstore.node.factory.TenantTableDataSourceFactory;
 import com.codeheadsystems.dstore.node.model.TenantTable;
-import java.sql.Connection;
 import javax.sql.DataSource;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;

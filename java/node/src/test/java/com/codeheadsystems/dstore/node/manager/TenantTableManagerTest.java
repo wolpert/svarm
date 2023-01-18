@@ -23,7 +23,6 @@ import com.codeheadsystems.dstore.common.crypt.AesGcmSivManager;
 import com.codeheadsystems.dstore.node.dao.TenantTableDao;
 import com.codeheadsystems.dstore.node.engine.TableDefinitionEngine;
 import com.codeheadsystems.dstore.node.exception.ExceptionUtils;
-import com.codeheadsystems.dstore.node.model.ImmutableTenantTableIdentifier;
 import com.codeheadsystems.dstore.node.model.TenantTable;
 import com.codeheadsystems.dstore.node.model.TenantTableIdentifier;
 import com.codeheadsystems.metrics.test.BaseMetricTest;

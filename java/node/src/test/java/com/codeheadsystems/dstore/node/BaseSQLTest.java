@@ -16,16 +16,15 @@
 
 package com.codeheadsystems.dstore.node;
 
-import static org.mockito.Mockito.lenient;
-
-import com.codeheadsystems.dstore.node.engine.DatabaseConnectionEngine;
+import com.codeheadsystems.dstore.node.engine.DatabaseEngine;
 import com.codeheadsystems.dstore.node.engine.DatabaseInitializationEngine;
 import com.codeheadsystems.dstore.node.engine.SqlEngine;
-import com.codeheadsystems.dstore.node.factory.DataSourceFactory;
 import com.codeheadsystems.dstore.node.factory.TenantTableDataSourceFactory;
 import com.codeheadsystems.dstore.node.manager.DataSourceManager;
+import com.codeheadsystems.dstore.node.model.TenantTable;
 import com.codeheadsystems.dstore.node.module.DataSourceModule;
 import com.codeheadsystems.metrics.test.BaseMetricTest;
+import com.mchange.v2.c3p0.ComboPooledDataSource;
 import java.sql.SQLException;
 import java.util.UUID;
 import javax.sql.DataSource;
@@ -33,7 +32,6 @@ import org.jdbi.v3.core.Jdbi;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,22 +45,46 @@ public abstract class BaseSQLTest extends BaseMetricTest {
   protected DataSourceManager dataSourceManager;
   protected DataSource internalDataSource;
   protected Jdbi internalJdbi;
-  private DatabaseInitializationEngine databaseInitializationEngine;
-  @Mock private DatabaseConnectionEngine databaseConnectionEngine;
+  protected DatabaseEngine databaseEngine;
 
   @BeforeEach
   void setupSQLEngine() throws SQLException {
-    databaseInitializationEngine = new DatabaseInitializationEngine();
-    final String url = "jdbc:hsqldb:mem:" + getClass().getSimpleName() + ":" + UUID.randomUUID();
-    log.info("Init {}", url);
-    lenient().when(databaseConnectionEngine.getInternalConnectionUrl()).thenReturn(url);
+    final DatabaseInitializationEngine databaseInitializationEngine = new DatabaseInitializationEngine();
+    databaseEngine = databaseEngine();
     final DataSourceModule dataSourceModule = new DataSourceModule();
-    final DataSourceFactory dataSourceFactory = new DataSourceFactory();
-    internalDataSource = dataSourceModule.internalDataSource(databaseConnectionEngine, databaseInitializationEngine, dataSourceFactory);
+    internalDataSource = dataSourceModule.internalDataSource(databaseEngine, databaseInitializationEngine);
     internalJdbi = dataSourceModule.internalJdbi(internalDataSource);
-    final TenantTableDataSourceFactory factory = new TenantTableDataSourceFactory(databaseConnectionEngine, databaseInitializationEngine, dataSourceFactory);
+    final TenantTableDataSourceFactory factory = new TenantTableDataSourceFactory(databaseEngine, databaseInitializationEngine);
     dataSourceManager = new DataSourceManager(factory);
     sqlEngine = new SqlEngine(metrics, dataSourceManager, internalDataSource);
+  }
+
+  private DatabaseEngine databaseEngine() {
+    return new DatabaseEngine() {
+      @Override
+      public DataSource tenantDataSource(final TenantTable table) {
+        return dataSource();
+      }
+
+      @Override
+      public DataSource internalDataSource() {
+        return dataSource();
+      }
+    };
+  }
+
+  private DataSource dataSource() {
+    final String url = "jdbc:hsqldb:mem:" + getClass().getSimpleName() + ":" + UUID.randomUUID();
+    log.info("Init {}", url);
+    final ComboPooledDataSource cpds = new ComboPooledDataSource();
+    cpds.setJdbcUrl(url);
+    cpds.setUser("SA");
+    cpds.setPassword("");
+    cpds.setMinPoolSize(0);
+    cpds.setAcquireIncrement(10);
+    cpds.setMaxPoolSize(40);
+    cpds.setMaxIdleTime(300);
+    return cpds;
   }
 
   @AfterEach
