@@ -23,11 +23,10 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.cache.RemovalNotification;
-import java.sql.SQLException;
+import java.util.Map;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.sql.DataSource;
-import org.jdbi.v3.core.Jdbi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,6 +62,15 @@ public class DataSourceManager {
   public DataSource getDataSource(final TenantTable tenantTable) {
     LOGGER.trace("getDataSource({})", tenantTable);
     return tenantDataSourceLoadingCache.getUnchecked(tenantTable);
+  }
+
+  /**
+   * Returns the current map. Useful for health checks.
+   *
+   * @return map of the tenants.
+   */
+  public Map<TenantTable, DataSource> allValues() {
+    return tenantDataSourceLoadingCache.asMap();
   }
 
   /**

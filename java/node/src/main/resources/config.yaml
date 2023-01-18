@@ -46,6 +46,16 @@ health:
         initialDelay: 5s
         failureAttempts: 1
         successAttempts: 2
+    - name: TenantTablelDataSourceHealthCheck
+      type: ready
+      critical: true
+      initialState: false
+      schedule:
+        checkInterval: 10s
+        downtimeInterval: 2s
+        initialDelay: 5s
+        failureAttempts: 1
+        successAttempts: 2
     - name: BasicHealthCheck
       type: alive
       critical: true

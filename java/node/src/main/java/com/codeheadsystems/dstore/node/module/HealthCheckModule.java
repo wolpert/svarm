@@ -19,6 +19,7 @@ package com.codeheadsystems.dstore.node.module;
 import com.codahale.metrics.health.HealthCheck;
 import com.codeheadsystems.dstore.node.healthchecks.BasicHealthCheck;
 import com.codeheadsystems.dstore.node.healthchecks.InternalDataSourceHealthCheck;
+import com.codeheadsystems.dstore.node.healthchecks.TenantTablelDataSourceHealthCheck;
 import dagger.Binds;
 import dagger.Module;
 import dagger.multibindings.IntoSet;
@@ -49,4 +50,13 @@ public interface HealthCheckModule {
   @IntoSet
   HealthCheck internalDataSourceHealthCheck(final InternalDataSourceHealthCheck healthCheck);
 
+  /**
+   * Tenant Table database health check.
+   *
+   * @param healthCheck health check.
+   * @return health check.
+   */
+  @Binds
+  @IntoSet
+  HealthCheck tenantTablelDataSourceHealthCheck(final TenantTablelDataSourceHealthCheck healthCheck);
 }
