@@ -16,12 +16,12 @@
 
 package com.codeheadsystems.dstore.node.module;
 
-import com.codeheadsystems.dstore.node.resource.JerseyResource;
 import com.codeheadsystems.dstore.node.resource.NotFoundExceptionMapper;
 import com.codeheadsystems.dstore.node.resource.TenantResource;
 import com.codeheadsystems.dstore.node.resource.TenantTableEntryResource;
 import com.codeheadsystems.dstore.node.resource.TenantTableResource;
-import com.codeheadsystems.dstore.node.resource.TraceUuid;
+import com.codeheadsystems.server.resource.JerseyResource;
+import com.codeheadsystems.server.resource.TraceUuid;
 import dagger.Binds;
 import dagger.Module;
 import dagger.multibindings.IntoSet;

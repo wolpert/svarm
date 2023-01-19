@@ -9,7 +9,7 @@ apply plugin: "eclipse"
 apply plugin: 'checkstyle'
 
 ext {
-    appName = "node"
+    appName = "proxy"
     configPath = "${rootProject.projectDir}/node/src/main/resources/"
 }
 
@@ -32,17 +32,7 @@ checkstyle {
 dependencies {
     implementation project(":common")
     implementation project(":server-common")
-    implementation project(":node-common")
     implementation libs.guava
-
-    // SQL
-    implementation libs.hsqldb
-    implementation libs.liquibase.core
-    implementation libs.c3p0
-    implementation libs.jdbi.core
-    implementation libs.jdbi.testing
-    implementation libs.jdbi.guava
-    implementation libs.jdbi.jackson2
 
     implementation libs.javax.inject
     implementation libs.dagger
@@ -72,5 +62,5 @@ dependencies {
 
 run {
     args 'server', configPath + 'config.yaml'
-    mainClassName = "com.codeheadsystems.dstore.node.Node"
+    mainClassName = "com.codeheadsystems.dstore.proxy.Proxy"
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.codeheadsystems.dstore.node.resource;
+package com.codeheadsystems.server.resource;
 
 import java.io.IOException;
 import java.util.UUID;

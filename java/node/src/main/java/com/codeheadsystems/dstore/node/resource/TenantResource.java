@@ -23,6 +23,7 @@ import com.codeheadsystems.dstore.node.api.TenantInfo;
 import com.codeheadsystems.dstore.node.converter.TenantInfoConverter;
 import com.codeheadsystems.dstore.node.manager.TenantManager;
 import com.codeheadsystems.dstore.node.model.Tenant;
+import com.codeheadsystems.server.resource.JerseyResource;
 import java.util.List;
 import java.util.Optional;
 import javax.inject.Inject;

@@ -2,14 +2,12 @@
  * Copyright (c) 2020-2023. CodeHead Systems. All rights reserved
  * Ned Wolpert <ned.wolpert@codeheadsystems.com>
  */
-
-apply plugin: 'application'
 apply plugin: "java-library"
 apply plugin: "eclipse"
 apply plugin: 'checkstyle'
 
 ext {
-    appName = "node"
+    appName = "server-common"
     configPath = "${rootProject.projectDir}/node/src/main/resources/"
 }
 
@@ -31,18 +29,7 @@ checkstyle {
 
 dependencies {
     implementation project(":common")
-    implementation project(":server-common")
-    implementation project(":node-common")
     implementation libs.guava
-
-    // SQL
-    implementation libs.hsqldb
-    implementation libs.liquibase.core
-    implementation libs.c3p0
-    implementation libs.jdbi.core
-    implementation libs.jdbi.testing
-    implementation libs.jdbi.guava
-    implementation libs.jdbi.jackson2
 
     implementation libs.javax.inject
     implementation libs.dagger
@@ -70,7 +57,3 @@ dependencies {
     implementation libs.javax.servlet.api
 }
 
-run {
-    args 'server', configPath + 'config.yaml'
-    mainClassName = "com.codeheadsystems.dstore.node.Node"
-}

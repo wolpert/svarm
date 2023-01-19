@@ -18,11 +18,12 @@ package com.codeheadsystems.dstore.node;
 
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.health.HealthCheck;
-import com.codeheadsystems.dstore.node.component.DaggerDropWizardComponent;
-import com.codeheadsystems.dstore.node.component.DropWizardComponent;
+import com.codeheadsystems.dstore.node.component.DaggerNodeDropWizardComponent;
+import com.codeheadsystems.dstore.node.component.NodeDropWizardComponent;
 import com.codeheadsystems.dstore.node.module.ConfigurationModule;
 import com.codeheadsystems.metrics.dagger.MetricsModule;
 import com.codeheadsystems.metrics.helper.DropwizardMetricsHelper;
+import com.codeheadsystems.server.module.MetricRegistryModule;
 import io.dropwizard.Application;
 import io.dropwizard.jersey.setup.JerseyEnvironment;
 import io.dropwizard.setup.Environment;
@@ -68,8 +69,9 @@ public class Node extends Application<NodeConfiguration> {
     LOGGER.info("run({},{})", configuration, environment);
     final MetricRegistry metricRegistry = environment.metrics();
     final MeterRegistry meterRegistry = new DropwizardMetricsHelper().instrument(metricRegistry);
-    final DropWizardComponent component = DaggerDropWizardComponent.builder()
-        .configurationModule(new ConfigurationModule(configuration, metricRegistry))
+    final NodeDropWizardComponent component = DaggerNodeDropWizardComponent.builder()
+        .configurationModule(new ConfigurationModule(configuration))
+        .metricRegistryModule(new MetricRegistryModule(metricRegistry))
         .metricsModule(new MetricsModule(meterRegistry))
         .build();
     final JerseyEnvironment jerseyEnvironment = environment.jersey();

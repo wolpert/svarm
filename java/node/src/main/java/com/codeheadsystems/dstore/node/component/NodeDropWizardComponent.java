@@ -16,7 +16,6 @@
 
 package com.codeheadsystems.dstore.node.component;
 
-import com.codahale.metrics.health.HealthCheck;
 import com.codeheadsystems.dstore.common.module.JsonModule;
 import com.codeheadsystems.dstore.node.module.ConfigurationModule;
 import com.codeheadsystems.dstore.node.module.DataSourceModule;
@@ -24,10 +23,10 @@ import com.codeheadsystems.dstore.node.module.HealthCheckModule;
 import com.codeheadsystems.dstore.node.module.ResourceModule;
 import com.codeheadsystems.dstore.node.module.TableDefinitionEngineModule;
 import com.codeheadsystems.dstore.node.module.UtilitiesModule;
-import com.codeheadsystems.dstore.node.resource.JerseyResource;
 import com.codeheadsystems.metrics.dagger.MetricsModule;
+import com.codeheadsystems.server.component.DropWizardComponent;
+import com.codeheadsystems.server.module.DropWizardModule;
 import dagger.Component;
-import java.util.Set;
 import javax.inject.Singleton;
 
 /**
@@ -40,24 +39,11 @@ import javax.inject.Singleton;
     HealthCheckModule.class,
     JsonModule.class,
     MetricsModule.class,
+    DropWizardModule.class,
     ResourceModule.class,
     TableDefinitionEngineModule.class,
     UtilitiesModule.class
 })
-public interface DropWizardComponent {
-
-  /**
-   * Returns the resources for the application.
-   *
-   * @return resources.
-   */
-  Set<JerseyResource> resources();
-
-  /**
-   * Returns the health check for the application.
-   *
-   * @return the health checks.
-   */
-  Set<HealthCheck> healthChecks();
-
+public interface NodeDropWizardComponent extends DropWizardComponent {
+  
 }

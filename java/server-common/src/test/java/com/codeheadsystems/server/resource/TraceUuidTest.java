@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.codeheadsystems.dstore.node.resource;
+package com.codeheadsystems.server.resource;
 
-import static com.codeheadsystems.dstore.node.resource.TraceUuid.TRACE_UUID_HEADER;
+import static com.codeheadsystems.server.resource.TraceUuid.TRACE_UUID_HEADER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;

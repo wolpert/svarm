@@ -21,6 +21,7 @@ import com.codahale.metrics.annotation.ResponseMetered;
 import com.codahale.metrics.annotation.Timed;
 import com.codeheadsystems.dstore.node.manager.TenantTableEntryManager;
 import com.codeheadsystems.dstore.node.model.TenantTableIdentifier;
+import com.codeheadsystems.server.resource.JerseyResource;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.util.Optional;
 import javax.inject.Inject;

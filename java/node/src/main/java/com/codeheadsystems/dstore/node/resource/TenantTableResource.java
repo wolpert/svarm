@@ -25,6 +25,7 @@ import com.codeheadsystems.dstore.node.engine.impl.V1SingleEntryEngine;
 import com.codeheadsystems.dstore.node.manager.TenantTableManager;
 import com.codeheadsystems.dstore.node.model.TenantTable;
 import com.codeheadsystems.dstore.node.model.TenantTableIdentifier;
+import com.codeheadsystems.server.resource.JerseyResource;
 import java.util.List;
 import java.util.Optional;
 import javax.inject.Inject;
