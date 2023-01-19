@@ -41,6 +41,13 @@ public abstract class Server<T extends Configuration> extends Application<T> {
     LOGGER.info("Server()");
   }
 
+  /**
+   * Implement this method to return the dropwizard component we will use.
+   *
+   * @param configuration for you service.
+   * @param metricRegistryModule provided metric registry.
+   * @return dropwizard component.
+   */
   protected abstract DropWizardComponent dropWizardComponent(final T configuration,
                                                              final MetricRegistryModule metricRegistryModule);
 

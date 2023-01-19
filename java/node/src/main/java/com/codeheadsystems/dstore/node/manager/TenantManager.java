@@ -18,11 +18,11 @@ package com.codeheadsystems.dstore.node.manager;
 
 import com.codeheadsystems.dstore.common.crypt.AesGcmSivManager;
 import com.codeheadsystems.dstore.node.dao.TenantDao;
-import com.codeheadsystems.dstore.node.exception.ExceptionUtils;
-import com.codeheadsystems.dstore.node.exception.NotFoundException;
 import com.codeheadsystems.dstore.node.model.ImmutableTenant;
 import com.codeheadsystems.dstore.node.model.Tenant;
 import com.codeheadsystems.metrics.Metrics;
+import com.codeheadsystems.server.exception.ExceptionUtils;
+import com.codeheadsystems.server.exception.NotFoundException;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;

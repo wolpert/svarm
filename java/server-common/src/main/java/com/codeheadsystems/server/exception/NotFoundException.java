@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.codeheadsystems.dstore.node.exception;
+package com.codeheadsystems.server.exception;
 
 /**
  * Generic 404.

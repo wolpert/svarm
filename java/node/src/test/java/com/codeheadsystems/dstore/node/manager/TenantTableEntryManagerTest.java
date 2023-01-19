@@ -22,9 +22,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.codeheadsystems.dstore.node.engine.TableDefinitionEngine;
-import com.codeheadsystems.dstore.node.exception.NotFoundException;
 import com.codeheadsystems.dstore.node.model.TenantTable;
 import com.codeheadsystems.dstore.node.model.TenantTableIdentifier;
+import com.codeheadsystems.server.exception.NotFoundException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableMap;
 import java.util.Map;

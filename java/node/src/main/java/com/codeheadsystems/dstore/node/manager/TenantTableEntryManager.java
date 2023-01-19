@@ -17,9 +17,9 @@
 package com.codeheadsystems.dstore.node.manager;
 
 import com.codeheadsystems.dstore.node.engine.TableDefinitionEngine;
-import com.codeheadsystems.dstore.node.exception.NotFoundException;
 import com.codeheadsystems.dstore.node.model.TenantTable;
 import com.codeheadsystems.dstore.node.model.TenantTableIdentifier;
+import com.codeheadsystems.server.exception.NotFoundException;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.util.Map;
 import java.util.Optional;

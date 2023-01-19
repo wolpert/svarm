@@ -21,9 +21,9 @@ import static org.mockito.Mockito.when;
 
 import com.codeheadsystems.dstore.common.crypt.AesGcmSivManager;
 import com.codeheadsystems.dstore.node.dao.TenantDao;
-import com.codeheadsystems.dstore.node.exception.ExceptionUtils;
 import com.codeheadsystems.dstore.node.model.Tenant;
 import com.codeheadsystems.metrics.test.BaseMetricTest;
+import com.codeheadsystems.server.exception.ExceptionUtils;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
