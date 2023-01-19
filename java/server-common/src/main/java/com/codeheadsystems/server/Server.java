@@ -44,7 +44,7 @@ public abstract class Server<T extends Configuration> extends Application<T> {
   /**
    * Implement this method to return the dropwizard component we will use.
    *
-   * @param configuration for you service.
+   * @param configuration        for you service.
    * @param metricRegistryModule provided metric registry.
    * @return dropwizard component.
    */
@@ -62,22 +62,27 @@ public abstract class Server<T extends Configuration> extends Application<T> {
   public void run(final T configuration,
                   final Environment environment) throws Exception {
     LOGGER.info("run({},{})", configuration, environment);
+    LOGGER.info("\n---\n--- Server Setup Starting ---\n---");
     final MetricRegistry metricRegistry = environment.metrics();
     final MetricRegistryModule module = new MetricRegistryModule(metricRegistry);
     final DropWizardComponent component = dropWizardComponent(configuration, module);
     final JerseyEnvironment jerseyEnvironment = environment.jersey();
+    LOGGER.info("\n---\n--- Registering Managed Objects ---\n---");
     for (Managed managed : component.managedObjects()) {
       LOGGER.info("Registering managed object: {}", managed.getClass().getSimpleName());
       environment.lifecycle().manage(managed);
     }
+    LOGGER.info("\n---\n--- Registering Resources ---\n---");
     for (Object resource : component.resources()) {
       LOGGER.info("Registering resource: {}", resource.getClass().getSimpleName());
       jerseyEnvironment.register(resource);
     }
+    LOGGER.info("\n---\n--- Registering Health Checks ---\n---");
     for (HealthCheck healthCheck : component.healthChecks()) {
       LOGGER.info("Registering healthCheck: {}", healthCheck.getClass().getSimpleName());
       environment.healthChecks().register(healthCheck.getClass().getSimpleName(), healthCheck);
     }
+    LOGGER.info("\n---\n--- Server Setup Complete ---\n---");
   }
 
 }
