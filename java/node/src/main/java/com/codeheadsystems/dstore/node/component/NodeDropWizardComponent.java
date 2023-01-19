@@ -16,14 +16,12 @@
 
 package com.codeheadsystems.dstore.node.component;
 
-import com.codeheadsystems.dstore.common.module.JsonModule;
 import com.codeheadsystems.dstore.node.module.ConfigurationModule;
 import com.codeheadsystems.dstore.node.module.DataSourceModule;
 import com.codeheadsystems.dstore.node.module.HealthCheckModule;
 import com.codeheadsystems.dstore.node.module.ResourceModule;
 import com.codeheadsystems.dstore.node.module.TableDefinitionEngineModule;
 import com.codeheadsystems.dstore.node.module.UtilitiesModule;
-import com.codeheadsystems.metrics.dagger.MetricsModule;
 import com.codeheadsystems.server.component.DropWizardComponent;
 import com.codeheadsystems.server.module.DropWizardModule;
 import dagger.Component;
@@ -37,13 +35,11 @@ import javax.inject.Singleton;
     ConfigurationModule.class,
     DataSourceModule.class,
     HealthCheckModule.class,
-    JsonModule.class,
-    MetricsModule.class,
     DropWizardModule.class,
     ResourceModule.class,
     TableDefinitionEngineModule.class,
     UtilitiesModule.class
 })
 public interface NodeDropWizardComponent extends DropWizardComponent {
-  
+
 }

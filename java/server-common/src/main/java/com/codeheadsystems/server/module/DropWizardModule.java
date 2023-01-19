@@ -17,6 +17,8 @@
 package com.codeheadsystems.server.module;
 
 import com.codahale.metrics.health.HealthCheck;
+import com.codeheadsystems.dstore.common.module.JsonModule;
+import com.codeheadsystems.metrics.dagger.MetricsModule;
 import com.codeheadsystems.server.resource.JerseyResource;
 import dagger.Module;
 import dagger.multibindings.Multibinds;
@@ -26,7 +28,11 @@ import java.util.Set;
 /**
  * Contains expected modules for dropwizard.
  */
-@Module(includes = {MetricRegistryModule.class})
+@Module(includes = {
+    JsonModule.class,
+    MetricsModule.class,
+    MetricRegistryModule.class
+})
 public interface DropWizardModule {
 
   // --- multi-binds so we don't error if nothing is declared.
