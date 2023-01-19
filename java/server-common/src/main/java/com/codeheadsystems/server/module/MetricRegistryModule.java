@@ -17,8 +17,10 @@
 package com.codeheadsystems.server.module;
 
 import com.codahale.metrics.MetricRegistry;
+import com.codeheadsystems.metrics.helper.DropwizardMetricsHelper;
 import dagger.Module;
 import dagger.Provides;
+import io.micrometer.core.instrument.MeterRegistry;
 import javax.inject.Singleton;
 
 /**
@@ -28,6 +30,7 @@ import javax.inject.Singleton;
 public class MetricRegistryModule {
 
   private final MetricRegistry metricRegistry;
+  private final MeterRegistry meterRegistry;
 
   /**
    * Constructor.
@@ -36,6 +39,7 @@ public class MetricRegistryModule {
    */
   public MetricRegistryModule(final MetricRegistry metricRegistry) {
     this.metricRegistry = metricRegistry;
+    this.meterRegistry = new DropwizardMetricsHelper().instrument(metricRegistry);
   }
 
   /**
@@ -48,4 +52,17 @@ public class MetricRegistryModule {
   public MetricRegistry metricRegistry() {
     return metricRegistry;
   }
+
+  /**
+   * The instrumented meter registry.
+   *
+   * @return registry.
+   */
+  @Provides
+  @Singleton
+  @javax.inject.Named("Meter Registry")
+  public MeterRegistry meterRegistry() {
+    return meterRegistry;
+  }
+
 }

@@ -30,7 +30,6 @@ import java.util.Set;
  */
 @Module(includes = {
     JsonModule.class,
-    MetricsModule.class,
     MetricRegistryModule.class
 })
 public interface DropWizardModule {

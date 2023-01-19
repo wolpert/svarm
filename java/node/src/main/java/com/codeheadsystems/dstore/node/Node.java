@@ -16,25 +16,18 @@
 
 package com.codeheadsystems.dstore.node;
 
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.health.HealthCheck;
 import com.codeheadsystems.dstore.node.component.DaggerNodeDropWizardComponent;
-import com.codeheadsystems.dstore.node.component.NodeDropWizardComponent;
 import com.codeheadsystems.dstore.node.module.ConfigurationModule;
-import com.codeheadsystems.metrics.dagger.MetricsModule;
-import com.codeheadsystems.metrics.helper.DropwizardMetricsHelper;
+import com.codeheadsystems.server.Server;
+import com.codeheadsystems.server.component.DropWizardComponent;
 import com.codeheadsystems.server.module.MetricRegistryModule;
-import io.dropwizard.Application;
-import io.dropwizard.jersey.setup.JerseyEnvironment;
-import io.dropwizard.setup.Environment;
-import io.micrometer.core.instrument.MeterRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * This is our application itself. Very little here is node specific.
  */
-public class Node extends Application<NodeConfiguration> {
+public class Node extends Server<NodeConfiguration> {
   private static final Logger LOGGER = LoggerFactory.getLogger(Node.class);
 
   /**
@@ -43,6 +36,7 @@ public class Node extends Application<NodeConfiguration> {
   public Node() {
     LOGGER.info("Node()");
   }
+
 
   /**
    * Run the world.
@@ -57,32 +51,20 @@ public class Node extends Application<NodeConfiguration> {
   }
 
   /**
-   * Runs the application.
+   * Creates the component for the dropwizard server.
    *
-   * @param configuration the parsed {@link NodeConfiguration} object
-   * @param environment   the application's {@link Environment}
-   * @throws Exception if everything dies.
+   * @param configuration        our configuration.
+   * @param metricRegistryModule the provide metrics module.
+   * @return a build component.
    */
   @Override
-  public void run(final NodeConfiguration configuration,
-                  final Environment environment) throws Exception {
-    LOGGER.info("run({},{})", configuration, environment);
-    final MetricRegistry metricRegistry = environment.metrics();
-    final MeterRegistry meterRegistry = new DropwizardMetricsHelper().instrument(metricRegistry);
-    final NodeDropWizardComponent component = DaggerNodeDropWizardComponent.builder()
+  protected DropWizardComponent dropWizardComponent(final NodeConfiguration configuration,
+                                                    final MetricRegistryModule metricRegistryModule) {
+    LOGGER.info("dropWizardComponent({})", configuration);
+    return DaggerNodeDropWizardComponent.builder()
         .configurationModule(new ConfigurationModule(configuration))
-        .metricRegistryModule(new MetricRegistryModule(metricRegistry))
-        .metricsModule(new MetricsModule(meterRegistry))
+        .metricRegistryModule(metricRegistryModule)
         .build();
-    final JerseyEnvironment jerseyEnvironment = environment.jersey();
-    for (Object resource : component.resources()) {
-      LOGGER.info("Registering resource: {}", resource.getClass().getSimpleName());
-      jerseyEnvironment.register(resource);
-    }
-    for (HealthCheck healthCheck : component.healthChecks()) {
-      LOGGER.info("Registering healthCheck: {}", healthCheck.getClass().getSimpleName());
-      environment.healthChecks().register(healthCheck.getClass().getSimpleName(), healthCheck);
-    }
   }
 
 }
