@@ -19,7 +19,7 @@ package com.codeheadsystems.dstore.control.module;
 import com.codeheadsystems.dstore.control.ControlConfiguration;
 import dagger.Module;
 import dagger.Provides;
-import io.dropwizard.jdbi.DBIFactory;
+import io.dropwizard.jdbi3.JdbiFactory;
 import io.dropwizard.setup.Environment;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -32,8 +32,8 @@ import liquibase.database.DatabaseFactory;
 import liquibase.database.jvm.JdbcConnection;
 import liquibase.exception.LiquibaseException;
 import liquibase.resource.ClassLoaderResourceAccessor;
-import org.skife.jdbi.v2.DBI;
-import org.skife.jdbi.v2.Handle;
+import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.Jdbi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,7 +44,7 @@ import org.slf4j.LoggerFactory;
 public class DatabaseModule {
   private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseModule.class);
 
-  private final DBI dbi;
+  private final Jdbi jdbi;
 
   /**
    * Constructor for the module.
@@ -54,10 +54,10 @@ public class DatabaseModule {
    */
   public DatabaseModule(final ControlConfiguration configuration, Environment environment) {
     LOGGER.info("DatabaseModule({},{})", configuration, environment);
-    final DBIFactory dbiFactory = new DBIFactory();
-    dbi = dbiFactory.build(environment, configuration.getDataSourceFactory(), "database");
+    final JdbiFactory dbiFactory = new JdbiFactory();
+    jdbi = dbiFactory.build(environment, configuration.getDataSourceFactory(), "database");
     if (Boolean.TRUE.equals(configuration.getRunLiquibase())) {
-      dbi.useHandle(this::runLiquibase);
+      jdbi.useHandle(this::runLiquibase);
     } else {
       LOGGER.info("runLiquibase(): false");
     }
@@ -87,8 +87,8 @@ public class DatabaseModule {
    */
   @Provides
   @Singleton
-  public DBI dbi() {
-    return dbi;
+  public Jdbi jdbi() {
+    return jdbi;
   }
 
 

@@ -21,4 +21,27 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
 		http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
+    <!--
+    ~
+    ~ The keys table really should be the keystore service. hint hint.
+    ~ Keeping it simple for now. No versioning. Rotation of data is... iffy here.
+    ~
+    -->
+    <changeSet id="2023-01-20-01" author="wolpert">
+        <createTable tableName="KEYS">
+            <column name="ID" type="varchar(256)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="CREATE_DATE" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="KEY" type="varchar(256)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="NONCE" type="varchar(256)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
 </databaseChangeLog>
