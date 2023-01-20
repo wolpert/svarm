@@ -17,6 +17,7 @@
 package com.codeheadsystems.dstore.control;
 
 import com.codeheadsystems.dstore.control.component.DaggerControlDropWizardComponent;
+import com.codeheadsystems.dstore.control.module.ConfigurationModule;
 import com.codeheadsystems.dstore.control.module.DatabaseModule;
 import com.codeheadsystems.server.Server;
 import com.codeheadsystems.server.component.DropWizardComponent;
@@ -49,7 +50,7 @@ public class Control extends Server<ControlConfiguration> {
                                                     final Environment environment,
                                                     final MetricRegistryModule metricRegistryModule) {
     return DaggerControlDropWizardComponent.builder()
-        .databaseModule(new DatabaseModule(configuration, environment))
+        .configurationModule(new ConfigurationModule(configuration, environment))
         .metricRegistryModule(metricRegistryModule)
         .build();
   }

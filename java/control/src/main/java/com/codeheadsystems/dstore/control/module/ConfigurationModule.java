@@ -17,46 +17,53 @@
 package com.codeheadsystems.dstore.control.module;
 
 import com.codeheadsystems.dstore.control.ControlConfiguration;
-import com.codeheadsystems.dstore.control.dao.KeyDao;
-import com.codeheadsystems.dstore.control.factory.ControlJdbiFactory;
 import dagger.Module;
 import dagger.Provides;
 import io.dropwizard.setup.Environment;
 import javax.inject.Singleton;
-import org.jdbi.v3.core.Jdbi;
 
 /**
- * Provides management of the database. DAOs should be created here via the DBI.onDemand() method if possible.
+ * Exposing the configuration.
  */
 @Module
-public class DatabaseModule {
+public class ConfigurationModule {
+
+  private final ControlConfiguration configuration;
+  private final Environment environment;
+
 
   /**
-   * The JDBI handler.
+   * Constructor.
    *
-   * @param environment   of dropwizard.
-   * @param configuration of the app.
-   * @param factory       factory to setup.
-   * @return dbi.
+   * @param configuration our configuration.
+   * @param environment   our environment.
    */
-  @Provides
-  @Singleton
-  public Jdbi jdbi(final ControlJdbiFactory factory,
-                   final ControlConfiguration configuration,
-                   final Environment environment) {
-    return factory.generate(configuration, environment);
+  public ConfigurationModule(final ControlConfiguration configuration,
+                             final Environment environment) {
+    this.configuration = configuration;
+    this.environment = environment;
   }
 
   /**
-   * Generates the KeyDao.
+   * Accessor to the configuration.
    *
-   * @param jdbi to use.
-   * @return the key.
+   * @return the configuration.
    */
   @Provides
   @Singleton
-  public KeyDao keyDao(final Jdbi jdbi) {
-    return jdbi.onDemand(KeyDao.class);
+  public ControlConfiguration configuration() {
+    return configuration;
+  }
+
+  /**
+   * Accessor to environment.
+   *
+   * @return the environment.
+   */
+  @Provides
+  @Singleton
+  public Environment environment() {
+    return environment;
   }
 
 }

@@ -16,17 +16,23 @@
 
 package com.codeheadsystems.dstore.control.component;
 
+import com.codeheadsystems.dstore.control.module.ConfigurationModule;
 import com.codeheadsystems.dstore.control.module.DatabaseModule;
+import com.codeheadsystems.dstore.control.module.ResourceModule;
 import com.codeheadsystems.server.component.DropWizardComponent;
 import com.codeheadsystems.server.module.DropWizardModule;
 import dagger.Component;
+import javax.inject.Singleton;
 
 /**
  * Creates the pieces needed for the control plane to run.
  */
 @Component(modules = {
+    ConfigurationModule.class,
     DatabaseModule.class,
-    DropWizardModule.class
+    DropWizardModule.class,
+    ResourceModule.class
 })
+@Singleton
 public interface ControlDropWizardComponent extends DropWizardComponent {
 }

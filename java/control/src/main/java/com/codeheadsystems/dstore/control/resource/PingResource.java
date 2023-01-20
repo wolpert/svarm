@@ -14,34 +14,43 @@
  * limitations under the License.
  */
 
-package com.codeheadsystems.dstore.control.dao;
+package com.codeheadsystems.dstore.control.resource;
 
+import com.codeheadsystems.dstore.control.dao.KeyDao;
 import com.codeheadsystems.dstore.control.model.Key;
-import org.jdbi.v3.sqlobject.customizer.Bind;
-import org.jdbi.v3.sqlobject.customizer.BindPojo;
-import org.jdbi.v3.sqlobject.statement.SqlQuery;
-import org.jdbi.v3.sqlobject.statement.SqlUpdate;
+import com.codeheadsystems.server.resource.JerseyResource;
+import javax.inject.Inject;
+import javax.inject.Singleton;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 
 /**
- * DAO for the Key.
+ * Default ping resource.
  */
-public interface KeyDao {
+@Singleton
+@Path("/")
+public class PingResource implements JerseyResource {
+
+  private final KeyDao keyDao;
 
   /**
-   * Inserts a key by the values. Need to make this via immutables one dya.
+   * Constructor.
    *
-   * @param key to use.
+   * @param keyDao the dao.
    */
-  @SqlUpdate("insert into KEYS (id, createDate, key, nonce) values (:id, :createDate, :key, :nonce)")
-  void insert(@BindPojo final Key key);
+  @Inject
+  public PingResource(final KeyDao keyDao) {
+    this.keyDao = keyDao;
+  }
 
   /**
-   * Get the key from the datastore.
+   * Do something....
    *
-   * @param id to use.
+   * @param id to find.
    * @return the key.
    */
-  @SqlQuery("select * from KEYS where id = :id")
-  Key findKeyById(@Bind("id") String id);
-
+  @Path("/key/{id}")
+  public Key key(@PathParam("id") final String id) {
+    return keyDao.findKeyById(id);
+  }
 }
