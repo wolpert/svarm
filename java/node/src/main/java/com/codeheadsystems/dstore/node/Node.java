@@ -21,6 +21,7 @@ import com.codeheadsystems.dstore.node.module.ConfigurationModule;
 import com.codeheadsystems.server.Server;
 import com.codeheadsystems.server.component.DropWizardComponent;
 import com.codeheadsystems.server.module.MetricRegistryModule;
+import io.dropwizard.setup.Environment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,11 +55,13 @@ public class Node extends Server<NodeConfiguration> {
    * Creates the component for the dropwizard server.
    *
    * @param configuration        our configuration.
+   * @param environment          the environment.
    * @param metricRegistryModule the provide metrics module.
    * @return a build component.
    */
   @Override
   protected DropWizardComponent dropWizardComponent(final NodeConfiguration configuration,
+                                                    final Environment environment,
                                                     final MetricRegistryModule metricRegistryModule) {
     LOGGER.info("dropWizardComponent({})", configuration);
     return DaggerNodeDropWizardComponent.builder()

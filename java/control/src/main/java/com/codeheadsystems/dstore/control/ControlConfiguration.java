@@ -16,10 +16,39 @@
 
 package com.codeheadsystems.dstore.control;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.dropwizard.Configuration;
+import io.dropwizard.db.DataSourceFactory;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 
 /**
  * Configuration for the control plane.
  */
 public class ControlConfiguration extends Configuration {
+
+  @Valid
+  @NotNull
+  private DataSourceFactory database = new DataSourceFactory();
+
+  /**
+   * Setter for the factory.
+   *
+   * @param factory to set.
+   */
+  @JsonProperty("database")
+  public void setDataSourceFactory(DataSourceFactory factory) {
+    this.database = factory;
+  }
+
+  /**
+   * Getter for the factory.
+   *
+   * @return to get.
+   */
+  @JsonProperty("database")
+  public DataSourceFactory getDataSourceFactory() {
+    return database;
+  }
+
 }

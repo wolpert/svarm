@@ -16,6 +16,7 @@
 
 package com.codeheadsystems.dstore.control.component;
 
+import com.codeheadsystems.dstore.control.module.DatabaseModule;
 import com.codeheadsystems.server.component.DropWizardComponent;
 import com.codeheadsystems.server.module.DropWizardModule;
 import dagger.Component;
@@ -24,6 +25,7 @@ import dagger.Component;
  * Creates the pieces needed for the control plane to run.
  */
 @Component(modules = {
+    DatabaseModule.class,
     DropWizardModule.class
 })
 public interface ControlDropWizardComponent extends DropWizardComponent {

@@ -17,9 +17,11 @@
 package com.codeheadsystems.dstore.control;
 
 import com.codeheadsystems.dstore.control.component.DaggerControlDropWizardComponent;
+import com.codeheadsystems.dstore.control.module.DatabaseModule;
 import com.codeheadsystems.server.Server;
 import com.codeheadsystems.server.component.DropWizardComponent;
 import com.codeheadsystems.server.module.MetricRegistryModule;
+import io.dropwizard.setup.Environment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,8 +46,10 @@ public class Control extends Server<ControlConfiguration> {
 
   @Override
   protected DropWizardComponent dropWizardComponent(final ControlConfiguration configuration,
+                                                    final Environment environment,
                                                     final MetricRegistryModule metricRegistryModule) {
     return DaggerControlDropWizardComponent.builder()
+        .databaseModule(new DatabaseModule(configuration.getDataSourceFactory(), environment))
         .metricRegistryModule(metricRegistryModule)
         .build();
   }

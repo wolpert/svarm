@@ -37,17 +37,19 @@ dependencies {
     implementation libs.liquibase.core
     implementation libs.c3p0
     implementation libs.pgjdbc
+    implementation libs.hsqldb
     implementation libs.jdbi.core
     implementation libs.jdbi.testing
     implementation libs.jdbi.guava
     implementation libs.jdbi.jackson2
     implementation libs.jdbi.postgres
-    testImplementation libs.hsqldb // For unit tests, we use hsqldb in memory
+    implementation libs.jdbi.sqlobject
 
     implementation libs.dropwizard.auth
     implementation libs.dropwizard.core
     implementation libs.dropwizard.jackson
     implementation libs.dropwizard.metrics.graphite
+    implementation libs.dropwizard.jdbi
     implementation libs.micrometer.core
     implementation libs.metrics.core
 

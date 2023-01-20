@@ -9,6 +9,14 @@ logging:
     - type: console
       logFormat: "%d{HH:mm:ss.SSS} [%thread] [%X{trace}] %-5level %logger{36} - %msg%n"
 
+# A test db for now, hsql
+database:
+  driverClass: org.hsqldb.jdbc.JDBCDriver
+  user: SA
+  password: ""
+  url: jdbc:hsqldb:mem:database
+  validationQuery: "/* MyService Health Check */ call now()"
+
 #metrics:
 #  frequency: 1 minute
 #  reportOnStop: true
@@ -26,6 +34,16 @@ health:
   healthCheckUrlPaths: [ "/health-check" ]
   healthChecks:
     - name: deadlocks
+      type: alive
+      critical: true
+      initialState: true
+      schedule:
+        checkInterval: 10s
+        downtimeInterval: 2s
+        initialDelay: 5s
+        failureAttempts: 1
+        successAttempts: 2
+    - name: database
       type: alive
       critical: true
       initialState: true
