@@ -57,7 +57,11 @@ allprojects {
 
         implementation libs.slf4j.api
         implementation libs.bcprov
+        implementation libs.guava
 
+        implementation libs.javax.inject
+        implementation libs.dagger
+        annotationProcessor libs.dagger.compiler
         compileOnly libs.immutables.value
         annotationProcessor libs.immutables.value
 
@@ -75,9 +79,9 @@ allprojects {
         testImplementation(libs.mockito.junit.jupiter)
         testImplementation(libs.mockito.core)
 
-
         testCompileOnly libs.immutables.value
         testAnnotationProcessor libs.immutables.value
+        testAnnotationProcessor libs.dagger.compiler
 
         // Logging in tests
         testImplementation libs.logback.classic

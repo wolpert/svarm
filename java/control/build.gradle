@@ -32,7 +32,6 @@ checkstyle {
 dependencies {
     implementation project(":common")
     implementation project(":server-common")
-    implementation libs.guava
 
     // SQL
     implementation libs.liquibase.core
@@ -45,14 +44,6 @@ dependencies {
     implementation libs.jdbi.postgres
     testImplementation libs.hsqldb // For unit tests, we use hsqldb in memory
 
-    implementation libs.javax.inject
-    implementation libs.dagger
-    annotationProcessor libs.dagger.compiler
-
-    implementation libs.jackson.annotations
-    implementation libs.jackson.core
-    implementation libs.jackson.databind
-    implementation libs.jackson.datatype.jdk8
     implementation libs.dropwizard.auth
     implementation libs.dropwizard.core
     implementation libs.dropwizard.jackson
@@ -61,7 +52,6 @@ dependencies {
     implementation libs.metrics.core
 
     testImplementation libs.jackson.dataformat.yaml
-    testAnnotationProcessor libs.dagger.compiler
 
     // Logging stuff... need all these for logback changes
     implementation libs.logback.classic
