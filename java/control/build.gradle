@@ -10,7 +10,7 @@ apply plugin: 'checkstyle'
 
 ext {
     appName = "control"
-    configPath = "${rootProject.projectDir}/node/src/main/resources/"
+    configPath = "${rootProject.projectDir}/control/src/main/resources/"
 }
 
 configurations {

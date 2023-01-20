@@ -10,7 +10,7 @@ apply plugin: 'checkstyle'
 
 ext {
     appName = "proxy"
-    configPath = "${rootProject.projectDir}/node/src/main/resources/"
+    configPath = "${rootProject.projectDir}/proxy/src/main/resources/"
 }
 
 configurations {
