@@ -16,6 +16,7 @@ database:
   password: ""
   url: jdbc:hsqldb:mem:database
   validationQuery: "/* MyService Health Check */ call now()"
+# Validation query note: HSQL is weird. We won't have to do this with postgresql.
 
 #metrics:
 #  frequency: 1 minute
