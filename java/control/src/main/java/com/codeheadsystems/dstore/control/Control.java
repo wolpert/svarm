@@ -49,7 +49,7 @@ public class Control extends Server<ControlConfiguration> {
                                                     final Environment environment,
                                                     final MetricRegistryModule metricRegistryModule) {
     return DaggerControlDropWizardComponent.builder()
-        .databaseModule(new DatabaseModule(configuration.getDataSourceFactory(), environment))
+        .databaseModule(new DatabaseModule(configuration, environment))
         .metricRegistryModule(metricRegistryModule)
         .build();
   }

@@ -30,6 +30,25 @@ public class ControlConfiguration extends Configuration {
   @Valid
   @NotNull
   private DataSourceFactory database = new DataSourceFactory();
+  private Boolean runLiquibase;
+
+  /**
+   * Can be null. If set runs liquibase support.
+
+   * @return boolean, can be null.
+   */
+  public Boolean getRunLiquibase() {
+    return runLiquibase;
+  }
+
+  /**
+   * Include liquibase support.
+   *
+   * @param runLiquibase liquibase.
+   */
+  public void setRunLiquibase(final Boolean runLiquibase) {
+    this.runLiquibase = runLiquibase;
+  }
 
   /**
    * Setter for the factory.

@@ -1,4 +1,3 @@
-
 logging:
   level: INFO
   loggers:
@@ -9,7 +8,8 @@ logging:
     - type: console
       logFormat: "%d{HH:mm:ss.SSS} [%thread] [%X{trace}] %-5level %logger{36} - %msg%n"
 
-# A test db for now, hsql
+# A test db for now, hsql. Also, we will use liquibase by default in the config file. Production won't do this.
+runLiquibase: true
 database:
   driverClass: org.hsqldb.jdbc.JDBCDriver
   user: SA

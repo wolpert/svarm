@@ -16,31 +16,68 @@
 
 package com.codeheadsystems.dstore.control.module;
 
+import com.codeheadsystems.dstore.control.ControlConfiguration;
 import dagger.Module;
 import dagger.Provides;
-import io.dropwizard.db.DataSourceFactory;
 import io.dropwizard.jdbi.DBIFactory;
 import io.dropwizard.setup.Environment;
+import java.sql.Connection;
+import java.sql.SQLException;
 import javax.inject.Singleton;
+import liquibase.Contexts;
+import liquibase.LabelExpression;
+import liquibase.Liquibase;
+import liquibase.database.Database;
+import liquibase.database.DatabaseFactory;
+import liquibase.database.jvm.JdbcConnection;
+import liquibase.exception.LiquibaseException;
+import liquibase.resource.ClassLoaderResourceAccessor;
 import org.skife.jdbi.v2.DBI;
+import org.skife.jdbi.v2.Handle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Provides management of the database. DAOs should be created here via the DBI.onDemand() method if possible.
  */
 @Module
 public class DatabaseModule {
+  private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseModule.class);
 
   private final DBI dbi;
 
   /**
    * Constructor for the module.
    *
-   * @param dsFactory   from the configuration.
-   * @param environment from the runtime.
+   * @param configuration from the configuration.
+   * @param environment   from the runtime.
    */
-  public DatabaseModule(final DataSourceFactory dsFactory, Environment environment) {
+  public DatabaseModule(final ControlConfiguration configuration, Environment environment) {
+    LOGGER.info("DatabaseModule({},{})", configuration, environment);
     final DBIFactory dbiFactory = new DBIFactory();
-    dbi = dbiFactory.build(environment, dsFactory, "database");
+    dbi = dbiFactory.build(environment, configuration.getDataSourceFactory(), "database");
+    if (Boolean.TRUE.equals(configuration.getRunLiquibase())) {
+      dbi.useHandle(this::runLiquibase);
+    } else {
+      LOGGER.info("runLiquibase(): false");
+    }
+  }
+
+  private void runLiquibase(final Handle handle) {
+    LOGGER.info("runLiquibase(): true");
+    try (final Connection connection = handle.getConnection()) {
+      final Database database = DatabaseFactory.getInstance()
+          .findCorrectDatabaseImplementation(new JdbcConnection(connection));
+      final Liquibase liquibase = new liquibase.Liquibase(
+          "liquibase/liquibase-setup.xml",
+          new ClassLoaderResourceAccessor(),
+          database
+      );
+      liquibase.update(new Contexts(), new LabelExpression());
+      LOGGER.info("runLiquibase(): complete");
+    } catch (LiquibaseException | SQLException e) {
+      throw new IllegalStateException("Database update failure", e);
+    }
   }
 
   /**
