@@ -37,10 +37,13 @@ dependencies {
     // SQL
     implementation libs.liquibase.core
     implementation libs.c3p0
+    implementation libs.pgjdbc
     implementation libs.jdbi.core
     implementation libs.jdbi.testing
     implementation libs.jdbi.guava
     implementation libs.jdbi.jackson2
+    implementation libs.jdbi.postgres
+    testImplementation libs.hsqldb // For unit tests, we use hsqldb in memory
 
     implementation libs.javax.inject
     implementation libs.dagger
