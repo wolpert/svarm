@@ -68,4 +68,11 @@ public interface Node {
    */
   Boolean verified();
 
+  /**
+   * The status.
+   *
+   * @return status.
+   */
+  String status();
+
 }

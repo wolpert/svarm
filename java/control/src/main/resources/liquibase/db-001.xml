@@ -29,7 +29,7 @@
     -->
     <changeSet id="2023-01-20-01" author="wolpert">
         <createTable tableName="KEYS">
-            <column name="ID" type="varchar(256)">
+            <column name="ID" type="varchar(1024)">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="CREATE_DATE" type="timestamp">
@@ -62,6 +62,9 @@
                 <constraints nullable="false"/>
             </column>
             <column name="VERIFIED" type="boolean">
+                <constraints nullable="false"/>
+            </column>
+            <column name="STATUS" type="varchar(256)">
                 <constraints nullable="false"/>
             </column>
         </createTable>

@@ -29,7 +29,7 @@ class NodeDaoTest extends JdbiDaoTest<NodeDao> {
   private static Node generateNode() {
     final Instant instant = Instant.ofEpochMilli(System.currentTimeMillis());// Instant.now does weird things.
     return ImmutableNode.builder().uuid(UUID.randomUUID().toString()).createDate(instant).host("host")
-        .port(123).verified(true).build();
+        .status("status").port(123).verified(true).build();
   }
 
   @Override
