@@ -14,43 +14,20 @@
  * limitations under the License.
  */
 
-package com.codeheadsystems.dstore.control.model;
+package com.codeheadsystems.dstore.control.dao;
 
-import java.time.Instant;
-import org.immutables.value.Value.Immutable;
+import org.junit.jupiter.api.BeforeEach;
 
-/**
- * Encryption key.
- */
-@Immutable
-public interface Key {
+public abstract class JdbiDaoTest<T> extends BaseJdbiTest {
 
-  /**
-   * The identifier for the key. Must be unique.
-   *
-   * @return the value.
-   */
-  String id();
+  protected T dao;
 
-  /**
-   * When it was created.
-   *
-   * @return the value.
-   */
-  Instant createDate();
+  protected abstract Class<T> getDaoClass();
 
-  /**
-   * The key itself.
-   *
-   * @return the value.
-   */
-  String key();
+  @BeforeEach
+  void setupDao() {
+    dao = jdbi.onDemand(getDaoClass());
+  }
 
-  /**
-   * The nonce to use.
-   *
-   * @return the value.
-   */
-  String nonce();
 
 }

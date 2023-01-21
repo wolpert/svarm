@@ -32,7 +32,7 @@ public interface KeyDao {
    *
    * @param key to use.
    */
-  @SqlUpdate("insert into KEYS (id, createDate, key, nonce) values (:id, :createDate, :key, :nonce)")
+  @SqlUpdate("insert into KEYS (id, create_date, key, nonce) values (:id, :createDate, :key, :nonce)")
   void insert(@BindPojo final Key key);
 
   /**

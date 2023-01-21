@@ -14,43 +14,22 @@
  * limitations under the License.
  */
 
-package com.codeheadsystems.dstore.control.model;
+package com.codeheadsystems.dstore.control.dao;
 
-import java.time.Instant;
-import org.immutables.value.Value.Immutable;
+import com.codeheadsystems.dstore.control.factory.ControlJdbiFactory;
+import com.codeheadsystems.metrics.test.BaseMetricTest;
+import java.util.UUID;
+import org.jdbi.v3.core.Jdbi;
+import org.junit.jupiter.api.BeforeEach;
 
-/**
- * Encryption key.
- */
-@Immutable
-public interface Key {
+public abstract class BaseJdbiTest extends BaseMetricTest {
 
-  /**
-   * The identifier for the key. Must be unique.
-   *
-   * @return the value.
-   */
-  String id();
+  protected Jdbi jdbi;
 
-  /**
-   * When it was created.
-   *
-   * @return the value.
-   */
-  Instant createDate();
-
-  /**
-   * The key itself.
-   *
-   * @return the value.
-   */
-  String key();
-
-  /**
-   * The nonce to use.
-   *
-   * @return the value.
-   */
-  String nonce();
+  @BeforeEach
+  void setupJdbi() {
+    jdbi = new ControlJdbiFactory()
+        .generate("jdbc:hsqldb:mem:" + getClass().getSimpleName() + ":" + UUID.randomUUID(), "SA", "");
+  }
 
 }
