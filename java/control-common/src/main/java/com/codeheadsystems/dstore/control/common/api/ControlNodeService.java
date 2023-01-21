@@ -17,6 +17,8 @@
 package com.codeheadsystems.dstore.control.common.api;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.PATCH;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -30,7 +32,7 @@ import javax.ws.rs.core.MediaType;
 public interface ControlNodeService {
 
   /**
-   * Enables a given node into the swarm.
+   * Registers a given node into the swarm.
    *
    * @param nodeUuid to enable.
    * @param metaData the node details.
@@ -40,6 +42,60 @@ public interface ControlNodeService {
   @Path("/{node}")
   @Consumes(MediaType.APPLICATION_JSON)
   @Produces(MediaType.APPLICATION_JSON)
-  NodeInfo enable(@PathParam("node") final String nodeUuid, final NodeMetaData metaData);
+  NodeInfo register(@PathParam("node") final String nodeUuid, final NodeMetaData metaData);
+
+  /**
+   * Enables a given node into the swarm.
+   *
+   * @param nodeUuid to enable.
+   * @return a node info object.
+   */
+  @PATCH
+  @Path("/{node}/enable")
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON)
+  NodeInfo enable(@PathParam("node") final String nodeUuid);
+
+  /**
+   * Disables a given node into the swarm.
+   *
+   * @param nodeUuid to disables.
+   * @return a node info object.
+   */
+  @PATCH
+  @Path("/{node}/disable")
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON)
+  NodeInfo disable(@PathParam("node") final String nodeUuid);
+
+  /**
+   * Gets the key for the node in the control plane. This is the part of the
+   * key the control plane controls.
+   *
+   * @param nodeUuid to get the key for.
+   * @return a node info object.
+   */
+  @GET
+  @Path("/{node}/key")
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON)
+  KeyInfo nodeKey(@PathParam("node") final String nodeUuid);
+
+  /**
+   * Gets the key for the node's reference for the control plane.
+   * Note that usually this is the tenant or tenant table. The control plane
+   * will ensure this is a) consistent, b) idempotent. This is the part of the
+   * key the control plane controls.
+   *
+   * @param nodeUuid to get the key for.
+   * @param reference the reference.
+   * @return a node info object.
+   */
+  @GET
+  @Path("/{node}/key/{reference}")
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON)
+  KeyInfo nodeKey(@PathParam("node") final String nodeUuid,
+                  @PathParam("reference") final String reference);
 
 }
