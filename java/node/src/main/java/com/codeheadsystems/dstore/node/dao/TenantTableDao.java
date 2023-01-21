@@ -62,7 +62,7 @@ public class TenantTableDao {
     LOGGER.trace("create({})", tenantTable);
 
     return internalJdbi.withHandle(handle -> {
-      int updateCount = handle.createUpdate(
+      final int updateCount = handle.createUpdate(
               "insert into NODE_TENANT_TABLES (RID_TENANT,TABLE_NAME,HASH_START,HASH_END, QUANTITY_EST, ENABLED, TABLE_VERSION, KEY, NONCE, PRIMARY_KEY) "
                   + "values (:identifier.tenantId,:identifier.tableName,:hashStart,:hashEnd,:estimatedQuantity,:enabled,:tableVersion,:key,:nonce,:primaryKey)"
           )
@@ -85,7 +85,7 @@ public class TenantTableDao {
   public TenantTable update(final TenantTable tenantTable) {
     LOGGER.trace("update({})", tenantTable);
     return internalJdbi.withHandle(handle -> {
-      int updateCount = handle.createUpdate(
+      final int updateCount = handle.createUpdate(
               "update NODE_TENANT_TABLES set "
                   + "HASH_START = :hashStart, "
                   + "HASH_END = :hashEnd, "
