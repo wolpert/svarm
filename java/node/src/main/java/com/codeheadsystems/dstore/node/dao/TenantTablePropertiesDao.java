@@ -16,16 +16,15 @@
 
 package com.codeheadsystems.dstore.node.dao;
 
-import com.codeheadsystems.dstore.node.engine.SqlEngine;
 import com.codeheadsystems.dstore.node.model.TenantTableIdentifier;
-import com.google.common.collect.ImmutableMap;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import org.jdbi.v3.core.Jdbi;
+import org.jdbi.v3.core.statement.PreparedBatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,17 +36,17 @@ public class TenantTablePropertiesDao {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(TenantTablePropertiesDao.class);
 
-  private final SqlEngine sqlEngine;
+  private final Jdbi internalJdbi;
 
   /**
    * Constructor.
    *
-   * @param sqlEngine for database queries.
+   * @param internalJdbi for database queries.
    */
   @Inject
-  public TenantTablePropertiesDao(final SqlEngine sqlEngine) {
-    LOGGER.info("TenantTablePropertiesDao({})", sqlEngine);
-    this.sqlEngine = sqlEngine;
+  public TenantTablePropertiesDao(final Jdbi internalJdbi) {
+    LOGGER.info("TenantTablePropertiesDao({})", internalJdbi);
+    this.internalJdbi = internalJdbi;
   }
 
   /**
@@ -61,57 +60,45 @@ public class TenantTablePropertiesDao {
     // TODO: Should we turn off autocommit?
     LOGGER.trace("write({},{})", identifier, properties.keySet());
     final Map<String, String> existing = read(identifier);
+
+    final Map<String, String> valuesToUpdate = properties.keySet().stream()
+        .filter(existing::containsKey)
+        .collect(Collectors.toMap(s -> s, properties::get));
+
+    if (!valuesToUpdate.isEmpty()) {
+      internalJdbi.withHandle(handle -> {
+        final PreparedBatch preparedBatch = handle.prepareBatch("update NODE_TENANT_TABLES_CONFIGURATION set VALUE = :value where RID_TENANT = :tenantId and TABLE_NAME = :tableName and KEY = :key");
+        valuesToUpdate.forEach((key, value) -> preparedBatch
+            .bindPojo(identifier)
+            .bind("key", key)
+            .bind("value", value)
+            .add());
+        return preparedBatch.execute();
+      });
+    }
+
     final List<String> toDelete = existing.keySet().stream()
         .filter(k -> !properties.containsKey(k))
         .toList();
-    final List<String> newValues = properties.keySet().stream()
-        .filter(k -> !existing.containsKey(k))
-        .toList();
-    final Map<String, String> valuesToInsert = newValues.stream().collect(Collectors.toMap(s -> s, properties::get));
-    final List<String> updateValues = properties.keySet().stream()
-        .filter(k -> existing.containsKey(k))
-        .toList();
-    final Map<String, String> valuesToUpdate = updateValues.stream().collect(Collectors.toMap(s -> s, properties::get));
-    if (!valuesToUpdate.isEmpty()) {
-      sqlEngine.executePreparedInternal(
-          "update NODE_TENANT_TABLES_CONFIGURATION set VALUE = ? where RID_TENANT = ? and TABLE_NAME = ? and KEY = ?",
-          (ps) -> {
-            try {
-              for (Map.Entry<String, String> entry : valuesToUpdate.entrySet()) {
-                ps.setString(1, entry.getValue());
-                ps.setString(2, identifier.tenantId());
-                ps.setString(3, identifier.tableName());
-                ps.setString(4, entry.getKey());
-                ps.addBatch();
-              }
-              ps.executeBatch();
-            } catch (SQLException e) {
-              throw new IllegalArgumentException("Unable to update properties", e);
-            }
-            return null;
-          });
-    }
+
     if (toDelete.size() > 0) {
       delete(identifier, toDelete);
     }
+
+    final Map<String, String> valuesToInsert = properties.keySet().stream()
+        .filter(k -> !existing.containsKey(k))
+        .collect(Collectors.toMap(s -> s, properties::get));
     if (!valuesToInsert.isEmpty()) {
-      sqlEngine.executePreparedInternal(
-          "insert into NODE_TENANT_TABLES_CONFIGURATION (RID_TENANT,TABLE_NAME,KEY,VALUE) values (?,?,?,?)",
-          (ps) -> {
-            try {
-              for (Map.Entry<String, String> entry : valuesToInsert.entrySet()) {
-                ps.setString(1, identifier.tenantId());
-                ps.setString(2, identifier.tableName());
-                ps.setString(3, entry.getKey());
-                ps.setString(4, entry.getValue());
-                ps.addBatch();
-              }
-              ps.executeBatch();
-            } catch (SQLException e) {
-              throw new IllegalArgumentException("Unable to delete properties", e);
-            }
-            return null;
-          });
+      internalJdbi.withHandle(handle -> {
+        PreparedBatch preparedBatch = handle.prepareBatch("insert into NODE_TENANT_TABLES_CONFIGURATION (RID_TENANT,TABLE_NAME,KEY,VALUE) values (:tenantId,:tableName,:key,:value)");
+
+        valuesToInsert.forEach((key, value) -> preparedBatch
+            .bindPojo(identifier)
+            .bind("key", key)
+            .bind("value", value)
+            .add());
+        return preparedBatch.execute();
+      });
     }
   }
 
@@ -122,18 +109,10 @@ public class TenantTablePropertiesDao {
    */
   public void delete(final TenantTableIdentifier identifier) {
     LOGGER.trace("delete({})", identifier);
-    sqlEngine.executePreparedInternal(
-        "delete from NODE_TENANT_TABLES_CONFIGURATION where RID_TENANT = ? and TABLE_NAME = ?",
-        (ps) -> {
-          try {
-            ps.setString(1, identifier.tenantId());
-            ps.setString(2, identifier.tableName());
-            ps.execute();
-          } catch (SQLException e) {
-            throw new IllegalArgumentException("Unable to delete properties", e);
-          }
-          return null;
-        });
+    internalJdbi.withHandle(handle -> handle
+        .createUpdate("delete from NODE_TENANT_TABLES_CONFIGURATION where RID_TENANT = :tenantId and TABLE_NAME = :tableName")
+        .bindPojo(identifier)
+        .execute());
   }
 
   /**
@@ -144,23 +123,11 @@ public class TenantTablePropertiesDao {
    */
   public void delete(final TenantTableIdentifier identifier, final List<String> keys) {
     LOGGER.trace("delete({},{})", identifier, keys);
-    final String inClause = keys.stream().map(s -> "?").collect(Collectors.joining(","));
-    sqlEngine.executePreparedInternal(
-        "delete from NODE_TENANT_TABLES_CONFIGURATION where RID_TENANT = ? and TABLE_NAME = ? and KEY in (" + inClause + ")",
-        (ps) -> {
-          try {
-            ps.setString(1, identifier.tenantId());
-            ps.setString(2, identifier.tableName());
-            int i = 3;
-            for (String key : keys) {
-              ps.setString(i++, key);
-            }
-            ps.execute();
-          } catch (SQLException e) {
-            throw new IllegalArgumentException("Unable to delete properties", e);
-          }
-          return null;
-        });
+    internalJdbi.withHandle(handle -> handle
+        .createUpdate("delete from NODE_TENANT_TABLES_CONFIGURATION where RID_TENANT = :tenantId and TABLE_NAME = :tableName and KEY in (<keys>)")
+        .bindPojo(identifier)
+        .bindList("keys", keys)
+        .execute());
   }
 
   /**
@@ -171,24 +138,14 @@ public class TenantTablePropertiesDao {
    */
   public Map<String, String> read(final TenantTableIdentifier identifier) {
     LOGGER.trace("read({})", identifier);
-    final ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
-    sqlEngine.executePreparedInternal(
-        "select * from NODE_TENANT_TABLES_CONFIGURATION where RID_TENANT = ? and TABLE_NAME = ?",
-        (ps) -> {
-          try {
-            ps.setString(1, identifier.tenantId());
-            ps.setString(2, identifier.tableName());
-            try (final ResultSet rs = ps.executeQuery()) {
-              while (rs.next()) {
-                builder.put(rs.getString("KEY"), rs.getString("VALUE"));
-              }
-            }
-          } catch (SQLException e) {
-            throw new IllegalArgumentException("Unable to read properties", e);
-          }
-          return null;
-        });
-    return builder.build();
+    return internalJdbi.withHandle(handle -> handle
+        .createQuery("select KEY, VALUE from NODE_TENANT_TABLES_CONFIGURATION where RID_TENANT = :tenantId and TABLE_NAME = :tableName")
+        .bindPojo(identifier)
+        .reduceRows(new HashMap<>(), (map, rowView) -> {
+          map.put(rowView.getColumn("KEY", String.class), rowView.getColumn("VALUE", String.class));
+          return map;
+        })
+    );
   }
 
 }

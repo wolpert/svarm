@@ -23,7 +23,6 @@ import com.codeheadsystems.dstore.node.model.ImmutableTenantTableIdentifier;
 import com.codeheadsystems.dstore.node.model.TenantTableIdentifier;
 import com.google.common.collect.ImmutableMap;
 import java.util.Map;
-import java.util.Random;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -31,8 +30,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class TenantTablePropertiesDaoTest extends BaseSQLTest {
-
-  private static final Random random = new Random();
 
   private TenantTablePropertiesDao dao;
 
@@ -55,7 +52,7 @@ class TenantTablePropertiesDaoTest extends BaseSQLTest {
 
   @BeforeEach
   void setup() {
-    dao = new TenantTablePropertiesDao(sqlEngine);
+    dao = new TenantTablePropertiesDao(internalJdbi);
   }
 
   @Test
