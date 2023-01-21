@@ -44,4 +44,27 @@
         </createTable>
     </changeSet>
 
+    <changeSet id="2023-01-20-02" author="wolpert">
+        <createTable tableName="NODES">
+            <column name="UUID" type="varchar(256)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="CREATE_DATE" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="UPDATE_DATE" type="timestamp">
+                <constraints nullable="true"/>
+            </column>
+            <column name="HOST" type="varchar(256)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="PORT" type="integer">
+                <constraints nullable="false"/>
+            </column>
+            <column name="VERIFIED" type="boolean">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
 </databaseChangeLog>

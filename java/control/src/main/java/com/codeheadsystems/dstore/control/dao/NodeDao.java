@@ -16,7 +16,7 @@
 
 package com.codeheadsystems.dstore.control.dao;
 
-import com.codeheadsystems.dstore.control.model.Key;
+import com.codeheadsystems.dstore.control.model.Node;
 import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.customizer.BindPojo;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
@@ -24,33 +24,41 @@ import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.jdbi.v3.sqlobject.transaction.Transactional;
 
 /**
- * DAO for the Key.
+ * DAO for the Node.
  */
-public interface KeyDao extends Transactional {
+public interface NodeDao extends Transactional {
 
   /**
-   * Inserts a key by the values.
+   * Inserts a Node by the values.
    *
    * @param instance to use.
    */
-  @SqlUpdate("insert into KEYS (id, create_date, key, nonce) values (:id, :createDate, :key, :nonce)")
-  void insert(@BindPojo final Key instance);
+  @SqlUpdate("insert into NODES (uuid, create_date, update_date, host, port, verified) values (:uuid, :createDate, :updateDate, :host, :port, :verified)")
+  void insert(@BindPojo final Node instance);
+
+  /**
+   * Inserts a Node by the values.
+   *
+   * @param instance to use.
+   */
+  @SqlUpdate("update NODES set create_date = :createDate, update_date = :updateDate, host = :host, port = :port, verified = :verified where uuid = :uuid")
+  void update(@BindPojo final Node instance);
 
   /**
    * Get the key from the datastore.
    *
-   * @param id to use.
+   * @param uuid to use.
    * @return the key.
    */
-  @SqlQuery("select * from KEYS where id = :id")
-  Key read(@Bind("id") String id);
+  @SqlQuery("select * from NODES where uuid = :uuid")
+  Node read(@Bind("uuid") String uuid);
 
   /**
    * Delete the entry from the database.
    *
-   * @param id to delete.
+   * @param uuid to delete.
    */
-  @SqlUpdate("delete from KEYS where id = :id")
-  void delete(@Bind("id") String id);
+  @SqlUpdate("delete from NODES where uuid = :uuid")
+  void delete(@Bind("uuid") String uuid);
 
 }

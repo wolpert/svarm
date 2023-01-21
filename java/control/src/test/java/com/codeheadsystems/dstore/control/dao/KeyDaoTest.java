@@ -21,9 +21,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.codeheadsystems.dstore.control.model.ImmutableKey;
 import com.codeheadsystems.dstore.control.model.Key;
 import java.time.Instant;
+import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
 class KeyDaoTest extends JdbiDaoTest<KeyDao> {
+
+  private static Key generateKey() {
+    final Instant instant = Instant.ofEpochMilli(System.currentTimeMillis());// Instant.now does weird things.
+    return ImmutableKey.builder()
+        .key("key").createDate(instant).id(UUID.randomUUID().toString()).nonce("nonce").build();
+  }
 
   @Override
   protected Class<KeyDao> getDaoClass() {
@@ -32,13 +39,15 @@ class KeyDaoTest extends JdbiDaoTest<KeyDao> {
 
   @Test
   public void roundTrip() {
-    final Instant instant = Instant.ofEpochMilli(System.currentTimeMillis());// Instant.now does weird things.
-    final Key key = ImmutableKey.builder()
-        .key("key").createDate(instant).id("id").nonce("nonce").build();
+    final Key key = generateKey();
     dao.insert(key);
-    final Key result = dao.findKeyById(key.id());
+    final Key result = dao.read(key.id());
 
     assertThat(result).isEqualTo(key);
+
+    dao.delete(key.id());
+
+    assertThat(dao.read(key.id())).isNull();
   }
 
 }

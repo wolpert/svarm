@@ -18,6 +18,7 @@ package com.codeheadsystems.dstore.control.module;
 
 import com.codeheadsystems.dstore.control.ControlConfiguration;
 import com.codeheadsystems.dstore.control.dao.KeyDao;
+import com.codeheadsystems.dstore.control.dao.NodeDao;
 import com.codeheadsystems.dstore.control.factory.ControlJdbiFactory;
 import dagger.Module;
 import dagger.Provides;
@@ -51,12 +52,24 @@ public class DatabaseModule {
    * Generates the KeyDao.
    *
    * @param jdbi to use.
-   * @return the key.
+   * @return the dao.
    */
   @Provides
   @Singleton
   public KeyDao keyDao(final Jdbi jdbi) {
     return jdbi.onDemand(KeyDao.class);
+  }
+
+  /**
+   * Generates the NodeDao.
+   *
+   * @param jdbi to use.
+   * @return the dao.
+   */
+  @Provides
+  @Singleton
+  public NodeDao nodeDao(final Jdbi jdbi) {
+    return jdbi.onDemand(NodeDao.class);
   }
 
 }

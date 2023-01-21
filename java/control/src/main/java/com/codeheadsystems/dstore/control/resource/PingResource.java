@@ -51,6 +51,6 @@ public class PingResource implements JerseyResource {
    */
   @Path("/key/{id}")
   public Key key(@PathParam("id") final String id) {
-    return keyDao.findKeyById(id);
+    return keyDao.read(id);
   }
 }
