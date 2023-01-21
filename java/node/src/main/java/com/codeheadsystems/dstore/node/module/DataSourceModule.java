@@ -3,6 +3,8 @@ package com.codeheadsystems.dstore.node.module;
 import com.codeheadsystems.dstore.node.engine.DatabaseEngine;
 import com.codeheadsystems.dstore.node.engine.DatabaseInitializationEngine;
 import com.codeheadsystems.dstore.node.model.Tenant;
+import com.codeheadsystems.dstore.node.model.TenantTable;
+import com.codeheadsystems.dstore.node.model.TenantTableIdentifier;
 import dagger.Module;
 import dagger.Provides;
 import java.sql.Connection;
@@ -13,7 +15,7 @@ import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.mapper.immutables.JdbiImmutables;
 
 /**
- * Provides datasources. We pick the database to use here.
+ * Provides data sources. We pick the database to use here.
  */
 @Module(includes = {HsqlDataSourceModule.class})
 public class DataSourceModule {
@@ -55,7 +57,11 @@ public class DataSourceModule {
   @Singleton
   public Jdbi internalJdbi(final DataSource dataSource) {
     final Jdbi jdbi = Jdbi.create(dataSource);
-    jdbi.getConfig(JdbiImmutables.class).registerImmutable(Tenant.class);
+    jdbi.getConfig(JdbiImmutables.class)
+        .registerImmutable(Tenant.class)
+        .registerImmutable(TenantTable.class)
+        .registerImmutable(TenantTableIdentifier.class)
+    ;
     return jdbi;
   }
 }

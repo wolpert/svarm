@@ -72,7 +72,7 @@ class TenantTableDaoTest extends BaseSQLTest {
 
   @BeforeEach
   void setup() {
-    dao = new TenantTableDao(sqlEngine);
+    dao = new TenantTableDao(internalJdbi);
   }
 
   @ParameterizedTest
