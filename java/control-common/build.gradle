@@ -2,13 +2,13 @@
  * Copyright (c) 2020-2023. CodeHead Systems. All rights reserved
  * Ned Wolpert <ned.wolpert@codeheadsystems.com>
  */
-
 apply plugin: "java-library"
 apply plugin: "eclipse"
 apply plugin: 'checkstyle'
 
 ext {
-    appName = "node-common"
+    appName = "control-common"
+    configPath = "${rootProject.projectDir}/control-common/src/main/resources/"
 }
 
 configurations {
@@ -29,16 +29,9 @@ checkstyle {
 
 dependencies {
     implementation project(":common")
-    implementation libs.guava
-
     implementation libs.dropwizard.auth
     implementation libs.dropwizard.core
     implementation libs.dropwizard.jackson
-    implementation libs.dropwizard.metrics.graphite
-
-
-    testImplementation libs.jackson.dataformat.yaml
-    testAnnotationProcessor libs.dagger.compiler
 
     // Logging stuff... need all these for logback changes
     implementation libs.logback.classic
@@ -47,3 +40,4 @@ dependencies {
     implementation libs.jakarta.servlet.api
     implementation libs.javax.servlet.api
 }
+

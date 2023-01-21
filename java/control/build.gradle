@@ -32,6 +32,7 @@ checkstyle {
 dependencies {
     implementation project(":common")
     implementation project(":server-common")
+    implementation project(":control-common")
 
     // SQL
     implementation libs.liquibase.core
