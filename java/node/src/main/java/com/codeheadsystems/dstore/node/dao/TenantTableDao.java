@@ -85,7 +85,7 @@ public class TenantTableDao {
   public TenantTable update(final TenantTable tenantTable) {
     LOGGER.trace("update({})", tenantTable);
     return internalJdbi.withHandle(handle -> {
-      int updateCount = handle.createUpdate(
+      final int updateCount = handle.createUpdate(
               "update NODE_TENANT_TABLES set "
                   + "HASH_START = :hashStart, "
                   + "HASH_END = :hashEnd, "
