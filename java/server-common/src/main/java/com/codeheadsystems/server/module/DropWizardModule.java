@@ -18,9 +18,12 @@ package com.codeheadsystems.server.module;
 
 import com.codahale.metrics.health.HealthCheck;
 import com.codeheadsystems.dstore.common.module.JsonModule;
-import com.codeheadsystems.metrics.dagger.MetricsModule;
 import com.codeheadsystems.server.resource.JerseyResource;
+import com.codeheadsystems.server.resource.NotFoundExceptionMapper;
+import com.codeheadsystems.server.resource.TraceUuid;
+import dagger.Binds;
 import dagger.Module;
+import dagger.multibindings.IntoSet;
 import dagger.multibindings.Multibinds;
 import io.dropwizard.lifecycle.Managed;
 import java.util.Set;
@@ -60,5 +63,25 @@ public interface DropWizardModule {
    */
   @Multibinds
   Set<Managed> managedObjects();
+
+  /**
+   * TraceUuid resource.
+   *
+   * @param resource resource.
+   * @return JerseyResource.
+   */
+  @Binds
+  @IntoSet
+  JerseyResource traceUuid(TraceUuid resource);
+
+  /**
+   * Not found exception mapper.
+   *
+   * @param resource resource.
+   * @return JerseyResource.
+   */
+  @Binds
+  @IntoSet
+  JerseyResource notFoundExceptionMapper(NotFoundExceptionMapper resource);
 
 }

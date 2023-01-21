@@ -14,41 +14,38 @@
  * limitations under the License.
  */
 
-package com.codeheadsystems.dstore.control.module;
+package com.codeheadsystems.dstore.control.converter;
 
-import dagger.Module;
-import dagger.Provides;
-import java.security.SecureRandom;
-import java.time.Clock;
-import java.util.random.RandomGenerator;
+import com.codeheadsystems.dstore.control.common.api.ImmutableNodeInfo;
+import com.codeheadsystems.dstore.control.common.api.NodeInfo;
+import com.codeheadsystems.dstore.control.model.Node;
+import javax.inject.Inject;
 import javax.inject.Singleton;
 
 /**
- * The kitchen drawer for control.
+ * Converts stuff to node info.
  */
-@Module
-public class UtilitiesModule {
+@Singleton
+public class NodeInfoConverter {
 
   /**
-   * The clock we use is the system clock.
-   *
-   * @return the clock.
+   * Default constructor.
    */
-  @Provides
-  @Singleton
-  public Clock clock() {
-    return Clock.systemUTC();
+  @Inject
+  public NodeInfoConverter() {
+
   }
 
   /**
-   * Generator.
+   * Generate a node info.
    *
-   * @return the generator.
+   * @param node from.
+   * @return the to.
    */
-  @Provides
-  @Singleton
-  public RandomGenerator randomGenerator() {
-    return new SecureRandom();
+  public NodeInfo from(final Node node) {
+    return ImmutableNodeInfo.builder()
+        .status(node.status())
+        .uuid(node.uuid())
+        .build();
   }
-
 }

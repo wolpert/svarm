@@ -32,14 +32,6 @@ import org.immutables.value.Value;
 public interface KeyInfo {
 
   /**
-   * The UUID of the node.
-   *
-   * @return value.
-   */
-  @JsonProperty("uuid")
-  String uuid();
-
-  /**
    * The the key.
    *
    * @return value.

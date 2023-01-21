@@ -14,41 +14,36 @@
  * limitations under the License.
  */
 
-package com.codeheadsystems.dstore.control.module;
+package com.codeheadsystems.dstore.control.converter;
 
-import dagger.Module;
-import dagger.Provides;
-import java.security.SecureRandom;
-import java.time.Clock;
-import java.util.random.RandomGenerator;
+import com.codeheadsystems.dstore.control.common.api.ImmutableKeyInfo;
+import com.codeheadsystems.dstore.control.common.api.KeyInfo;
+import com.codeheadsystems.dstore.control.model.Key;
+import javax.inject.Inject;
 import javax.inject.Singleton;
 
 /**
- * The kitchen drawer for control.
+ * Converter for keys.
  */
-@Module
-public class UtilitiesModule {
+@Singleton
+public class KeyInfoConverter {
 
   /**
-   * The clock we use is the system clock.
-   *
-   * @return the clock.
+   * Constructor.
    */
-  @Provides
-  @Singleton
-  public Clock clock() {
-    return Clock.systemUTC();
+  @Inject
+  public KeyInfoConverter() {
+
   }
 
   /**
-   * Generator.
+   * Converts from key.
    *
-   * @return the generator.
+   * @param key the key.
+   * @return the key info.
    */
-  @Provides
-  @Singleton
-  public RandomGenerator randomGenerator() {
-    return new SecureRandom();
+  public KeyInfo from(final Key key) {
+    return ImmutableKeyInfo.builder().key(key.key()).build();
   }
 
 }

@@ -16,12 +16,10 @@
 
 package com.codeheadsystems.dstore.node.module;
 
-import com.codeheadsystems.dstore.node.resource.NotFoundExceptionMapper;
 import com.codeheadsystems.dstore.node.resource.TenantResource;
 import com.codeheadsystems.dstore.node.resource.TenantTableEntryResource;
 import com.codeheadsystems.dstore.node.resource.TenantTableResource;
 import com.codeheadsystems.server.resource.JerseyResource;
-import com.codeheadsystems.server.resource.TraceUuid;
 import dagger.Binds;
 import dagger.Module;
 import dagger.multibindings.IntoSet;
@@ -61,25 +59,5 @@ public interface ResourceModule {
   @Binds
   @IntoSet
   JerseyResource tenantTableEntryResource(TenantTableEntryResource resource);
-
-  /**
-   * TraceUuid resource.
-   *
-   * @param resource resource.
-   * @return JerseyResource.
-   */
-  @Binds
-  @IntoSet
-  JerseyResource traceUuid(TraceUuid resource);
-
-  /**
-   * Not found exception mapper.
-   *
-   * @param resource resource.
-   * @return JerseyResource.
-   */
-  @Binds
-  @IntoSet
-  JerseyResource notFoundExceptionMapper(NotFoundExceptionMapper resource);
 
 }

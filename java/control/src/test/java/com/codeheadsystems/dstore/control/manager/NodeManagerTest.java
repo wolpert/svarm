@@ -87,10 +87,11 @@ class NodeManagerTest {
     when(nodeMetaData.port()).thenReturn(PORT);
     when(nodeVerificationManager.verify(UUID, nodeMetaData)).thenReturn(true);
     when(clock.instant()).thenReturn(Instant.now());
-    final String result = nodeManager.create(UUID, nodeMetaData);
-    assertThat(result).isEqualTo(NodeInfo.Status.DISABLED.name());
+    final Node result = nodeManager.create(UUID, nodeMetaData);
+    assertThat(result.status()).isEqualTo(NodeInfo.Status.DISABLED.name());
     verify(nodeDao).insert(nodeArgumentCaptor.capture());
     assertThat(nodeArgumentCaptor.getValue())
+        .isEqualTo(result)
         .hasFieldOrPropertyWithValue("host", HOST)
         .hasFieldOrPropertyWithValue("port", PORT)
         .hasFieldOrPropertyWithValue("uuid", UUID)

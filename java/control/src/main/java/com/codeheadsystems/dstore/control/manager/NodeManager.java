@@ -69,7 +69,7 @@ public class NodeManager {
    * @param metaData of the node.
    * @return status of the node.
    */
-  public String create(final String uuid, final NodeMetaData metaData) {
+  public Node create(final String uuid, final NodeMetaData metaData) {
     LOGGER.trace("create({}{})", uuid, metaData);
     final Optional<String> currentStatus = status(uuid);
     if (currentStatus.isPresent()) {
@@ -84,7 +84,7 @@ public class NodeManager {
         .status(NodeInfo.Status.DISABLED.name())
         .build();
     nodeDao.insert(node);
-    return node.status();
+    return node;
   }
 
   /**
