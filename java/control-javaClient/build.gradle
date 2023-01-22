@@ -8,7 +8,7 @@ apply plugin: "eclipse"
 apply plugin: 'checkstyle'
 
 ext {
-    appName = "node-javaClient"
+    appName = "control-javaClient"
 }
 
 configurations {
@@ -30,7 +30,7 @@ checkstyle {
 dependencies {
     implementation project(":common")
     implementation project(":common-javaClient")
-    implementation project(":node-common")
+    implementation project(":control-common")
 
     implementation libs.jackson.annotations
     implementation libs.jackson.core

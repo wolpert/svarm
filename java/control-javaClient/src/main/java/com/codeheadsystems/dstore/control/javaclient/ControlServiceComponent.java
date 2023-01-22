@@ -1,9 +1,9 @@
-package com.codeheadsystems.dstore.node.javaclient;
+package com.codeheadsystems.dstore.control.javaclient;
 
 import com.codeheadsystems.common.javaclient.JavaClientModule;
 import com.codeheadsystems.dstore.common.module.JsonModule;
-import com.codeheadsystems.dstore.node.api.NodeService;
-import com.codeheadsystems.dstore.node.javaclient.module.NodeServiceModule;
+import com.codeheadsystems.dstore.control.common.api.ControlNodeService;
+import com.codeheadsystems.dstore.control.javaclient.module.ControlServiceModule;
 import dagger.Component;
 import javax.inject.Singleton;
 
@@ -13,10 +13,10 @@ import javax.inject.Singleton;
 @Component(modules = {
     JavaClientModule.class,
     JsonModule.class,
-    NodeServiceModule.class
+    ControlServiceModule.class
 })
 @Singleton
-public interface NodeServiceComponent {
+public interface ControlServiceComponent {
 
   /**
    * Usable to create a fresh java client.
@@ -24,10 +24,10 @@ public interface NodeServiceComponent {
    * @param connectionUrl to connect to.
    * @return a node service impl.
    */
-  static NodeService generate(final String connectionUrl) {
-    return DaggerNodeServiceComponent.builder()
-        .nodeServiceModule(new NodeServiceModule(connectionUrl))
-        .build().javaClient();
+  static ControlServiceComponent controlNodeService(final String connectionUrl) {
+    return DaggerControlServiceComponent.builder()
+        .controlServiceModule(new ControlServiceModule(connectionUrl))
+        .build();
   }
 
   /**
@@ -35,6 +35,6 @@ public interface NodeServiceComponent {
    *
    * @return a node service.
    */
-  NodeService javaClient();
+  ControlNodeService javaClient();
 
 }
