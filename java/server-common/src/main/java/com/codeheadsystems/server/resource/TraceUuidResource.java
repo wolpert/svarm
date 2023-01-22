@@ -16,6 +16,9 @@
 
 package com.codeheadsystems.server.resource;
 
+import static com.codeheadsystems.dstore.common.engine.TraceUuidEngine.TRACE_UUID_HEADER;
+
+import com.codeheadsystems.dstore.common.engine.TraceUuidEngine;
 import java.io.IOException;
 import java.util.UUID;
 import javax.inject.Inject;
@@ -26,43 +29,30 @@ import javax.ws.rs.container.ContainerResponseContext;
 import javax.ws.rs.container.ContainerResponseFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.MDC;
 
 /**
- * Used so that we can have request/responses use the traceUUID concept for request tracing.
+ * Used so that we can have request/responses use the traceUUID concept for request tracing. Ensures the UUID
+ * is reset at the end of the request.
  */
 @Singleton
-public class TraceUuid implements ContainerRequestFilter, ContainerResponseFilter, JerseyResource {
+public class TraceUuidResource implements ContainerRequestFilter, ContainerResponseFilter, JerseyResource {
 
-  /**
-   * Identifier for the header.
-   */
-  public static final String TRACE_UUID_HEADER = "X-TraceUuid";
-  private static final String MDC_ID = "trace";
-
-  private static final Logger LOGGER = LoggerFactory.getLogger(TraceUuid.class);
-
-  private final ThreadLocal<String> traceThreadLocal = new ThreadLocal<>();
+  private static final Logger LOGGER = LoggerFactory.getLogger(TraceUuidResource.class);
+  private final TraceUuidEngine traceUuidEngine;
 
   /**
    * Default constructor.
+   *
+   * @param traceUuidEngine engine.
    */
   @Inject
-  public TraceUuid() {
-    LOGGER.info("TraceUuid");
+  public TraceUuidResource(final TraceUuidEngine traceUuidEngine) {
+    this.traceUuidEngine = traceUuidEngine;
+    LOGGER.info("TraceUuidResource");
   }
 
   private static String getOrCreatedUuid(final String uuid) {
     return uuid == null ? UUID.randomUUID().toString() : uuid;
-  }
-
-  /**
-   * Gets the current ID, if set. Can be null.
-   *
-   * @return String UUID.
-   */
-  public String get() {
-    return traceThreadLocal.get();
   }
 
   /**
@@ -76,9 +66,8 @@ public class TraceUuid implements ContainerRequestFilter, ContainerResponseFilte
     final String uuidFromHeader = requestContext.getHeaderString(TRACE_UUID_HEADER);
     final boolean fromClient = uuidFromHeader != null; // the client set it.
     final String uuid = getOrCreatedUuid(uuidFromHeader);
-    MDC.put(MDC_ID, uuid);
     LOGGER.info("filter(client_set:{}):{}", fromClient, uuid);
-    traceThreadLocal.set(uuid);
+    traceUuidEngine.set(uuid);
   }
 
   /**
@@ -91,10 +80,9 @@ public class TraceUuid implements ContainerRequestFilter, ContainerResponseFilte
   @Override
   public void filter(final ContainerRequestContext requestContext,
                      final ContainerResponseContext responseContext) throws IOException {
-    final String uuid = get();
+    final String uuid = traceUuidEngine.get();
     LOGGER.info("filter(response):{}", uuid);
     responseContext.getHeaders().add(TRACE_UUID_HEADER, getOrCreatedUuid(uuid));
-    traceThreadLocal.set(null);
-    MDC.remove(MDC_ID);
+    traceUuidEngine.clear();
   }
 }

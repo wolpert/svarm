@@ -16,42 +16,57 @@
 
 package com.codeheadsystems.server.resource;
 
-import static com.codeheadsystems.server.resource.TraceUuid.TRACE_UUID_HEADER;
+import static com.codeheadsystems.dstore.common.engine.TraceUuidEngine.TRACE_UUID_HEADER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.codeheadsystems.dstore.common.engine.TraceUuidEngine;
 import java.io.IOException;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerResponseContext;
 import javax.ws.rs.core.MultivaluedMap;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-class TraceUuidTest {
+class TraceUuidResourceTest {
 
   private static final String UUID = "UUID";
   @Mock private ContainerRequestContext requestContext;
   @Mock private ContainerResponseContext responseContext;
   @Mock private MultivaluedMap<String, Object> multivaluedMap;
-  @InjectMocks private TraceUuid traceUUID;
+
+  private TraceUuidEngine traceUuidEngine;
+  private TraceUuidResource traceUUIDResource;
+
+  @BeforeEach
+  void setup() {
+    traceUuidEngine = new TraceUuidEngine();
+    traceUUIDResource = new TraceUuidResource(traceUuidEngine);
+  }
+
+  @AfterEach
+  void tearDown() {
+    traceUuidEngine.clear();
+  }
 
   @Test
   public void roundTrip_notPreSet() throws IOException {
     when(responseContext.getHeaders()).thenReturn(multivaluedMap);
 
-    assertThat(traceUUID.get()).isNull();
+    assertThat(traceUuidEngine.get()).isNull();
 
-    traceUUID.filter(requestContext);
-    final String uuid = traceUUID.get();
+    traceUUIDResource.filter(requestContext);
+    final String uuid = traceUuidEngine.get();
     assertThat(uuid).isNotNull();
 
-    traceUUID.filter(requestContext, responseContext);
-    assertThat(traceUUID.get()).isNull();
+    traceUUIDResource.filter(requestContext, responseContext);
+    assertThat(traceUuidEngine.get()).isNull();
     verify(multivaluedMap).add(TRACE_UUID_HEADER, uuid);
   }
 
@@ -60,14 +75,14 @@ class TraceUuidTest {
     when(responseContext.getHeaders()).thenReturn(multivaluedMap);
     when(requestContext.getHeaderString(TRACE_UUID_HEADER)).thenReturn(UUID);
 
-    assertThat(traceUUID.get()).isNull();
+    assertThat(traceUuidEngine.get()).isNull();
 
-    traceUUID.filter(requestContext);
-    final String uuid = traceUUID.get();
+    traceUUIDResource.filter(requestContext);
+    final String uuid = traceUuidEngine.get();
     assertThat(uuid).isNotNull().isEqualTo(UUID);
 
-    traceUUID.filter(requestContext, responseContext);
-    assertThat(traceUUID.get()).isNull();
+    traceUUIDResource.filter(requestContext, responseContext);
+    assertThat(traceUuidEngine.get()).isNull();
     verify(multivaluedMap).add(TRACE_UUID_HEADER, uuid);
   }
 

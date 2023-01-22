@@ -20,7 +20,7 @@ import com.codahale.metrics.health.HealthCheck;
 import com.codeheadsystems.dstore.common.module.JsonModule;
 import com.codeheadsystems.server.resource.JerseyResource;
 import com.codeheadsystems.server.resource.NotFoundExceptionMapper;
-import com.codeheadsystems.server.resource.TraceUuid;
+import com.codeheadsystems.server.resource.TraceUuidResource;
 import dagger.Binds;
 import dagger.Module;
 import dagger.multibindings.IntoSet;
@@ -65,14 +65,14 @@ public interface DropWizardModule {
   Set<Managed> managedObjects();
 
   /**
-   * TraceUuid resource.
+   * TraceUuidResource resource.
    *
    * @param resource resource.
    * @return JerseyResource.
    */
   @Binds
   @IntoSet
-  JerseyResource traceUuid(TraceUuid resource);
+  JerseyResource traceUuid(TraceUuidResource resource);
 
   /**
    * Not found exception mapper.
