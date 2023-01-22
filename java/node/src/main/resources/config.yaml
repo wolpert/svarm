@@ -10,13 +10,13 @@ logging:
     - type: console
       logFormat: "%d{HH:mm:ss.SSS} [%thread] [%X{trace}] %-5level %logger{36} - %msg%n"
 
-#metrics:
-#  frequency: 1 minute
-#  reportOnStop: true
-#  reporters:
-#    - type: log
-#      logger: metrics
-#      markerName: SLF4j
+metrics:
+  frequency: 1 minute
+  reportOnStop: true
+  reporters:
+    - type: log
+      logger: metrics
+      markerName: SLF4j
 #    - type: graphite
 #      host: localhost
 #      port: 2003

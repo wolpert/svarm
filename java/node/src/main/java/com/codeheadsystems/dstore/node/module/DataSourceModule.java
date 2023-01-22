@@ -1,5 +1,7 @@
 package com.codeheadsystems.dstore.node.module;
 
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.jdbi3.InstrumentedSqlLogger;
 import com.codeheadsystems.dstore.node.engine.DatabaseEngine;
 import com.codeheadsystems.dstore.node.engine.DatabaseInitializationEngine;
 import com.codeheadsystems.dstore.node.model.Tenant;
@@ -51,17 +53,19 @@ public class DataSourceModule {
    * The internal jdbi instance.
    *
    * @param dataSource to use.
+   * @param metricRegistry for metrics.
    * @return a jdbi instance.
    */
   @Provides
   @Singleton
-  public Jdbi internalJdbi(final DataSource dataSource) {
+  public Jdbi internalJdbi(final DataSource dataSource,
+                           final MetricRegistry metricRegistry) {
     final Jdbi jdbi = Jdbi.create(dataSource);
     jdbi.getConfig(JdbiImmutables.class)
         .registerImmutable(Tenant.class)
         .registerImmutable(TenantTable.class)
-        .registerImmutable(TenantTableIdentifier.class)
-    ;
+        .registerImmutable(TenantTableIdentifier.class);
+    jdbi.setSqlLogger(new InstrumentedSqlLogger(metricRegistry));
     return jdbi;
   }
 }

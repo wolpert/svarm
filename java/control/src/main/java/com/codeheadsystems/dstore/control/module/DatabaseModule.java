@@ -16,6 +16,8 @@
 
 package com.codeheadsystems.dstore.control.module;
 
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.jdbi3.InstrumentedSqlLogger;
 import com.codeheadsystems.dstore.control.ControlConfiguration;
 import com.codeheadsystems.dstore.control.dao.KeyDao;
 import com.codeheadsystems.dstore.control.dao.NodeDao;
@@ -35,17 +37,21 @@ public class DatabaseModule {
   /**
    * The JDBI handler.
    *
-   * @param environment   of dropwizard.
-   * @param configuration of the app.
-   * @param factory       factory to setup.
+   * @param environment    of dropwizard.
+   * @param configuration  of the app.
+   * @param factory        factory to setup.
+   * @param metricRegistry for metrics.
    * @return dbi.
    */
   @Provides
   @Singleton
   public Jdbi jdbi(final ControlJdbiFactory factory,
                    final ControlConfiguration configuration,
-                   final Environment environment) {
-    return factory.generate(configuration, environment);
+                   final Environment environment,
+                   final MetricRegistry metricRegistry) {
+    final Jdbi result = factory.generate(configuration, environment);
+    result.setSqlLogger(new InstrumentedSqlLogger(metricRegistry));
+    return result;
   }
 
   /**

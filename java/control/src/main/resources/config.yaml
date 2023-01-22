@@ -18,13 +18,13 @@ database:
   validationQuery: "/* MyService Health Check */ call now()"
 # Validation query note: HSQL is weird. We won't have to do this with postgresql.
 
-#metrics:
-#  frequency: 1 minute
-#  reportOnStop: true
-#  reporters:
-#    - type: log
-#      logger: metrics
-#      markerName: SLF4j
+metrics:
+  frequency: 1 minute
+  reportOnStop: true
+  reporters:
+    - type: log
+      logger: metrics
+      markerName: SLF4j
 #    - type: graphite
 #      host: localhost
 #      port: 2003

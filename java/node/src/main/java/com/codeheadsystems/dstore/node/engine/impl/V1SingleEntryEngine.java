@@ -55,7 +55,7 @@ public class V1SingleEntryEngine implements TableDefinitionEngine {
    * Default constructor.
    *
    * @param metrics    for analytics.
-   * @param sqlEngine  to execute sql.
+   * @param sqlEngine  to execute sql.NO
    * @param jsonEngine for managing json.
    */
   @Inject

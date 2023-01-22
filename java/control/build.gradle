@@ -53,6 +53,7 @@ dependencies {
     implementation libs.dropwizard.jdbi
     implementation libs.micrometer.core
     implementation libs.metrics.core
+    implementation libs.metrics.jdbi
 
     testImplementation libs.jackson.dataformat.yaml
 

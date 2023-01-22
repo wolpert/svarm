@@ -16,6 +16,7 @@
 
 package com.codeheadsystems.dstore.node;
 
+import com.codahale.metrics.MetricRegistry;
 import com.codeheadsystems.dstore.node.engine.DatabaseEngine;
 import com.codeheadsystems.dstore.node.engine.DatabaseInitializationEngine;
 import com.codeheadsystems.dstore.node.engine.SqlEngine;
@@ -52,7 +53,7 @@ public abstract class BaseSQLTest extends BaseMetricTest {
     databaseEngine = databaseEngine();
     final DataSourceModule dataSourceModule = new DataSourceModule();
     internalDataSource = dataSourceModule.internalDataSource(databaseEngine, databaseInitializationEngine);
-    internalJdbi = dataSourceModule.internalJdbi(internalDataSource);
+    internalJdbi = dataSourceModule.internalJdbi(internalDataSource, new MetricRegistry());
     tenantTableDataSourceManager = new TenantTableDataSourceManager(databaseEngine, databaseInitializationEngine);
     sqlEngine = new SqlEngine(metrics, tenantTableDataSourceManager, internalDataSource);
   }
