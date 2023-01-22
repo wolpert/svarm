@@ -21,12 +21,23 @@ It would be great if dStore was API compatible with DynamoDB.
 
 [![SystemComponents](./dStore-components.png)](https://viewer.diagrams.net/?tags=%7B%7D&highlight=0000ff&edit=_blank&layers=1&nav=1&title=dStoreSystemComponent.drawio#R7VrZctowFP0aHpuxLYzhkSVtZ5q0mTDdnjrCVowa4UuFWNyvr4RlbCOH0NREpBPyEOnoyss551oXmRYazjbvOJ5PryEirOU50aaFRi3Pc512V%2F5TSJohgdvJgJjTSAcVwJj%2BJvlMjS5pRBaVQAHABJ1XwRCShISigmHOYV0NuwNWPescx8QAxiFmJvqVRmKaoV3fKfD3hMbT%2FMyuo0dmOA%2FWwGKKI1iXIHTZQkMOILLWbDMkTJGX85LNe%2FvA6O7COEnEMRMGYhlGn%2Fv9%2FuT2x%2F31l5VDPvx64%2FWyw6wwW%2Bo71lcr0pwCDsskIuooTgsN1lMqyHiOQzW6lqJLbCpmTPZc2dSHI1yQzYMX6u5uX%2FqGwIwInsqQfEJOblq1wrrg3%2B9obFri3g80iLXm8e7QBS2yoZn5C5YQMkghkbSJ7gIXU4ghweyyQAdV2oqYK4C5JusnESLVnsdLAVUqJV08%2FabnbzvfVefCz7ujTXlwlOreQnC437m1EEVd8mFJ5B3CkofkABU6ewXmMREH4rI0NzXmhGFBV9ULaVwwr9Owre8oY0NgwLdz0Z2v%2FhQOiSjh2WenQWmks%2F00lCCdaoIgM0FQUJMg7fapEiSwkR8NujpfWR5ztWfT1K7h6SGj6lb3uZcrzVw1lzPWD4Vy4ED5jcpV7QpPCLuBBRUUEhkyASFgVgroMxqrAQF7GQBLwWgiLZ2vs04zZu5Vvew5NWau8XLnVFbuvXAre0dauW3Vyo4Nlp%2B6oFpQx7eqjvuqzkF1rNY2rlnKvKpTqdatVp7GIn3DYZP%2BW%2FXZRM14xDrres%2B50CKDqREWWCIfISLW%2BUJ7NbZvm672i6LLtc6X%2F6L4su8v8xvzOfOFrPOFrCzDJ93bcY%2Fe3AlsLrGuadVbMpdk0iS2blT%2F7IzqBgZdLa%2FD5GkHEV3JZqyafenCVNBwkY%2FJc5WGa2Zkj4cjg8cCOMnxCd%2BP3J%2F%2FwIZGmDIq1eTocSknme5Xkx2Aw%2Ft464ZP2U5GnlFZqrl%2BQ%2FoHwYVfcUA78A0HdH3TAL1TGcAza9IhyCId1MwbhhP7j%2Ff9rKnb83%2FerPGsbGme9PHutY98vHt29%2B7NSvfs7Brs2dWzblez3D2P752775nnk9ldgypd6dabS967qMvS%2FOVOAmotqbwh0hDWe%2Bmh5IqUd%2BHzTfYZjaLtg6NOh6pSDUhxxGujXo0Q6GQVtGMIEek64b%2BVYO%2FVtl9THda92n6CBrJb%2FLZgO1b6hQa6%2FAM%3D)
 
-dStore has four layers that work together.
+dStore has four main layers that work together.
 
 - **Proxy**: Provides for client access. Routes the request internally to the correct data node, handling redundancy and failover.
 - **Data Node**: Nodes that manage the data itself.
 - **Control**: Manages the other nodes in the cluster, replication strategy and joining/merging nodes.
 - **Reporting**: Extracts usage patterns from the nodes and proxies.
+
+## Build outs
+
+There are various ways to design the layout for the system. A docker swarm
+will be made available for internal development or small usage. The minimum
+environment would consist of one instance of the proxy, node and control plane.
+Data files and configurations can be stored and migrated to larger installations
+without downtime, provided the proxy starts in the network you want to use it in.
+
+The full-build out includes multiple data planes for high-availability and network
+isolation of the control and reporting servers for proper security.
 
 ## Proxy
 
@@ -72,7 +83,7 @@ Each store has a separate table.
 
 ### UUIDs and Keys
 
-Every component in the cluster has their own UUIDs and 256 bit key.
+Every component in the cluster has their own UUIDs and 256 bit AES key.
 This includes:
 
 - Proxy
@@ -89,7 +100,7 @@ by are the 256b keys.
 
 ### Hashing
 
-The initial key hashing technique will be [Murmur2](https://en.wikipedia.org/wiki/MurmurHash)
+The initial key hashing technique will be [Murmur3](https://en.wikipedia.org/wiki/MurmurHash)
 which provides good randomness and executes very fast. Collisions are allowed in
 the lookup strategy, and the 32bit variant is enough of a namespace for us.
 
@@ -97,7 +108,7 @@ the lookup strategy, and the 32bit variant is enough of a namespace for us.
 which does not have the little/big endian issue. The important thing was multiple
 platforms and languages give the same results.)
 
-### Data storage encryption
+### Node Data storage encryption
 
 When a node is started up, a 32bit key is created and store locally. When
 a node connects to the control plane, a second 32bit key is retrieved from
@@ -110,13 +121,8 @@ following keys:
 - Tenant based on the node
 - Tenant based on the control plane.
 
-The resulting key 
-
-Each node has a unique identifier, which is a UUID. Likewise, the control plane
-also supplies an unique identifier (UUID) to the node when it connects.
-The two UUIDs are hashed together which generates the AES256 key used to 
-encrypt/decrypt the tables. (The mechanism to add a data node to a control plane
-will be documented in the control plane flow.)
+This ensures that compromising one component of the network does not let a 
+intruder decrypt all the data.
 
 ### Physical tables
 
@@ -213,10 +219,10 @@ includes the data to store.
 ## Java
 
 ### HSQLDB
-hsqldb is used for the database because it's fast and we can add in 
+hsqldb is used for the database on the nodes because it's fast and we can add in 
 AES/GCM/SIV for the encryption per database. MySQL was considered but
 decided to keep it 'in process' database instead of external process.
-(MySQL can encrypt per tablespace, which meets the needs here. PostGRESQL
+(MySQL can encrypt per tablespace, which meets the needs here. PostgreSQL
 cannot do that in the same way.) Other embedded databases do not support
 the encryption we need.
 
@@ -225,18 +231,19 @@ of an install. This may be warranted if popularity of the project increases
 and someone can demonstrate it will be actually worth it. I would love
 PostGRESQL over MySQL if encryption can be maintained correctly.
 
+### PostgreSQL
+
+The control plane will use PostgreSQL, but non end-to-end testing will all be in 
+HSQLDB.
+
 ### Liquibase
 There are many databases per server, and two types of databases. The internal
 and the tenant type. Liquibase is used when enabling a node.
 
-### HikariCP
-[HikariCP](https://github.com/brettwooldridge/HikariCP/) is used for pooling
-as it's still being developed and in use.
+### JDBI
 
-### Hibernate
-
-Instead of using raw JDBC calls, hibernate is used to simplify development.
-Because why not. It's fine. We can always switch to raw JDBC if it's really needed.
+Decided to use JDBI for the data access layer instead of hibernate. It integrates
+easily with DropWizard and quite simple to use. 
 
 ### Misc
 
