@@ -16,7 +16,6 @@
 
 package com.codeheadsystems.dstore.common.engine;
 
-import java.util.UUID;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.slf4j.Logger;
@@ -63,15 +62,6 @@ public class TraceUuidEngine {
   public void clear() {
     MDC.remove(MDC_ID);
     traceThreadLocal.set(null);
-  }
-
-  /**
-   * This will set the uuid, but only if its null.
-   */
-  public void setIfNull() {
-    if (get() == null) {
-      set(UUID.randomUUID().toString());
-    }
   }
 
   /**
