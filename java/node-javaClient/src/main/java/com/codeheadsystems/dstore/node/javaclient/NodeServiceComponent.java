@@ -2,7 +2,9 @@ package com.codeheadsystems.dstore.node.javaclient;
 
 import com.codeheadsystems.common.javaclient.JavaClientModule;
 import com.codeheadsystems.dstore.common.module.JsonModule;
-import com.codeheadsystems.dstore.node.api.NodeService;
+import com.codeheadsystems.dstore.node.api.NodeTenantService;
+import com.codeheadsystems.dstore.node.api.NodeTenantTableEntryService;
+import com.codeheadsystems.dstore.node.api.NodeTenantTableService;
 import com.codeheadsystems.dstore.node.javaclient.module.NodeServiceModule;
 import dagger.Component;
 import javax.inject.Singleton;
@@ -24,10 +26,10 @@ public interface NodeServiceComponent {
    * @param connectionUrl to connect to.
    * @return a node service impl.
    */
-  static NodeService generate(final String connectionUrl) {
+  static NodeServiceComponent generate(final String connectionUrl) {
     return DaggerNodeServiceComponent.builder()
         .nodeServiceModule(new NodeServiceModule(connectionUrl))
-        .build().javaClient();
+        .build();
   }
 
   /**
@@ -35,6 +37,20 @@ public interface NodeServiceComponent {
    *
    * @return a node service.
    */
-  NodeService javaClient();
+  NodeTenantService nodeTenantService();
+
+  /**
+   * The node service dagger will generate.
+   *
+   * @return a node service.
+   */
+  NodeTenantTableService nodeTenantTableService();
+
+  /**
+   * The node service dagger will generate.
+   *
+   * @return a node service.
+   */
+  NodeTenantTableEntryService nodeTenantTableEntryService();
 
 }

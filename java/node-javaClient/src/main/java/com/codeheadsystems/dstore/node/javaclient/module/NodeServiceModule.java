@@ -1,6 +1,8 @@
 package com.codeheadsystems.dstore.node.javaclient.module;
 
-import com.codeheadsystems.dstore.node.api.NodeService;
+import com.codeheadsystems.dstore.node.api.NodeTenantService;
+import com.codeheadsystems.dstore.node.api.NodeTenantTableEntryService;
+import com.codeheadsystems.dstore.node.api.NodeTenantTableService;
 import dagger.Module;
 import dagger.Provides;
 import feign.Feign;
@@ -31,7 +33,31 @@ public class NodeServiceModule {
    */
   @Provides
   @Singleton
-  public NodeService nodeService(final Feign.Builder builder) {
-    return builder.target(NodeService.class, connectionUrl);
+  public NodeTenantService nodeTenantService(final Feign.Builder builder) {
+    return builder.target(NodeTenantService.class, connectionUrl);
+  }
+
+  /**
+   * Get a usable node service.
+   *
+   * @param builder feign builder to use.
+   * @return a node service.
+   */
+  @Provides
+  @Singleton
+  public NodeTenantTableService nodeTenantTableService(final Feign.Builder builder) {
+    return builder.target(NodeTenantTableService.class, connectionUrl);
+  }
+
+  /**
+   * Get a usable node service.
+   *
+   * @param builder feign builder to use.
+   * @return a node service.
+   */
+  @Provides
+  @Singleton
+  public NodeTenantTableEntryService nodeTenantTableEntryService(final Feign.Builder builder) {
+    return builder.target(NodeTenantTableEntryService.class, connectionUrl);
   }
 }

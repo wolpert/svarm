@@ -22,7 +22,9 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import com.codeheadsystems.dstore.common.factory.ObjectMapperFactory;
 import com.codeheadsystems.dstore.node.Node;
 import com.codeheadsystems.dstore.node.NodeConfiguration;
-import com.codeheadsystems.dstore.node.api.NodeService;
+import com.codeheadsystems.dstore.node.api.NodeTenantService;
+import com.codeheadsystems.dstore.node.api.NodeTenantTableEntryService;
+import com.codeheadsystems.dstore.node.api.NodeTenantTableService;
 import com.codeheadsystems.dstore.node.javaclient.NodeServiceComponent;
 import com.codeheadsystems.test.utils.DeletingFileVisitor;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -51,7 +53,9 @@ public class NodeIntegTest {
 
   private static DropwizardTestSupport<NodeConfiguration> SUPPORT;
   private static Path BASE_DIRECTORY_PATH;
-  private static NodeService NODE_SERVICE;
+  private static NodeTenantService NODE_TENANT;
+  private static NodeTenantTableService NODE_TABLE;
+  private static NodeTenantTableEntryService NODE_ENTRY;
   private static ObjectMapper OBJECT_MAPPER;
   private static Random RANDOM;
   private static String CONNECTION_URL;
@@ -67,7 +71,10 @@ public class NodeIntegTest {
     );
     SUPPORT.before();
     CONNECTION_URL = "http://localhost:" + SUPPORT.getLocalPort() + "/";
-    NODE_SERVICE = NodeServiceComponent.generate(CONNECTION_URL);
+    final NodeServiceComponent component = NodeServiceComponent.generate(CONNECTION_URL);
+    NODE_TENANT = component.nodeTenantService();
+    NODE_TABLE = component.nodeTenantTableService();
+    NODE_ENTRY = component.nodeTenantTableEntryService();
     OBJECT_MAPPER = new ObjectMapperFactory().generate();
     RANDOM = new Random();
   }
@@ -86,12 +93,10 @@ public class NodeIntegTest {
   private static void oneTest(final String tenant, final String table, final Map.Entry<String, JsonNode> e) {
     final String key = e.getKey();
     final JsonNode value = e.getValue();
-    System.out.println(key + " Setting nodeService");
-    final NodeService service = NodeServiceComponent.generate(CONNECTION_URL);
     System.out.println(key + " creating entry");
-    service.createTenantTableEntry(tenant, table, key, value);
+    NODE_ENTRY.createTenantTableEntry(tenant, table, key, value);
     System.out.println(key + " reading entry");
-    service.readTenantTableEntry(tenant, table, key);
+    NODE_ENTRY.readTenantTableEntry(tenant, table, key);
     System.out.println(key + " done");
   }
 
@@ -103,19 +108,19 @@ public class NodeIntegTest {
 
     final Map<String, JsonNode> t1Data = randomData(5);
     final Map<String, JsonNode> t2Data = randomData(6);
-    NODE_SERVICE.createTenant(tenant);
-    NODE_SERVICE.createTenantTable(tenant, table1, "ignored");
-    NODE_SERVICE.createTenantTable(tenant, table2, "ignored");
-    t1Data.forEach((k, v) -> NODE_SERVICE.createTenantTableEntry(tenant, table1, k, v));
-    t2Data.forEach((k, v) -> NODE_SERVICE.createTenantTableEntry(tenant, table2, k, v));
+    NODE_TENANT.createTenant(tenant);
+    NODE_TABLE.createTenantTable(tenant, table1, "ignored");
+    NODE_TABLE.createTenantTable(tenant, table2, "ignored");
+    t1Data.forEach((k, v) -> NODE_ENTRY.createTenantTableEntry(tenant, table1, k, v));
+    t2Data.forEach((k, v) -> NODE_ENTRY.createTenantTableEntry(tenant, table2, k, v));
 
     // Verify
-    t1Data.forEach((k, v) -> assertThat(NODE_SERVICE.readTenantTableEntry(tenant, table1, k)).isEqualTo(v));
-    t2Data.forEach((k, v) -> assertThat(NODE_SERVICE.readTenantTableEntry(tenant, table2, k)).isEqualTo(v));
+    t1Data.forEach((k, v) -> assertThat(NODE_ENTRY.readTenantTableEntry(tenant, table1, k)).isEqualTo(v));
+    t2Data.forEach((k, v) -> assertThat(NODE_ENTRY.readTenantTableEntry(tenant, table2, k)).isEqualTo(v));
 
-    NODE_SERVICE.deleteTenantTable(tenant, table1);
-    NODE_SERVICE.deleteTenantTable(tenant, table2);
-    NODE_SERVICE.deleteTenant(tenant);
+    NODE_TABLE.deleteTenantTable(tenant, table1);
+    NODE_TABLE.deleteTenantTable(tenant, table2);
+    NODE_TENANT.deleteTenant(tenant);
   }
 
   // Testing this in the dropwizard test isn't doing what I want it to do. We should use a real load test to see
@@ -126,8 +131,8 @@ public class NodeIntegTest {
     final int threads = 30;
 
     final Map<String, JsonNode> data = randomData(threads);
-    NODE_SERVICE.createTenant(tenant);
-    NODE_SERVICE.createTenantTable(tenant, table, "ignored");
+    NODE_TENANT.createTenant(tenant);
+    NODE_TABLE.createTenantTable(tenant, table, "ignored");
 
     final ForkJoinPool pool = new ForkJoinPool(threads);
     final List<ForkJoinTask<?>> tasks = data.entrySet().stream()
@@ -135,10 +140,10 @@ public class NodeIntegTest {
         .collect(Collectors.toList());
     System.out.println("Sent, now waiting to join");
     tasks.forEach(ForkJoinTask::join);
-    data.forEach((k, v) -> assertThat(NODE_SERVICE.readTenantTableEntry(tenant, table, k)).isEqualTo(v));
+    data.forEach((k, v) -> assertThat(NODE_ENTRY.readTenantTableEntry(tenant, table, k)).isEqualTo(v));
 
-    NODE_SERVICE.deleteTenantTable(tenant, table);
-    NODE_SERVICE.deleteTenant(tenant);
+    NODE_TABLE.deleteTenantTable(tenant, table);
+    NODE_TENANT.deleteTenant(tenant);
   }
 
   private Map<String, JsonNode> randomData(final int elements) {
@@ -158,13 +163,13 @@ public class NodeIntegTest {
     final String tenant = "fullRoundTrip";
     final String table = "tableName";
 
-    assertThat(NODE_SERVICE.listTenants()).doesNotContain(tenant);
-    assertThat(NODE_SERVICE.createTenant(tenant)).hasFieldOrPropertyWithValue("id", tenant);
-    assertThat(NODE_SERVICE.listTenants()).contains(tenant);
+    assertThat(NODE_TENANT.listTenants()).doesNotContain(tenant);
+    assertThat(NODE_TENANT.createTenant(tenant)).hasFieldOrPropertyWithValue("id", tenant);
+    assertThat(NODE_TENANT.listTenants()).contains(tenant);
 
-    assertThat(NODE_SERVICE.listTenantTables(tenant)).isEmpty();
-    assertThat(NODE_SERVICE.createTenantTable(tenant, table, "ignored")).hasFieldOrPropertyWithValue("id", table);
-    assertThat(NODE_SERVICE.listTenantTables(tenant)).containsExactly(table);
+    assertThat(NODE_TABLE.listTenantTables(tenant)).isEmpty();
+    assertThat(NODE_TABLE.createTenantTable(tenant, table, "ignored")).hasFieldOrPropertyWithValue("id", table);
+    assertThat(NODE_TABLE.listTenantTables(tenant)).containsExactly(table);
 
     final JsonNode j1 = OBJECT_MAPPER.createObjectNode().put("One", "a thing").put("two", 2);
     final JsonNode j2 = OBJECT_MAPPER.createObjectNode().put("Free", "a different thing").put("four", 4);
@@ -172,19 +177,19 @@ public class NodeIntegTest {
     final String j1Entry = "something";
     final String j2Entry = "different";
 
-    NODE_SERVICE.createTenantTableEntry(tenant, table, j1Entry, j1);
-    NODE_SERVICE.createTenantTableEntry(tenant, table, j2Entry, j2);
+    NODE_ENTRY.createTenantTableEntry(tenant, table, j1Entry, j1);
+    NODE_ENTRY.createTenantTableEntry(tenant, table, j2Entry, j2);
 
-    assertThat(NODE_SERVICE.readTenantTableEntry(tenant, table, j1Entry)).isEqualTo(j1);
-    assertThat(NODE_SERVICE.readTenantTableEntry(tenant, table, j2Entry)).isEqualTo(j2);
+    assertThat(NODE_ENTRY.readTenantTableEntry(tenant, table, j1Entry)).isEqualTo(j1);
+    assertThat(NODE_ENTRY.readTenantTableEntry(tenant, table, j2Entry)).isEqualTo(j2);
 
-    NODE_SERVICE.deleteTenantTableEntry(tenant, table, j1Entry);
+    NODE_ENTRY.deleteTenantTableEntry(tenant, table, j1Entry);
     assertThatExceptionOfType(FeignException.NotFound.class)
-        .isThrownBy(() -> NODE_SERVICE.readTenantTableEntry(tenant, table, j1Entry));
+        .isThrownBy(() -> NODE_ENTRY.readTenantTableEntry(tenant, table, j1Entry));
 
-    NODE_SERVICE.deleteTenantTable(tenant, table);
-    assertThat(NODE_SERVICE.listTenantTables(tenant)).isEmpty();
-    NODE_SERVICE.deleteTenant(tenant);
-    assertThat(NODE_SERVICE.listTenants()).doesNotContain(tenant);
+    NODE_TABLE.deleteTenantTable(tenant, table);
+    assertThat(NODE_TABLE.listTenantTables(tenant)).isEmpty();
+    NODE_TENANT.deleteTenant(tenant);
+    assertThat(NODE_TENANT.listTenants()).doesNotContain(tenant);
   }
 }
