@@ -6,7 +6,7 @@ logging:
     com.mchange.v2.c3p0: WARN
   appenders:
     - type: console
-      logFormat: "%d{HH:mm:ss.SSS} [%thread] [%X{trace}] %-5level %logger{36} - %msg%n"
+      logFormat: "%d{HH:mm:ss.SSS} [%thread] [trace:%X{trace}] %-5level %logger{36} - %msg%n"
 
 # A test db for now, hsql. Also, we will use liquibase by default in the config file. Production won't do this.
 runLiquibase: true

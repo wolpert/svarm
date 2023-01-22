@@ -73,10 +73,12 @@ public class TraceUuid implements ContainerRequestFilter, ContainerResponseFilte
    */
   @Override
   public void filter(final ContainerRequestContext requestContext) throws IOException {
-    final String uuid = requestContext.getHeaderString(TRACE_UUID_HEADER);
+    final String uuidFromHeader = requestContext.getHeaderString(TRACE_UUID_HEADER);
+    final boolean fromClient = uuidFromHeader != null; // the client set it.
+    final String uuid = getOrCreatedUuid(uuidFromHeader);
     MDC.put(MDC_ID, uuid);
-    LOGGER.info("filter(request):{}", uuid);
-    traceThreadLocal.set(getOrCreatedUuid(uuid));
+    LOGGER.info("filter(client_set:{}):{}", fromClient, uuid);
+    traceThreadLocal.set(uuid);
   }
 
   /**
