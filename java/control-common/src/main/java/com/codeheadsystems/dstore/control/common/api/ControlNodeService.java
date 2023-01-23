@@ -50,7 +50,7 @@ public interface ControlNodeService {
    * @param nodeUuid to enable.
    * @return a node info object.
    */
-  @PATCH
+  @PUT
   @Path("/{node}/enable")
   @Consumes(MediaType.APPLICATION_JSON)
   @Produces(MediaType.APPLICATION_JSON)
@@ -62,7 +62,7 @@ public interface ControlNodeService {
    * @param nodeUuid to disables.
    * @return a node info object.
    */
-  @PATCH
+  @PUT
   @Path("/{node}/disable")
   @Consumes(MediaType.APPLICATION_JSON)
   @Produces(MediaType.APPLICATION_JSON)

@@ -26,6 +26,6 @@ dependencyResolutionManagement {
 // All subprojects we want to build.
 include ':common', ':server-common', ':common-javaClient',
         ':node-common', ':node', ':node-javaClient', ':node-integ',
-        ':control-common', ':control', ':control-javaClient',
+        ':control-common', ':control', ':control-javaClient', ':control-integ',
         ':proxy'
 

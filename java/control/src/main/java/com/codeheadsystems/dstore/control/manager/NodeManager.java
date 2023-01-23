@@ -120,8 +120,9 @@ public class NodeManager {
    * Enables the node.
    *
    * @param uuid the node.
+   * @return the resulting node.
    */
-  public void enable(final String uuid) {
+  public Node enable(final String uuid) {
     LOGGER.trace("enable({})", uuid);
     final Node currentNode = nodeDao.read(uuid);
     if (currentNode == null) {
@@ -135,8 +136,10 @@ public class NodeManager {
       final Node newNode = ImmutableNode.copyOf(currentNode).withStatus(NodeInfo.Status.ENABLED.name())
           .withUpdateDate(clock.instant());
       nodeDao.update(newNode);
+      return newNode;
     } else {
       LOGGER.trace("Already enabled: {}", uuid);
+      return currentNode;
     }
   }
 
@@ -144,8 +147,9 @@ public class NodeManager {
    * Disables the node.
    *
    * @param uuid the node.
+   * @return the resulting node.
    */
-  public void disable(final String uuid) {
+  public Node disable(final String uuid) {
     LOGGER.trace("enable({})", uuid);
     final Node currentNode = nodeDao.read(uuid);
     if (currentNode == null) {
@@ -159,8 +163,10 @@ public class NodeManager {
       final Node newNode = ImmutableNode.copyOf(currentNode).withStatus(NodeInfo.Status.DISABLED.name())
           .withUpdateDate(clock.instant());
       nodeDao.update(newNode);
+      return newNode;
     } else {
       LOGGER.trace("Already disabled: {}", uuid);
+      return currentNode;
     }
   }
 

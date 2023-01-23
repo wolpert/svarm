@@ -1,0 +1,74 @@
+/*
+ * Copyright (c) 2020-2023. CodeHead Systems. All rights reserved
+ * Ned Wolpert <ned.wolpert@codeheadsystems.com>
+ */
+
+apply plugin: "java-library"
+apply plugin: "eclipse"
+apply plugin: 'checkstyle'
+
+ext {
+    appName = "control-integ"
+}
+
+configurations {
+    project.archivesBaseName = "${appName}"
+    jar.archiveBaseName = "${appName}"
+}
+
+//jacocoTestReport.finalizedBy jacocoTestCoverageVerification
+
+checkstyleTest { // ignore checkstyle in tests
+    ignoreFailures true
+    showViolations false
+}
+checkstyle {
+    ignoreFailures = false
+    maxWarnings = 0
+}
+
+dependencies {
+    implementation project(":common")
+    implementation project(":server-common")
+    implementation project(":control-common")
+    implementation project(":control-javaClient")
+    implementation project(":control") // needed for dropwizard config
+    implementation libs.guava
+
+    implementation libs.javax.inject
+    implementation libs.dagger
+    annotationProcessor libs.dagger.compiler
+
+    implementation libs.jackson.annotations
+    implementation libs.jackson.core
+    implementation libs.jackson.databind
+    implementation libs.jackson.datatype.jdk8
+    implementation libs.dropwizard.auth
+    implementation libs.dropwizard.core
+    implementation libs.dropwizard.jackson
+    implementation libs.dropwizard.metrics.graphite
+    implementation libs.micrometer.core
+    implementation libs.metrics.core
+
+    implementation libs.openfeign.core
+    implementation libs.openfeign.jackson
+    implementation libs.feign.slf4j
+    implementation libs.feign.micrometer
+    implementation libs.openfeign.java11
+    implementation libs.openfeign.jaxrs2
+
+    implementation libs.retrofit
+    implementation libs.retrofit2.converter.jackson
+
+    testImplementation libs.dropwizard.testing
+
+    testImplementation libs.jackson.dataformat.yaml
+    testAnnotationProcessor libs.dagger.compiler
+
+    // Logging stuff... need all these for logback changes
+    implementation libs.logback.classic
+    implementation libs.logback.core
+    implementation libs.logback.access
+    implementation libs.jakarta.servlet.api
+    implementation libs.javax.servlet.api
+}

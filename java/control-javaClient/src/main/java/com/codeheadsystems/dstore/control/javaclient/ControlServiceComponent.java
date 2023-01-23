@@ -35,6 +35,6 @@ public interface ControlServiceComponent {
    *
    * @return a node service.
    */
-  ControlNodeService javaClient();
+  ControlNodeService controlNodeService();
 
 }

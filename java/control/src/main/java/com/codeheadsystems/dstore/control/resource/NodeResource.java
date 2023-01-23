@@ -26,6 +26,7 @@ import com.codeheadsystems.dstore.control.common.api.NodeMetaData;
 import com.codeheadsystems.dstore.control.converter.KeyInfoConverter;
 import com.codeheadsystems.dstore.control.converter.NodeInfoConverter;
 import com.codeheadsystems.dstore.control.manager.NodeManager;
+import com.codeheadsystems.dstore.control.model.Node;
 import com.codeheadsystems.server.resource.JerseyResource;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -74,8 +75,8 @@ public class NodeResource implements JerseyResource, ControlNodeService {
   @ExceptionMetered
   @ResponseMetered
   public NodeInfo enable(final String nodeUuid) {
-    nodeManager.enable(nodeUuid);
-    return null;
+    final Node node = nodeManager.enable(nodeUuid);
+    return nodeInfoConverter.from(node);
   }
 
   @Override
@@ -83,8 +84,8 @@ public class NodeResource implements JerseyResource, ControlNodeService {
   @ExceptionMetered
   @ResponseMetered
   public NodeInfo disable(final String nodeUuid) {
-    nodeManager.disable(nodeUuid);
-    return null;
+    final Node node = nodeManager.disable(nodeUuid);
+    return nodeInfoConverter.from(node);
   }
 
   @Override
