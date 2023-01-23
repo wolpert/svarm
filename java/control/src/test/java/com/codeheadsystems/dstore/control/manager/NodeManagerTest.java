@@ -28,8 +28,10 @@ import com.codeheadsystems.dstore.control.dao.NodeDao;
 import com.codeheadsystems.dstore.control.model.ImmutableNode;
 import com.codeheadsystems.dstore.control.model.Key;
 import com.codeheadsystems.dstore.control.model.Node;
+import com.codeheadsystems.metrics.test.BaseMetricTest;
 import java.time.Clock;
 import java.time.Instant;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -39,7 +41,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-class NodeManagerTest {
+class NodeManagerTest extends BaseMetricTest {
 
   private static final String UUID = "uuid";
   private static final String STATUS = "status";
@@ -56,7 +58,12 @@ class NodeManagerTest {
 
   @Captor private ArgumentCaptor<Node> nodeArgumentCaptor;
 
-  @InjectMocks private NodeManager nodeManager;
+  private NodeManager nodeManager;
+
+  @BeforeEach
+  void setup() {
+    nodeManager = new NodeManager(nodeDao, keyManager, nodeVerificationManager, clock, metrics);
+  }
 
   @Test
   public void status_notFound() {
