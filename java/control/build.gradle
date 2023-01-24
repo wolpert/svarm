@@ -46,6 +46,9 @@ dependencies {
     implementation libs.jdbi.postgres
     implementation libs.jdbi.sqlobject
 
+    // etcd
+    implementation libs.jetcd.core
+
     implementation libs.dropwizard.auth
     implementation libs.dropwizard.core
     implementation libs.dropwizard.jackson

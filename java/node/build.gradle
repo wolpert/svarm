@@ -43,6 +43,8 @@ dependencies {
     implementation libs.jdbi.guava
     implementation libs.jdbi.jackson2
 
+    // etcd
+    implementation libs.jetcd.core
 
     implementation libs.dropwizard.auth
     implementation libs.dropwizard.core

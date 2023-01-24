@@ -35,6 +35,9 @@ dependencies {
     implementation project(":control") // needed for dropwizard config
     implementation libs.guava
 
+    // etcd
+    testImplementation libs.jetcd.test
+
     implementation libs.javax.inject
     implementation libs.dagger
     annotationProcessor libs.dagger.compiler
