@@ -26,6 +26,9 @@ and, of course, if you just want to run the integ tests...
 gradle integ
 ```
 
+Note, when trying to run integ tests in the intelij instance, you'll need to edit
+the configuration since intelij will start ignoring tests labeled integ now.
+
 ### Troubleshooting
 
 #### :node:run

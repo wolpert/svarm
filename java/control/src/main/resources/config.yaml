@@ -31,6 +31,18 @@ metrics:
 #      prefix: node
 #      transport: tcp
 
+server:
+  adminMinThreads: 1
+  adminMaxThreads: 64
+  adminContextPath: /
+  applicationContextPath: /
+  applicationConnectors:
+    - type: http
+      port: 8080
+  adminConnectors:
+    - type: http
+      port: 8081
+
 health:
   healthCheckUrlPaths: [ "/health-check" ]
   healthChecks:
