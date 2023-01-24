@@ -69,6 +69,18 @@ public interface ControlNodeService {
   NodeInfo disable(@PathParam("node") final String nodeUuid);
 
   /**
+   * Disables a given node into the swarm.
+   *
+   * @param nodeUuid to disables.
+   * @return a node info object.
+   */
+  @GET
+  @Path("/{node}/")
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON)
+  NodeInfo status(@PathParam("node") final String nodeUuid);
+
+  /**
    * Gets the key for the node in the control plane. This is the part of the
    * key the control plane controls.
    *

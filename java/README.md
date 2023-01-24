@@ -14,6 +14,18 @@ gradle clean build test
 gradle :node:run
 ```
 
+To execute build with full integration tests, do this:
+
+```shell
+gradle clean build test integ
+```
+
+and, of course, if you just want to run the integ tests...
+
+```shell
+gradle integ
+```
+
 ### Troubleshooting
 
 #### :node:run

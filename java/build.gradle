@@ -146,5 +146,17 @@ allprojects {
         }
     }
 
-}
+    tasks.named('test') {
+        useJUnitPlatform {
+            excludeTags 'integ'
+            excludeTags 'experiment'
+        }
 
+    }
+
+    def integ= tasks.register("integ", Test) {
+        useJUnitPlatform {
+            includeTags "integ"
+        }
+    }
+}

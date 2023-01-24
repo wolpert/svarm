@@ -34,8 +34,10 @@ import java.util.Random;
 import java.util.UUID;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
+@Tag("integ")
 public class ControlIntegTest {
   private static DropwizardTestSupport<ControlConfiguration> SUPPORT;
   private static ObjectMapper OBJECT_MAPPER;
@@ -97,6 +99,11 @@ public class ControlIntegTest {
         .isEqualTo(refKey.key());
 
     assertThat(CONTROL_NODE.disable(uuid))
+        .isNotNull()
+        .hasFieldOrPropertyWithValue("uuid", uuid)
+        .hasFieldOrPropertyWithValue("status", NodeInfo.Status.DISABLED.name());
+
+    assertThat(CONTROL_NODE.status(uuid))
         .isNotNull()
         .hasFieldOrPropertyWithValue("uuid", uuid)
         .hasFieldOrPropertyWithValue("status", NodeInfo.Status.DISABLED.name());

@@ -47,8 +47,10 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
+@Tag("integ")
 public class NodeIntegTest {
 
   private static DropwizardTestSupport<NodeConfiguration> SUPPORT;

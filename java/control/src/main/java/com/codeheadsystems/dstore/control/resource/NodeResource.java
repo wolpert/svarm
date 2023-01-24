@@ -27,6 +27,7 @@ import com.codeheadsystems.dstore.control.converter.KeyInfoConverter;
 import com.codeheadsystems.dstore.control.converter.NodeInfoConverter;
 import com.codeheadsystems.dstore.control.manager.NodeManager;
 import com.codeheadsystems.dstore.control.model.Node;
+import com.codeheadsystems.server.exception.NotFoundException;
 import com.codeheadsystems.server.resource.JerseyResource;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -85,6 +86,16 @@ public class NodeResource implements JerseyResource, ControlNodeService {
   @ResponseMetered
   public NodeInfo disable(final String nodeUuid) {
     final Node node = nodeManager.disable(nodeUuid);
+    return nodeInfoConverter.from(node);
+  }
+
+  @Override
+  @Timed
+  @ExceptionMetered
+  @ResponseMetered
+  public NodeInfo status(final String nodeUuid) {
+    final Node node = nodeManager.read(nodeUuid)
+        .orElseThrow(() -> new NotFoundException("No such uuid: " + nodeUuid));
     return nodeInfoConverter.from(node);
   }
 
