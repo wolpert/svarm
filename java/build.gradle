@@ -159,4 +159,10 @@ allprojects {
             includeTags "integ"
         }
     }
+
+    def xper= tasks.register("xper", Test) {
+        useJUnitPlatform {
+            includeTags "experiment"
+        }
+    }
 }
