@@ -22,6 +22,7 @@ import com.codeheadsystems.dstore.control.module.ResourceModule;
 import com.codeheadsystems.dstore.control.module.UtilitiesModule;
 import com.codeheadsystems.server.component.DropWizardComponent;
 import com.codeheadsystems.server.module.DropWizardModule;
+import com.codeheadsystems.server.module.EtcdModule;
 import dagger.Component;
 import javax.inject.Singleton;
 
@@ -32,6 +33,7 @@ import javax.inject.Singleton;
     ConfigurationModule.class,
     DatabaseModule.class,
     DropWizardModule.class,
+    EtcdModule.class,
     ResourceModule.class,
     UtilitiesModule.class
 })

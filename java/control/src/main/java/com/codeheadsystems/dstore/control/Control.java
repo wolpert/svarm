@@ -21,6 +21,7 @@ import com.codeheadsystems.dstore.control.module.ConfigurationModule;
 import com.codeheadsystems.dstore.control.module.DatabaseModule;
 import com.codeheadsystems.server.Server;
 import com.codeheadsystems.server.component.DropWizardComponent;
+import com.codeheadsystems.server.module.EtcdModule;
 import com.codeheadsystems.server.module.MetricRegistryModule;
 import io.dropwizard.setup.Environment;
 import org.slf4j.Logger;
@@ -51,6 +52,7 @@ public class Control extends Server<ControlConfiguration> {
                                                     final MetricRegistryModule metricRegistryModule) {
     return DaggerControlDropWizardComponent.builder()
         .configurationModule(new ConfigurationModule(configuration, environment))
+        .etcdModule(new EtcdModule(configuration.getEtcdConfiguration()))
         .metricRegistryModule(metricRegistryModule)
         .build();
   }

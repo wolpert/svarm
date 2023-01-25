@@ -24,6 +24,7 @@ import com.codeheadsystems.dstore.node.module.TableDefinitionEngineModule;
 import com.codeheadsystems.dstore.node.module.UtilitiesModule;
 import com.codeheadsystems.server.component.DropWizardComponent;
 import com.codeheadsystems.server.module.DropWizardModule;
+import com.codeheadsystems.server.module.EtcdModule;
 import dagger.Component;
 import javax.inject.Singleton;
 
@@ -34,8 +35,9 @@ import javax.inject.Singleton;
 @Component(modules = {
     ConfigurationModule.class,
     DataSourceModule.class,
-    HealthCheckModule.class,
     DropWizardModule.class,
+    EtcdModule.class,
+    HealthCheckModule.class,
     ResourceModule.class,
     TableDefinitionEngineModule.class,
     UtilitiesModule.class

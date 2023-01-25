@@ -16,6 +16,8 @@
 
 package com.codeheadsystems.dstore.node;
 
+import com.codeheadsystems.server.configuration.EtcdConfiguration;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.dropwizard.Configuration;
 
 /**
@@ -25,6 +27,7 @@ public class NodeConfiguration extends Configuration {
 
   private String databaseDirectory;
   private String controlPlaneUrl;
+  private EtcdConfiguration etcdConfiguration;
 
   /**
    * Getter for database directory.
@@ -60,5 +63,24 @@ public class NodeConfiguration extends Configuration {
    */
   public void setControlPlaneUrl(final String controlPlaneUrl) {
     this.controlPlaneUrl = controlPlaneUrl;
+  }
+
+  /**
+   * The ETCD Configuration.
+   *
+   * @return the configuration.
+   */
+  @JsonProperty("etcConfiguration")
+  public EtcdConfiguration getEtcdConfiguration() {
+    return etcdConfiguration;
+  }
+
+  /**
+   * The etc configuration.
+   *
+   * @param etcdConfiguration to be set.
+   */
+  public void setEtcdConfiguration(final EtcdConfiguration etcdConfiguration) {
+    this.etcdConfiguration = etcdConfiguration;
   }
 }

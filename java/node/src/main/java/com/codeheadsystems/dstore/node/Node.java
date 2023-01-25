@@ -20,6 +20,7 @@ import com.codeheadsystems.dstore.node.component.DaggerNodeDropWizardComponent;
 import com.codeheadsystems.dstore.node.module.ConfigurationModule;
 import com.codeheadsystems.server.Server;
 import com.codeheadsystems.server.component.DropWizardComponent;
+import com.codeheadsystems.server.module.EtcdModule;
 import com.codeheadsystems.server.module.MetricRegistryModule;
 import io.dropwizard.setup.Environment;
 import org.slf4j.Logger;
@@ -65,6 +66,7 @@ public class Node extends Server<NodeConfiguration> {
                                                     final MetricRegistryModule metricRegistryModule) {
     LOGGER.info("dropWizardComponent({})", configuration);
     return DaggerNodeDropWizardComponent.builder()
+        .etcdModule(new EtcdModule(configuration.getEtcdConfiguration()))
         .configurationModule(new ConfigurationModule(configuration))
         .metricRegistryModule(metricRegistryModule)
         .build();

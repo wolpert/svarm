@@ -16,6 +16,7 @@
 
 package com.codeheadsystems.dstore.control;
 
+import com.codeheadsystems.server.configuration.EtcdConfiguration;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.dropwizard.Configuration;
 import io.dropwizard.db.DataSourceFactory;
@@ -31,6 +32,7 @@ public class ControlConfiguration extends Configuration {
   @NotNull
   private DataSourceFactory database = new DataSourceFactory();
   private Boolean runLiquibase;
+  private EtcdConfiguration etcdConfiguration;
 
   /**
    * Can be null. If set runs liquibase support.
@@ -70,4 +72,22 @@ public class ControlConfiguration extends Configuration {
     return database;
   }
 
+  /**
+   * The ETCD Configuration.
+   *
+   * @return the configuration.
+   */
+  @JsonProperty("etcConfiguration")
+  public EtcdConfiguration getEtcdConfiguration() {
+    return etcdConfiguration;
+  }
+
+  /**
+   * The etc configuration.
+   *
+   * @param etcdConfiguration to be set.
+   */
+  public void setEtcdConfiguration(final EtcdConfiguration etcdConfiguration) {
+    this.etcdConfiguration = etcdConfiguration;
+  }
 }
