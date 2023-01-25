@@ -59,11 +59,16 @@ public class EtcdAccessor {
   public void put(final String namespace, final String key, final String value) {
     LOGGER.trace("put({},{},{}", namespace, key, value);
     final String namespaceKey = String.format("%s/%s", namespace, key);
-    client.getKVClient().put(
-        ByteSequence.from(namespaceKey.getBytes(StandardCharsets.UTF_8)),
-        ByteSequence.from(value.getBytes(StandardCharsets.UTF_8)));
+    try {
+      client.getKVClient().put(
+              ByteSequence.from(namespaceKey.getBytes(StandardCharsets.UTF_8)),
+              ByteSequence.from(value.getBytes(StandardCharsets.UTF_8)))
+          .get();
+    } catch (InterruptedException | ExecutionException e) {
+      LOGGER.error("Unable to get from etcd {}", namespaceKey, e);
+      throw new IllegalArgumentException(e);
+    }
   }
-
 
 
   /**
@@ -75,7 +80,14 @@ public class EtcdAccessor {
   public void delete(final String namespace, final String key) {
     LOGGER.trace("delete({},{}", namespace, key);
     final String namespaceKey = String.format("%s/%s", namespace, key);
-    client.getKVClient().delete(ByteSequence.from(namespaceKey.getBytes(StandardCharsets.UTF_8)));
+    try {
+      client.getKVClient()
+          .delete(ByteSequence.from(namespaceKey.getBytes(StandardCharsets.UTF_8)))
+          .get();
+    } catch (InterruptedException | ExecutionException e) {
+      LOGGER.error("Unable to delete from etcd {}", namespaceKey, e);
+      throw new IllegalArgumentException(e);
+    }
   }
 
   /**
