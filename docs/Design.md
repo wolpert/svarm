@@ -144,7 +144,31 @@ how new components are added to the control plane. A UI is expected at some poin
 but at least initially it will only be CLI based. 
 
 The Control segment allows for new nodes to be added or nodes discontinued. This
-also impacts the proxies as they need to know which nodes to access.
+also impacts the proxies as they need to know which nodes to access. The configuration
+for the nodes and proxies exists in etcd.
+
+### etcd
+
+#### Why not zookeeper?
+
+etcd is the standard with k8s at this point, and has much of the same functionality
+as zookeeper but more modern and flexible. Nothing is wrong with zookeeper, but
+the benefits of etcd is that for k8s installation, it's there by default. No new
+install needed. And if you are not using k8s, it's an easy install.
+
+#### Data Objects
+
+All data in etcd is basically key/value pairs. However, we are using a 
+path-style namespace for this. Here are the following structures:
+Note, the main line consists of the namespace and the id of the thing being
+named.
+
+| Key                                         | Value                                              | Purpose                                                                         |
+|---------------------------------------------|----------------------------------------------------|---------------------------------------------------------------------------------|
+| node/{uuid}/details                         | {"status":"okay","uri":"https://abc123:8080/"}     | Status for the node, read by the controller mostly.                             | 
+| node/{uuid}/id/{tenant}/{identifier}/hash   | {"lowHash":0,"highHash":32767}                     | Range of a table, defined by the controller                                     |
+| node/{uuid}/id/{tenant}/{identifier}/status | Okay                                               | Status of the table, defined by the node.                                       |
+| tenant/{tenant}/{identifier}/{lowHash}      | {"node":"{uuid}", "highHash":32767, "uri":"{uri}"} | Look up for a identifier range. Used by proxy and nodes when transferring data. |
 
 ## Reporting
 
