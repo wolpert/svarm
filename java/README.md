@@ -102,3 +102,19 @@ curl -v -X DELETE 'http://localhost:8080/v1/tenant/customer01/table/testtable/en
 curl -v -X DELETE 'http://localhost:8080/v1/tenant/customer01/table/testtable'
 curl -v -X DELETE 'http://localhost:8080/v1/tenant/customer01'
 ```
+
+## Modules
+
+* common: Stuff that is shared with all code bases.
+* common-javaClient: Java client utilities that are shared everywhere.
+* config-common: Library to talk to the configuration service.
+* control: The control plane service.
+* control-common: API code shared from the control plane and its clients.
+* control-integ: Integ tests for the control plane.
+* control-javaClient: java client for the control plane clients.
+* node: The node service.
+* node-common: API code shared from the node to its clients.
+* node-integ: Integ tests for the node.
+* node-javaClient: java client for the node clients.
+* proxy: The proxy service
+* server-common: Common files for all services. (May turn into its own project)
