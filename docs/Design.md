@@ -62,7 +62,7 @@ greater part of the system. Each data node can respond to the core API
 requirements.
 
 V1 tables look like this:
-- RID_ID: Indexed, first part of the primary composite key. This is the unique identifier
+- RID_ID: Indexed, first part of the primary composite key. This is the unique tenantResource
 - C_COL:  Indexed, second part of the primary composite key.
 - HASH: The hash value of the RID_ID for mgmt.
 - C_DATA_TYPE: Enum, either String or Integer.
@@ -72,8 +72,8 @@ Each data node has a table to describe tables it controls. Example:
 
 - RID_TENANT: Indexed, first part of the primary composite key
 - RID_TABLE: Index, second part of the primary composite key
-- HASH_START: String hash identifier if there is a min hash key allowed. 
-- HASH_END: End hash identifier if there is a max hash key allowed.
+- HASH_START: String hash tenantResource if there is a min hash key allowed. 
+- HASH_END: End hash tenantResource if there is a max hash key allowed.
 - QUANTITY: Estimate number of entries in the table.
 - UUID: The tenants UUID specific to this node.
 - TABLE_VERSION: The version of table this requires.
@@ -163,12 +163,13 @@ path-style namespace for this. Here are the following structures:
 Note, the main line consists of the namespace and the id of the thing being
 named.
 
-| Key                                         | Value                                              | Purpose                                                                         |
-|---------------------------------------------|----------------------------------------------------|---------------------------------------------------------------------------------|
-| node/{uuid}/details                         | {"status":"okay","uri":"https://abc123:8080/"}     | Status for the node, read by the controller mostly.                             | 
-| node/{uuid}/id/{tenant}/{identifier}/hash   | {"lowHash":0,"highHash":32767}                     | Range of a table, defined by the controller                                     |
-| node/{uuid}/id/{tenant}/{identifier}/status | Okay                                               | Status of the table, defined by the node.                                       |
-| tenant/{tenant}/{identifier}/{lowHash}      | {"node":"{uuid}", "highHash":32767, "uri":"{uri}"} | Look up for a identifier range. Used by proxy and nodes when transferring data. |
+| Namespace/Key                                | Value                                              | Purpose                                                                         |
+|----------------------------------------------|----------------------------------------------------|---------------------------------------------------------------------------------|
+| node/{uuid}/details                          | {"status":"okay","uri":"https://abc123:8080/"}     | Status for the node, read by the controller mostly.                             | 
+| node/{uuid}/id/{tenant}/{tenantResource}/hash    | {"lowHash":0,"highHash":32767}                     | Range of a table, defined by the controller                                     |
+| node/{uuid}/id/{tenant}/{tenantResource}/details | {"status":"okay"}                                  | Status of the table, defined by the node.                                       |
+| tenant/{tenant}/{tenantResource}/{lowHash}       | {"node":"{uuid}", "highHash":32767, "uri":"{uri}"} | Look up for a tenantResource range. Used by proxy and nodes when transferring data. |
+| notice/{uuid}/{timestamp} | {"details":"aabbccdd"} | Feedback from the node to the control plane about issues |
 
 ## Reporting
 
@@ -185,7 +186,7 @@ at this point in the project, the first goal is to provide the data funnel.
 
 Resource IDs identify structure within dStore and related properties. This
 format is a variation of what is found within Amazon's ARN. It represents the
-unique identifier of any `resource` within this system.
+unique tenantResource of any `resource` within this system.
 
 General format is: 
 
