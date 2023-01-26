@@ -16,7 +16,7 @@
 
 package com.codeheadsystems.dstore.control;
 
-import com.codeheadsystems.server.configuration.EtcdConfiguration;
+import com.codeheadsystems.dstore.common.config.EtcdConfiguration;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.dropwizard.Configuration;
 import io.dropwizard.db.DataSourceFactory;

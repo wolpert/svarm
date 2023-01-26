@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.codeheadsystems.server.accessor;
+package com.codeheadsystems.dstore.common.config.accessor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

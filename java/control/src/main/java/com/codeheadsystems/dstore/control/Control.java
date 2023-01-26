@@ -16,12 +16,11 @@
 
 package com.codeheadsystems.dstore.control;
 
+import com.codeheadsystems.dstore.common.config.module.EtcdModule;
 import com.codeheadsystems.dstore.control.component.DaggerControlDropWizardComponent;
 import com.codeheadsystems.dstore.control.module.ConfigurationModule;
-import com.codeheadsystems.dstore.control.module.DatabaseModule;
 import com.codeheadsystems.server.Server;
 import com.codeheadsystems.server.component.DropWizardComponent;
-import com.codeheadsystems.server.module.EtcdModule;
 import com.codeheadsystems.server.module.MetricRegistryModule;
 import io.dropwizard.setup.Environment;
 import org.slf4j.Logger;

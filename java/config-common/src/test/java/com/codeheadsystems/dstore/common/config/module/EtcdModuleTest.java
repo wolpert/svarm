@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package com.codeheadsystems.server.module;
+package com.codeheadsystems.dstore.common.config.module;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
+import com.codeheadsystems.dstore.common.config.EtcdConfiguration;
+import com.codeheadsystems.dstore.common.config.ImmutableEtcdConfiguration;
 import com.codeheadsystems.dstore.common.engine.JsonEngine;
 import com.codeheadsystems.dstore.common.factory.ObjectMapperFactory;
-import com.codeheadsystems.server.configuration.EtcdConfiguration;
-import com.codeheadsystems.server.configuration.ImmutableEtcdConfiguration;
 import org.junit.jupiter.api.Test;
 
 class EtcdModuleTest {

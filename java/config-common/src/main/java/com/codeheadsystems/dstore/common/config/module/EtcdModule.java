@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.codeheadsystems.server.module;
+package com.codeheadsystems.dstore.common.config.module;
 
-import com.codeheadsystems.server.configuration.EtcdConfiguration;
+import com.codeheadsystems.dstore.common.config.EtcdConfiguration;
 import dagger.Module;
 import dagger.Provides;
 import io.etcd.jetcd.Client;

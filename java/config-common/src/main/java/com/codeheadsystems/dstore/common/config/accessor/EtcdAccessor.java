@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.codeheadsystems.server.accessor;
+package com.codeheadsystems.dstore.common.config.accessor;
 
 import io.etcd.jetcd.ByteSequence;
 import io.etcd.jetcd.Client;

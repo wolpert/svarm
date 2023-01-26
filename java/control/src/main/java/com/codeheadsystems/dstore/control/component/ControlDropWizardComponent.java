@@ -16,13 +16,13 @@
 
 package com.codeheadsystems.dstore.control.component;
 
+import com.codeheadsystems.dstore.common.config.module.EtcdModule;
 import com.codeheadsystems.dstore.control.module.ConfigurationModule;
 import com.codeheadsystems.dstore.control.module.DatabaseModule;
 import com.codeheadsystems.dstore.control.module.ResourceModule;
 import com.codeheadsystems.dstore.control.module.UtilitiesModule;
 import com.codeheadsystems.server.component.DropWizardComponent;
 import com.codeheadsystems.server.module.DropWizardModule;
-import com.codeheadsystems.server.module.EtcdModule;
 import dagger.Component;
 import javax.inject.Singleton;
 

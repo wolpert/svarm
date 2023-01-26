@@ -16,6 +16,7 @@
 
 package com.codeheadsystems.dstore.node.component;
 
+import com.codeheadsystems.dstore.common.config.module.EtcdModule;
 import com.codeheadsystems.dstore.node.module.ConfigurationModule;
 import com.codeheadsystems.dstore.node.module.DataSourceModule;
 import com.codeheadsystems.dstore.node.module.HealthCheckModule;
@@ -24,7 +25,6 @@ import com.codeheadsystems.dstore.node.module.TableDefinitionEngineModule;
 import com.codeheadsystems.dstore.node.module.UtilitiesModule;
 import com.codeheadsystems.server.component.DropWizardComponent;
 import com.codeheadsystems.server.module.DropWizardModule;
-import com.codeheadsystems.server.module.EtcdModule;
 import dagger.Component;
 import javax.inject.Singleton;
 

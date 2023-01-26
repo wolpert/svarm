@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.codeheadsystems.server.configuration;
+package com.codeheadsystems.dstore.common.config;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;

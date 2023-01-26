@@ -2,14 +2,12 @@
  * Copyright (c) 2020-2023. CodeHead Systems. All rights reserved
  * Ned Wolpert <ned.wolpert@codeheadsystems.com>
  */
-
-apply plugin: 'application'
 apply plugin: "java-library"
 apply plugin: "eclipse"
 apply plugin: 'checkstyle'
 
 ext {
-    appName = "node"
+    appName = "config-common"
     configPath = "${rootProject.projectDir}/node/src/main/resources/"
 }
 
@@ -31,21 +29,6 @@ checkstyle {
 
 dependencies {
     implementation project(":common")
-    implementation project(":server-common")
-    implementation project(":config-common")
-    implementation project(":node-common")
-
-    // SQL
-    implementation libs.hsqldb
-    implementation libs.liquibase.core
-    implementation libs.c3p0
-    implementation libs.jdbi.core
-    implementation libs.jdbi.testing
-    implementation libs.jdbi.guava
-    implementation libs.jdbi.jackson2
-
-    // etcd
-    implementation libs.jetcd.core
 
     implementation libs.dropwizard.auth
     implementation libs.dropwizard.core
@@ -53,7 +36,9 @@ dependencies {
     implementation libs.dropwizard.metrics.graphite
     implementation libs.micrometer.core
     implementation libs.metrics.core
-    implementation libs.metrics.jdbi
+
+    implementation libs.jetcd.core
+    testImplementation libs.jetcd.test
 
     testImplementation libs.jackson.dataformat.yaml
 
@@ -65,7 +50,3 @@ dependencies {
     implementation libs.javax.servlet.api
 }
 
-run {
-    args 'server', configPath + 'config.yaml'
-    mainClassName = "com.codeheadsystems.dstore.node.Node"
-}
