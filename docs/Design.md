@@ -4,16 +4,17 @@ Distributed Storage
 
 # tl;dr
 
-dStore provides an enterprise-grade, federated, multi-tenant key/value datastore
-in the same vein as DynamoDB and Cassandra that scales linearly and with little
-required maintenance.
+dStore provides an open-source enterprise-grade, federated, multi-tenant
+key/value datastore in the same vein as DynamoDB and Cassandra that scales
+linearly and with little required maintenance.
 
 # Summary
 
-dStore provides for a key/value datastore, designed for those familiar with
-DynamoDB and Cassandra. It's built to easily add nodes to the cluster and
-internally re-distribute the workload as needed. Designed from the ground up to
-allow for multi-tenant usages.
+dStore is a key/value datastore, designed for those familiar with DynamoDB and
+Cassandra. It's built to easily add nodes to the cluster and internally
+re-distribute the workload as needed. Designed from the ground up to allow for
+multi-tenant usages, and minimal maintenance. Security is built in from the
+start.
 
 It would be great if dStore was API compatible with DynamoDB.
 
@@ -45,51 +46,60 @@ network isolation of the control and reporting servers for proper security.
 ## Proxy
 
 Proxy handles authentication of the client, finding the correct node to talk to,
-and making the requests to the data nodes. For replication, this means the proxy
-may be talking to multiple data nodes at once. Those requests may be async or
-sync, depending on the requirements from the downstream client.
+and making the requests to the data nodes. Since replication requires multiple
+data notes, the proxy may be talking to multiple data nodes at once. Those
+requests may be async or sync, depending on the requirements from the downstream
+client.
+
 (Note that the proxy does not work async itself, rather forward to the data
 nodes to process the request in an async fashion.)
 
 ## Data Node
 
 Data nodes are responsible for the storage/retrieval of the data. When a new
-node is added to the system, it has to ask nodes to stream the data being
-replicated to this node. (For security reasons, it does not go through the
-proxies.) It can manage the requests in an async fashion. It has to also know
-it's system limits and can reject work if its resources are full.
+node is added to the system, it registers with the control plane and makes
+itself available for data access. Once the control plane uses it for a specific
+table, the new node has to ask other nodes to stream the data being replicated
+to this node. For security reasons, these requests require the node to talk
+directly to the other nodes and does not go through the proxies. It can manage
+this transfer in an async fashion. Data nodes are self-preserving and thus
+maintains their own system limits. They can reject work if its resources are
+full, informing the control plane to redistribute the workload.
 
 Functionally, the data nodes can operate independently of all other components.
 But when a data node is added to a control node, it becomes available for a
 greater part of the system. Each data node can respond to the core API
-requirements.
+requirements. There will be multiple table models available, including ones that
+provide the same or similar features as DynamoDB allowing for high-cardinality
+workloads.
 
 V1 tables look like this:
 
-- RID_ID: Indexed, first part of the primary composite key. This is the unique
+- ID: Indexed, first part of the primary composite key. This is the unique
   tenantResource
 - C_COL:  Indexed, second part of the primary composite key.
 - HASH: The hash value of the RID_ID for mgmt.
 - C_DATA_TYPE: Enum, either String or Integer.
 - C_DATA: Nullable String.
 
-Each data node has a table to describe tables it controls. Example:
+Each data node has a table to describe tables it controls. Example columns
 
 - RID_TENANT: Indexed, first part of the primary composite key
-- RID_TABLE: Index, second part of the primary composite key
+- TABLE_NAME: Index, second part of the primary composite key
 - HASH_START: String hash tenantResource if there is a min hash key allowed.
 - HASH_END: End hash tenantResource if there is a max hash key allowed.
-- QUANTITY: Estimate number of entries in the table.
-- UUID: The tenants UUID specific to this node.
+- QUANTITY_EST: Estimate number of entries in the table.
 - TABLE_VERSION: The version of table this requires.
 
-One JSON object is broken down into multiple rows in the relational table. Each
-store has a separate table.
+Functionally, the data requests to the node takes in JSON object. Each JSON
+object is broken down into multiple rows in the relational table. Each table for
+each Tenant uses a unique database connection. These individual database
+instances assist with liquibase patching as well as individual encryption keys
+per database instance.
 
 ### UUIDs and Keys
 
-Every component in the cluster has their own UUIDs and 256 bit AES key. This
-includes:
+Every component in the cluster has their own 256 bit AES key. This includes:
 
 - Proxy
 - Control Plane
@@ -105,32 +115,32 @@ keys.
 
 ### Hashing
 
-The initial key hashing technique will
+The key hashing technique will
 be [Murmur3](https://en.wikipedia.org/wiki/MurmurHash)
 which provides good randomness and executes very fast. Collisions are allowed in
 the lookup strategy, and the 32bit variant is enough of a namespace for us.
 
-(Note that this is still being decided. Other option
-was [FNV-1a](https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function)
-which does not have the little/big endian issue. The important thing was
-multiple platforms and languages give the same results.)
-
 ### Node Data storage encryption
 
-When a node is started up, a 32bit key is created and store locally. When a node
-connects to the control plane, a second 32bit key is retrieved from the control
-plane. These two keys are XOR together and provides the AES key for the node
-internal configuration database.
+When a node is started up, a 32bit key is created and store locally that is
+specific to the node. When a node connects to the control plane, a second 32bit
+key is retrieved from the control plane which is unique to that node in the
+control plane. These two keys are XOR together and provides the AES key for the
+node internal configuration database. If a node is removed from the control
+plane, that database cannot be decrypted as the key from the control plane is
+never stored in the node itself.
 
 When a client as added to a node, the key for the client is made up of the
 following keys:
 
-- Node
+- Node key.
 - Tenant based on the node
 - Tenant based on the control plane.
 
 This ensures that compromising one component of the network does not let a
-intruder decrypt all the data.
+intruder decrypt all the data. Or more specifically, access to one node does not
+give details on keys for the other nodes. This reduces the blast radius of a
+node takeover event.
 
 ### Physical tables
 
@@ -160,14 +170,14 @@ configuration for the nodes and proxies exists in etcd.
 
 #### How it's used
 
-The control plane writes to etcd what each node should own, and what nodes make
-up a tenant resource. The nodes and proxies only read from the etcd data set.
-The will need to watch for changes as well.
+The control plane writes to etcd what data ranges for tenant resources each node
+should own. The nodes and proxies only read from the etcd data set. Those nodes
+and proxies that read from etcd will set up watches to look for data changes.
 
 Nodes themselves communicate status events directly with the control plane.
 Proxies are fairly divorced from the control plane, and like the nodes, only
-have read-access to the etcd contents. From a security perspective, this makes
-sense as well, as it limits access patterns so close to the edge.
+have read-access to the etcd contents. From a security perspective, this limits
+access patterns to the configuration layer from the edge.
 
 When a new tenant resource needs to be made, the control plane will assign nodes
 to the tenant resource via the etcd structure. Nodes will have watch ranges on
@@ -177,7 +187,7 @@ plane will set the range for the tenant resource so proxies can find the nodes
 that handle the data based on the hash.
 
 When a node range needs to be split, combined or shuffled, the control plane
-will do the following:
+will do the following (simplified):
 
 1. Add the new node and tenant resource range to the system for the nodes to
    init themselves.
@@ -195,9 +205,8 @@ documented later.
 
 etcd is the standard with k8s at this point, and has much of the same
 functionality as zookeeper but more modern and flexible. Nothing is wrong with
-zookeeper, but the benefits of etcd is that for k8s installation, it's there by
-default. No new install needed. And if you are not using k8s, it's an easy
-install.
+zookeeper, but etcd is standard on k8s installation and there by default. For
+execution environments that are not using k8s, etcd is an easy install.
 
 #### Data Objects
 
@@ -206,10 +215,10 @@ path-style namespace for this. Here are the following structures:
 Note, the main line consists of the namespace and the id of the thing being
 named.
 
-| Namespace/Key                                | Value                                                | Purpose                                                                                                 |
-|----------------------------------------------|------------------------------------------------------|---------------------------------------------------------------------------------------------------------|
-| node/{uuid}/id/{tenant}/{tenantResource}/hash    | {"lowHash":0,"highHash":32767}                       | Range of a table, defined by the controller . Node read this data                                       |
-| tenant/{tenant}/{tenantResource}/{lowHash}       | {"node":"{uuid}", "highHash":32767, "uri":"{uri}"}   | Look up for a tenantResource range. Used by proxies to find nodes, and by nodes when transferring data. |
+| Namespace/Key                                 | Value                                              | Purpose                                                                                                 |
+|-----------------------------------------------|----------------------------------------------------|---------------------------------------------------------------------------------------------------------|
+| node/{uuid}/id/{tenant}/{tenantResource}/hash | {"lowHash":0,"highHash":32767}                     | Range of a table, defined by the controller . Node read this data                                       |
+| tenant/{tenant}/{tenantResource}/{lowHash}    | {"node":"{uuid}", "highHash":32767, "uri":"{uri}"} | Look up for a tenantResource range. Used by proxies to find nodes, and by nodes when transferring data. |
 
 ## Reporting
 
@@ -293,9 +302,9 @@ do that in the same way.) Other embedded databases do not support the encryption
 we need.
 
 Moving to MySQL is a possibility here, but seriously increases the complexity of
-an install. This may be warranted if popularity of the project increases and
-someone can demonstrate it will be actually worth it. I would love PostGRESQL
-over MySQL if encryption can be maintained correctly.
+an installation. This may be warranted if popularity of the project increases
+and someone can demonstrate it will be actually worth it. I would love
+PostgreSQL over MySQL if encryption can be maintained correctly.
 
 ### PostgreSQL
 

@@ -76,6 +76,8 @@ allprojects {
         testImplementation(libs.junit.jupiter.engine)
         testImplementation(libs.junit.jupiter.api)
         testImplementation(libs.junit.jupiter.params)
+        testImplementation(libs.junit.platform.suite.api)
+        testImplementation(libs.junit.platform.suite.engine)
         testImplementation(libs.mockito.junit.jupiter)
         testImplementation(libs.mockito.core)
 
