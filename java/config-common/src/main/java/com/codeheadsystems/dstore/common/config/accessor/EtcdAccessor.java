@@ -20,10 +20,13 @@ import io.etcd.jetcd.ByteSequence;
 import io.etcd.jetcd.Client;
 import io.etcd.jetcd.KeyValue;
 import io.etcd.jetcd.kv.GetResponse;
+import io.etcd.jetcd.options.GetOption;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.slf4j.Logger;
@@ -57,8 +60,8 @@ public class EtcdAccessor {
    * @param value     the value.
    */
   public void put(final String namespace, final String key, final String value) {
-    LOGGER.trace("put({},{},{}", namespace, key, value);
     final String namespaceKey = String.format("%s/%s", namespace, key);
+    LOGGER.trace("put({},{}", namespaceKey, value);
     try {
       client.getKVClient().put(
               ByteSequence.from(namespaceKey.getBytes(StandardCharsets.UTF_8)),
@@ -98,8 +101,9 @@ public class EtcdAccessor {
    * @return the value.
    */
   public Optional<String> get(final String namespace, final String key) {
-    LOGGER.trace("get({},{}", namespace, key);
+    LOGGER.trace("get({},{})", namespace, key);
     final String namespaceKey = String.format("%s/%s", namespace, key);
+    LOGGER.trace("get({})", namespaceKey);
     final CompletableFuture<GetResponse> future =
         client.getKVClient().get(ByteSequence.from(namespaceKey.getBytes(StandardCharsets.UTF_8)));
     try {
@@ -108,6 +112,33 @@ public class EtcdAccessor {
           .map(KeyValue::getValue)
           .findFirst()
           .map(ByteSequence::toString);
+    } catch (InterruptedException | ExecutionException e) {
+      LOGGER.error("Unable to get from etcd {}", namespaceKey, e);
+      throw new IllegalArgumentException(e);
+    }
+  }
+
+  /**
+   * Gets the values from the etcd instance. Waits forever. Since you can use prefixes, this will
+   * get all the keys as a prefix.
+   *
+   * @param namespace of the key.
+   * @param key       the key.
+   * @return the values.
+   */
+  public Map<String, String> getAll(final String namespace, final String key) {
+    final String namespaceKey = String.format("%s/%s", namespace, key);
+    LOGGER.trace("getAll({})", namespaceKey);
+    final ByteSequence byteSequenceKey = ByteSequence.from(namespaceKey.getBytes(StandardCharsets.UTF_8));
+    final GetOption getOption = GetOption.newBuilder().isPrefix(true).build();
+    final CompletableFuture<GetResponse> future =
+        client.getKVClient().get(byteSequenceKey, getOption);
+    try {
+      return future.get().getKvs().stream()
+          .collect(Collectors.toMap(
+              kv -> kv.getKey().toString(),
+              kv -> kv.getValue().toString()
+          ));
     } catch (InterruptedException | ExecutionException e) {
       LOGGER.error("Unable to get from etcd {}", namespaceKey, e);
       throw new IllegalArgumentException(e);

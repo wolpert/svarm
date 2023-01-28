@@ -215,10 +215,10 @@ path-style namespace for this. Here are the following structures:
 Note, the main line consists of the namespace and the id of the thing being
 named.
 
-| Namespace/Key                                 | Value                                              | Purpose                                                                                                 |
-|-----------------------------------------------|----------------------------------------------------|---------------------------------------------------------------------------------------------------------|
-| node/{uuid}/id/{tenant}/{tenantResource}/hash | {"lowHash":0,"highHash":32767}                     | Range of a table, defined by the controller . Node read this data                                       |
-| tenant/{tenant}/{tenantResource}/{lowHash}    | {"node":"{uuid}", "highHash":32767, "uri":"{uri}"} | Look up for a tenantResource range. Used by proxies to find nodes, and by nodes when transferring data. |
+| Namespace/Key                                | Value                                              | Purpose                                                                                                 |
+|----------------------------------------------|----------------------------------------------------|---------------------------------------------------------------------------------------------------------|
+| node/{uuid}/id/{tenant}/{tenantResource} | {"lowHash":0,"highHash":32767}                     | Range of a table, defined by the controller . Node read this data                                       |
+| tenant/{tenant}/{tenantResource}/{lowHash}   | {"node":"{uuid}", "highHash":32767, "uri":"{uri}"} | Look up for a tenantResource range. Used by proxies to find nodes, and by nodes when transferring data. |
 
 ## Reporting
 

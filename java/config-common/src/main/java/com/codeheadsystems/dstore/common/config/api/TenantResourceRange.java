@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.codeheadsystems.dstore.common.config.details;
+package com.codeheadsystems.dstore.common.config.api;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -26,10 +26,10 @@ import org.immutables.value.Value;
  * Identifies the tenant with it's resource.
  */
 @Value.Immutable
-@JsonSerialize(as = ImmutableTenantResource.class)
-@JsonDeserialize(builder = ImmutableTenantResource.Builder.class)
+@JsonSerialize(as = ImmutableTenantResourceRange.class)
+@JsonDeserialize(builder = ImmutableTenantResourceRange.Builder.class)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public interface TenantResource {
+public interface TenantResourceRange {
 
   /**
    * The tenant.
@@ -46,5 +46,21 @@ public interface TenantResource {
    */
   @JsonProperty("resource")
   String resource();
+
+  /**
+   * The low value of the hash range, inclusive.
+   *
+   * @return value.
+   */
+  @JsonProperty("lowHash")
+  Integer lowHash();
+
+  /**
+   * The high value of the hash range, exclusive.
+   *
+   * @return value.
+   */
+  @JsonProperty("highHash")
+  Integer highHash();
 
 }

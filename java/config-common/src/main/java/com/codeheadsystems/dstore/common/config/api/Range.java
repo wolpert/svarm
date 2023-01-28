@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.codeheadsystems.dstore.common.config.details;
+package com.codeheadsystems.dstore.common.config.api;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -23,44 +23,28 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.immutables.value.Value;
 
 /**
- * Provides access information about the range for a tenant resource on a node.
+ * has range, inclusive start, exclusive end.
  */
 @Value.Immutable
-@JsonSerialize(as = ImmutableTenantResourceAccess.class)
-@JsonDeserialize(builder = ImmutableTenantResourceAccess.Builder.class)
+@JsonSerialize(as = ImmutableRange.class)
+@JsonDeserialize(builder = ImmutableRange.Builder.class)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public interface TenantResourceAccess {
+public interface Range {
 
   /**
-   * The tenant resource.
+   * The low value of the hash range, inclusive.
    *
    * @return value.
    */
-  @JsonProperty("tenantResource")
-  TenantResource tenantResource();
+  @JsonProperty("lowHash")
+  Integer lowHash();
 
   /**
-   * The uuid.
+   * The high value of the hash range, exclusive.
    *
    * @return value.
    */
-  @JsonProperty("uuid")
-  String uuid();
-
-  /**
-   * The url.
-   *
-   * @return value.
-   */
-  @JsonProperty("uri")
-  String uri();
-
-  /**
-   * The range.
-   *
-   * @return value.
-   */
-  @JsonProperty("range")
-  Range range();
+  @JsonProperty("highHash")
+  Integer highHash();
 
 }
