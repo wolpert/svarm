@@ -20,12 +20,21 @@ import com.codeheadsystems.dstore.common.config.accessor.EtcdAccessor;
 import com.codeheadsystems.dstore.common.config.api.ImmutableNodeTenantResource;
 import com.codeheadsystems.dstore.common.config.api.ImmutableNodeTenantResourceRange;
 import com.codeheadsystems.dstore.common.config.api.ImmutableTenantResource;
+import com.codeheadsystems.dstore.common.config.api.ImmutableTenantResourceRange;
+import com.codeheadsystems.dstore.common.config.api.NodeRange;
 import com.codeheadsystems.dstore.common.config.api.NodeTenantResource;
 import com.codeheadsystems.dstore.common.config.api.NodeTenantResourceRange;
 import com.codeheadsystems.dstore.common.config.api.Range;
 import com.codeheadsystems.dstore.common.config.api.TenantResource;
+import com.codeheadsystems.dstore.common.config.api.TenantResourceRange;
 import com.codeheadsystems.dstore.common.engine.JsonEngine;
+import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -44,7 +53,11 @@ public class NodeConfigurationEngine {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(NodeConfigurationEngine.class);
   private static final String NODE_NAMESPACE = "node";
+  private static final String TENANT_NAMESPACE = "tenant";
+  private static final Pattern LOWHASH_KEY_PATTERN = Pattern.compile("[0-9]+$");
 
+  private static final TypeReference<Set<NodeRange>> SET_TYPE_REFERENCE = new TypeReference<Set<NodeRange>>() {
+  };
   private final EtcdAccessor accessor;
   private final JsonEngine jsonEngine;
 
@@ -78,6 +91,20 @@ public class NodeConfigurationEngine {
     accessor.put(NODE_NAMESPACE, key, value);
   }
 
+  /**
+   * Writes to configuration store the nodes tenant resource.
+   *
+   * @param resourceRange resource range.
+   */
+  public void write(final TenantResourceRange resourceRange) {
+    LOGGER.trace("write({})", resourceRange);
+    final Map<String, String> map = resourceRange.hashToNodeRangeSet().entrySet().stream()
+        .collect(Collectors.toMap(
+            e -> String.format("%s/%s/%s", resourceRange.tenant(), resourceRange.resource(), e.getKey()),
+            e -> jsonEngine.writeValue(e.getValue())));
+    accessor.putAll(TENANT_NAMESPACE, map);
+  }
+  
   /**
    * Reads all node resources from etcd.
    *
@@ -118,5 +145,40 @@ public class NodeConfigurationEngine {
         .build();
   }
 
+  /**
+   * Reads all the configuration for the tenent resource.
+   *
+   * @param tenantResource of the node.
+   * @return the list of resource ranges.
+   */
+  public Optional<TenantResourceRange> readTenantResourceRange(final TenantResource tenantResource) {
+    LOGGER.trace("readTenantResourceRange({})", tenantResource);
+    final String key = String.format("%s/%s/", tenantResource.tenant(), tenantResource.resource());
+    final Map<String, String> map = accessor.getAll(TENANT_NAMESPACE, key);
+    if (map.isEmpty()) {
+      return Optional.empty();
+    }
+    final Map<Integer, Set<NodeRange>> hashToNodeRangeSet = map.entrySet().stream()
+        .collect(Collectors.toMap(
+            e -> keyToLowHash(e.getKey()),
+            e -> jsonEngine.readValue(e.getValue(), SET_TYPE_REFERENCE)
+        ));
+    return Optional.of(ImmutableTenantResourceRange.builder()
+        .tenant(tenantResource.tenant())
+        .resource(tenantResource.resource())
+        .hashToNodeRangeSet(hashToNodeRangeSet)
+        .build());
+  }
 
+  private int keyToLowHash(final String key) {
+    LOGGER.trace("keyToLowHash({})", key);
+    final Matcher matcher = LOWHASH_KEY_PATTERN.matcher(key);
+    if (matcher.find()) {
+      final int value = Integer.parseInt(matcher.group());
+      LOGGER.trace("lowHash from key-> {}", value);
+      return value;
+    } else {
+      throw new IllegalArgumentException("Invalid key, cannot match lowHash:" + key);
+    }
+  }
 }

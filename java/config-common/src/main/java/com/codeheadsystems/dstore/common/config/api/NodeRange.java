@@ -20,42 +20,47 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import java.util.Map;
-import java.util.Set;
 import org.immutables.value.Value;
 
 /**
- * Identifies the tenant with it's resource.
+ * For a node availability with a tenant resource, Has range, inclusive start, exclusive end.
  */
 @Value.Immutable
-@JsonSerialize(as = ImmutableTenantResourceRange.class)
-@JsonDeserialize(builder = ImmutableTenantResourceRange.Builder.class)
+@JsonSerialize(as = ImmutableNodeRange.class)
+@JsonDeserialize(builder = ImmutableNodeRange.Builder.class)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public interface TenantResourceRange {
+public interface NodeRange {
 
   /**
-   * The tenant.
+   * The uuid.
    *
    * @return value.
    */
-  @JsonProperty("tenant")
-  String tenant();
+  @JsonProperty("uuid")
+  String uuid();
 
   /**
-   * The resource.
+   * The url.
    *
    * @return value.
    */
-  @JsonProperty("resource")
-  String resource();
+  @JsonProperty("uri")
+  String uri();
 
   /**
-   * Map where the key is the 'low' value for the range, and the value is
-   * the set of nodes that should have that data.
+   * The low value of the hash range, inclusive.
    *
    * @return value.
    */
-  @JsonProperty("hashToNodeRangeSet")
-  Map<Integer, Set<NodeRange>> hashToNodeRangeSet();
+  @JsonProperty("lowHash")
+  Integer lowHash();
+
+  /**
+   * The high value of the hash range, exclusive.
+   *
+   * @return value.
+   */
+  @JsonProperty("highHash")
+  Integer highHash();
 
 }

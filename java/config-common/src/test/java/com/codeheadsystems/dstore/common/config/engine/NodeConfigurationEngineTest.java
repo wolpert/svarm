@@ -18,19 +18,28 @@ package com.codeheadsystems.dstore.common.config.engine;
 
 import com.codeheadsystems.dstore.common.config.EtcdConfiguration;
 import com.codeheadsystems.dstore.common.config.ImmutableEtcdConfiguration;
+import com.codeheadsystems.dstore.common.config.api.ImmutableNodeRange;
 import com.codeheadsystems.dstore.common.config.api.ImmutableNodeTenantResource;
 import com.codeheadsystems.dstore.common.config.api.ImmutableNodeTenantResourceRange;
 import com.codeheadsystems.dstore.common.config.api.ImmutableRange;
 import com.codeheadsystems.dstore.common.config.api.ImmutableTenantResource;
+import com.codeheadsystems.dstore.common.config.api.ImmutableTenantResourceRange;
+import com.codeheadsystems.dstore.common.config.api.NodeRange;
 import com.codeheadsystems.dstore.common.config.api.NodeTenantResourceRange;
+import com.codeheadsystems.dstore.common.config.api.TenantResource;
+import com.codeheadsystems.dstore.common.config.api.TenantResourceRange;
 import com.codeheadsystems.dstore.common.config.module.EtcdModule;
 import com.codeheadsystems.dstore.common.module.JsonModule;
 import dagger.Component;
 import io.etcd.jetcd.test.EtcdClusterExtension;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Random;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import javax.inject.Singleton;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -60,6 +69,25 @@ class NodeConfigurationEngineTest {
         .build();
   }
 
+  private static TenantResourceRange randomTenantResourceRange(final int count) {
+    final Map<Integer, Set<NodeRange>> hashToNodeRangeSet = IntStream.range(0, count)
+        .mapToObj(i -> Map.entry(
+            i*23,
+            IntStream.range(0, count)
+                .mapToObj(j -> (NodeRange) ImmutableNodeRange.builder()
+                    .highHash(random.nextInt(100000))
+                    .lowHash(i)
+                    .uri(uuid())
+                    .uuid(uuid())
+                    .build()).collect(Collectors.toSet())))
+        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    return ImmutableTenantResourceRange.builder()
+        .resource(uuid())
+        .tenant(uuid())
+        .hashToNodeRangeSet(hashToNodeRangeSet)
+        .build();
+  }
+
   @BeforeEach
   void setupClient() {
     final List<String> endpoints = cluster.clientEndpoints().stream().map(Objects::toString).toList();
@@ -67,6 +95,17 @@ class NodeConfigurationEngineTest {
     final EtcdModule etcdModule = new EtcdModule(configuration);
     final EngineComponent component = DaggerNodeConfigurationEngineTest_EngineComponent.builder().etcdModule(etcdModule).build();
     engine = component.engine();
+  }
+
+  @Test
+  void testTenantResourceRange() {
+    final TenantResourceRange trr = randomTenantResourceRange(3);
+    engine.write(trr);
+    final TenantResource tenantResource = ImmutableTenantResource.builder()
+        .tenant(trr.tenant()).resource(trr.resource()).build();
+    Assertions.assertThat(engine.readTenantResourceRange(tenantResource))
+        .isPresent()
+        .contains(trr);
   }
 
   @Test

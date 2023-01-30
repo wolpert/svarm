@@ -18,9 +18,13 @@ package com.codeheadsystems.dstore.common.config.accessor;
 
 import io.etcd.jetcd.ByteSequence;
 import io.etcd.jetcd.Client;
+import io.etcd.jetcd.KV;
 import io.etcd.jetcd.KeyValue;
+import io.etcd.jetcd.Txn;
 import io.etcd.jetcd.kv.GetResponse;
+import io.etcd.jetcd.op.Op;
 import io.etcd.jetcd.options.GetOption;
+import io.etcd.jetcd.options.PutOption;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Optional;
@@ -69,6 +73,29 @@ public class EtcdAccessor {
           .get();
     } catch (InterruptedException | ExecutionException e) {
       LOGGER.error("Unable to get from etcd {}", namespaceKey, e);
+      throw new IllegalArgumentException(e);
+    }
+  }
+
+  /**
+   * Puts the value to the etcd instance.
+   *
+   * @param namespace Type of value.
+   * @param map       the key/value.
+   */
+  public void putAll(final String namespace, final Map<String, String> map) {
+    LOGGER.trace("putAll({},{}", namespace, map);
+    final KV kv = client.getKVClient();
+    final Txn txn = kv.txn();
+    try {
+      map.entrySet().stream()
+          .map(e -> Map.entry(String.format("%s/%s", namespace, e.getKey()), e.getValue()))
+          .map(e -> Map.entry(ByteSequence.from(e.getKey().getBytes()), ByteSequence.from(e.getValue().getBytes())))
+          .forEach(e ->
+              txn.Then(Op.put(e.getKey(), e.getValue(), PutOption.DEFAULT)));
+      txn.commit().get();
+    } catch (InterruptedException | ExecutionException e) {
+      LOGGER.error("Unable to get from etcd {}", namespace, e);
       throw new IllegalArgumentException(e);
     }
   }
