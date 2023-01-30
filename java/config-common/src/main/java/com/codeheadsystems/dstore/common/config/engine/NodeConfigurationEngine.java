@@ -33,8 +33,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -54,9 +52,8 @@ public class NodeConfigurationEngine {
   private static final Logger LOGGER = LoggerFactory.getLogger(NodeConfigurationEngine.class);
   private static final String NODE_NAMESPACE = "node";
   private static final String TENANT_NAMESPACE = "tenant";
-  private static final Pattern LOWHASH_KEY_PATTERN = Pattern.compile("[0-9]+$");
 
-  private static final TypeReference<Set<NodeRange>> SET_TYPE_REFERENCE = new TypeReference<Set<NodeRange>>() {
+  private static final TypeReference<Map<Integer, Set<NodeRange>>> MAP_TYPE_REFERENCE = new TypeReference<>() {
   };
   private final EtcdAccessor accessor;
   private final JsonEngine jsonEngine;
@@ -98,13 +95,36 @@ public class NodeConfigurationEngine {
    */
   public void write(final TenantResourceRange resourceRange) {
     LOGGER.trace("write({})", resourceRange);
-    final Map<String, String> map = resourceRange.hashToNodeRangeSet().entrySet().stream()
-        .collect(Collectors.toMap(
-            e -> String.format("%s/%s/%s", resourceRange.tenant(), resourceRange.resource(), e.getKey()),
-            e -> jsonEngine.writeValue(e.getValue())));
-    accessor.putAll(TENANT_NAMESPACE, map);
+    final String key = String.format("%s/%s", resourceRange.tenant(), resourceRange.resource());
+    final String value = jsonEngine.writeValue(resourceRange.hashToNodeRangeSet());
+    accessor.put(TENANT_NAMESPACE, key, value);
   }
-  
+
+  /**
+   * Delete the resource.
+   *
+   * @param resourceRange resource.
+   */
+  public void delete(final NodeTenantResourceRange resourceRange) {
+    LOGGER.trace("delete({})", resourceRange);
+    final NodeTenantResource nodeTenantResource = resourceRange.nodeTenantResource();
+    final TenantResource tenantResource = nodeTenantResource.tenantResource();
+    final String key = String.format("%s/id/%s/%s",
+        nodeTenantResource.uuid(), tenantResource.tenant(), tenantResource.resource());
+    accessor.delete(NODE_NAMESPACE, key);
+  }
+
+  /**
+   * Delete the resource.
+   *
+   * @param resourceRange resource.
+   */
+  public void delete(final TenantResourceRange resourceRange) {
+    LOGGER.trace("delete({})", resourceRange);
+    final String key = String.format("%s/%s", resourceRange.tenant(), resourceRange.resource());
+    accessor.delete(TENANT_NAMESPACE, key);
+  }
+
   /**
    * Reads all node resources from etcd.
    *
@@ -153,32 +173,13 @@ public class NodeConfigurationEngine {
    */
   public Optional<TenantResourceRange> readTenantResourceRange(final TenantResource tenantResource) {
     LOGGER.trace("readTenantResourceRange({})", tenantResource);
-    final String key = String.format("%s/%s/", tenantResource.tenant(), tenantResource.resource());
-    final Map<String, String> map = accessor.getAll(TENANT_NAMESPACE, key);
-    if (map.isEmpty()) {
-      return Optional.empty();
-    }
-    final Map<Integer, Set<NodeRange>> hashToNodeRangeSet = map.entrySet().stream()
-        .collect(Collectors.toMap(
-            e -> keyToLowHash(e.getKey()),
-            e -> jsonEngine.readValue(e.getValue(), SET_TYPE_REFERENCE)
-        ));
-    return Optional.of(ImmutableTenantResourceRange.builder()
-        .tenant(tenantResource.tenant())
-        .resource(tenantResource.resource())
-        .hashToNodeRangeSet(hashToNodeRangeSet)
-        .build());
+    final String key = String.format("%s/%s", tenantResource.tenant(), tenantResource.resource());
+    return accessor.get(TENANT_NAMESPACE, key)
+        .map(json -> ImmutableTenantResourceRange.builder()
+            .tenant(tenantResource.tenant())
+            .resource(tenantResource.resource())
+            .hashToNodeRangeSet(jsonEngine.readValue(json, MAP_TYPE_REFERENCE))
+            .build());
   }
 
-  private int keyToLowHash(final String key) {
-    LOGGER.trace("keyToLowHash({})", key);
-    final Matcher matcher = LOWHASH_KEY_PATTERN.matcher(key);
-    if (matcher.find()) {
-      final int value = Integer.parseInt(matcher.group());
-      LOGGER.trace("lowHash from key-> {}", value);
-      return value;
-    } else {
-      throw new IllegalArgumentException("Invalid key, cannot match lowHash:" + key);
-    }
-  }
 }

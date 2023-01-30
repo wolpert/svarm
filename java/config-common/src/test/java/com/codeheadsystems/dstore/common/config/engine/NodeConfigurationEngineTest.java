@@ -72,7 +72,7 @@ class NodeConfigurationEngineTest {
   private static TenantResourceRange randomTenantResourceRange(final int count) {
     final Map<Integer, Set<NodeRange>> hashToNodeRangeSet = IntStream.range(0, count)
         .mapToObj(i -> Map.entry(
-            i*23,
+            i * 23,
             IntStream.range(0, count)
                 .mapToObj(j -> (NodeRange) ImmutableNodeRange.builder()
                     .highHash(random.nextInt(100000))
@@ -106,6 +106,10 @@ class NodeConfigurationEngineTest {
     Assertions.assertThat(engine.readTenantResourceRange(tenantResource))
         .isPresent()
         .contains(trr);
+
+    engine.delete(trr);
+    Assertions.assertThat(engine.readTenantResourceRange(tenantResource))
+        .isEmpty();
   }
 
   @Test
@@ -124,6 +128,13 @@ class NodeConfigurationEngineTest {
         .isNotNull()
         .hasSize(3)
         .contains(resource1, resource2, resource3);
+
+    engine.delete(resource1);
+    final List<NodeTenantResourceRange> result2 = engine.readNodeResources(uuid);
+    Assertions.assertThat(result2)
+        .isNotNull()
+        .hasSize(2)
+        .contains(resource2, resource3);
   }
 
   @Component(modules = {EtcdModule.class, JsonModule.class})
