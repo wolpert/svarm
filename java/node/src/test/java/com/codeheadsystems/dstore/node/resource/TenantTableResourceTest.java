@@ -42,7 +42,6 @@ class TenantTableResourceTest {
 
   private static final String TENANT = "TENANT";
   private static final String TABLE_NAME = "table name";
-  private static final String PRIMARY_KEY = "primary key";
   private static final TenantTableIdentifier IDENTIFIER = TenantTableIdentifier.from(TENANT, TABLE_NAME);
   @Mock private TenantTableManager tenantTableManager;
   @Mock private TenantTableInfoConverter tenantTableInfoConverter;
@@ -78,20 +77,12 @@ class TenantTableResourceTest {
   }
 
   @Test
-  void create_missingPrimaryKey() {
-    assertThatExceptionOfType(WebApplicationException.class)
-        .isThrownBy(() -> resource.create(TENANT, TABLE_NAME, null))
-        .extracting("response")
-        .hasFieldOrPropertyWithValue("status", BAD_REQUEST.getStatusCode());
-  }
-
-  @Test
   void create() {
-    when(tenantTableManager.create(IDENTIFIER, V1SingleEntryEngine.DEFINITION_NAME, PRIMARY_KEY))
+    when(tenantTableManager.create(IDENTIFIER, V1SingleEntryEngine.DEFINITION_NAME))
         .thenReturn(tenantTable);
     when(tenantTable.identifier()).thenReturn(identifier);
     when(tenantTableInfoConverter.from(identifier)).thenReturn(tenantTableInfo);
-    assertThat(resource.create(TENANT, TABLE_NAME, PRIMARY_KEY))
+    assertThat(resource.create(TENANT, TABLE_NAME))
         .isEqualTo(tenantTableInfo);
   }
 

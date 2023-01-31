@@ -66,7 +66,6 @@ class TenantTableDaoTest extends BaseSQLTest {
         .tableVersion(UUID.randomUUID().toString())
         .key(UUID.randomUUID().toString())
         .nonce(UUID.randomUUID().toString())
-        .primaryKey(UUID.randomUUID().toString())
         .build();
   }
 

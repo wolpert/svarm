@@ -44,15 +44,13 @@ public interface NodeTenantTableService {
    *
    * @param tenantId   that owns the table.
    * @param table      the table.
-   * @param primaryKey for the table.
    * @return response.
    */
   @PUT
   @Path("/v1/tenant/{tenant}/table/{table}")
   @Produces(MediaType.APPLICATION_JSON)
   TenantTableInfo createTenantTable(@PathParam("tenant") final String tenantId,
-                                    @PathParam("table") final String table,
-                                    @NotNull @QueryParam("primaryKey") final String primaryKey);
+                                    @PathParam("table") final String table);
 
   /**
    * Delete the tenant table.

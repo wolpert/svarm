@@ -74,9 +74,6 @@
             <column name="NONCE" type="varchar(256)">
                 <constraints nullable="false"/>
             </column>
-            <column name="PRIMARY_KEY" type="varchar(256)">
-                <constraints nullable="false"/>
-            </column>
         </createTable>
     </changeSet>
 

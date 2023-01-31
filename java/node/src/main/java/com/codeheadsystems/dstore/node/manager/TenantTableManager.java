@@ -103,21 +103,18 @@ public class TenantTableManager {
    *
    * @param identifier   Table to create.
    * @param tableVersion the version of the table we are creating.
-   * @param primaryKey   primary key of a row.
    * @return a tenant.
    */
   public TenantTable create(final TenantTableIdentifier identifier,
-                            final String tableVersion,
-                            final String primaryKey) {
-    LOGGER.debug("create({}, {}, {})", identifier, tableVersion, primaryKey);
+                            final String tableVersion) {
+    LOGGER.debug("create({}, {})", identifier, tableVersion);
     return get(identifier).orElseGet(() ->
         metrics.time("TenantTableManager.create",
-            () -> buildTenantTable(identifier, tableVersion, primaryKey)));
+            () -> buildTenantTable(identifier, tableVersion)));
   }
 
   private TenantTable buildTenantTable(final TenantTableIdentifier identifier,
-                                       final String tableVersion,
-                                       final String primaryKey) {
+                                       final String tableVersion) {
     LOGGER.debug("buildTenantTable({}, {})", identifier, tableVersion);
     if (!tableDefinitionEngineMap.containsKey(tableVersion)) {
       throw new IllegalArgumentException("Unknown table version: " + tableVersion);
@@ -129,7 +126,6 @@ public class TenantTableManager {
         .tableVersion(tableVersion)
         .key(aesGcmSivManager.randomKeyBase64Encoded())
         .nonce(aesGcmSivManager.randomNonceBase64Encoded())
-        .primaryKey(primaryKey)
         .build();
     try {
       final TenantTable result = dao.create(tenantTable);

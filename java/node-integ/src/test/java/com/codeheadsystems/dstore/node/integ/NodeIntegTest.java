@@ -111,8 +111,8 @@ public class NodeIntegTest {
     final Map<String, JsonNode> t1Data = randomData(5);
     final Map<String, JsonNode> t2Data = randomData(6);
     NODE_TENANT.createTenant(tenant);
-    NODE_TABLE.createTenantTable(tenant, table1, "ignored");
-    NODE_TABLE.createTenantTable(tenant, table2, "ignored");
+    NODE_TABLE.createTenantTable(tenant, table1);
+    NODE_TABLE.createTenantTable(tenant, table2);
     t1Data.forEach((k, v) -> NODE_ENTRY.createTenantTableEntry(tenant, table1, k, v));
     t2Data.forEach((k, v) -> NODE_ENTRY.createTenantTableEntry(tenant, table2, k, v));
 
@@ -134,7 +134,7 @@ public class NodeIntegTest {
 
     final Map<String, JsonNode> data = randomData(threads);
     NODE_TENANT.createTenant(tenant);
-    NODE_TABLE.createTenantTable(tenant, table, "ignored");
+    NODE_TABLE.createTenantTable(tenant, table);
 
     final ForkJoinPool pool = new ForkJoinPool(threads);
     final List<ForkJoinTask<?>> tasks = data.entrySet().stream()
@@ -170,7 +170,7 @@ public class NodeIntegTest {
     assertThat(NODE_TENANT.listTenants()).contains(tenant);
 
     assertThat(NODE_TABLE.listTenantTables(tenant)).isEmpty();
-    assertThat(NODE_TABLE.createTenantTable(tenant, table, "ignored")).hasFieldOrPropertyWithValue("id", table);
+    assertThat(NODE_TABLE.createTenantTable(tenant, table)).hasFieldOrPropertyWithValue("id", table);
     assertThat(NODE_TABLE.listTenantTables(tenant)).containsExactly(table);
 
     final JsonNode j1 = OBJECT_MAPPER.createObjectNode().put("One", "a thing").put("two", 2);

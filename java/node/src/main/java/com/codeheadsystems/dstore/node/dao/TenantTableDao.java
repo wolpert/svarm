@@ -63,8 +63,8 @@ public class TenantTableDao {
 
     return internalJdbi.withHandle(handle -> {
       final int updateCount = handle.createUpdate(
-              "insert into NODE_TENANT_TABLES (RID_TENANT,TABLE_NAME,HASH_START,HASH_END, QUANTITY_EST, ENABLED, TABLE_VERSION, KEY, NONCE, PRIMARY_KEY) "
-                  + "values (:identifier.tenantId,:identifier.tableName,:hashStart,:hashEnd,:estimatedQuantity,:enabled,:tableVersion,:key,:nonce,:primaryKey)"
+              "insert into NODE_TENANT_TABLES (RID_TENANT,TABLE_NAME,HASH_START,HASH_END, QUANTITY_EST, ENABLED, TABLE_VERSION, KEY, NONCE) "
+                  + "values (:identifier.tenantId,:identifier.tableName,:hashStart,:hashEnd,:estimatedQuantity,:enabled,:tableVersion,:key,:nonce)"
           )
           .bindPojo(tenantTable, TenantTable.class)
           .execute();
@@ -91,8 +91,7 @@ public class TenantTableDao {
                   + "HASH_END = :hashEnd, "
                   + "QUANTITY_EST = :estimatedQuantity, "
                   + "ENABLED = :enabled, "
-                  + "TABLE_VERSION = :tableVersion, "
-                  + "PRIMARY_KEY = :primaryKey "
+                  + "TABLE_VERSION = :tableVersion "
                   + "where RID_TENANT = :identifier.tenantId "
                   + "and TABLE_NAME = :identifier.tableName "
                   + "and KEY = :key "
@@ -175,7 +174,6 @@ public class TenantTableDao {
           .tableVersion(rs.getString("TABLE_VERSION"))
           .key(rs.getString("KEY"))
           .nonce(rs.getString("NONCE"))
-          .primaryKey(rs.getString("PRIMARY_KEY"))
           .build();
     }
   }

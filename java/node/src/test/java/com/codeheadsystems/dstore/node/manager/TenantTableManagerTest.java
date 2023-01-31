@@ -44,7 +44,6 @@ class TenantTableManagerTest extends BaseMetricTest {
   private static final String TENANT_ID = "tenant";
   private static final String TABLE_NAME = "tablename";
   private static final String ENGINE = "engine";
-  private static final String PRIMARY_KEY = "primary_key";
   private static final TenantTableIdentifier IDENTIFIER = TenantTableIdentifier.from(TENANT_ID, TABLE_NAME);
 
   @Mock private TenantTableDao dao;
@@ -76,12 +75,11 @@ class TenantTableManagerTest extends BaseMetricTest {
     when(aesManager.randomKeyBase64Encoded()).thenReturn(KEY);
     when(aesManager.randomNonceBase64Encoded()).thenReturn(NONCE);
     when(dao.create(tenantTableArgumentCaptor.capture())).thenReturn(tenantTable);
-    assertThat(manager.create(IDENTIFIER, ENGINE, PRIMARY_KEY)).isEqualTo(tenantTable);
+    assertThat(manager.create(IDENTIFIER, ENGINE)).isEqualTo(tenantTable);
     assertThat(tenantTableArgumentCaptor.getValue())
         .hasFieldOrPropertyWithValue("tableVersion", ENGINE)
         .hasFieldOrPropertyWithValue("key", KEY)
         .hasFieldOrPropertyWithValue("nonce", NONCE)
-        .hasFieldOrPropertyWithValue("primaryKey", PRIMARY_KEY)
         .extracting("identifier")
         .hasFieldOrPropertyWithValue("tenantId", TENANT_ID)
         .hasFieldOrPropertyWithValue("tableName", TABLE_NAME);

@@ -114,7 +114,6 @@ public class TenantTableResource implements JerseyResource {
    *
    * @param tenantId   that owns the table.
    * @param table      the table.
-   * @param primaryKey for the table.
    * @return response.
    */
   @PUT
@@ -124,15 +123,11 @@ public class TenantTableResource implements JerseyResource {
   @Path("/{table}")
   @Produces(MediaType.APPLICATION_JSON)
   public TenantTableInfo create(@PathParam("tenant") final String tenantId,
-                                @PathParam("table") final String table,
-                                @NotNull @QueryParam("primaryKey") final String primaryKey) {
-    LOGGER.debug("create({},{},{})", tenantId, table, primaryKey);
-    if (primaryKey == null) {
-      throw new WebApplicationException("Missing primary key", Response.Status.BAD_REQUEST);
-    }
+                                @PathParam("table") final String table) {
+    LOGGER.debug("create({},{})", tenantId, table);
     final TenantTableIdentifier identifier = TenantTableIdentifier.from(tenantId, table);
     final TenantTable tenantTable = tenantTableManager
-        .create(identifier, V1SingleEntryEngine.DEFINITION_NAME, primaryKey);
+        .create(identifier, V1SingleEntryEngine.DEFINITION_NAME);
     return converter.from(tenantTable.identifier());
   }
 
