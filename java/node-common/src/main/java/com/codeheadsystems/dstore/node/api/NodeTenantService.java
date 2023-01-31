@@ -1,6 +1,7 @@
 package com.codeheadsystems.dstore.node.api;
 
 import java.util.List;
+import java.util.Optional;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
@@ -12,6 +13,7 @@ import javax.ws.rs.core.MediaType;
 /**
  * All the ways to connect to the node service for tenant calls.
  */
+@Path("/v1/tenant")
 public interface NodeTenantService {
 
   /**
@@ -20,7 +22,7 @@ public interface NodeTenantService {
    * @return response.
    */
   @GET
-  @Path("/v1/tenant/")
+  @Path("/")
   @Produces(MediaType.APPLICATION_JSON)
   List<String> listTenants();
 
@@ -31,8 +33,9 @@ public interface NodeTenantService {
    * @return response.
    */
   @GET
-  @Path("/v1/tenant/{tenant}")
-  TenantInfo readTenant(@PathParam("tenant") final String tenantId);
+  @Path("/{tenant}")
+  @Produces(MediaType.APPLICATION_JSON)
+  Optional<TenantInfo> readTenant(@PathParam("tenant") final String tenantId);
 
   /**
    * Create the tenant.
@@ -41,7 +44,7 @@ public interface NodeTenantService {
    * @return response.
    */
   @PUT
-  @Path("/v1/tenant/{tenant}")
+  @Path("/{tenant}")
   @Produces(MediaType.APPLICATION_JSON)
   TenantInfo createTenant(@PathParam("tenant") final String tenantId);
 
@@ -51,7 +54,7 @@ public interface NodeTenantService {
    * @param tenantId to delete.
    */
   @DELETE
-  @Path("/v1/tenant/{tenant}")
+  @Path("/{tenant}")
   void deleteTenant(@PathParam("tenant") final String tenantId);
 
 }

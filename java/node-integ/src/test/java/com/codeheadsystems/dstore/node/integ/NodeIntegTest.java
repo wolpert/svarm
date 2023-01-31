@@ -117,8 +117,8 @@ public class NodeIntegTest {
     t2Data.forEach((k, v) -> NODE_ENTRY.createTenantTableEntry(tenant, table2, k, v));
 
     // Verify
-    t1Data.forEach((k, v) -> assertThat(NODE_ENTRY.readTenantTableEntry(tenant, table1, k)).isEqualTo(v));
-    t2Data.forEach((k, v) -> assertThat(NODE_ENTRY.readTenantTableEntry(tenant, table2, k)).isEqualTo(v));
+    t1Data.forEach((k, v) -> assertThat(NODE_ENTRY.readTenantTableEntry(tenant, table1, k)).contains(v));
+    t2Data.forEach((k, v) -> assertThat(NODE_ENTRY.readTenantTableEntry(tenant, table2, k)).contains(v));
 
     NODE_TABLE.deleteTenantTable(tenant, table1);
     NODE_TABLE.deleteTenantTable(tenant, table2);
@@ -182,8 +182,8 @@ public class NodeIntegTest {
     NODE_ENTRY.createTenantTableEntry(tenant, table, j1Entry, j1);
     NODE_ENTRY.createTenantTableEntry(tenant, table, j2Entry, j2);
 
-    assertThat(NODE_ENTRY.readTenantTableEntry(tenant, table, j1Entry)).isEqualTo(j1);
-    assertThat(NODE_ENTRY.readTenantTableEntry(tenant, table, j2Entry)).isEqualTo(j2);
+    assertThat(NODE_ENTRY.readTenantTableEntry(tenant, table, j1Entry)).contains(j1);
+    assertThat(NODE_ENTRY.readTenantTableEntry(tenant, table, j2Entry)).contains(j2);
 
     NODE_ENTRY.deleteTenantTableEntry(tenant, table, j1Entry);
     assertThatExceptionOfType(FeignException.NotFound.class)

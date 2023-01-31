@@ -1,6 +1,7 @@
 package com.codeheadsystems.dstore.node.api;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import java.util.Optional;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
@@ -15,6 +16,7 @@ import javax.ws.rs.core.MediaType;
 /**
  * All the ways to connect to the node service for tenant table entry calls.
  */
+@Path("/v1/tenant/{tenant}/table/{table}/entry")
 public interface NodeTenantTableEntryService {
 
   /**
@@ -26,11 +28,11 @@ public interface NodeTenantTableEntryService {
    * @return response.
    */
   @GET
-  @Path("/v1/tenant/{tenant}/table/{table}/entry/{entry}")
+  @Path("/{entry}")
   @Produces(MediaType.APPLICATION_JSON)
-  JsonNode readTenantTableEntry(@PathParam("tenant") final String tenantId,
-                                @PathParam("table") final String table,
-                                @PathParam("entry") final String entry);
+  Optional<JsonNode> readTenantTableEntry(@PathParam("tenant") final String tenantId,
+                                          @PathParam("table") final String table,
+                                          @PathParam("entry") final String entry);
 
   /**
    * Create the tenant table entry.
@@ -41,7 +43,7 @@ public interface NodeTenantTableEntryService {
    * @param data     the data we care about in JSON form.
    */
   @PUT
-  @Path("/v1/tenant/{tenant}/table/{table}/entry/{entry}")
+  @Path("/{entry}")
   @Consumes(MediaType.APPLICATION_JSON)
   void createTenantTableEntry(@PathParam("tenant") final String tenantId,
                               @PathParam("table") final String table,
@@ -56,7 +58,7 @@ public interface NodeTenantTableEntryService {
    * @param entry    to delete.
    */
   @DELETE
-  @Path("/v1/tenant/{tenant}/table/{table}/entry/{entry}")
+  @Path("/{entry}")
   void deleteTenantTableEntry(@PathParam("tenant") final String tenantId,
                               @PathParam("table") final String table,
                               @PathParam("entry") final String entry);

@@ -1,6 +1,7 @@
 package com.codeheadsystems.dstore.node.api;
 
 import java.util.List;
+import java.util.Optional;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -14,6 +15,7 @@ import javax.ws.rs.core.MediaType;
 /**
  * All the ways to connect to the node service for tenant table calls.
  */
+@Path("/v1/tenant/{tenant}/table")
 public interface NodeTenantTableService {
 
   /**
@@ -23,7 +25,7 @@ public interface NodeTenantTableService {
    * @return response.
    */
   @GET
-  @Path("/v1/tenant/{tenant}/table/")
+  @Path("/")
   @Produces(MediaType.APPLICATION_JSON)
   List<String> listTenantTables(@PathParam("tenant") final String tenantId);
 
@@ -35,9 +37,10 @@ public interface NodeTenantTableService {
    * @return response.
    */
   @GET
-  @Path("/v1/tenant/{tenant}/table/{table}")
-  TenantTableInfo readTenantTable(@PathParam("tenant") final String tenantId,
-                                  @PathParam("table") final String table);
+  @Path("/{table}")
+  @Produces(MediaType.APPLICATION_JSON)
+  Optional<TenantTableInfo> readTenantTable(@PathParam("tenant") final String tenantId,
+                                            @PathParam("table") final String table);
 
   /**
    * Create the tenant.
@@ -47,7 +50,7 @@ public interface NodeTenantTableService {
    * @return response.
    */
   @PUT
-  @Path("/v1/tenant/{tenant}/table/{table}")
+  @Path("/{table}")
   @Produces(MediaType.APPLICATION_JSON)
   TenantTableInfo createTenantTable(@PathParam("tenant") final String tenantId,
                                     @PathParam("table") final String table);
@@ -59,7 +62,7 @@ public interface NodeTenantTableService {
    * @param table    the table.
    */
   @DELETE
-  @Path("/v1/tenant/{tenant}/table/{table}")
+  @Path("/{table}")
   void deleteTenantTable(@PathParam("tenant") final String tenantId,
                          @PathParam("table") final String table);
 

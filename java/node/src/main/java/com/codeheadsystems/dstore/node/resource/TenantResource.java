@@ -19,23 +19,17 @@ package com.codeheadsystems.dstore.node.resource;
 import com.codahale.metrics.annotation.ExceptionMetered;
 import com.codahale.metrics.annotation.ResponseMetered;
 import com.codahale.metrics.annotation.Timed;
+import com.codeheadsystems.dstore.node.api.NodeTenantService;
 import com.codeheadsystems.dstore.node.api.TenantInfo;
 import com.codeheadsystems.dstore.node.converter.TenantInfoConverter;
 import com.codeheadsystems.dstore.node.manager.TenantManager;
 import com.codeheadsystems.dstore.node.model.Tenant;
+import com.codeheadsystems.server.exception.NotFoundException;
 import com.codeheadsystems.server.resource.JerseyResource;
 import java.util.List;
 import java.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,8 +37,7 @@ import org.slf4j.LoggerFactory;
  * Resource for the tenant requests. (Control plane)
  */
 @Singleton
-@Path("/v1/tenant")
-public class TenantResource implements JerseyResource {
+public class TenantResource implements NodeTenantService, JerseyResource {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(TenantResource.class);
 
@@ -70,13 +63,11 @@ public class TenantResource implements JerseyResource {
    *
    * @return response.
    */
-  @GET
   @Timed
   @ExceptionMetered
   @ResponseMetered
-  @Path("/")
-  @Produces(MediaType.APPLICATION_JSON)
-  public List<String> list() {
+  @Override
+  public List<String> listTenants() {
     LOGGER.debug("list()");
     return tenantManager.tenants();
   }
@@ -87,14 +78,13 @@ public class TenantResource implements JerseyResource {
    * @param tenantId to get.
    * @return response.
    */
-  @GET
+
   @Timed
   @ExceptionMetered
   @ResponseMetered
-  @Path("/{tenant}")
-  @Produces(MediaType.APPLICATION_JSON)
-  public Optional<TenantInfo> read(@PathParam("tenant") final String tenantId) {
-    LOGGER.debug("read({})", tenantId);
+  @Override
+  public Optional<TenantInfo> readTenant(final String tenantId) {
+    LOGGER.debug("readTenant({})", tenantId);
     return tenantManager.get(tenantId)
         .map(tenantInfoConverter::from);
   }
@@ -105,13 +95,11 @@ public class TenantResource implements JerseyResource {
    * @param tenantId to create.
    * @return response.
    */
-  @PUT
   @Timed
   @ExceptionMetered
   @ResponseMetered
-  @Path("/{tenant}")
-  @Produces(MediaType.APPLICATION_JSON)
-  public TenantInfo create(@PathParam("tenant") final String tenantId) {
+  @Override
+  public TenantInfo createTenant(final String tenantId) {
     LOGGER.debug("create({})", tenantId);
     final Tenant tenant = tenantManager.create(tenantId);
     return tenantInfoConverter.from(tenant);
@@ -122,19 +110,15 @@ public class TenantResource implements JerseyResource {
    * Delete the tenant.
    *
    * @param tenantId to delete.
-   * @return response.
    */
-  @DELETE
   @Timed
   @ExceptionMetered
   @ResponseMetered
-  @Path("/{tenant}")
-  public Response delete(@PathParam("tenant") final String tenantId) {
+  @Override
+  public void deleteTenant(final String tenantId) {
     LOGGER.debug("delete({})", tenantId);
-    if (tenantManager.delete(tenantId)) {
-      return Response.noContent().build();
-    } else {
-      return Response.status(Response.Status.NOT_FOUND).build();
+    if (!tenantManager.delete(tenantId)) {
+      throw new NotFoundException();
     }
   }
 

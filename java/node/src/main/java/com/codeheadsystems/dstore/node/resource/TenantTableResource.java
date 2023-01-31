@@ -19,28 +19,19 @@ package com.codeheadsystems.dstore.node.resource;
 import com.codahale.metrics.annotation.ExceptionMetered;
 import com.codahale.metrics.annotation.ResponseMetered;
 import com.codahale.metrics.annotation.Timed;
+import com.codeheadsystems.dstore.node.api.NodeTenantTableService;
 import com.codeheadsystems.dstore.node.api.TenantTableInfo;
 import com.codeheadsystems.dstore.node.converter.TenantTableInfoConverter;
 import com.codeheadsystems.dstore.node.engine.impl.V1SingleEntryEngine;
 import com.codeheadsystems.dstore.node.manager.TenantTableManager;
 import com.codeheadsystems.dstore.node.model.TenantTable;
 import com.codeheadsystems.dstore.node.model.TenantTableIdentifier;
+import com.codeheadsystems.server.exception.NotFoundException;
 import com.codeheadsystems.server.resource.JerseyResource;
 import java.util.List;
 import java.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import javax.validation.constraints.NotNull;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,8 +39,7 @@ import org.slf4j.LoggerFactory;
  * Resource for the tenant requests. (Control plane)
  */
 @Singleton
-@Path("/v1/tenant/{tenant}/table")
-public class TenantTableResource implements JerseyResource {
+public class TenantTableResource implements NodeTenantTableService, JerseyResource {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(TenantTableResource.class);
 
@@ -76,13 +66,11 @@ public class TenantTableResource implements JerseyResource {
    * @param tenantId the tenant to search for.
    * @return response.
    */
-  @GET
   @Timed
   @ExceptionMetered
   @ResponseMetered
-  @Path("/")
-  @Produces(MediaType.APPLICATION_JSON)
-  public List<String> list(@PathParam("tenant") final String tenantId) {
+  @Override
+  public List<String> listTenantTables(final String tenantId) {
     LOGGER.debug("list({})", tenantId);
     return tenantTableManager.tables(tenantId);
   }
@@ -94,14 +82,12 @@ public class TenantTableResource implements JerseyResource {
    * @param table    the table.
    * @return response.
    */
-  @GET
   @Timed
   @ExceptionMetered
   @ResponseMetered
-  @Path("/{table}")
-  @Produces(MediaType.APPLICATION_JSON)
-  public Optional<TenantTableInfo> read(@PathParam("tenant") final String tenantId,
-                                        @PathParam("table") final String table) {
+  @Override
+  public Optional<TenantTableInfo> readTenantTable(final String tenantId,
+                                                   final String table) {
     LOGGER.debug("read({},{})", tenantId, table);
     final TenantTableIdentifier identifier = TenantTableIdentifier.from(tenantId, table);
     return tenantTableManager.get(identifier)
@@ -112,18 +98,16 @@ public class TenantTableResource implements JerseyResource {
   /**
    * Create the tenant.
    *
-   * @param tenantId   that owns the table.
-   * @param table      the table.
+   * @param tenantId that owns the table.
+   * @param table    the table.
    * @return response.
    */
-  @PUT
   @Timed
   @ExceptionMetered
   @ResponseMetered
-  @Path("/{table}")
-  @Produces(MediaType.APPLICATION_JSON)
-  public TenantTableInfo create(@PathParam("tenant") final String tenantId,
-                                @PathParam("table") final String table) {
+  @Override
+  public TenantTableInfo createTenantTable(final String tenantId,
+                                           final String table) {
     LOGGER.debug("create({},{})", tenantId, table);
     final TenantTableIdentifier identifier = TenantTableIdentifier.from(tenantId, table);
     final TenantTable tenantTable = tenantTableManager
@@ -137,23 +121,18 @@ public class TenantTableResource implements JerseyResource {
    *
    * @param tenantId that owns the table.
    * @param table    the table.
-   * @return response.
    */
-  @DELETE
   @Timed
   @ExceptionMetered
   @ResponseMetered
-  @Path("/{table}")
-  public Response delete(@PathParam("tenant") final String tenantId,
-                         @PathParam("table") final String table) {
+  @Override
+  public void deleteTenantTable(final String tenantId,
+                                final String table) {
     LOGGER.debug("delete({},{})", tenantId, table);
     final TenantTableIdentifier identifier = TenantTableIdentifier.from(tenantId, table);
-    if (tenantTableManager.delete(identifier)) {
-      LOGGER.debug("deleted {}:{}", tenantId, table);
-      return Response.noContent().build();
-    } else {
+    if (!tenantTableManager.delete(identifier)) {
       LOGGER.debug("not found {}:{}", tenantId, table);
-      return Response.status(Response.Status.NOT_FOUND).build();
+      throw new NotFoundException();
     }
   }
 

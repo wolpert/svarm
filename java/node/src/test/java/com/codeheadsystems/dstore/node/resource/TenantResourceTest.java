@@ -17,12 +17,15 @@
 package com.codeheadsystems.dstore.node.resource;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.mockito.Mockito.when;
 
 import com.codeheadsystems.dstore.node.api.TenantInfo;
 import com.codeheadsystems.dstore.node.converter.TenantInfoConverter;
 import com.codeheadsystems.dstore.node.manager.TenantManager;
 import com.codeheadsystems.dstore.node.model.Tenant;
+import com.codeheadsystems.server.exception.NotFoundException;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
@@ -47,14 +50,14 @@ class TenantResourceTest {
   @Test
   void list() {
     when(tenantManager.tenants()).thenReturn(list);
-    assertThat(resource.list()).isEqualTo(list);
+    assertThat(resource.listTenants()).isEqualTo(list);
   }
 
   @Test
   void read_withValue() {
     when(tenantManager.get(TENANT)).thenReturn(Optional.of(tenant));
     when(tenantInfoConverter.from(tenant)).thenReturn(tenantInfo);
-    assertThat(resource.read(TENANT))
+    assertThat(resource.readTenant(TENANT))
         .isPresent()
         .get()
         .isEqualTo(tenantInfo);
@@ -63,7 +66,7 @@ class TenantResourceTest {
   @Test
   void read_withNoValue() {
     when(tenantManager.get(TENANT)).thenReturn(Optional.empty());
-    assertThat(resource.read(TENANT))
+    assertThat(resource.readTenant(TENANT))
         .isEmpty();
   }
 
@@ -71,22 +74,21 @@ class TenantResourceTest {
   void create() {
     when(tenantManager.create(TENANT)).thenReturn(tenant);
     when(tenantInfoConverter.from(tenant)).thenReturn(tenantInfo);
-    assertThat(resource.create(TENANT))
+    assertThat(resource.createTenant(TENANT))
         .isEqualTo(tenantInfo);
   }
 
   @Test
   void delete_found() {
     when(tenantManager.delete(TENANT)).thenReturn(true);
-    assertThat(resource.delete(TENANT))
-        .hasFieldOrPropertyWithValue("status", 204);
+    assertThatNoException().isThrownBy(() -> resource.deleteTenant(TENANT));
   }
 
   @Test
   void delete_notFound() {
     when(tenantManager.delete(TENANT)).thenReturn(false);
-    assertThat(resource.delete(TENANT))
-        .hasFieldOrPropertyWithValue("status", 404);
+    assertThatExceptionOfType(NotFoundException.class)
+        .isThrownBy(() -> resource.deleteTenant(TENANT));
   }
 
 }

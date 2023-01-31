@@ -19,24 +19,15 @@ package com.codeheadsystems.dstore.node.resource;
 import com.codahale.metrics.annotation.ExceptionMetered;
 import com.codahale.metrics.annotation.ResponseMetered;
 import com.codahale.metrics.annotation.Timed;
+import com.codeheadsystems.dstore.node.api.NodeTenantTableEntryService;
 import com.codeheadsystems.dstore.node.manager.TenantTableEntryManager;
 import com.codeheadsystems.dstore.node.model.TenantTableIdentifier;
+import com.codeheadsystems.server.exception.NotFoundException;
 import com.codeheadsystems.server.resource.JerseyResource;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,8 +35,7 @@ import org.slf4j.LoggerFactory;
  * Resource for the tenant requests. (Control plane)
  */
 @Singleton
-@Path("/v1/tenant/{tenant}/table/{table}/entry")
-public class TenantTableEntryResource implements JerseyResource {
+public class TenantTableEntryResource implements NodeTenantTableEntryService, JerseyResource {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(TenantTableEntryResource.class);
 
@@ -70,16 +60,14 @@ public class TenantTableEntryResource implements JerseyResource {
    * @param entry    the entry.
    * @return response.
    */
-  @GET
   @Timed
   @ExceptionMetered
   @ResponseMetered
-  @Path("/{entry}")
-  @Produces(MediaType.APPLICATION_JSON)
-  public Optional<JsonNode> read(@PathParam("tenant") final String tenantId,
-                                 @PathParam("table") final String table,
-                                 @PathParam("entry") final String entry) {
-    LOGGER.debug("read({},{},{})", tenantId, table, entry);
+  @Override
+  public Optional<JsonNode> readTenantTableEntry(final String tenantId,
+                                                 final String table,
+                                                 final String entry) {
+    LOGGER.debug("readTenantTableEntry({},{},{})", tenantId, table, entry);
     return tenantTableEntryManager.read(TenantTableIdentifier.from(tenantId, table), entry);
   }
 
@@ -90,22 +78,17 @@ public class TenantTableEntryResource implements JerseyResource {
    * @param table    the table.
    * @param entry    for the table.
    * @param data     the data we care about in JSON form.
-   * @return response.
    */
-  @PUT
   @Timed
   @ExceptionMetered
   @ResponseMetered
-  @Path("/{entry}")
-  @Consumes(MediaType.APPLICATION_JSON)
-  @Produces(MediaType.APPLICATION_JSON)
-  public Response write(@PathParam("tenant") final String tenantId,
-                        @PathParam("table") final String table,
-                        @PathParam("entry") final String entry,
-                        @NotNull @Valid final JsonNode data) { // Do NOT log this data!
+  @Override
+  public void createTenantTableEntry(final String tenantId,
+                                     final String table,
+                                     final String entry,
+                                     JsonNode data) { // Do NOT log this data!
     LOGGER.debug("write({},{},{})", tenantId, table, entry);
     tenantTableEntryManager.write(TenantTableIdentifier.from(tenantId, table), entry, data);
-    return Response.noContent().build();
   }
 
   /**
@@ -114,21 +97,17 @@ public class TenantTableEntryResource implements JerseyResource {
    * @param tenantId that owns the table.
    * @param table    the table.
    * @param entry    to delete.
-   * @return response.
    */
-  @DELETE
   @Timed
   @ExceptionMetered
   @ResponseMetered
-  @Path("/{entry}")
-  public Response delete(@PathParam("tenant") final String tenantId,
-                         @PathParam("table") final String table,
-                         @PathParam("entry") final String entry) {
+  @Override
+  public void deleteTenantTableEntry(final String tenantId,
+                                     final String table,
+                                     final String entry) {
     LOGGER.debug("delete({},{},{})", tenantId, table, entry);
-    if (tenantTableEntryManager.delete(TenantTableIdentifier.from(tenantId, table), entry)) {
-      return Response.noContent().build();
-    } else {
-      return Response.status(Response.Status.NOT_FOUND).build();
+    if (!tenantTableEntryManager.delete(TenantTableIdentifier.from(tenantId, table), entry)) {
+      throw new NotFoundException();
     }
   }
 

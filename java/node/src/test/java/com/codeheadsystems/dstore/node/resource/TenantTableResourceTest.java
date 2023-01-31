@@ -16,9 +16,9 @@
 
 package com.codeheadsystems.dstore.node.resource;
 
-import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.mockito.Mockito.when;
 
 import com.codeheadsystems.dstore.node.api.TenantTableInfo;
@@ -27,10 +27,9 @@ import com.codeheadsystems.dstore.node.engine.impl.V1SingleEntryEngine;
 import com.codeheadsystems.dstore.node.manager.TenantTableManager;
 import com.codeheadsystems.dstore.node.model.TenantTable;
 import com.codeheadsystems.dstore.node.model.TenantTableIdentifier;
+import com.codeheadsystems.server.exception.NotFoundException;
 import java.util.List;
 import java.util.Optional;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -55,7 +54,7 @@ class TenantTableResourceTest {
   @Test
   void list() {
     when(tenantTableManager.tables(TENANT)).thenReturn(list);
-    assertThat(resource.list(TENANT)).isEqualTo(list);
+    assertThat(resource.listTenantTables(TENANT)).isEqualTo(list);
   }
 
   @Test
@@ -63,7 +62,7 @@ class TenantTableResourceTest {
     when(tenantTableManager.get(IDENTIFIER)).thenReturn(Optional.of(tenantTable));
     when(tenantTable.identifier()).thenReturn(identifier);
     when(tenantTableInfoConverter.from(identifier)).thenReturn(tenantTableInfo);
-    assertThat(resource.read(TENANT, TABLE_NAME))
+    assertThat(resource.readTenantTable(TENANT, TABLE_NAME))
         .isNotNull()
         .isPresent()
         .contains(tenantTableInfo);
@@ -71,7 +70,7 @@ class TenantTableResourceTest {
 
   @Test
   void read_notFound() {
-    assertThat(resource.read(TENANT, TABLE_NAME))
+    assertThat(resource.readTenantTable(TENANT, TABLE_NAME))
         .isNotNull()
         .isNotPresent();
   }
@@ -82,21 +81,20 @@ class TenantTableResourceTest {
         .thenReturn(tenantTable);
     when(tenantTable.identifier()).thenReturn(identifier);
     when(tenantTableInfoConverter.from(identifier)).thenReturn(tenantTableInfo);
-    assertThat(resource.create(TENANT, TABLE_NAME))
+    assertThat(resource.createTenantTable(TENANT, TABLE_NAME))
         .isEqualTo(tenantTableInfo);
   }
 
   @Test
   void delete_found() {
     when(tenantTableManager.delete(IDENTIFIER)).thenReturn(true);
-    assertThat(resource.delete(TENANT, TABLE_NAME))
-        .hasFieldOrPropertyWithValue("status", Response.Status.NO_CONTENT.getStatusCode());
+    assertThatNoException().isThrownBy(() -> resource.deleteTenantTable(TENANT, TABLE_NAME));
   }
 
   @Test
   void delete_notFound() {
-    assertThat(resource.delete(TENANT, TABLE_NAME))
-        .hasFieldOrPropertyWithValue("status", Response.Status.NOT_FOUND.getStatusCode());
+    assertThatExceptionOfType(NotFoundException.class)
+        .isThrownBy(() -> resource.deleteTenantTable(TENANT, TABLE_NAME));
   }
 
 }
