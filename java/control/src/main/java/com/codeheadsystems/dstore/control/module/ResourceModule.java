@@ -17,6 +17,7 @@
 package com.codeheadsystems.dstore.control.module;
 
 import com.codeheadsystems.dstore.control.resource.NodeResource;
+import com.codeheadsystems.dstore.control.resource.NodeTenantTableResource;
 import com.codeheadsystems.dstore.control.resource.PingResource;
 import com.codeheadsystems.server.resource.JerseyResource;
 import dagger.Binds;
@@ -48,5 +49,15 @@ public interface ResourceModule {
   @Binds
   @IntoSet
   JerseyResource nodeResource(final NodeResource resource);
+
+  /**
+   * The node table resource.
+   *
+   * @param resource to bind.
+   * @return a jersey resource.
+   */
+  @Binds
+  @IntoSet
+  JerseyResource nodeTenantTableResource(final NodeTenantTableResource resource);
 
 }
