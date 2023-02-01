@@ -14,40 +14,32 @@
  * limitations under the License.
  */
 
-package com.codeheadsystems.dstore.control.manager;
+package com.codeheadsystems.dstore.control.resource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import com.codeheadsystems.dstore.control.dao.NodeRangeDao;
-import com.codeheadsystems.metrics.test.BaseMetricTest;
-import java.time.Clock;
+import com.codeheadsystems.dstore.control.manager.NodeRangeManager;
 import java.util.List;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-class NodeRangeManagerTest extends BaseMetricTest {
+class NodeTenantTableResourceTest {
 
   private static final String TENANT = "TENANT";
-  @Mock private NodeRangeDao nodeRangeDao;
-  @Mock private NodeManager nodeManager;
-  @Mock private Clock clock;
+  @Mock private NodeRangeManager nodeRangeManager;
   @Mock private List<String> list;
 
-  private NodeRangeManager nodeRangeManager;
-
-  @BeforeEach
-  void setup() {
-    nodeRangeManager = new NodeRangeManager(nodeRangeDao, nodeManager, clock, metrics);
-  }
+  @InjectMocks private NodeTenantTableResource nodeTenantTableResource;
 
   @Test
-  void resources() {
-    when(nodeRangeDao.resources(TENANT)).thenReturn(list);
-    assertThat(nodeRangeManager.resources(TENANT)).isEqualTo(list);
+  public void listTenantTables() {
+    when(nodeRangeManager.resources(TENANT)).thenReturn(list);
+    assertThat(nodeTenantTableResource.listTenantTables(TENANT)).isEqualTo(list);
   }
+
 }

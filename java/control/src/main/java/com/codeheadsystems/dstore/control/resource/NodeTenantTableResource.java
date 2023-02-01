@@ -16,6 +16,10 @@
 
 package com.codeheadsystems.dstore.control.resource;
 
+import com.codahale.metrics.annotation.ExceptionMetered;
+import com.codahale.metrics.annotation.ResponseMetered;
+import com.codahale.metrics.annotation.Timed;
+import com.codeheadsystems.dstore.control.manager.NodeRangeManager;
 import com.codeheadsystems.dstore.node.api.NodeTenantTableService;
 import com.codeheadsystems.dstore.node.api.TenantTableInfo;
 import com.codeheadsystems.server.resource.JerseyResource;
@@ -34,33 +38,50 @@ public class NodeTenantTableResource implements NodeTenantTableService, JerseyRe
 
   private static final Logger LOGGER = LoggerFactory.getLogger(NodeTenantTableResource.class);
 
+  private final NodeRangeManager nodeRangeManager;
+
   /**
    * Constructor.
+   *
+   * @param nodeRangeManager for node ranges.
    */
   @Inject
-  public NodeTenantTableResource() {
-    LOGGER.info("NodeTenantTableResource()");
+  public NodeTenantTableResource(final NodeRangeManager nodeRangeManager) {
+    LOGGER.info("NodeTenantTableResource({})", nodeRangeManager);
+    this.nodeRangeManager = nodeRangeManager;
   }
 
   @Override
+  @Timed
+  @ExceptionMetered
+  @ResponseMetered
   public List<String> listTenantTables(final String tenantId) {
     LOGGER.trace("listTenantTables({})", tenantId);
-    return null;
+    return nodeRangeManager.resources(tenantId);
   }
 
   @Override
+  @Timed
+  @ExceptionMetered
+  @ResponseMetered
   public Optional<TenantTableInfo> readTenantTable(final String tenantId, final String table) {
     LOGGER.trace("readTenantTable({},{})", tenantId, table);
     return Optional.empty();
   }
 
   @Override
+  @Timed
+  @ExceptionMetered
+  @ResponseMetered
   public TenantTableInfo createTenantTable(final String tenantId, final String table) {
     LOGGER.trace("createTenantTable({},{})", tenantId, table);
     return null;
   }
 
   @Override
+  @Timed
+  @ExceptionMetered
+  @ResponseMetered
   public void deleteTenantTable(final String tenantId, final String table) {
     LOGGER.trace("deleteTenantTable({},{})", tenantId, table);
 
