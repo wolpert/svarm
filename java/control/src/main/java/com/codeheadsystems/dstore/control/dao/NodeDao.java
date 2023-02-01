@@ -45,10 +45,10 @@ public interface NodeDao extends Transactional {
   void update(@BindPojo final Node instance);
 
   /**
-   * Get the key from the datastore.
+   * Get the Node from the datastore.
    *
    * @param uuid to use.
-   * @return the key.
+   * @return the node.
    */
   @SqlQuery("select * from NODES where uuid = :uuid")
   Node read(@Bind("uuid") String uuid);

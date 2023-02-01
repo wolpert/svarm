@@ -62,6 +62,14 @@ class NodeRangeDaoTest extends JdbiDaoTest<NodeRangeDao> {
         .hasSize(2)
         .contains(nr1,nr2);
 
+    assertThat(dao.tenants())
+        .hasSize(1)
+        .contains(TENANT);
+
+    assertThat(dao.resources(TENANT))
+        .hasSize(2)
+        .contains(RESOURCE1, RESOURCE2);
+
     dao.delete(UUID2, TENANT, RESOURCE2);
     assertThat(dao.read(UUID2, TENANT, RESOURCE2)).isNull();
     assertThat(dao.nodeRanges(UUID2))

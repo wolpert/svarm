@@ -64,6 +64,10 @@
             <column name="RESOURCE"/>
         </createIndex>
 
+        <createIndex tableName="NODE_RANGE" indexName="NODE_RANGE_TENANT_IDX">
+            <column name="TENANT"/>
+        </createIndex>
+
     </changeSet>
 
 </databaseChangeLog>

@@ -30,7 +30,7 @@ import org.jdbi.v3.sqlobject.transaction.Transactional;
 public interface NodeRangeDao extends Transactional {
 
   /**
-   * Inserts a Node by the values.
+   * Inserts a Node range by the values.
    *
    * @param instance to use.
    */
@@ -60,17 +60,17 @@ public interface NodeRangeDao extends Transactional {
    * @param uuid     to use.
    * @param tenant   to use.
    * @param resource to use.
-   * @return the key.
+   * @return the node range.
    */
   @SqlQuery("select * from NODE_RANGE where uuid = :uuid and tenant = :tenant and resource = :resource")
   NodeRange read(@Bind("uuid") String uuid, @Bind("tenant") String tenant, @Bind("resource") String resource);
 
   /**
-   * Get the entry from the datastore.
+   * Get the node ranges from the datastore for the tenant/resource.
    *
    * @param tenant   to use.
    * @param resource to use.
-   * @return the key.
+   * @return the list of node ranges.
    */
   @SqlQuery("select * from NODE_RANGE where tenant = :tenant and resource = :resource")
   List<NodeRange> nodeRanges(@Bind("tenant") String tenant, @Bind("resource") String resource);
@@ -79,17 +79,34 @@ public interface NodeRangeDao extends Transactional {
    * List all node ranges for a node.
    *
    * @param uuid to use.
-   * @return the key.
+   * @return the list of node ranges.
    */
   @SqlQuery("select * from NODE_RANGE where uuid = :uuid")
   List<NodeRange> nodeRanges(@Bind("uuid") String uuid);
 
   /**
+   * List all tenants.
+   *
+   * @return the tenants.
+   */
+  @SqlQuery("select distinct(tenant) from NODE_RANGE")
+  List<String> tenants();
+
+  /**
+   * List all resources for a tenant.
+   *
+   * @param tenant the tenant
+   * @return the resources.
+   */
+  @SqlQuery("select distinct(resource) from NODE_RANGE where tenant = :tenant")
+  List<String> resources(@Bind("tenant") String tenant);
+
+  /**
    * Delete the entry from the database.
    *
    * @param uuid     to delete.
-   * @param tenant   to use.
-   * @param resource to use.
+   * @param tenant   to delete.
+   * @param resource to delete.
    */
   @SqlUpdate("delete from NODE_RANGE where uuid = :uuid and tenant = :tenant and resource = :resource")
   void delete(@Bind("uuid") String uuid, @Bind("tenant") String tenant, @Bind("resource") String resource);
