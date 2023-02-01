@@ -21,6 +21,7 @@ import com.codahale.metrics.jdbi3.InstrumentedSqlLogger;
 import com.codeheadsystems.dstore.control.ControlConfiguration;
 import com.codeheadsystems.dstore.control.dao.KeyDao;
 import com.codeheadsystems.dstore.control.dao.NodeDao;
+import com.codeheadsystems.dstore.control.dao.NodeRangeDao;
 import com.codeheadsystems.dstore.control.factory.ControlJdbiFactory;
 import dagger.Module;
 import dagger.Provides;
@@ -76,6 +77,18 @@ public class DatabaseModule {
   @Singleton
   public NodeDao nodeDao(final Jdbi jdbi) {
     return jdbi.onDemand(NodeDao.class);
+  }
+
+  /**
+   * Generates the NodeRangeDao.
+   *
+   * @param jdbi to use.
+   * @return the dao.
+   */
+  @Provides
+  @Singleton
+  public NodeRangeDao nodeRangeDao(final Jdbi jdbi) {
+    return jdbi.onDemand(NodeRangeDao.class);
   }
 
 }

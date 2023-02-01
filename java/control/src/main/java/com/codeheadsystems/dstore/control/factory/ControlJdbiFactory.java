@@ -19,6 +19,7 @@ package com.codeheadsystems.dstore.control.factory;
 import com.codeheadsystems.dstore.control.ControlConfiguration;
 import com.codeheadsystems.dstore.control.model.Key;
 import com.codeheadsystems.dstore.control.model.Node;
+import com.codeheadsystems.dstore.control.model.NodeRange;
 import io.dropwizard.jdbi3.JdbiFactory;
 import io.dropwizard.setup.Environment;
 import java.sql.Connection;
@@ -90,7 +91,8 @@ public class ControlJdbiFactory {
     LOGGER.info("setup({},{})", jdbi, runLiquibase);
     jdbi.getConfig(JdbiImmutables.class)
         .registerImmutable(Key.class)
-        .registerImmutable(Node.class);
+        .registerImmutable(Node.class)
+        .registerImmutable(NodeRange.class);
     jdbi.installPlugin(new SqlObjectPlugin());
     if (Boolean.TRUE.equals(runLiquibase)) {
       jdbi.useHandle(this::runLiquibase);
