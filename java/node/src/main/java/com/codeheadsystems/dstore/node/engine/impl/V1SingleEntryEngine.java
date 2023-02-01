@@ -16,6 +16,8 @@
 
 package com.codeheadsystems.dstore.node.engine.impl;
 
+import static com.codeheadsystems.dstore.node.api.TenantTableVersion.V1SingleEntry;
+
 import com.codeheadsystems.dstore.common.engine.JsonEngine;
 import com.codeheadsystems.dstore.node.engine.SqlEngine;
 import com.codeheadsystems.dstore.node.engine.TableDefinitionEngine;
@@ -43,7 +45,7 @@ public class V1SingleEntryEngine implements TableDefinitionEngine {
   /**
    * Identifier.
    */
-  public static final String DEFINITION_NAME = "V1SingleEntryEngine";
+  public static final String DEFINITION_NAME = V1SingleEntry;
   private static final Logger LOGGER = LoggerFactory.getLogger(V1SingleEntryEngine.class);
   private static final String INTEGER_TYPE = "INTEGER";
   private static final String STRING_TYPE = "STRING";
