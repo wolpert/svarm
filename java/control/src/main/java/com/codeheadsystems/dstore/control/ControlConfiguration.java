@@ -77,7 +77,7 @@ public class ControlConfiguration extends Configuration {
    *
    * @return the configuration.
    */
-  @JsonProperty("etcConfiguration")
+  @JsonProperty("etcdConfiguration")
   public EtcdConfiguration getEtcdConfiguration() {
     return etcdConfiguration;
   }

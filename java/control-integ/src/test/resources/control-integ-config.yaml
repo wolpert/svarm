@@ -18,7 +18,7 @@ database:
   validationQuery: "/* MyService Health Check */ call now()"
 # Validation query note: HSQL is weird. We won't have to do this with postgresql.
 
-etcConfiguration:
+etcdConfiguration:
   target: ip:///localhost:2379
 
 #metrics:

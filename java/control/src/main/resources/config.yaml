@@ -43,7 +43,7 @@ server:
     - type: http
       port: 8081
 
-etcConfiguration:
+etcdConfiguration:
   target: ip:///localhost:2379
 
 health:

@@ -41,16 +41,15 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 
 @Tag("integ")
 public class ControlIntegTest {
+  @RegisterExtension
+  public static final EtcdClusterExtension cluster = EtcdClusterExtension.builder()
+      .withNodes(1)
+      .build();
   private static DropwizardTestSupport<ControlConfiguration> SUPPORT;
   private static ObjectMapper OBJECT_MAPPER;
   private static Random RANDOM;
   private static String CONNECTION_URL;
   private static ControlNodeService CONTROL_NODE;
-
-  @RegisterExtension
-  public static final EtcdClusterExtension cluster = EtcdClusterExtension.builder()
-      .withNodes(1)
-      .build();
 
   @BeforeAll
   static void setup() throws Exception {
@@ -71,40 +70,7 @@ public class ControlIntegTest {
     SUPPORT.after();
   }
 
-  @Test
-  public void roundTrip() {
-    final String uuid = UUID.randomUUID().toString();
-    final NodeMetaData metaData = ImmutableNodeMetaData.builder().host("host").port(123).build();
-    assertThat(CONTROL_NODE.register(uuid, metaData))
-        .isNotNull()
-        .hasFieldOrPropertyWithValue("uuid", uuid)
-        .hasFieldOrPropertyWithValue("status", NodeInfo.Status.DISABLED.name());
-
-    assertThat(CONTROL_NODE.enable(uuid))
-        .isNotNull()
-        .hasFieldOrPropertyWithValue("uuid", uuid)
-        .hasFieldOrPropertyWithValue("status", NodeInfo.Status.ENABLED.name());
-
-    final KeyInfo nodeKey = CONTROL_NODE.nodeKey(uuid);
-    assertThat(nodeKey)
-        .isNotNull()
-        .extracting("key")
-        .isNotNull();
-    assertThat(CONTROL_NODE.nodeKey(uuid))
-        .isNotNull()
-        .extracting("key")
-        .isEqualTo(nodeKey.key());
-
-    final KeyInfo refKey = CONTROL_NODE.nodeKey(uuid, "reference");
-    assertThat(refKey)
-        .isNotNull()
-        .extracting("key")
-        .isNotNull();
-    assertThat(CONTROL_NODE.nodeKey(uuid, "reference"))
-        .isNotNull()
-        .extracting("key")
-        .isEqualTo(refKey.key());
-
+  private static void disableNode(final String uuid) {
     assertThat(CONTROL_NODE.disable(uuid))
         .isNotNull()
         .hasFieldOrPropertyWithValue("uuid", uuid)
@@ -114,6 +80,53 @@ public class ControlIntegTest {
         .isNotNull()
         .hasFieldOrPropertyWithValue("uuid", uuid)
         .hasFieldOrPropertyWithValue("status", NodeInfo.Status.DISABLED.name());
+  }
+
+  private static void validateRefKey(final String uuid, final String reference) {
+    final KeyInfo refKey = CONTROL_NODE.nodeKey(uuid, reference);
+    assertThat(refKey)
+        .isNotNull()
+        .extracting("key")
+        .isNotNull();
+    assertThat(CONTROL_NODE.nodeKey(uuid, reference))
+        .isNotNull()
+        .extracting("key")
+        .isEqualTo(refKey.key());
+  }
+
+  private static void validateNodeKey(final String uuid) {
+    final KeyInfo nodeKey = CONTROL_NODE.nodeKey(uuid);
+    assertThat(nodeKey)
+        .isNotNull()
+        .extracting("key")
+        .isNotNull();
+    assertThat(CONTROL_NODE.nodeKey(uuid))
+        .isNotNull()
+        .extracting("key")
+        .isEqualTo(nodeKey.key());
+  }
+
+  private static void registerAndEnable(final String uuid, final NodeMetaData metaData) {
+    assertThat(CONTROL_NODE.register(uuid, metaData))
+        .isNotNull()
+        .hasFieldOrPropertyWithValue("uuid", uuid)
+        .hasFieldOrPropertyWithValue("status", NodeInfo.Status.DISABLED.name());
+
+    assertThat(CONTROL_NODE.enable(uuid))
+        .isNotNull()
+        .hasFieldOrPropertyWithValue("uuid", uuid)
+        .hasFieldOrPropertyWithValue("status", NodeInfo.Status.ENABLED.name());
+  }
+
+  @Test
+  public void roundTrip() {
+    final String uuid = UUID.randomUUID().toString();
+    final NodeMetaData metaData = ImmutableNodeMetaData.builder().host("host").port(123).build();
+    registerAndEnable(uuid, metaData);
+    validateNodeKey(uuid);
+    // TODO: Create a tenant
+    validateRefKey(uuid, "reference");
+    disableNode(uuid);
   }
 
 }

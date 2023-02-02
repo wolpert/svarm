@@ -31,6 +31,7 @@ dependencies {
     implementation project(":common")
     implementation project(":common-javaClient")
     implementation project(":control-common")
+    implementation project(":node-common")
 
     implementation libs.jackson.annotations
     implementation libs.jackson.core
