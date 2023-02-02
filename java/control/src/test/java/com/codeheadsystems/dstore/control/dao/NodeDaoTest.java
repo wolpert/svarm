@@ -18,6 +18,7 @@ package com.codeheadsystems.dstore.control.dao;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.codeheadsystems.dstore.control.common.api.NodeInfo;
 import com.codeheadsystems.dstore.control.model.ImmutableNode;
 import com.codeheadsystems.dstore.control.model.Node;
 import java.time.Instant;
@@ -56,10 +57,15 @@ class NodeDaoTest extends JdbiDaoTest<NodeDao> {
     dao.insert(node);
     final Node result = dao.read(node.uuid());
     assertThat(result).isEqualTo(node);
+    assertThat(dao.allNodes()).contains(node.uuid());
+    assertThat(dao.allEnabledNodes()).doesNotContain(node.uuid());
 
-    final Node node2 = ImmutableNode.copyOf(node).withUpdateDate(Instant.ofEpochMilli(System.currentTimeMillis() + 1000));
+    final Node node2 = ImmutableNode.copyOf(node).withStatus(NodeInfo.Status.ENABLED.name())
+        .withUpdateDate(Instant.ofEpochMilli(System.currentTimeMillis() + 1000));
     dao.update(node2);
     final Node result2 = dao.read(node.uuid());
+    assertThat(dao.allNodes()).contains(node.uuid());
+    assertThat(dao.allEnabledNodes()).contains(node.uuid());
     assertThat(result2).isEqualTo(node2);
     assertThat(result2).isNotEqualTo(result);
   }

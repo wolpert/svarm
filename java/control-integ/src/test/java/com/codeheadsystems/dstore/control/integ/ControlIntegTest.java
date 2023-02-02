@@ -30,12 +30,14 @@ import com.codeheadsystems.dstore.control.javaclient.ControlServiceComponent;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.dropwizard.testing.DropwizardTestSupport;
 import io.dropwizard.testing.ResourceHelpers;
+import io.etcd.jetcd.test.EtcdClusterExtension;
 import java.util.Random;
 import java.util.UUID;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 @Tag("integ")
 public class ControlIntegTest {
@@ -45,12 +47,17 @@ public class ControlIntegTest {
   private static String CONNECTION_URL;
   private static ControlNodeService CONTROL_NODE;
 
+  @RegisterExtension
+  public static final EtcdClusterExtension cluster = EtcdClusterExtension.builder()
+      .withNodes(1)
+      .build();
 
   @BeforeAll
   static void setup() throws Exception {
     SUPPORT = new DropwizardTestSupport<>(
         Control.class,
         ResourceHelpers.resourceFilePath("control-integ-config.yaml")
+        // TODO: put in the cluster endpoints into the config
     );
     SUPPORT.before();
     CONNECTION_URL = "http://localhost:" + SUPPORT.getLocalPort() + "/";

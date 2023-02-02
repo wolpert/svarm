@@ -17,6 +17,7 @@
 package com.codeheadsystems.dstore.control.dao;
 
 import com.codeheadsystems.dstore.control.model.Node;
+import java.util.List;
 import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.customizer.BindPojo;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
@@ -52,6 +53,22 @@ public interface NodeDao extends Transactional {
    */
   @SqlQuery("select * from NODES where uuid = :uuid")
   Node read(@Bind("uuid") String uuid);
+
+  /**
+   * Gets all the nodes from the datastore.
+   *
+   * @return the list.
+   */
+  @SqlQuery("select distinct (uuid) from NODES")
+  List<String> allNodes();
+
+  /**
+   * Gets all the nodes from the datastore that are enabled.
+   *
+   * @return the list.
+   */
+  @SqlQuery("select distinct (uuid) from NODES where status = 'ENABLED'")
+  List<String> allEnabledNodes();
 
   /**
    * Delete the entry from the database.

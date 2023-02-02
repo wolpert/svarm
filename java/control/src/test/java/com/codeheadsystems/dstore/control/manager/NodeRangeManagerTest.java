@@ -19,7 +19,9 @@ package com.codeheadsystems.dstore.control.manager;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
+import com.codeheadsystems.dstore.common.config.engine.NodeConfigurationEngine;
 import com.codeheadsystems.dstore.control.dao.NodeRangeDao;
+import com.codeheadsystems.dstore.control.engine.NodeAvailabilityEngine;
 import com.codeheadsystems.metrics.test.BaseMetricTest;
 import java.time.Clock;
 import java.util.List;
@@ -37,12 +39,14 @@ class NodeRangeManagerTest extends BaseMetricTest {
   @Mock private NodeManager nodeManager;
   @Mock private Clock clock;
   @Mock private List<String> list;
+  @Mock private NodeAvailabilityEngine nodeAvailabilityEngine;
+  @Mock private NodeConfigurationEngine nodeConfigurationEngine;
 
   private NodeRangeManager nodeRangeManager;
 
   @BeforeEach
   void setup() {
-    nodeRangeManager = new NodeRangeManager(nodeRangeDao, nodeManager, clock, metrics);
+    nodeRangeManager = new NodeRangeManager(nodeRangeDao, clock, metrics, nodeAvailabilityEngine, nodeConfigurationEngine);
   }
 
   @Test
