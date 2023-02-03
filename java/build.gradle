@@ -88,6 +88,8 @@ allprojects {
         // Logging in tests
         testImplementation libs.logback.classic
         testImplementation libs.logback.core
+
+        testImplementation libs.junit.platform.launcher
     }
     jacocoTestReport {
         dependsOn test
@@ -151,7 +153,6 @@ allprojects {
     tasks.named('test') {
         useJUnitPlatform {
             excludeTags 'integ'
-            excludeTags 'experiment'
         }
 
     }
@@ -161,10 +162,15 @@ allprojects {
             includeTags "integ"
         }
     }
+}
 
-    def xper= tasks.register("xper", Test) {
-        useJUnitPlatform {
-            includeTags "experiment"
+project('endToEnd') {
+    integ {
+        enabled = false
+    }
+    test {
+        onlyIf {
+            project.hasProperty("e2e")
         }
     }
 }

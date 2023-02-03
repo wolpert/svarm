@@ -1,0 +1,55 @@
+databaseDirectory: /tmp/integtest
+
+logging:
+  level: INFO
+  loggers:
+    com.codeheadsystems: DEBUG
+    com.codeheadsystems.dstore.node: TRACE
+    com.mchange.v2.c3p0: TRACE
+  appenders:
+    - type: console
+      logFormat: "%d{HH:mm:ss.SSS} [%thread] [%X{trace}] %-5level %logger{36} - %msg%n"
+
+health:
+  healthCheckUrlPaths: [ "/health-check" ]
+  healthChecks:
+    - name: deadlocks
+      type: alive
+      critical: true
+      initialState: true
+      schedule:
+        checkInterval: 10s
+        downtimeInterval: 2s
+        initialDelay: 5s
+        failureAttempts: 1
+        successAttempts: 2
+    - name: InternalDataSourceHealthCheck
+      type: ready
+      critical: true
+      initialState: false
+      schedule:
+        checkInterval: 10s
+        downtimeInterval: 2s
+        initialDelay: 5s
+        failureAttempts: 1
+        successAttempts: 2
+    - name: TenantTablelDataSourceHealthCheck
+      type: ready
+      critical: true
+      initialState: false
+      schedule:
+        checkInterval: 10s
+        downtimeInterval: 2s
+        initialDelay: 5s
+        failureAttempts: 1
+        successAttempts: 2
+    - name: BasicHealthCheck
+      type: alive
+      critical: true
+      initialState: false
+      schedule:
+        checkInterval: 60s
+        downtimeInterval: 2s
+        initialDelay: 5s
+        failureAttempts: 1
+        successAttempts: 2

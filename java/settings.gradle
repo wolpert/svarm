@@ -27,5 +27,6 @@ dependencyResolutionManagement {
 include ':common', ':server-common', ':common-javaClient', ":config-common",
         ':node-common', ':node', ':node-javaClient', ':node-integ',
         ':control-common', ':control', ':control-javaClient', ':control-integ',
-        ':proxy'
+        ':proxy',
+        ':endToEnd'
 

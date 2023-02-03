@@ -29,6 +29,18 @@ gradle integ
 Note, when trying to run integ tests in the intelij instance, you'll need to edit
 the configuration since intelij will start ignoring tests labeled integ now.
 
+### End to end tests
+
+The end to end suite starts up the control and data plane, with needed 
+subsystems. This will abuse your memory and take a while.
+
+To run the end to end tests, you can simply do
+```shell
+gradle test -Pe2e
+```
+
+This will enable the endToEnd subproject. Else that project is skipped.
+
 ### Troubleshooting
 
 #### :node:run
