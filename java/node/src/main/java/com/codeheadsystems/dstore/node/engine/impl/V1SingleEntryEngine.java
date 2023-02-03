@@ -99,7 +99,7 @@ public class V1SingleEntryEngine implements TableDefinitionEngine {
    */
   @Override
   public Optional<JsonNode> read(final TenantTable tenantTable, final String entity) {
-    LOGGER.trace("read({},{}", tenantTable, entity);
+    LOGGER.trace("read({},{})", tenantTable, entity);
     return sqlEngine.executePreparedTenant(tenantTable,
         "select * from TENANT_DATA where ID = ?",
         (ps) -> {
@@ -144,7 +144,7 @@ public class V1SingleEntryEngine implements TableDefinitionEngine {
    */
   @Override
   public void write(final TenantTable tenantTable, final String entity, final JsonNode data) {
-    LOGGER.trace("write({},{}", tenantTable, entity);
+    LOGGER.trace("write({},{})", tenantTable, entity);
     final Integer hash = hashFunctionSupplier().get().hashUnencodedChars(entity).asInt();
     sqlEngine.executePreparedTenant(tenantTable,
         "insert into TENANT_DATA (ID,C_COL,HASH,C_DATA_TYPE,C_DATA) values (?,?,?,?,?)",
@@ -188,7 +188,7 @@ public class V1SingleEntryEngine implements TableDefinitionEngine {
    */
   @Override
   public boolean delete(final TenantTable tenantTable, final String entity) {
-    LOGGER.trace("delete({},{}", tenantTable, entity);
+    LOGGER.trace("delete({},{})", tenantTable, entity);
     return sqlEngine.executePreparedTenant(tenantTable,
         "delete from TENANT_DATA where ID = ?",
         (ps) -> {

@@ -65,7 +65,7 @@ public class EtcdAccessor {
    */
   public void put(final String namespace, final String key, final String value) {
     final String namespaceKey = String.format("%s/%s", namespace, key);
-    LOGGER.trace("put({},{}", namespaceKey, value);
+    LOGGER.trace("put({},{})", namespaceKey, value);
     try {
       client.getKVClient().put(
               ByteSequence.from(namespaceKey.getBytes(StandardCharsets.UTF_8)),
@@ -108,7 +108,7 @@ public class EtcdAccessor {
    * @param key       the key.
    */
   public void delete(final String namespace, final String key) {
-    LOGGER.trace("delete({},{}", namespace, key);
+    LOGGER.trace("delete({},{})", namespace, key);
     final String namespaceKey = String.format("%s/%s", namespace, key);
     try {
       client.getKVClient()

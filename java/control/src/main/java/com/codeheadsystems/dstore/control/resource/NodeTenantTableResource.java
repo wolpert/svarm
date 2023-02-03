@@ -19,7 +19,9 @@ package com.codeheadsystems.dstore.control.resource;
 import com.codahale.metrics.annotation.ExceptionMetered;
 import com.codahale.metrics.annotation.ResponseMetered;
 import com.codahale.metrics.annotation.Timed;
+import com.codeheadsystems.dstore.control.converter.TenantTableInfoConverter;
 import com.codeheadsystems.dstore.control.manager.NodeRangeManager;
+import com.codeheadsystems.dstore.control.model.NodeRange;
 import com.codeheadsystems.dstore.node.api.NodeTenantTableService;
 import com.codeheadsystems.dstore.node.api.TenantTableInfo;
 import com.codeheadsystems.server.resource.JerseyResource;
@@ -39,16 +41,20 @@ public class NodeTenantTableResource implements NodeTenantTableService, JerseyRe
   private static final Logger LOGGER = LoggerFactory.getLogger(NodeTenantTableResource.class);
 
   private final NodeRangeManager nodeRangeManager;
+  private final TenantTableInfoConverter tenantTableInfoConverter;
 
   /**
    * Constructor.
    *
-   * @param nodeRangeManager for node ranges.
+   * @param nodeRangeManager         for node ranges.
+   * @param tenantTableInfoConverter for conversion.
    */
   @Inject
-  public NodeTenantTableResource(final NodeRangeManager nodeRangeManager) {
+  public NodeTenantTableResource(final NodeRangeManager nodeRangeManager,
+                                 final TenantTableInfoConverter tenantTableInfoConverter) {
     LOGGER.info("NodeTenantTableResource({})", nodeRangeManager);
     this.nodeRangeManager = nodeRangeManager;
+    this.tenantTableInfoConverter = tenantTableInfoConverter;
   }
 
   @Override
@@ -75,7 +81,8 @@ public class NodeTenantTableResource implements NodeTenantTableService, JerseyRe
   @ResponseMetered
   public TenantTableInfo createTenantTable(final String tenantId, final String table) {
     LOGGER.trace("createTenantTable({},{})", tenantId, table);
-    return null;
+    final List<NodeRange> nodeRanges = nodeRangeManager.createTenantResource(tenantId, table);
+    return tenantTableInfoConverter.from(nodeRanges);
   }
 
   @Override
