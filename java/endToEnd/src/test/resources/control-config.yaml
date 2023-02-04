@@ -14,7 +14,7 @@ database:
   driverClass: org.postgresql.Driver
   user: control
   password: control
-  url: jdbc:postgresql://localhost:5432/endToEnd?sslmode=disable
+  url: jdbc:postgresql://localhost:15432/endToEnd?sslmode=disable
 # Validation query note: HSQL is weird. We won't have to do this with postgresql.
 
 etcdConfiguration:

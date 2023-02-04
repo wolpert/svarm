@@ -31,7 +31,7 @@ public class PgsqlServiceManager implements ServiceManager {
   @Override
   public void startup(EnvironmentConfiguration configuration) {
     int containerPort = 5432;
-    int localPort = 5432;
+    int localPort = 15432;
     DockerImageName postgres = DockerImageName.parse("postgres:14.6");
     container = new PostgreSQLContainer<>(postgres)
         .withDatabaseName("endToEnd")
