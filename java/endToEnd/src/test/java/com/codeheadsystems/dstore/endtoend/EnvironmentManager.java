@@ -16,20 +16,47 @@
 
 package com.codeheadsystems.dstore.endtoend;
 
+import com.codeheadsystems.dstore.endtoend.environment.EtcdServiceManager;
+import com.codeheadsystems.dstore.endtoend.environment.PgsqlServiceManager;
+import com.codeheadsystems.dstore.endtoend.environment.ServiceManager;
 import org.junit.platform.launcher.TestExecutionListener;
 import org.junit.platform.launcher.TestPlan;
 
+/**
+ * This class sets up the whole environment making things available for the various services.
+ */
 public class EnvironmentManager implements TestExecutionListener {
+  private ServiceManager[] managers;
 
   @Override
   public void testPlanExecutionStarted(final TestPlan testPlan) {
     TestExecutionListener.super.testPlanExecutionStarted(testPlan);
     System.out.println("Before all tests");
+    managers = generateList();
+    for (int i = 0; i < managers.length; i++) { // go forward
+      final ServiceManager m = managers[i];
+      System.out.println("Startup: " + m.getClass().getSimpleName());
+      m.startup();
+    }
+  }
+
+  private ServiceManager[] generateList() {
+    final EtcdServiceManager etcdServiceManager = new EtcdServiceManager();
+    final PgsqlServiceManager pgsqlServiceManager = new PgsqlServiceManager();
+    return new ServiceManager[]{
+        etcdServiceManager,
+        pgsqlServiceManager
+    };
   }
 
   @Override
   public void testPlanExecutionFinished(final TestPlan testPlan) {
     TestExecutionListener.super.testPlanExecutionFinished(testPlan);
     System.out.println("After all tests");
+    for (int i = managers.length - 1; i >= 0; i--) { // go backwards
+      final ServiceManager m = managers[i];
+      System.out.println("Shutdown: " + m.getClass().getSimpleName());
+      m.shutdown();
+    }
   }
 }
