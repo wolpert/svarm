@@ -60,14 +60,17 @@ dependencies {
     implementation libs.metrics.core
     implementation libs.metrics.jdbi
 
-    testImplementation libs.jackson.dataformat.yaml
-
     // Logging stuff... need all these for logback changes
     implementation libs.logback.classic
     implementation libs.logback.core
     implementation libs.logback.access
     implementation libs.jakarta.servlet.api
     implementation libs.javax.servlet.api
+
+    testImplementation libs.jackson.dataformat.yaml
+    testImplementation libs.dropwizard.testing
+    testImplementation project(":control-javaClient")
+    testImplementation libs.jetcd.test
 }
 
 run {

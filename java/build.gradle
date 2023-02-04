@@ -149,28 +149,20 @@ allprojects {
             options.addBooleanOption('html5', true)
         }
     }
+
+    tasks.named('test') {
+        useJUnitPlatform { excludeTags 'integ' }
+    }
+    def integ = tasks.register("integ", Test) {
+        useJUnitPlatform { includeTags "integ" }
+    }
 }
 
 project('endToEnd') {
+    integ {enabled = false}
     test {
         onlyIf {
             project.hasProperty("e2e")
-        }
-    }
-}
-
-project('node-integ') {
-    test {
-        onlyIf {
-            project.hasProperty("integ")
-        }
-    }
-}
-
-project('control-integ') {
-    test {
-        onlyIf {
-            project.hasProperty("integ")
         }
     }
 }

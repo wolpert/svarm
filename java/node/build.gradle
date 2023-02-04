@@ -56,6 +56,15 @@ dependencies {
     implementation libs.metrics.jdbi
 
     testImplementation libs.jackson.dataformat.yaml
+    testImplementation libs.dropwizard.testing
+    testImplementation project(":node-common")
+    testImplementation project(":node-javaClient")
+    testImplementation libs.openfeign.core
+    testImplementation libs.openfeign.jackson
+    testImplementation libs.feign.slf4j
+    testImplementation libs.feign.micrometer
+    testImplementation libs.openfeign.java11
+    testImplementation libs.openfeign.jaxrs2
 
     // Logging stuff... need all these for logback changes
     implementation libs.logback.classic

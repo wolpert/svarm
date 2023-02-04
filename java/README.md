@@ -14,34 +14,35 @@ gradle clean build test
 gradle :node:run
 ```
 
-Integration tests take additional time. 
-To execute build with full integration tests, do this:
+Integration tests take additional time. To execute build with full integration
+tests, do this:
 
 ```shell
-gradle clean build test -Pinteg
+gradle clean build test integ
 ```
 
 and, of course, if you just want to run the integ tests...
 
 ```shell
-gradle test -Pinteg
+gradle integ
 ```
-
-Note, when trying to run integ or e2e tests in the intelij instance, you'll need to edit
-the configuration since intelij will start ignoring tests labeled integ now. Do
-this by adding either `-Pinteg` and/or `-Pe2e` to the params.
 
 ### End to end tests
 
-The end to end suite starts up the control and data plane, with needed 
+The end to end suite starts up the control and data plane, with needed
 subsystems. This will abuse your memory and take a while.
 
 To run the end to end tests, you can simply do
+
 ```shell
 gradle test -Pe2e
 ```
 
 This will enable the endToEnd subproject. Else that project is skipped.
+
+Note, when trying to run e2e tests in the intelij instance, you'll need to edit
+the configuration since intelij will start ignoring tests labeled integ now. Do
+this by adding `-Pe2e` to the params.
 
 ### Troubleshooting
 
@@ -64,9 +65,9 @@ rm -rf /tmp/dataNodeConfig.json /tmp/nodeInternalDb
 
 #### Gradle version
 
-There have been issues with plugins like checkstyle if the gradle version
-is mismatched. Officially the version in the gradle-wrapper.properties
-is the version we should build with. 7.6 as of last checked.
+There have been issues with plugins like checkstyle if the gradle version is
+mismatched. Officially the version in the gradle-wrapper.properties is the
+version we should build with. 7.6 as of last checked.
 
 ## Package layout.
 
@@ -124,12 +125,10 @@ curl -v -X DELETE 'http://localhost:8080/v1/tenant/customer01'
 * config-common: Library to talk to the configuration service.
 * control: The control plane service.
 * control-common: API code shared from the control plane and its clients.
-* control-integ: Integ tests for the control plane.
 * control-javaClient: java client for the control plane clients.
 * endToEnd: end to end tests. These will take the most time.
 * node: The node service.
 * node-common: API code shared from the node to its clients.
-* node-integ: Integ tests for the node.
 * node-javaClient: java client for the node clients.
 * proxy: The proxy service
 * server-common: Common files for all services. (May turn into its own project)

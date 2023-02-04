@@ -14,14 +14,12 @@
  * limitations under the License.
  */
 
-package com.codeheadsystems.dstore.node.integ;
+package com.codeheadsystems.dstore.node;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import com.codeheadsystems.dstore.common.factory.ObjectMapperFactory;
-import com.codeheadsystems.dstore.node.Node;
-import com.codeheadsystems.dstore.node.NodeConfiguration;
 import com.codeheadsystems.dstore.node.api.NodeTenantService;
 import com.codeheadsystems.dstore.node.api.NodeTenantTableEntryService;
 import com.codeheadsystems.dstore.node.api.NodeTenantTableService;

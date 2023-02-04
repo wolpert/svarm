@@ -14,13 +14,11 @@
  * limitations under the License.
  */
 
-package com.codeheadsystems.dstore.control.integ;
+package com.codeheadsystems.dstore.control;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.codeheadsystems.dstore.common.factory.ObjectMapperFactory;
-import com.codeheadsystems.dstore.control.Control;
-import com.codeheadsystems.dstore.control.ControlConfiguration;
 import com.codeheadsystems.dstore.control.common.api.ControlNodeService;
 import com.codeheadsystems.dstore.control.common.api.ImmutableNodeMetaData;
 import com.codeheadsystems.dstore.control.common.api.KeyInfo;
