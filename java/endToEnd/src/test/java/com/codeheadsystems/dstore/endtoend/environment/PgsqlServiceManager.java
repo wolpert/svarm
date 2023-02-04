@@ -17,6 +17,7 @@
 package com.codeheadsystems.dstore.endtoend.environment;
 
 
+import com.codeheadsystems.dstore.endtoend.EnvironmentConfiguration;
 import com.github.dockerjava.api.model.ExposedPort;
 import com.github.dockerjava.api.model.HostConfig;
 import com.github.dockerjava.api.model.PortBinding;
@@ -28,7 +29,7 @@ public class PgsqlServiceManager implements ServiceManager {
   private PostgreSQLContainer container;
 
   @Override
-  public void startup() {
+  public void startup(EnvironmentConfiguration configuration) {
     int containerPort = 5432;
     int localPort = 5432;
     DockerImageName postgres = DockerImageName.parse("postgres:14.6");
@@ -45,7 +46,7 @@ public class PgsqlServiceManager implements ServiceManager {
   }
 
   @Override
-  public void shutdown() {
+  public void shutdown(EnvironmentConfiguration configuration) {
     container.stop();
   }
 }

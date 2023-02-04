@@ -16,6 +16,7 @@
 
 package com.codeheadsystems.dstore.endtoend;
 
+import com.codeheadsystems.dstore.endtoend.environment.ControlServiceManager;
 import com.codeheadsystems.dstore.endtoend.environment.EtcdServiceManager;
 import com.codeheadsystems.dstore.endtoend.environment.PgsqlServiceManager;
 import com.codeheadsystems.dstore.endtoend.environment.ServiceManager;
@@ -27,25 +28,26 @@ import org.junit.platform.launcher.TestPlan;
  */
 public class EnvironmentManager implements TestExecutionListener {
   private ServiceManager[] managers;
+  private EnvironmentConfiguration environmentConfiguration;
 
   @Override
   public void testPlanExecutionStarted(final TestPlan testPlan) {
+    environmentConfiguration = new EnvironmentConfiguration();
     TestExecutionListener.super.testPlanExecutionStarted(testPlan);
     System.out.println("Before all tests");
     managers = generateList();
     for (int i = 0; i < managers.length; i++) { // go forward
       final ServiceManager m = managers[i];
       System.out.println("Startup: " + m.getClass().getSimpleName());
-      m.startup();
+      m.startup(environmentConfiguration);
     }
   }
 
   private ServiceManager[] generateList() {
-    final EtcdServiceManager etcdServiceManager = new EtcdServiceManager();
-    final PgsqlServiceManager pgsqlServiceManager = new PgsqlServiceManager();
     return new ServiceManager[]{
-        etcdServiceManager,
-        pgsqlServiceManager
+        new EtcdServiceManager(),
+        new PgsqlServiceManager(),
+        new ControlServiceManager()
     };
   }
 
@@ -56,7 +58,7 @@ public class EnvironmentManager implements TestExecutionListener {
     for (int i = managers.length - 1; i >= 0; i--) { // go backwards
       final ServiceManager m = managers[i];
       System.out.println("Shutdown: " + m.getClass().getSimpleName());
-      m.shutdown();
+      m.shutdown(environmentConfiguration);
     }
   }
 }

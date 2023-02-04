@@ -72,6 +72,7 @@ dependencies {
     testImplementation libs.dropwizard.testing
     testImplementation libs.jackson.dataformat.yaml
     testAnnotationProcessor libs.dagger.compiler
+    testImplementation libs.pgjdbc
 
     // Logging stuff... need all these for logback changes
     implementation libs.logback.classic

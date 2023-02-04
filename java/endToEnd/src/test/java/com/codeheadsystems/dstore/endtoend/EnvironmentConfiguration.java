@@ -14,13 +14,17 @@
  * limitations under the License.
  */
 
-package com.codeheadsystems.dstore.endtoend.environment;
+package com.codeheadsystems.dstore.endtoend;
 
-import com.codeheadsystems.dstore.endtoend.EnvironmentConfiguration;
+public class EnvironmentConfiguration {
 
-public interface ServiceManager {
+  private String controlConnectionUrl;
 
-  void startup(EnvironmentConfiguration configuration);
-  void shutdown(EnvironmentConfiguration configuration);
+  public String getControlConnectionUrl() {
+    return controlConnectionUrl;
+  }
 
+  public void setControlConnectionUrl(final String controlConnectionUrl) {
+    this.controlConnectionUrl = controlConnectionUrl;
+  }
 }

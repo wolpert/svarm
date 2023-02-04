@@ -16,21 +16,35 @@
 
 package com.codeheadsystems.dstore.endtoend.environment;
 
-import com.codeheadsystems.dstore.endtoend.EnvironmentConfiguration;
-import io.etcd.jetcd.test.EtcdClusterExtension;
 
-public class EtcdServiceManager implements ServiceManager {
-  private EtcdClusterExtension clusterExtension;
+import com.codeheadsystems.dstore.control.Control;
+import com.codeheadsystems.dstore.control.ControlConfiguration;
+import com.codeheadsystems.dstore.endtoend.EnvironmentConfiguration;
+import io.dropwizard.testing.DropwizardTestSupport;
+import io.dropwizard.testing.ResourceHelpers;
+
+public class ControlServiceManager implements ServiceManager {
+
+  private static DropwizardTestSupport<ControlConfiguration> SUPPORT;
 
   @Override
   public void startup(EnvironmentConfiguration configuration) {
-    clusterExtension = EtcdClusterExtension.builder().withNodes(1).build();
-    clusterExtension.cluster().start();
+    SUPPORT = new DropwizardTestSupport<>(
+        Control.class,
+        ResourceHelpers.resourceFilePath("control-config.yaml")
+        // TODO: put in the cluster endpoints into the config
+    );
+    try {
+      SUPPORT.before();
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+    configuration.setControlConnectionUrl("http://localhost:" + SUPPORT.getLocalPort() + "/");
   }
 
   @Override
   public void shutdown(EnvironmentConfiguration configuration) {
-    clusterExtension.cluster().stop();
-    clusterExtension = null;
+    SUPPORT.after();
+    configuration.setControlConnectionUrl(null);
   }
 }

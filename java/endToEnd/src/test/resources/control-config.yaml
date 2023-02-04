@@ -11,11 +11,10 @@ logging:
 # A test db for now, hsql. Also, we will use liquibase by default in the config file. Production won't do this.
 runLiquibase: true
 database:
-  driverClass: org.hsqldb.jdbc.JDBCDriver
-  user: SA
-  password: ""
-  url: jdbc:hsqldb:mem:database
-  validationQuery: "/* MyService Health Check */ call now()"
+  driverClass: org.postgresql.Driver
+  user: control
+  password: control
+  url: jdbc:postgresql://localhost:5432/endToEnd?sslmode=disable
 # Validation query note: HSQL is weird. We won't have to do this with postgresql.
 
 etcdConfiguration:
