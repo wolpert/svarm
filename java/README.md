@@ -14,20 +14,22 @@ gradle clean build test
 gradle :node:run
 ```
 
+Integration tests take additional time. 
 To execute build with full integration tests, do this:
 
 ```shell
-gradle clean build test integ
+gradle clean build test -Pinteg
 ```
 
 and, of course, if you just want to run the integ tests...
 
 ```shell
-gradle integ
+gradle test -Pinteg
 ```
 
-Note, when trying to run integ tests in the intelij instance, you'll need to edit
-the configuration since intelij will start ignoring tests labeled integ now.
+Note, when trying to run integ or e2e tests in the intelij instance, you'll need to edit
+the configuration since intelij will start ignoring tests labeled integ now. Do
+this by adding either `-Pinteg` and/or `-Pe2e` to the params.
 
 ### End to end tests
 
@@ -124,6 +126,7 @@ curl -v -X DELETE 'http://localhost:8080/v1/tenant/customer01'
 * control-common: API code shared from the control plane and its clients.
 * control-integ: Integ tests for the control plane.
 * control-javaClient: java client for the control plane clients.
+* endToEnd: end to end tests. These will take the most time.
 * node: The node service.
 * node-common: API code shared from the node to its clients.
 * node-integ: Integ tests for the node.
