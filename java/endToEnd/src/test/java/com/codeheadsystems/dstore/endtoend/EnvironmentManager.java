@@ -21,6 +21,8 @@ import com.codeheadsystems.dstore.endtoend.environment.EtcdServiceManager;
 import com.codeheadsystems.dstore.endtoend.environment.NodeServiceManager;
 import com.codeheadsystems.dstore.endtoend.environment.PgsqlServiceManager;
 import com.codeheadsystems.dstore.endtoend.environment.ServiceManager;
+import java.util.HashMap;
+import java.util.Map;
 import org.junit.platform.launcher.TestExecutionListener;
 import org.junit.platform.launcher.TestPlan;
 
@@ -28,8 +30,21 @@ import org.junit.platform.launcher.TestPlan;
  * This class sets up the whole environment making things available for the various services.
  */
 public class EnvironmentManager implements TestExecutionListener {
+  private static Map<String, Throwable> INITIALIZATION_FAILURE = new HashMap<>();
   private ServiceManager[] managers;
   private EnvironmentConfiguration environmentConfiguration;
+
+  private static void addException(final String service, final Throwable exception) {
+    synchronized (INITIALIZATION_FAILURE) {
+      INITIALIZATION_FAILURE.put(service, exception);
+    }
+  }
+
+  public static Map<String, Throwable> getInitializationFailure() {
+    synchronized (INITIALIZATION_FAILURE) {
+      return new HashMap<>(INITIALIZATION_FAILURE);
+    }
+  }
 
   @Override
   public void testPlanExecutionStarted(final TestPlan testPlan) {
@@ -39,8 +54,13 @@ public class EnvironmentManager implements TestExecutionListener {
     managers = generateList();
     for (int i = 0; i < managers.length; i++) { // go forward
       final ServiceManager m = managers[i];
-      System.out.println("Startup: " + m.getClass().getSimpleName());
-      m.startup(environmentConfiguration);
+      final String name = m.getClass().getSimpleName();
+      System.out.println("Startup: " + name);
+      try {
+        m.startup(environmentConfiguration);
+      } catch (Throwable t) {
+        addException(name, t);
+      }
     }
   }
 

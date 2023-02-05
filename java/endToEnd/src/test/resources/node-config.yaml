@@ -23,6 +23,9 @@ server:
     - type: http
       port: 9081
 
+etcdConfiguration:
+  target: ip:///localhost:2379
+
 health:
   healthCheckUrlPaths: [ "/health-check" ]
   healthChecks:
@@ -62,6 +65,16 @@ health:
       initialState: false
       schedule:
         checkInterval: 60s
+        downtimeInterval: 2s
+        initialDelay: 5s
+        failureAttempts: 1
+        successAttempts: 2
+    - name: EtcdHealthCheck
+      type: alive
+      critical: true
+      initialState: true
+      schedule:
+        checkInterval: 10s
         downtimeInterval: 2s
         initialDelay: 5s
         failureAttempts: 1

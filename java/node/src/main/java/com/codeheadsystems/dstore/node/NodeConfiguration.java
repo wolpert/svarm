@@ -80,7 +80,7 @@ public class NodeConfiguration extends Configuration {
    *
    * @return the configuration.
    */
-  @JsonProperty("etcConfiguration")
+  @JsonProperty("etcdConfiguration")
   public EtcdConfiguration getEtcdConfiguration() {
     return etcdConfiguration;
   }
