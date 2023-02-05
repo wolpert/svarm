@@ -17,7 +17,11 @@
 package com.codeheadsystems.dstore.endtoend.environment;
 
 import com.codeheadsystems.dstore.endtoend.EnvironmentConfiguration;
+import io.etcd.jetcd.Client;
+import io.etcd.jetcd.launcher.EtcdCluster;
 import io.etcd.jetcd.test.EtcdClusterExtension;
+import java.net.URI;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class EtcdServiceManager implements ServiceManager {
@@ -26,12 +30,13 @@ public class EtcdServiceManager implements ServiceManager {
   @Override
   public void startup(EnvironmentConfiguration configuration) {
     clusterExtension = EtcdClusterExtension.builder().withNodes(1).build();
-    clusterExtension.cluster().start();
-    configuration.setEndpoints(clusterExtension
-        .clientEndpoints()
-        .stream()
-        .map(u -> u.toString())
+    final EtcdCluster cluster = clusterExtension.cluster();
+    cluster.start();
+    final List<URI> endpoints = cluster.clientEndpoints();
+    configuration.setEndpoints(endpoints.stream()
+        .map(URI::toString)
         .collect(Collectors.toList()));
+    configuration.setEtcdClient(Client.builder().endpoints(endpoints).build());
   }
 
   @Override

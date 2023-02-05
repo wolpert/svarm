@@ -16,12 +16,15 @@
 
 package com.codeheadsystems.dstore.endtoend;
 
+import io.etcd.jetcd.Client;
 import java.util.List;
 
 public class EnvironmentConfiguration {
 
   private String controlConnectionUrl;
   private String nodeConnectionUrl;
+  private List<String> endpoints;
+  private Client etcdClient;
 
   public List<String> getEndpoints() {
     return endpoints;
@@ -31,7 +34,6 @@ public class EnvironmentConfiguration {
     this.endpoints = endpoints;
   }
 
-  private List<String> endpoints;
 
   public String getControlConnectionUrl() {
     return controlConnectionUrl;
@@ -47,5 +49,13 @@ public class EnvironmentConfiguration {
 
   public void setNodeConnectionUrl(final String nodeConnectionUrl) {
     this.nodeConnectionUrl = nodeConnectionUrl;
+  }
+
+  public Client getEtcdClient() {
+    return etcdClient;
+  }
+
+  public void setEtcdClient(final Client etcdClient) {
+    this.etcdClient = etcdClient;
   }
 }
