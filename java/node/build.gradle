@@ -34,6 +34,8 @@ dependencies {
     implementation project(":server-common")
     implementation project(":config-common")
     implementation project(":node-common")
+    implementation project(":control-common")
+    implementation project(":control-javaClient")
 
     // SQL
     implementation libs.hsqldb
@@ -57,7 +59,6 @@ dependencies {
 
     testImplementation libs.jackson.dataformat.yaml
     testImplementation libs.dropwizard.testing
-    testImplementation project(":node-common")
     testImplementation project(":node-javaClient")
     testImplementation libs.openfeign.core
     testImplementation libs.openfeign.jackson

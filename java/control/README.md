@@ -44,3 +44,15 @@ Requires:
 
 Other options:
 * OAuth2 integration
+
+### Startup Sequence
+
+1. Nodes query the control plane for the status of their UUID.
+2. If the result of the status request shows it is enabled, do nothing.
+3. If the result is a 404
+   1. Register the node. If this fails, kill the node server. (It's probably banned.)
+   2. Set the status to enabled.
+4. If the result is disabled, enable the node.
+
+### Shutdown sequence
+When a node is being shutdown, it needs to disable in the control plane.
