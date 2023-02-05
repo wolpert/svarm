@@ -49,12 +49,17 @@ public class HsqlDatabaseEngine implements DatabaseEngine {
    */
   public static final String INTERNAL_DB_NAME = "nodeInternalDb";
   private static final Logger LOGGER = LoggerFactory.getLogger(HsqlDatabaseEngine.class);
+
+  // Details: http://hsqldb.org/doc/2.0/guide/management-chapt.html#mtc_encrypted_create
   private static final String CONNECTION_URL =
       "jdbc:hsqldb:file:%s/database;crypt_key=%s;crypt_iv=%s;crypt_type=AES/GCM-SIV/NoPadding;crypt_provider=BC;";
+  private static final String IN_MEM_CONNECTION_URL =
+      "jdbc:hsqldb:mem:%s/database;crypt_key=%s;crypt_iv=%s;crypt_type=AES/GCM-SIV/NoPadding;crypt_provider=BC;";
   private final ControlPlaneManager controlPlaneManager;
   private final NodeInternalConfiguration nodeInternalConfiguration;
   private final NodeConfiguration nodeConfiguration;
   private final CryptUtils cryptUtils;
+  private final String connectionUrlToUse;
 
   /**
    * Default constructor.
@@ -80,6 +85,13 @@ public class HsqlDatabaseEngine implements DatabaseEngine {
       Security.addProvider(new BouncyCastleProvider());
     } else {
       LOGGER.info("BC already a provider");
+    }
+    if (nodeConfiguration.isRunDatabaseInMemory()) {
+      LOGGER.warn("\n---\n--- USING IN MEMORY DATABASE \n---");
+      connectionUrlToUse = IN_MEM_CONNECTION_URL;
+    } else {
+      LOGGER.info("Using file based database");
+      connectionUrlToUse = CONNECTION_URL;
     }
   }
 
@@ -170,7 +182,6 @@ public class HsqlDatabaseEngine implements DatabaseEngine {
                                   final byte[] key,
                                   final byte[] nonce) {
     LOGGER.trace("getConnectionUrl({})", databaseDirectory);
-    // Details: http://hsqldb.org/doc/2.0/guide/management-chapt.html#mtc_encrypted_create
-    return String.format(CONNECTION_URL, databaseDirectory, toHexString(key), toHexString(nonce));
+    return String.format(connectionUrlToUse, databaseDirectory, toHexString(key), toHexString(nonce));
   }
 }

@@ -1,4 +1,5 @@
-databaseDirectory: /tmp/integtest
+databaseDirectory: /tmp/endToEnd
+runDatabaseInMemory: true
 
 logging:
   level: INFO

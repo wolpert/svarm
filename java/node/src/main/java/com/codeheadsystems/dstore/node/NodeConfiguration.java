@@ -29,6 +29,16 @@ public class NodeConfiguration extends Configuration {
   private String controlPlaneUrl;
   private EtcdConfiguration etcdConfiguration;
 
+  private boolean runDatabaseInMemory = false;
+
+  public boolean isRunDatabaseInMemory() {
+    return runDatabaseInMemory;
+  }
+
+  public void setRunDatabaseInMemory(final boolean runDatabaseInMemory) {
+    this.runDatabaseInMemory = runDatabaseInMemory;
+  }
+
   /**
    * Getter for database directory.
    *

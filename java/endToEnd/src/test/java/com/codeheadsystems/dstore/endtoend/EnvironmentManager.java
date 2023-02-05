@@ -18,6 +18,7 @@ package com.codeheadsystems.dstore.endtoend;
 
 import com.codeheadsystems.dstore.endtoend.environment.ControlServiceManager;
 import com.codeheadsystems.dstore.endtoend.environment.EtcdServiceManager;
+import com.codeheadsystems.dstore.endtoend.environment.NodeServiceManager;
 import com.codeheadsystems.dstore.endtoend.environment.PgsqlServiceManager;
 import com.codeheadsystems.dstore.endtoend.environment.ServiceManager;
 import org.junit.platform.launcher.TestExecutionListener;
@@ -47,7 +48,8 @@ public class EnvironmentManager implements TestExecutionListener {
     return new ServiceManager[]{
         new EtcdServiceManager(),
         new PgsqlServiceManager(),
-        new ControlServiceManager()
+        new ControlServiceManager(),
+        new NodeServiceManager()
     };
   }
 

@@ -21,6 +21,7 @@ import java.util.List;
 public class EnvironmentConfiguration {
 
   private String controlConnectionUrl;
+  private String nodeConnectionUrl;
 
   public List<String> getEndpoints() {
     return endpoints;
@@ -38,5 +39,13 @@ public class EnvironmentConfiguration {
 
   public void setControlConnectionUrl(final String controlConnectionUrl) {
     this.controlConnectionUrl = controlConnectionUrl;
+  }
+
+  public String getNodeConnectionUrl() {
+    return nodeConnectionUrl;
+  }
+
+  public void setNodeConnectionUrl(final String nodeConnectionUrl) {
+    this.nodeConnectionUrl = nodeConnectionUrl;
   }
 }
