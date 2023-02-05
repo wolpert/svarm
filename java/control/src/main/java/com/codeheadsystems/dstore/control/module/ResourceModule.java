@@ -18,7 +18,6 @@ package com.codeheadsystems.dstore.control.module;
 
 import com.codeheadsystems.dstore.control.resource.NodeResource;
 import com.codeheadsystems.dstore.control.resource.NodeTenantTableResource;
-import com.codeheadsystems.dstore.control.resource.PingResource;
 import com.codeheadsystems.server.resource.JerseyResource;
 import dagger.Binds;
 import dagger.Module;
@@ -29,16 +28,6 @@ import dagger.multibindings.IntoSet;
  */
 @Module
 public interface ResourceModule {
-
-  /**
-   * The ping resource.
-   *
-   * @param resource to bind.
-   * @return a jersey resource.
-   */
-  @Binds
-  @IntoSet
-  JerseyResource pingResource(final PingResource resource);
 
   /**
    * The node resource.

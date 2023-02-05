@@ -29,6 +29,7 @@ checkstyle {
 
 dependencies {
     implementation project(":common")
+    implementation project(":server-common")
 
     implementation libs.dropwizard.auth
     implementation libs.dropwizard.core

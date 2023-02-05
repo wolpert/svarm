@@ -16,9 +16,21 @@
 
 package com.codeheadsystems.dstore.endtoend;
 
+import java.util.List;
+
 public class EnvironmentConfiguration {
 
   private String controlConnectionUrl;
+
+  public List<String> getEndpoints() {
+    return endpoints;
+  }
+
+  public void setEndpoints(final List<String> endpoints) {
+    this.endpoints = endpoints;
+  }
+
+  private List<String> endpoints;
 
   public String getControlConnectionUrl() {
     return controlConnectionUrl;
