@@ -19,6 +19,12 @@ package com.codeheadsystems.dstore.node.accessor;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import com.codeheadsystems.dstore.control.common.api.ControlNodeService;
+import com.codeheadsystems.dstore.control.common.api.ImmutableNodeMetaData;
+import com.codeheadsystems.dstore.control.common.api.NodeInfo;
+import com.codeheadsystems.dstore.control.common.api.NodeMetaData;
+import com.codeheadsystems.metrics.Metrics;
+import feign.FeignException;
+import java.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.slf4j.Logger;
@@ -32,17 +38,87 @@ public class ControlAccessor {
   private static final Logger LOGGER = getLogger(ControlAccessor.class);
 
   private final ControlNodeService controlNodeService;
+  private final Metrics metrics;
 
   /**
    * Constructor.
    *
    * @param controlNodeService for accessing the service.
+   * @param metrics            for metrics.
    */
   @Inject
-  public ControlAccessor(final ControlNodeService controlNodeService) {
+  public ControlAccessor(final ControlNodeService controlNodeService,
+                         final Metrics metrics) {
     this.controlNodeService = controlNodeService;
-    LOGGER.info("ControlAccessor()");
+    this.metrics = metrics;
+    LOGGER.info("ControlAccessor({},{})", controlNodeService, metrics);
   }
 
+  /**
+   * Provides the status for the node. If it's a 404 exception, just return empty.
+   *
+   * @param uuid to check.
+   * @return the optional status.
+   */
+  public Optional<String> status(final String uuid) {
+    LOGGER.trace("status({})", uuid);
+    return metrics.time("ControlAccessor.status", () -> {
+      try {
+        Optional<String> result = Optional.ofNullable(controlNodeService.status(uuid))
+            .map(NodeInfo::status);
+        LOGGER.trace("status({}) {}", uuid, result);
+        return result;
+      } catch (FeignException.NotFound e) {
+        LOGGER.info("status({}) Not found", uuid); // not an error, but we need to tell this.
+        return Optional.empty();
+      }
+    });
+  }
+
+  /**
+   * Enables the node.
+   *
+   * @param uuid to enable.
+   */
+  public void enable(final String uuid) {
+    LOGGER.trace("enable({})", uuid);
+    metrics.time("ControlAccessor.enable", () -> {
+      final NodeInfo info = controlNodeService.enable(uuid);
+      LOGGER.trace("result:{}", info);
+      return null;
+    });
+  }
+
+  /**
+   * Disable the node.
+   *
+   * @param uuid to enable.
+   */
+  public void disable(final String uuid) {
+    LOGGER.trace("disable({})", uuid);
+    metrics.time("ControlAccessor.disable", () -> {
+      final NodeInfo info = controlNodeService.disable(uuid);
+      LOGGER.trace("result:{}", info);
+      return null;
+    });
+  }
+
+  /**
+   * Registers this node.
+   *
+   * @param uuid to register.
+   * @param host the host.
+   * @param port the port.
+   */
+  public void register(final String uuid, final String host, final int port) {
+    LOGGER.trace("register({},{},{})", uuid, host, port);
+    metrics.time("ControlAccessor.register", () -> {
+      final NodeMetaData metaData = ImmutableNodeMetaData.builder()
+          .host(host).port(port).build();
+      final NodeInfo info = controlNodeService.register(uuid, metaData);
+      LOGGER.trace("result:{}", info);
+      return null;
+    });
+  }
 
 }

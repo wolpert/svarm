@@ -58,6 +58,8 @@ dependencies {
     implementation libs.metrics.core
     implementation libs.metrics.jdbi
 
+    implementation libs.openfeign.core
+
     testImplementation libs.jackson.dataformat.yaml
     testImplementation libs.dropwizard.testing
     testImplementation project(":node-javaClient")

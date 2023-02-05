@@ -17,6 +17,7 @@
 package com.codeheadsystems.dstore.control;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import com.codeheadsystems.dstore.common.factory.ObjectMapperFactory;
 import com.codeheadsystems.dstore.control.common.api.ControlNodeService;
@@ -26,6 +27,7 @@ import com.codeheadsystems.dstore.control.common.api.NodeInfo;
 import com.codeheadsystems.dstore.control.common.api.NodeMetaData;
 import com.codeheadsystems.dstore.control.javaclient.ControlServiceComponent;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import feign.FeignException;
 import io.dropwizard.testing.DropwizardTestSupport;
 import io.dropwizard.testing.ResourceHelpers;
 import io.etcd.jetcd.test.EtcdClusterExtension;
@@ -114,6 +116,12 @@ public class ControlIntegTest {
         .isNotNull()
         .hasFieldOrPropertyWithValue("uuid", uuid)
         .hasFieldOrPropertyWithValue("status", NodeInfo.Status.ENABLED.name());
+  }
+
+  @Test
+  public void status_unknownUuid(){
+    assertThatExceptionOfType(FeignException.NotFound.class)
+        .isThrownBy(()->CONTROL_NODE.status("unknown"));
   }
 
   @Test

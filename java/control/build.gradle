@@ -71,6 +71,7 @@ dependencies {
     testImplementation libs.dropwizard.testing
     testImplementation project(":control-javaClient")
     testImplementation libs.jetcd.test
+    testImplementation libs.openfeign.core
 }
 
 run {
