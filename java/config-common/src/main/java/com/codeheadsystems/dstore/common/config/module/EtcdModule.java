@@ -59,6 +59,9 @@ public class EtcdModule {
         .build();
   }
 
+  /**
+   * Binds the health check.
+   */
   @Module
   public interface Binder {
 

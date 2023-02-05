@@ -18,6 +18,7 @@ package com.codeheadsystems.dstore.node.component;
 
 import com.codeheadsystems.dstore.common.config.module.EtcdModule;
 import com.codeheadsystems.dstore.node.module.ConfigurationModule;
+import com.codeheadsystems.dstore.node.module.ControlPlaneModule;
 import com.codeheadsystems.dstore.node.module.DataSourceModule;
 import com.codeheadsystems.dstore.node.module.HealthCheckModule;
 import com.codeheadsystems.dstore.node.module.ResourceModule;
@@ -34,6 +35,7 @@ import javax.inject.Singleton;
 @Singleton
 @Component(modules = {
     ConfigurationModule.class,
+    ControlPlaneModule.class,
     DataSourceModule.class,
     DropWizardModule.class,
     EtcdModule.class,

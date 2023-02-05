@@ -1,5 +1,8 @@
 databaseDirectory: /tmp/database
 
+etcdConfiguration:
+  target: ip:///localhost:2379
+
 logging:
   level: INFO
   loggers:

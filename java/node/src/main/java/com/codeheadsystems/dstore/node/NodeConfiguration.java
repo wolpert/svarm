@@ -31,10 +31,20 @@ public class NodeConfiguration extends Configuration {
 
   private boolean runDatabaseInMemory = false;
 
+  /**
+   * Accessor to the boolean.
+   *
+   * @return the boolean.
+   */
   public boolean isRunDatabaseInMemory() {
     return runDatabaseInMemory;
   }
 
+  /**
+   * Sets the database run in memory.
+   *
+   * @param runDatabaseInMemory to set.
+   */
   public void setRunDatabaseInMemory(final boolean runDatabaseInMemory) {
     this.runDatabaseInMemory = runDatabaseInMemory;
   }

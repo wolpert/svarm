@@ -20,25 +20,24 @@ import com.codeheadsystems.dstore.node.manager.ControlPlaneManager;
 import com.codeheadsystems.dstore.node.manager.FakeControlPlaneManager;
 import dagger.Module;
 import dagger.Provides;
-import java.security.SecureRandom;
-import java.util.random.RandomGenerator;
 import javax.inject.Singleton;
 
 /**
- * Utilities we need internally.
+ * Connection information for the control plane.
  */
 @Module
-public class UtilitiesModule {
+public class ControlPlaneModule {
 
   /**
-   * Random generator for our app.
+   * This will be removed once we have the real control plane.
    *
-   * @return a secure random generator.
+   * @param fakeControlPlaneManager fake.
+   * @return fake.
    */
   @Provides
   @Singleton
-  public RandomGenerator randomGenerator() {
-    return new SecureRandom();
+  public ControlPlaneManager controlPlaneManager(final FakeControlPlaneManager fakeControlPlaneManager) {
+    return fakeControlPlaneManager;
   }
 
 }

@@ -48,6 +48,7 @@ dependencies {
 
     // etcd
     implementation libs.jetcd.core
+    testImplementation libs.jetcd.test
 
     implementation libs.dropwizard.auth
     implementation libs.dropwizard.core

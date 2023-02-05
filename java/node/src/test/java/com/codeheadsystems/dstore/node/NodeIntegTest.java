@@ -32,6 +32,7 @@ import feign.FeignException;
 import io.dropwizard.testing.ConfigOverride;
 import io.dropwizard.testing.DropwizardTestSupport;
 import io.dropwizard.testing.ResourceHelpers;
+import io.etcd.jetcd.test.EtcdClusterExtension;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -47,9 +48,15 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 @Tag("integ")
 public class NodeIntegTest {
+
+  @RegisterExtension
+  public static final EtcdClusterExtension cluster = EtcdClusterExtension.builder()
+      .withNodes(1)
+      .build();
 
   private static DropwizardTestSupport<NodeConfiguration> SUPPORT;
   private static Path BASE_DIRECTORY_PATH;
