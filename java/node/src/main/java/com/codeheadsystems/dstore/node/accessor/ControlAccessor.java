@@ -121,4 +121,29 @@ public class ControlAccessor {
     });
   }
 
+  /**
+   * Returns the key for the node.
+   *
+   * @param uuid of the node.
+   * @return the key.
+   */
+  public String keyForNode(final String uuid) {
+    LOGGER.trace("keyForNode({})", uuid);
+    return metrics.time("ControlAccessor.keyForNode",
+        () -> controlNodeService.nodeKey(uuid).key());
+  }
+
+  /**
+   * Returns the key for the resource related to the node.
+   *
+   * @param uuid       of the node.
+   * @param resourceId the resource.
+   * @return the key.
+   */
+  public String keyForResource(final String uuid, final String resourceId) {
+    LOGGER.trace("keyForResource({},{})", uuid, resourceId);
+    return metrics.time("ControlAccessor.keyForNode",
+        () -> controlNodeService.nodeKey(uuid, resourceId).key());
+  }
+
 }

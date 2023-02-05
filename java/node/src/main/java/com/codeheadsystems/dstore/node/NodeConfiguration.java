@@ -28,8 +28,46 @@ public class NodeConfiguration extends Configuration {
   private String databaseDirectory;
   private String controlPlaneUrl;
   private EtcdConfiguration etcdConfiguration;
-
   private boolean runDatabaseInMemory = false;
+  private String nodeHost = "localhost";
+  private Integer nodePort = 8080;
+
+  /**
+   * Gets the host that proxies can use to contact this node. Defaults to localhost.
+   *
+   * @return value.
+   */
+  public String getNodeHost() {
+    return nodeHost;
+  }
+
+  /**
+   * Sets the host that proxies can use to contact this node. Defaults to localhost.
+   *
+   * @param nodeHost value.
+   */
+  public void setNodeHost(final String nodeHost) {
+    this.nodeHost = nodeHost;
+  }
+
+  /**
+   * Gets the port that proxies can use to contact this node. Defaults to 8080.
+   *
+   * @return value.
+   */
+  public Integer getNodePort() {
+    return nodePort;
+  }
+
+
+  /**
+   * Sets the port that proxies can use to contact this node. Defaults to 8080.
+   *
+   * @param nodePort value.
+   */
+  public void setNodePort(final Integer nodePort) {
+    this.nodePort = nodePort;
+  }
 
   /**
    * Accessor to the boolean.

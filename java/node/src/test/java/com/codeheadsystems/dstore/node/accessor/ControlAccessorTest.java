@@ -21,6 +21,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.codeheadsystems.dstore.control.common.api.ControlNodeService;
+import com.codeheadsystems.dstore.control.common.api.KeyInfo;
 import com.codeheadsystems.dstore.control.common.api.NodeInfo;
 import com.codeheadsystems.dstore.control.common.api.NodeMetaData;
 import com.codeheadsystems.metrics.test.BaseMetricTest;
@@ -40,8 +41,11 @@ class ControlAccessorTest extends BaseMetricTest {
   private static final String STATUS = "status";
   private static final String HOST = "host";
   private static final int PORT = 90;
+  private static final String KEY = "KEY";
+  private static final String TENANT = "tenant";
   @Mock private ControlNodeService controlNodeService;
   @Mock private NodeInfo nodeInfo;
+  @Mock private KeyInfo keyInfo;
   @Captor private ArgumentCaptor<String> stringArgumentCaptor;
   @Captor private ArgumentCaptor<NodeMetaData> metaDataArgumentCaptor;
 
@@ -91,6 +95,20 @@ class ControlAccessorTest extends BaseMetricTest {
     assertThat(metaDataArgumentCaptor.getValue())
         .hasFieldOrPropertyWithValue("host", HOST)
         .hasFieldOrPropertyWithValue("port", PORT);
+  }
+
+  @Test
+  void keyForNode_node() {
+    when(keyInfo.key()).thenReturn(KEY);
+    when(controlNodeService.nodeKey(UUID)).thenReturn(keyInfo);
+    assertThat(accessor.keyForNode(UUID)).isEqualTo(KEY);
+  }
+
+  @Test
+  void keyForNode_tenant() {
+    when(keyInfo.key()).thenReturn(KEY);
+    when(controlNodeService.nodeKey(UUID, TENANT)).thenReturn(keyInfo);
+    assertThat(accessor.keyForResource(UUID, TENANT)).isEqualTo(KEY);
   }
 
 }
