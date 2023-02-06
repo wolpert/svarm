@@ -1,5 +1,8 @@
 databaseDirectory: /tmp/endToEnd
 runDatabaseInMemory: true
+controlPlaneUrl: http://localhost:9090/
+nodeHost: localhost
+nodePort: 9080
 
 logging:
   level: INFO

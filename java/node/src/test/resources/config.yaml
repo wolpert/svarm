@@ -1,4 +1,5 @@
 databaseDirectory: /tmp/integtest
+disableControlPlane: true
 
 etcdConfiguration:
   target: ip:///localhost:2379

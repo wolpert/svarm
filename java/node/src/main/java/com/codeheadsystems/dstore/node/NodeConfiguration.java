@@ -27,6 +27,7 @@ public class NodeConfiguration extends Configuration {
 
   private String databaseDirectory;
   private String controlPlaneUrl;
+  private boolean disableControlPlane = false;
   private EtcdConfiguration etcdConfiguration;
   private boolean runDatabaseInMemory = false;
   private String nodeHost = "localhost";
@@ -140,5 +141,24 @@ public class NodeConfiguration extends Configuration {
    */
   public void setEtcdConfiguration(final EtcdConfiguration etcdConfiguration) {
     this.etcdConfiguration = etcdConfiguration;
+  }
+
+  /**
+   * Returns if we have disables the control plane.
+   *
+   * @return value.
+   */
+  public boolean isDisableControlPlane() {
+    return disableControlPlane;
+  }
+
+
+  /**
+   * Sets if we have disables the control plane.
+   *
+   * @param disableControlPlane value.
+   */
+  public void setDisableControlPlane(final boolean disableControlPlane) {
+    this.disableControlPlane = disableControlPlane;
   }
 }

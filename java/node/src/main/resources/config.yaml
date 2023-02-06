@@ -1,4 +1,5 @@
 databaseDirectory: /tmp/database
+disableControlPlane: true
 
 etcdConfiguration:
   target: ip:///localhost:2379

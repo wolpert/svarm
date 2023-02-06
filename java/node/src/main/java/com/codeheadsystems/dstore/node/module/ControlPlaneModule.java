@@ -45,7 +45,11 @@ public class ControlPlaneModule {
   public ControlPlaneManager controlPlaneManager(final Lazy<FakeControlPlaneManager> fakeControlPlaneManager,
                                                  final Lazy<RealControlPlaneManager> realControlPlaneManager,
                                                  final NodeConfiguration nodeConfiguration) {
-    return fakeControlPlaneManager.get();
+    if (nodeConfiguration.isDisableControlPlane()) {
+      return fakeControlPlaneManager.get();
+    } else {
+      return realControlPlaneManager.get();
+    }
   }
 
 }
