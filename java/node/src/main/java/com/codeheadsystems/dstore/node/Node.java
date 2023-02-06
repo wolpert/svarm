@@ -17,6 +17,7 @@
 package com.codeheadsystems.dstore.node;
 
 import com.codeheadsystems.dstore.common.config.module.EtcdModule;
+import com.codeheadsystems.dstore.control.javaclient.module.ControlServiceModule;
 import com.codeheadsystems.dstore.node.component.DaggerNodeDropWizardComponent;
 import com.codeheadsystems.dstore.node.module.ConfigurationModule;
 import com.codeheadsystems.server.Server;
@@ -68,6 +69,7 @@ public class Node extends Server<NodeConfiguration> {
     return DaggerNodeDropWizardComponent.builder()
         .etcdModule(new EtcdModule(configuration.getEtcdConfiguration()))
         .configurationModule(new ConfigurationModule(configuration))
+        .controlServiceModule(new ControlServiceModule(configuration.getControlPlaneUrl()))
         .metricRegistryModule(metricRegistryModule)
         .build();
   }

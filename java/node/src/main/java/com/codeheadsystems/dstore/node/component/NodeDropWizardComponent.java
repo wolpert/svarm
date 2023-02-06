@@ -16,7 +16,10 @@
 
 package com.codeheadsystems.dstore.node.component;
 
+import com.codeheadsystems.common.javaclient.JavaClientModule;
 import com.codeheadsystems.dstore.common.config.module.EtcdModule;
+import com.codeheadsystems.dstore.common.module.JsonModule;
+import com.codeheadsystems.dstore.control.javaclient.module.ControlServiceModule;
 import com.codeheadsystems.dstore.node.module.ConfigurationModule;
 import com.codeheadsystems.dstore.node.module.ControlPlaneModule;
 import com.codeheadsystems.dstore.node.module.DataSourceModule;
@@ -36,10 +39,12 @@ import javax.inject.Singleton;
 @Component(modules = {
     ConfigurationModule.class,
     ControlPlaneModule.class,
+    ControlServiceModule.class,
     DataSourceModule.class,
     DropWizardModule.class,
     EtcdModule.class,
     HealthCheckModule.class,
+    JavaClientModule.class,
     ResourceModule.class,
     TableDefinitionEngineModule.class,
     UtilitiesModule.class

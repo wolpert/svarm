@@ -31,6 +31,7 @@ checkstyle {
 
 dependencies {
     implementation project(":common")
+    implementation project(":common-javaClient")
     implementation project(":server-common")
     implementation project(":config-common")
     implementation project(":node-common")

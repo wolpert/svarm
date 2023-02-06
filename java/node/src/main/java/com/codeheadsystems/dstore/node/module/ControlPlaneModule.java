@@ -16,8 +16,12 @@
 
 package com.codeheadsystems.dstore.node.module;
 
+import com.codeheadsystems.dstore.control.common.api.ControlNodeService;
+import com.codeheadsystems.dstore.node.NodeConfiguration;
 import com.codeheadsystems.dstore.node.manager.ControlPlaneManager;
 import com.codeheadsystems.dstore.node.manager.FakeControlPlaneManager;
+import com.codeheadsystems.dstore.node.manager.RealControlPlaneManager;
+import dagger.Lazy;
 import dagger.Module;
 import dagger.Provides;
 import javax.inject.Singleton;
@@ -25,19 +29,23 @@ import javax.inject.Singleton;
 /**
  * Connection information for the control plane.
  */
-@Module
+@Module(includes = {})
 public class ControlPlaneModule {
 
   /**
    * This will be removed once we have the real control plane.
    *
    * @param fakeControlPlaneManager fake.
+   * @param realControlPlaneManager real.
+   * @param nodeConfiguration for returning the one we want.
    * @return fake.
    */
   @Provides
   @Singleton
-  public ControlPlaneManager controlPlaneManager(final FakeControlPlaneManager fakeControlPlaneManager) {
-    return fakeControlPlaneManager;
+  public ControlPlaneManager controlPlaneManager(final Lazy<FakeControlPlaneManager> fakeControlPlaneManager,
+                                                 final Lazy<RealControlPlaneManager> realControlPlaneManager,
+                                                 final NodeConfiguration nodeConfiguration) {
+    return fakeControlPlaneManager.get();
   }
 
 }

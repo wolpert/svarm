@@ -74,7 +74,7 @@ class RealControlPlaneManagerTest extends BaseMetricTest {
 
   @Test
   void keyForNode_statusDisabled() {
-    when(controlAccessor.status(UUID)).thenReturn(Optional.of(NodeInfo.Status.DISABLED.name()), Optional.of(NodeInfo.Status.ENABLED.name()));
+    when(controlAccessor.status(UUID)).thenReturn(Optional.of(NodeInfo.Status.DISABLED.name())).thenReturn(Optional.of(NodeInfo.Status.ENABLED.name()));
     when(controlAccessor.keyForNode(UUID)).thenReturn(KEY);
     assertThat(manager.keyForNode()).isEqualTo(KEY);
     verify(controlAccessor).enable(stringArgumentCaptor.capture());
@@ -83,7 +83,7 @@ class RealControlPlaneManagerTest extends BaseMetricTest {
 
   @Test
   void keyForNode_registered() {
-    when(controlAccessor.status(UUID)).thenReturn(Optional.empty(), Optional.of(NodeInfo.Status.DISABLED.name()), Optional.of(NodeInfo.Status.ENABLED.name()));
+    when(controlAccessor.status(UUID)).thenReturn(Optional.empty()).thenReturn(Optional.of(NodeInfo.Status.DISABLED.name())).thenReturn(Optional.of(NodeInfo.Status.ENABLED.name()));
     when(controlAccessor.keyForNode(UUID)).thenReturn(KEY);
     assertThat(manager.keyForNode()).isEqualTo(KEY);
     verify(controlAccessor).enable(stringArgumentCaptor.capture());
@@ -94,7 +94,7 @@ class RealControlPlaneManagerTest extends BaseMetricTest {
 
   @Test
   void keyForNode_registeredFailed() {
-    when(controlAccessor.status(UUID)).thenReturn(Optional.empty(), Optional.empty());
+    when(controlAccessor.status(UUID)).thenReturn(Optional.empty()).thenReturn(Optional.empty());
     assertThatExceptionOfType(IllegalStateException.class).isThrownBy(() -> manager.keyForNode());
     verify(controlAccessor).register(stringArgumentCaptor.capture(), stringArgumentCaptor.capture(), integerArgumentCaptor.capture());
     assertThat(stringArgumentCaptor.getAllValues()).contains(UUID, HOST);

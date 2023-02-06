@@ -16,8 +16,6 @@
 
 package com.codeheadsystems.dstore.node.module;
 
-import com.codeheadsystems.dstore.node.manager.ControlPlaneManager;
-import com.codeheadsystems.dstore.node.manager.FakeControlPlaneManager;
 import dagger.Module;
 import dagger.Provides;
 import java.security.SecureRandom;
