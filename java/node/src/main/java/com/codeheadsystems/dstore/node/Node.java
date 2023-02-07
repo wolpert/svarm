@@ -67,7 +67,6 @@ public class Node extends Server<NodeConfiguration> {
                                                     final DropWizardModule module) {
     LOGGER.info("dropWizardComponent({})", configuration);
     return DaggerNodeDropWizardComponent.builder()
-        .etcdModule(new EtcdModule(configuration.getEtcdConfiguration()))
         .configurationModule(new ConfigurationModule(configuration))
         .controlServiceModule(new ControlServiceModule(configuration.getControlPlaneUrl()))
         .dropWizardModule(module)

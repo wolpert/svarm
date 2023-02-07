@@ -33,25 +33,15 @@ import javax.inject.Singleton;
 @Module(includes = {EtcdModule.Binder.class})
 public class EtcdModule {
 
-  private final EtcdConfiguration etcdConfiguration;
-
-  /**
-   * Constructor.
-   *
-   * @param etcdConfiguration from your dropwizard config.
-   */
-  public EtcdModule(final EtcdConfiguration etcdConfiguration) {
-    this.etcdConfiguration = etcdConfiguration;
-  }
-
   /**
    * Provides the client.
    *
+   * @param etcdConfiguration the configuration.
    * @return the client.
    */
   @Provides
   @Singleton
-  public Client client() {
+  public Client client(final EtcdConfiguration etcdConfiguration) {
     return etcdConfiguration.target()
         .map(s -> Client.builder().target(s))
         .orElseGet(() -> Client.builder().endpoints(etcdConfiguration.endpoints()

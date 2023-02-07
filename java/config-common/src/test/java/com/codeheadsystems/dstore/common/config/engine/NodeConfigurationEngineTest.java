@@ -28,6 +28,7 @@ import com.codeheadsystems.dstore.common.config.api.NodeRange;
 import com.codeheadsystems.dstore.common.config.api.NodeTenantResourceRange;
 import com.codeheadsystems.dstore.common.config.api.TenantResource;
 import com.codeheadsystems.dstore.common.config.api.TenantResourceRange;
+import com.codeheadsystems.dstore.common.config.module.EtcdConfigurationModule;
 import com.codeheadsystems.dstore.common.config.module.EtcdModule;
 import com.codeheadsystems.dstore.common.module.JsonModule;
 import dagger.Component;
@@ -92,8 +93,8 @@ class NodeConfigurationEngineTest {
   void setupClient() {
     final List<String> endpoints = cluster.clientEndpoints().stream().map(Objects::toString).toList();
     final EtcdConfiguration configuration = ImmutableEtcdConfiguration.builder().endpoints(endpoints).build();
-    final EtcdModule etcdModule = new EtcdModule(configuration);
-    final EngineComponent component = DaggerNodeConfigurationEngineTest_EngineComponent.builder().etcdModule(etcdModule).build();
+    final EtcdConfigurationModule etcdModule = new EtcdConfigurationModule(configuration);
+    final EngineComponent component = DaggerNodeConfigurationEngineTest_EngineComponent.builder().etcdConfigurationModule(etcdModule).build();
     engine = component.engine();
   }
 
@@ -137,7 +138,7 @@ class NodeConfigurationEngineTest {
         .contains(resource2, resource3);
   }
 
-  @Component(modules = {EtcdModule.class, JsonModule.class})
+  @Component(modules = {EtcdModule.class, EtcdConfigurationModule.class, JsonModule.class})
   @Singleton
   public interface EngineComponent {
     NodeConfigurationEngine engine();

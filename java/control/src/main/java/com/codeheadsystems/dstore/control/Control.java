@@ -51,7 +51,6 @@ public class Control extends Server<ControlConfiguration> {
                                                     final DropWizardModule module) {
     return DaggerControlDropWizardComponent.builder()
         .configurationModule(new ConfigurationModule(configuration, environment))
-        .etcdModule(new EtcdModule(configuration.getEtcdConfiguration()))
         .dropWizardModule(module)
         .build();
   }

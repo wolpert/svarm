@@ -18,6 +18,7 @@ package com.codeheadsystems.dstore.control.component;
 
 import com.codeheadsystems.dstore.common.config.module.EtcdModule;
 import com.codeheadsystems.dstore.control.module.ConfigurationModule;
+import com.codeheadsystems.dstore.control.module.ControlConfigurationModule;
 import com.codeheadsystems.dstore.control.module.DatabaseModule;
 import com.codeheadsystems.dstore.control.module.ResourceModule;
 import com.codeheadsystems.dstore.control.module.UtilitiesModule;
@@ -31,6 +32,7 @@ import javax.inject.Singleton;
  */
 @Component(modules = {
     ConfigurationModule.class,
+    ControlConfigurationModule.class,
     DatabaseModule.class,
     DropWizardModule.class,
     EtcdModule.class,

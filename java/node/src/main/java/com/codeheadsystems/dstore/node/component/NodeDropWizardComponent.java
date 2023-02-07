@@ -18,12 +18,12 @@ package com.codeheadsystems.dstore.node.component;
 
 import com.codeheadsystems.common.javaclient.JavaClientModule;
 import com.codeheadsystems.dstore.common.config.module.EtcdModule;
-import com.codeheadsystems.dstore.common.module.JsonModule;
 import com.codeheadsystems.dstore.control.javaclient.module.ControlServiceModule;
 import com.codeheadsystems.dstore.node.module.ConfigurationModule;
 import com.codeheadsystems.dstore.node.module.ControlPlaneModule;
 import com.codeheadsystems.dstore.node.module.DataSourceModule;
 import com.codeheadsystems.dstore.node.module.HealthCheckModule;
+import com.codeheadsystems.dstore.node.module.NodeConfigurationModule;
 import com.codeheadsystems.dstore.node.module.ResourceModule;
 import com.codeheadsystems.dstore.node.module.TableDefinitionEngineModule;
 import com.codeheadsystems.dstore.node.module.UtilitiesModule;
@@ -44,6 +44,7 @@ import javax.inject.Singleton;
     DropWizardModule.class,
     EtcdModule.class,
     HealthCheckModule.class,
+    NodeConfigurationModule.class,
     JavaClientModule.class,
     ResourceModule.class,
     TableDefinitionEngineModule.class,
