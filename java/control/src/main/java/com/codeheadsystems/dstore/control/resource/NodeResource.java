@@ -68,6 +68,7 @@ public class NodeResource implements JerseyResource, ControlNodeService {
   @ExceptionMetered
   @ResponseMetered
   public NodeInfo register(final String nodeUuid, final NodeMetaData metaData) {
+    LOGGER.trace("register({},{})", nodeUuid, metaData);
     return nodeInfoConverter.from(nodeManager.create(nodeUuid, metaData));
   }
 
@@ -76,6 +77,7 @@ public class NodeResource implements JerseyResource, ControlNodeService {
   @ExceptionMetered
   @ResponseMetered
   public NodeInfo enable(final String nodeUuid) {
+    LOGGER.trace("enable({})", nodeUuid);
     final Node node = nodeManager.enable(nodeUuid);
     return nodeInfoConverter.from(node);
   }
@@ -85,6 +87,7 @@ public class NodeResource implements JerseyResource, ControlNodeService {
   @ExceptionMetered
   @ResponseMetered
   public NodeInfo disable(final String nodeUuid) {
+    LOGGER.trace("disable({})", nodeUuid);
     final Node node = nodeManager.disable(nodeUuid);
     return nodeInfoConverter.from(node);
   }
@@ -94,6 +97,7 @@ public class NodeResource implements JerseyResource, ControlNodeService {
   @ExceptionMetered
   @ResponseMetered
   public NodeInfo status(final String nodeUuid) {
+    LOGGER.trace("status({})", nodeUuid);
     final Node node = nodeManager.read(nodeUuid)
         .orElseThrow(() -> new NotFoundException("No such uuid: " + nodeUuid));
     return nodeInfoConverter.from(node);
@@ -104,6 +108,7 @@ public class NodeResource implements JerseyResource, ControlNodeService {
   @ExceptionMetered
   @ResponseMetered
   public KeyInfo nodeKey(final String nodeUuid) {
+    LOGGER.trace("nodeKey({})", nodeUuid);
     return keyInfoConverter.from(nodeManager.key(nodeUuid));
   }
 
@@ -112,6 +117,7 @@ public class NodeResource implements JerseyResource, ControlNodeService {
   @ExceptionMetered
   @ResponseMetered
   public KeyInfo nodeKey(final String nodeUuid, final String reference) {
+    LOGGER.trace("nodeKey({},{})", nodeUuid, reference);
     return keyInfoConverter.from(nodeManager.key(nodeUuid, reference));
   }
 }
