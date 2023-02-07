@@ -20,7 +20,7 @@ import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.health.HealthCheck;
 import com.codeheadsystems.dstore.common.engine.TraceUuidEngine;
 import com.codeheadsystems.server.component.DropWizardComponent;
-import com.codeheadsystems.server.module.PreBuiltModule;
+import com.codeheadsystems.server.module.DropWizardModule;
 import io.dropwizard.Application;
 import io.dropwizard.Configuration;
 import io.dropwizard.jersey.setup.JerseyEnvironment;
@@ -48,12 +48,12 @@ public abstract class Server<T extends Configuration> extends Application<T> {
    *
    * @param configuration for you service.
    * @param environment   the current environment, if needed.
-   * @param module        provided metric registry.
+   * @param module        for Server created stuff.
    * @return dropwizard component.
    */
   protected abstract DropWizardComponent dropWizardComponent(final T configuration,
                                                              final Environment environment,
-                                                             final PreBuiltModule module);
+                                                             final DropWizardModule module);
 
   /**
    * Runs the application.
@@ -70,7 +70,7 @@ public abstract class Server<T extends Configuration> extends Application<T> {
     final TraceUuidEngine engine = new TraceUuidEngine();
     engine.set(getName() + ":init:" + UUID.randomUUID().toString());
     final MetricRegistry metricRegistry = environment.metrics();
-    final PreBuiltModule module = new PreBuiltModule(engine, metricRegistry);
+    final DropWizardModule module = new DropWizardModule(engine, metricRegistry);
     final DropWizardComponent component = dropWizardComponent(configuration, environment, module);
     final JerseyEnvironment jerseyEnvironment = environment.jersey();
     LOGGER.info("\n---\n--- Registering Managed Objects ---\n---");

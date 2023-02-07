@@ -16,72 +16,133 @@
 
 package com.codeheadsystems.server.module;
 
+import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.health.HealthCheck;
+import com.codeheadsystems.dstore.common.engine.TraceUuidEngine;
 import com.codeheadsystems.dstore.common.module.JsonModule;
+import com.codeheadsystems.metrics.helper.DropwizardMetricsHelper;
 import com.codeheadsystems.server.resource.JerseyResource;
 import com.codeheadsystems.server.resource.NotFoundExceptionMapper;
 import com.codeheadsystems.server.resource.TraceUuidResource;
 import dagger.Binds;
 import dagger.Module;
+import dagger.Provides;
 import dagger.multibindings.IntoSet;
 import dagger.multibindings.Multibinds;
 import io.dropwizard.lifecycle.Managed;
+import io.micrometer.core.instrument.MeterRegistry;
 import java.util.Set;
+import javax.inject.Singleton;
 
 /**
  * Contains expected modules for dropwizard.
  */
 @Module(includes = {
     JsonModule.class,
-    PreBuiltModule.class
+    DropWizardModule.Binder.class
 })
-public interface DropWizardModule {
+public class DropWizardModule {
 
-  // --- multi-binds so we don't error if nothing is declared.
-
-
-  /**
-   * Returns the resources for the application.
-   *
-   * @return resources.
-   */
-  @Multibinds
-  Set<JerseyResource> resources();
+  private final TraceUuidEngine engine;
+  private final MetricRegistry metricRegistry;
+  private final MeterRegistry meterRegistry;
 
   /**
-   * Returns the health check for the application.
+   * Constructor.
    *
-   * @return the health checks.
+   * @param engine         to use.
+   * @param metricRegistry for metrics.
    */
-  @Multibinds
-  Set<HealthCheck> healthChecks();
+  public DropWizardModule(final TraceUuidEngine engine,
+                          final MetricRegistry metricRegistry) {
+    this.engine = engine;
+    this.metricRegistry = metricRegistry;
+    this.meterRegistry = new DropwizardMetricsHelper().instrument(metricRegistry);
+  }
 
   /**
-   * Objects that need their lifecycle managed.
+   * Provider.
    *
-   * @return set of objects.
+   * @return the engine.
    */
-  @Multibinds
-  Set<Managed> managedObjects();
+  @Provides
+  @Singleton
+  public TraceUuidEngine engine() {
+    return engine;
+  }
 
   /**
-   * TraceUuidResource resource.
+   * Add the metric registry to dagger context.
    *
-   * @param resource resource.
-   * @return JerseyResource.
+   * @return registry.
    */
-  @Binds
-  @IntoSet
-  JerseyResource traceUuid(TraceUuidResource resource);
+  @Provides
+  @Singleton
+  public MetricRegistry metricRegistry() {
+    return metricRegistry;
+  }
 
   /**
-   * Not found exception mapper.
+   * The instrumented meter registry.
    *
-   * @param resource resource.
-   * @return JerseyResource.
+   * @return registry.
    */
-  @Binds
-  @IntoSet
-  JerseyResource notFoundExceptionMapper(NotFoundExceptionMapper resource);
-  
+  @Provides
+  @Singleton
+  @javax.inject.Named("Meter Registry")
+  public MeterRegistry meterRegistry() {
+    return meterRegistry;
+  }
+
+  /**
+   * All of the stuff the server needs.
+   */
+  @Module
+  public interface Binder {
+
+    /**
+     * Returns the resources for the application.
+     *
+     * @return resources.
+     */
+    @Multibinds
+    Set<JerseyResource> resources();
+
+    /**
+     * Returns the health check for the application.
+     *
+     * @return the health checks.
+     */
+    @Multibinds
+    Set<HealthCheck> healthChecks();
+
+    /**
+     * Objects that need their lifecycle managed.
+     *
+     * @return set of objects.
+     */
+    @Multibinds
+    Set<Managed> managedObjects();
+
+    /**
+     * TraceUuidResource resource.
+     *
+     * @param resource resource.
+     * @return JerseyResource.
+     */
+    @Binds
+    @IntoSet
+    JerseyResource traceUuid(TraceUuidResource resource);
+
+    /**
+     * Not found exception mapper.
+     *
+     * @param resource resource.
+     * @return JerseyResource.
+     */
+    @Binds
+    @IntoSet
+    JerseyResource notFoundExceptionMapper(NotFoundExceptionMapper resource);
+
+  }
 }

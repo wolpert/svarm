@@ -12,7 +12,7 @@ logging:
     com.mchange.v2.c3p0: TRACE
   appenders:
     - type: console
-      logFormat: "%d{HH:mm:ss.SSS} [%thread] [%X{trace}] %-5level %logger{36} - %msg%n"
+      logFormat: "%d{HH:mm:ss.SSS} [%thread] [trace:%X{trace}] %-5level %logger{36} - %msg%n"
 
 server:
   adminMinThreads: 1
