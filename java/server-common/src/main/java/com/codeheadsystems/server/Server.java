@@ -18,13 +18,15 @@ package com.codeheadsystems.server;
 
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.health.HealthCheck;
+import com.codeheadsystems.dstore.common.engine.TraceUuidEngine;
 import com.codeheadsystems.server.component.DropWizardComponent;
-import com.codeheadsystems.server.module.MetricRegistryModule;
+import com.codeheadsystems.server.module.PreBuiltModule;
 import io.dropwizard.Application;
 import io.dropwizard.Configuration;
 import io.dropwizard.jersey.setup.JerseyEnvironment;
 import io.dropwizard.lifecycle.Managed;
 import io.dropwizard.setup.Environment;
+import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,14 +46,14 @@ public abstract class Server<T extends Configuration> extends Application<T> {
   /**
    * Implement this method to return the dropwizard component we will use.
    *
-   * @param configuration        for you service.
-   * @param environment          the current environment, if needed.
-   * @param metricRegistryModule provided metric registry.
+   * @param configuration for you service.
+   * @param environment   the current environment, if needed.
+   * @param module        provided metric registry.
    * @return dropwizard component.
    */
   protected abstract DropWizardComponent dropWizardComponent(final T configuration,
                                                              final Environment environment,
-                                                             final MetricRegistryModule metricRegistryModule);
+                                                             final PreBuiltModule module);
 
   /**
    * Runs the application.
@@ -65,8 +67,10 @@ public abstract class Server<T extends Configuration> extends Application<T> {
                   final Environment environment) throws Exception {
     LOGGER.info("run({},{})", configuration, environment);
     LOGGER.info("\n---\n--- Server Setup Starting ---\n---");
+    final TraceUuidEngine engine = new TraceUuidEngine();
+    engine.set(getName() + ":init:" + UUID.randomUUID().toString());
     final MetricRegistry metricRegistry = environment.metrics();
-    final MetricRegistryModule module = new MetricRegistryModule(metricRegistry);
+    final PreBuiltModule module = new PreBuiltModule(engine, metricRegistry);
     final DropWizardComponent component = dropWizardComponent(configuration, environment, module);
     final JerseyEnvironment jerseyEnvironment = environment.jersey();
     LOGGER.info("\n---\n--- Registering Managed Objects ---\n---");
@@ -84,6 +88,7 @@ public abstract class Server<T extends Configuration> extends Application<T> {
       LOGGER.info("Registering healthCheck: {}", healthCheck.getClass().getSimpleName());
       environment.healthChecks().register(healthCheck.getClass().getSimpleName(), healthCheck);
     }
+    engine.clear();
     LOGGER.info("\n---\n--- Server Setup Complete ---\n---");
   }
 

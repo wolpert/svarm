@@ -33,7 +33,7 @@ import java.util.Set;
  */
 @Module(includes = {
     JsonModule.class,
-    MetricRegistryModule.class
+    PreBuiltModule.class
 })
 public interface DropWizardModule {
 
@@ -83,5 +83,5 @@ public interface DropWizardModule {
   @Binds
   @IntoSet
   JerseyResource notFoundExceptionMapper(NotFoundExceptionMapper resource);
-
+  
 }

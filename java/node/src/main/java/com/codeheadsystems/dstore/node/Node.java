@@ -22,7 +22,7 @@ import com.codeheadsystems.dstore.node.component.DaggerNodeDropWizardComponent;
 import com.codeheadsystems.dstore.node.module.ConfigurationModule;
 import com.codeheadsystems.server.Server;
 import com.codeheadsystems.server.component.DropWizardComponent;
-import com.codeheadsystems.server.module.MetricRegistryModule;
+import com.codeheadsystems.server.module.PreBuiltModule;
 import io.dropwizard.setup.Environment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,21 +56,21 @@ public class Node extends Server<NodeConfiguration> {
   /**
    * Creates the component for the dropwizard server.
    *
-   * @param configuration        our configuration.
-   * @param environment          the environment.
-   * @param metricRegistryModule the provide metrics module.
+   * @param configuration our configuration.
+   * @param environment   the environment.
+   * @param module        the provider for the prebuilt module.
    * @return a build component.
    */
   @Override
   protected DropWizardComponent dropWizardComponent(final NodeConfiguration configuration,
                                                     final Environment environment,
-                                                    final MetricRegistryModule metricRegistryModule) {
+                                                    final PreBuiltModule module) {
     LOGGER.info("dropWizardComponent({})", configuration);
     return DaggerNodeDropWizardComponent.builder()
         .etcdModule(new EtcdModule(configuration.getEtcdConfiguration()))
         .configurationModule(new ConfigurationModule(configuration))
         .controlServiceModule(new ControlServiceModule(configuration.getControlPlaneUrl()))
-        .metricRegistryModule(metricRegistryModule)
+        .preBuiltModule(module)
         .build();
   }
 
