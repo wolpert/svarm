@@ -51,18 +51,4 @@ public class ConfigurationModule {
     return nodeConfiguration;
   }
 
-  /**
-   * Provides the internal node configuration for us.
-   *
-   * @param factory       a factory to build or read.
-   * @param configuration startup configuration.
-   * @return internal configuration.
-   */
-  @Provides
-  @Singleton
-  public NodeInternalConfiguration nodeInternalConfiguration(final NodeConfigurationFactory factory,
-                                                             final NodeConfiguration configuration) {
-    return factory.readOrGenerate(configuration.getDatabaseDirectory());
-  }
-
 }

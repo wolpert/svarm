@@ -18,6 +18,8 @@ package com.codeheadsystems.dstore.node.module;
 
 import com.codeheadsystems.dstore.common.config.EtcdConfiguration;
 import com.codeheadsystems.dstore.node.NodeConfiguration;
+import com.codeheadsystems.dstore.node.factory.NodeConfigurationFactory;
+import com.codeheadsystems.dstore.node.model.NodeInternalConfiguration;
 import dagger.Module;
 import dagger.Provides;
 import javax.inject.Singleton;
@@ -38,6 +40,20 @@ public class NodeConfigurationModule {
   @Singleton
   public EtcdConfiguration etcdConfiguration(final NodeConfiguration configuration) {
     return configuration.getEtcdConfiguration();
+  }
+
+  /**
+   * Provides the internal node configuration for us.
+   *
+   * @param factory       a factory to build or read.
+   * @param configuration startup configuration.
+   * @return internal configuration.
+   */
+  @Provides
+  @Singleton
+  public NodeInternalConfiguration nodeInternalConfiguration(final NodeConfigurationFactory factory,
+                                                             final NodeConfiguration configuration) {
+    return factory.readOrGenerate(configuration.getDatabaseDirectory());
   }
 
 }
