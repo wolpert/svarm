@@ -17,7 +17,6 @@
 package com.codeheadsystems.dstore.control.component;
 
 import com.codeheadsystems.dstore.common.config.module.EtcdModule;
-import com.codeheadsystems.dstore.control.module.ConfigurationModule;
 import com.codeheadsystems.dstore.control.module.ControlConfigurationModule;
 import com.codeheadsystems.dstore.control.module.DatabaseModule;
 import com.codeheadsystems.dstore.control.module.ResourceModule;
@@ -31,7 +30,6 @@ import javax.inject.Singleton;
  * Creates the pieces needed for the control plane to run.
  */
 @Component(modules = {
-    ConfigurationModule.class,
     ControlConfigurationModule.class,
     DatabaseModule.class,
     DropWizardModule.class,

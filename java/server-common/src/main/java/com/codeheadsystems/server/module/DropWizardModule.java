@@ -29,7 +29,9 @@ import dagger.Module;
 import dagger.Provides;
 import dagger.multibindings.IntoSet;
 import dagger.multibindings.Multibinds;
+import io.dropwizard.Configuration;
 import io.dropwizard.lifecycle.Managed;
+import io.dropwizard.setup.Environment;
 import io.micrometer.core.instrument.MeterRegistry;
 import java.util.Set;
 import javax.inject.Singleton;
@@ -46,18 +48,48 @@ public class DropWizardModule {
   private final TraceUuidEngine engine;
   private final MetricRegistry metricRegistry;
   private final MeterRegistry meterRegistry;
+  private final Environment environment;
+  private final Configuration configuration;
 
   /**
    * Constructor.
    *
    * @param engine         to use.
    * @param metricRegistry for metrics.
+   * @param environment    for the environment.
+   * @param configuration  the configuration.
    */
   public DropWizardModule(final TraceUuidEngine engine,
-                          final MetricRegistry metricRegistry) {
+                          final MetricRegistry metricRegistry,
+                          final Environment environment,
+                          final Configuration configuration) {
     this.engine = engine;
     this.metricRegistry = metricRegistry;
     this.meterRegistry = new DropwizardMetricsHelper().instrument(metricRegistry);
+    this.environment = environment;
+    this.configuration = configuration;
+  }
+
+  /**
+   * Accessor to environment.
+   *
+   * @return the environment.
+   */
+  @Provides
+  @Singleton
+  public Environment environment() {
+    return environment;
+  }
+
+  /**
+   * Accessor to configuration.
+   *
+   * @return the configuration.
+   */
+  @Provides
+  @Singleton
+  public Configuration configuration() {
+    return configuration;
   }
 
   /**

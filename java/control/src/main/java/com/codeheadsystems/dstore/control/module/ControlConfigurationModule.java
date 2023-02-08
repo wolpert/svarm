@@ -20,6 +20,7 @@ import com.codeheadsystems.dstore.common.config.EtcdConfiguration;
 import com.codeheadsystems.dstore.control.ControlConfiguration;
 import dagger.Module;
 import dagger.Provides;
+import io.dropwizard.Configuration;
 import javax.inject.Singleton;
 
 /**
@@ -29,6 +30,18 @@ import javax.inject.Singleton;
 public class ControlConfigurationModule {
 
   /**
+   * Converts the configuration to a control configuration.
+   *
+   * @param configuration from dropwizard.
+   * @return our type.
+   */
+  @Provides
+  @Singleton
+  public ControlConfiguration configuration(final Configuration configuration) {
+    return (ControlConfiguration) configuration;
+  }
+
+  /**
    * Provider for the etcd configuration.
    *
    * @param configuration from us.
@@ -36,7 +49,7 @@ public class ControlConfigurationModule {
    */
   @Provides
   @Singleton
-  public EtcdConfiguration configuration(final ControlConfiguration configuration) {
+  public EtcdConfiguration etcdConfiguration(final ControlConfiguration configuration) {
     return configuration.getEtcdConfiguration();
   }
 

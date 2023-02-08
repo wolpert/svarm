@@ -46,14 +46,10 @@ public abstract class Server<T extends Configuration> extends Application<T> {
   /**
    * Implement this method to return the dropwizard component we will use.
    *
-   * @param configuration for you service.
-   * @param environment   the current environment, if needed.
-   * @param module        for Server created stuff.
+   * @param module for Server created stuff.
    * @return dropwizard component.
    */
-  protected abstract DropWizardComponent dropWizardComponent(final T configuration,
-                                                             final Environment environment,
-                                                             final DropWizardModule module);
+  protected abstract DropWizardComponent dropWizardComponent(final DropWizardModule module);
 
   /**
    * Runs the application.
@@ -68,10 +64,10 @@ public abstract class Server<T extends Configuration> extends Application<T> {
     LOGGER.info("run({},{})", configuration, environment);
     LOGGER.info("\n---\n--- Server Setup Starting ---\n---");
     final TraceUuidEngine engine = new TraceUuidEngine();
-    engine.set(getName() + ":init:" + UUID.randomUUID().toString());
+    engine.set(getName() + ":init:" + UUID.randomUUID());
     final MetricRegistry metricRegistry = environment.metrics();
-    final DropWizardModule module = new DropWizardModule(engine, metricRegistry);
-    final DropWizardComponent component = dropWizardComponent(configuration, environment, module);
+    final DropWizardModule module = new DropWizardModule(engine, metricRegistry, environment, configuration);
+    final DropWizardComponent component = dropWizardComponent(module);
     final JerseyEnvironment jerseyEnvironment = environment.jersey();
     LOGGER.info("\n---\n--- Registering Managed Objects ---\n---");
     for (Managed managed : component.managedObjects()) {

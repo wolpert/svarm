@@ -16,14 +16,10 @@
 
 package com.codeheadsystems.dstore.node;
 
-import com.codeheadsystems.dstore.common.config.module.EtcdModule;
-import com.codeheadsystems.dstore.control.javaclient.module.ControlServiceModule;
 import com.codeheadsystems.dstore.node.component.DaggerNodeDropWizardComponent;
-import com.codeheadsystems.dstore.node.module.ConfigurationModule;
 import com.codeheadsystems.server.Server;
 import com.codeheadsystems.server.component.DropWizardComponent;
 import com.codeheadsystems.server.module.DropWizardModule;
-import io.dropwizard.setup.Environment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,22 +49,10 @@ public class Node extends Server<NodeConfiguration> {
     server.run(args);
   }
 
-  /**
-   * Creates the component for the dropwizard server.
-   *
-   * @param configuration our configuration.
-   * @param environment   the environment.
-   * @param module        the provider for the prebuilt module.
-   * @return a build component.
-   */
   @Override
-  protected DropWizardComponent dropWizardComponent(final NodeConfiguration configuration,
-                                                    final Environment environment,
-                                                    final DropWizardModule module) {
-    LOGGER.info("dropWizardComponent({})", configuration);
+  protected DropWizardComponent dropWizardComponent(final DropWizardModule module) {
+    LOGGER.info("dropWizardComponent({})", module);
     return DaggerNodeDropWizardComponent.builder()
-        .configurationModule(new ConfigurationModule(configuration))
-        .controlServiceModule(new ControlServiceModule(configuration.getControlPlaneUrl()))
         .dropWizardModule(module)
         .build();
   }

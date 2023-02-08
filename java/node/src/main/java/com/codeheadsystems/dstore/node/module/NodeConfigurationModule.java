@@ -16,12 +16,16 @@
 
 package com.codeheadsystems.dstore.node.module;
 
+import static com.codeheadsystems.dstore.control.javaclient.module.ControlServiceModule.CONTROL_SERVICE_CONNECTION_URL;
+
 import com.codeheadsystems.dstore.common.config.EtcdConfiguration;
 import com.codeheadsystems.dstore.node.NodeConfiguration;
 import com.codeheadsystems.dstore.node.factory.NodeConfigurationFactory;
 import com.codeheadsystems.dstore.node.model.NodeInternalConfiguration;
 import dagger.Module;
 import dagger.Provides;
+import io.dropwizard.Configuration;
+import javax.inject.Named;
 import javax.inject.Singleton;
 
 /**
@@ -29,6 +33,18 @@ import javax.inject.Singleton;
  */
 @Module
 public class NodeConfigurationModule {
+
+  /**
+   * Converts the configuration to a node configuration.
+   *
+   * @param configuration from dropwizard.
+   * @return our type.
+   */
+  @Provides
+  @Singleton
+  public NodeConfiguration configuration(final Configuration configuration) {
+    return (NodeConfiguration) configuration;
+  }
 
   /**
    * Provider for the etcd configuration.
@@ -55,5 +71,19 @@ public class NodeConfigurationModule {
                                                              final NodeConfiguration configuration) {
     return factory.readOrGenerate(configuration.getDatabaseDirectory());
   }
+
+  /**
+   * Provides the control plane url.
+   *
+   * @param nodeConfiguration the configuration.
+   * @return the control plane.
+   */
+  @Provides
+  @Singleton
+  @Named(CONTROL_SERVICE_CONNECTION_URL)
+  public String controlServiceConnectionUrl(final NodeConfiguration nodeConfiguration) {
+    return nodeConfiguration.getControlPlaneUrl();
+  }
+
 
 }

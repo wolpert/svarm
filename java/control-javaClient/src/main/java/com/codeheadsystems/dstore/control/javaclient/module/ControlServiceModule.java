@@ -2,18 +2,34 @@ package com.codeheadsystems.dstore.control.javaclient.module;
 
 import com.codeheadsystems.dstore.control.common.api.ControlNodeService;
 import com.codeheadsystems.dstore.node.api.NodeTenantTableService;
+import dagger.BindsOptionalOf;
 import dagger.Module;
 import dagger.Provides;
 import feign.Feign;
+import java.util.Optional;
+import javax.inject.Named;
 import javax.inject.Singleton;
 
 /**
  * Module for the control service.
  */
-@Module
+@Module(includes = {ControlServiceModule.Binder.class})
 public class ControlServiceModule {
 
+  /**
+   * Declare this in your module if you want to inject the configuration.
+   */
+  public static final String CONTROL_SERVICE_CONNECTION_URL = "ControlServiceConnectionUrl";
+  private static final String INTERNAL_CONTROL_SERVICE_CONNECTION_URL = "InternalControlServiceConnectionUrl";
   private final String connectionUrl;
+
+
+  /**
+   * Default constructor. If you use this, you need to set the real connection value.
+   */
+  public ControlServiceModule() {
+    this(null);
+  }
 
   /**
    * Constructor.
@@ -25,15 +41,31 @@ public class ControlServiceModule {
   }
 
   /**
+   * The real connection url.
+   *
+   * @param url the url.
+   * @return the value.
+   */
+  @Provides
+  @Singleton
+  @Named(INTERNAL_CONTROL_SERVICE_CONNECTION_URL)
+  public String internalControlServiceConnectionUrl(
+      @Named(CONTROL_SERVICE_CONNECTION_URL) final Optional<String> url) {
+    return url.orElse(connectionUrl);
+  }
+
+  /**
    * Get a usable control service.
    *
    * @param builder feign builder to use.
+   * @param url     the url of the control service.
    * @return a control service.
    */
   @Provides
   @Singleton
-  public ControlNodeService nodeService(final Feign.Builder builder) {
-    return builder.target(ControlNodeService.class, connectionUrl);
+  public ControlNodeService nodeService(final Feign.Builder builder,
+                                        @Named(INTERNAL_CONTROL_SERVICE_CONNECTION_URL) final String url) {
+    return builder.target(ControlNodeService.class, url);
   }
 
   /**
@@ -46,5 +78,21 @@ public class ControlServiceModule {
   @Singleton
   public NodeTenantTableService nodeTenantTableService(final Feign.Builder builder) {
     return builder.target(NodeTenantTableService.class, connectionUrl);
+  }
+
+  /**
+   * Binder so clients can do their own connection url.
+   */
+  @Module
+  interface Binder {
+
+    /**
+     * Optional connection url declared by the clients.
+     *
+     * @return value.
+     */
+    @BindsOptionalOf
+    @Named(CONTROL_SERVICE_CONNECTION_URL)
+    String controlServiceConnectionUrl();
   }
 }
