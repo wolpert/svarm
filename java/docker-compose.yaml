@@ -1,0 +1,34 @@
+version: '2'
+services:
+  etcd:
+    image: quay.io/coreos/etcd
+    ports:
+      - 2379:2379
+    volumes:
+      - etcd0:/etcd_data
+    command:
+      - /usr/local/bin/etcd
+      - -name
+      - etcd0
+      - --data-dir
+      - /etcd_data
+      - -advertise-client-urls
+      - http://0.0.0.0:2379
+      - -listen-client-urls
+      - http://0.0.0.0:2379
+      - -initial-cluster-token
+      - etcd-cluster-1
+      - -initial-cluster
+      - etcd0=http://localhost:2380
+      - -initial-cluster-state
+      - new
+  database:
+    image: 'postgres:latest'
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: control
+      POSTGRES_PASSWORD: control
+      POSTGRES_DB: control
+volumes:
+  etcd0:

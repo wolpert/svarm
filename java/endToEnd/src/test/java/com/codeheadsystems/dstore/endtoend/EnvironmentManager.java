@@ -35,8 +35,8 @@ import org.slf4j.Logger;
 public class EnvironmentManager implements TestExecutionListener {
   private static final Logger LOGGER = getLogger(EnvironmentManager.class);
   private static final Map<String, Throwable> INITIALIZATION_FAILURE = new HashMap<>();
+  private static EnvironmentConfiguration environmentConfiguration;
   private ServiceManager[] managers;
-  private EnvironmentConfiguration environmentConfiguration;
 
   /**
    * Constructor.
@@ -50,6 +50,10 @@ public class EnvironmentManager implements TestExecutionListener {
     synchronized (INITIALIZATION_FAILURE) {
       INITIALIZATION_FAILURE.put(service, exception);
     }
+  }
+
+  public static EnvironmentConfiguration environmentConfiguration() {
+    return environmentConfiguration;
   }
 
   public static Map<String, Throwable> getInitializationFailure() {

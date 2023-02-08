@@ -7,9 +7,8 @@ nodePort: 9080
 logging:
   level: INFO
   loggers:
-    com.codeheadsystems: DEBUG
-    com.codeheadsystems.dstore.node: TRACE
-    com.mchange.v2.c3p0: TRACE
+    com.codeheadsystems.dstore: TRACE
+    com.mchange.v2.c3p0: WARN
   appenders:
     - type: console
       logFormat: "%d{HH:mm:ss.SSS} [%thread] [trace:%X{trace}] %-5level %logger{36} - %msg%n"
