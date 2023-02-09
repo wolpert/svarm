@@ -1,4 +1,3 @@
-version: '2'
 services:
   etcd:
     image: quay.io/coreos/etcd
@@ -6,6 +5,9 @@ services:
       - 2379:2379
     volumes:
       - etcd0:/etcd_data
+    networks:
+      - front-tier
+
     command:
       - /usr/local/bin/etcd
       - -name
@@ -22,18 +24,44 @@ services:
       - etcd0=http://localhost:2380
       - -initial-cluster-state
       - new
+
   database:
-    image: 'postgres:latest'
+    image: postgres:latest
     ports:
       - 5432:5432
     environment:
       POSTGRES_USER: control
       POSTGRES_PASSWORD: control
       POSTGRES_DB: control
-    depends_on:
-      - etcd
     volumes:
       - ./db-data/:/var/lib/postgresql/data/
+    networks:
+      - front-tier
+
+  control:
+    image: amazoncorretto:17
+    configs:
+      - control-config
+    ports:
+      - 9090:9090
+    networks:
+      - front-tier
+    volumes:
+      - ./control/build/install/control:/control
+    command: ["/control/bin/control", "server", "/config/control-config.yaml"]
+    depends_on:
+      etcd:
+        condition: service_started
+      database:
+        condition: service_started
 
 volumes:
   etcd0:
+
+configs:
+  control-config:
+    file: config/control-config.yaml
+
+networks:
+  back-tier: {}
+  front-tier: {}
