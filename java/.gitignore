@@ -17,6 +17,9 @@
 */target/*
 **/*.tiled-session
 
+./db-data
+/db-data
+
 *android/libs/armeabi/
 *android/libs/armeabi-v7a/
 *android/libs/x86/

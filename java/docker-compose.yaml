@@ -30,5 +30,10 @@ services:
       POSTGRES_USER: control
       POSTGRES_PASSWORD: control
       POSTGRES_DB: control
+    depends_on:
+      - etcd
+    volumes:
+      - ./db-data/:/var/lib/postgresql/data/
+
 volumes:
   etcd0:
