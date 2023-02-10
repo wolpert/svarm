@@ -1,36 +1,17 @@
+databaseDirectory: /tmp/endToEnd
+runDatabaseInMemory: false
+controlPlaneUrl: http://control:9090/
+nodeHost: node
+nodePort: 9080
+
 logging:
   level: INFO
   loggers:
-    com.codeheadsystems: DEBUG
     com.codeheadsystems.dstore: TRACE
     com.mchange.v2.c3p0: WARN
   appenders:
     - type: console
       logFormat: "%d{HH:mm:ss.SSS} [%thread] [trace:%X{trace}] %-5level %logger{36} - %msg%n"
-
-# A test db for now, hsql. Also, we will use liquibase by default in the config file. Production won't do this.
-runLiquibase: true
-database:
-  driverClass: org.postgresql.Driver
-  user: control
-  password: control
-  url: jdbc:postgresql://database:5432/control?sslmode=disable
-
-etcdConfiguration:
-  target: ip:///etcd:2379
-
-#metrics:
-#  frequency: 1 minute
-#  reportOnStop: true
-#  reporters:
-#    - type: log
-#      logger: metrics
-#      markerName: SLF4j
-#    - type: graphite
-#      host: localhost
-#      port: 2003
-#      prefix: node
-#      transport: tcp
 
 server:
   adminMinThreads: 1
@@ -39,10 +20,13 @@ server:
   applicationContextPath: /
   applicationConnectors:
     - type: http
-      port: 9090
+      port: 9080
   adminConnectors:
     - type: http
-      port: 9091
+      port: 9081
+
+etcdConfiguration:
+  target: ip:///etcd:2379
 
 health:
   healthCheckUrlPaths: [ "/health-check" ]
@@ -57,12 +41,32 @@ health:
         initialDelay: 5s
         failureAttempts: 1
         successAttempts: 2
-    - name: database
-      type: alive
+    - name: InternalDataSourceHealthCheck
+      type: ready
       critical: true
-      initialState: true
+      initialState: false
       schedule:
         checkInterval: 10s
+        downtimeInterval: 2s
+        initialDelay: 5s
+        failureAttempts: 1
+        successAttempts: 2
+    - name: TenantTablelDataSourceHealthCheck
+      type: ready
+      critical: true
+      initialState: false
+      schedule:
+        checkInterval: 10s
+        downtimeInterval: 2s
+        initialDelay: 5s
+        failureAttempts: 1
+        successAttempts: 2
+    - name: BasicHealthCheck
+      type: alive
+      critical: true
+      initialState: false
+      schedule:
+        checkInterval: 60s
         downtimeInterval: 2s
         initialDelay: 5s
         failureAttempts: 1

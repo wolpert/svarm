@@ -19,6 +19,8 @@
 
 ./db-data
 /db-data
+/etcd0
+/compose-data
 
 *android/libs/armeabi/
 *android/libs/armeabi-v7a/

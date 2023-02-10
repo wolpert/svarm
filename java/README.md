@@ -14,6 +14,12 @@ gradle clean build test
 gradle :node:run
 ```
 
+### Docker compose
+```shell
+gradle :control:installDist :node:installDist
+docker compose up
+```
+
 Integration tests take additional time. To execute build with full integration
 tests, do this:
 

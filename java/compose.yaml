@@ -3,11 +3,8 @@ services:
     image: quay.io/coreos/etcd
     ports:
       - 2379:2379
-    volumes:
-      - etcd0:/etcd_data
     networks:
       - front-tier
-
     command:
       - /usr/local/bin/etcd
       - -name
@@ -33,21 +30,18 @@ services:
       POSTGRES_USER: control
       POSTGRES_PASSWORD: control
       POSTGRES_DB: control
-    volumes:
-      - ./db-data/:/var/lib/postgresql/data/
     networks:
       - front-tier
 
   control:
     image: amazoncorretto:17
-    configs:
-      - control-config
     ports:
       - 9090:9090
     networks:
       - front-tier
     volumes:
       - ./control/build/install/control:/control
+      - ./config:/config
     command: ["/control/bin/control", "server", "/config/control-config.yaml"]
     depends_on:
       etcd:
@@ -55,12 +49,23 @@ services:
       database:
         condition: service_started
 
-volumes:
-  etcd0:
-
-configs:
-  control-config:
-    file: config/control-config.yaml
+  node01:
+    image: amazoncorretto:17
+    ports:
+      - 9080:9080
+    networks:
+      - front-tier
+    volumes:
+      - ./node/build/install/node:/node
+      - ./config:/config
+    command: ["/node/bin/node", "server", "/config/node-config.yaml"]
+    depends_on:
+      etcd:
+        condition: service_started
+      database:
+        condition: service_started
+      control:
+        condition: service_started
 
 networks:
   back-tier: {}
