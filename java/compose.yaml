@@ -5,6 +5,7 @@ services:
       - 2379:2379
     networks:
       - front-tier
+      - back-tier
     command:
       - /usr/local/bin/etcd
       - -name
@@ -31,14 +32,14 @@ services:
       POSTGRES_PASSWORD: control
       POSTGRES_DB: control
     networks:
-      - front-tier
+      - back-tier
 
   control:
     image: amazoncorretto:17
     ports:
       - 9090:9090
     networks:
-      - front-tier
+      - back-tier
     volumes:
       - ./control/build/install/control:/control
       - ./config:/config
@@ -55,6 +56,7 @@ services:
       - 9080:9080
     networks:
       - front-tier
+      - back-tier
     volumes:
       - ./node/build/install/node:/node
       - ./config:/config
