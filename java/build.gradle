@@ -157,12 +157,3 @@ allprojects {
         useJUnitPlatform { includeTags "integ" }
     }
 }
-
-project('endToEnd') {
-    integ {enabled = false}
-    test {
-        onlyIf {
-            project.hasProperty("e2e")
-        }
-    }
-}

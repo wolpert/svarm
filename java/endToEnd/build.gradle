@@ -89,14 +89,25 @@ task logDir(type: Exec) {
 }
 
 task composeUp(type: Exec) {
+    onlyIf {project.hasProperty("e2e")}
     commandLine "docker", "compose", "up", "--wait"
 }
-task composeDown(type: Exec) {
+task preTestComposeDown(type: Exec) {
+    onlyIf {project.hasProperty("e2e")}
     commandLine "docker", "compose", "down"
 }
+task finalComposeDown(type: Exec) {
+    onlyIf {project.hasProperty("e2e")}
+    commandLine "docker", "compose", "down"
+}
+composeUp.dependsOn logDir, preTestComposeDown,
+        ':control:installDist', ':node:installDist'
 
-composeUp.dependsOn logDir
-composeUp.dependsOn ':control:installDist'
-composeUp.dependsOn ':node:installDist'
-test.dependsOn composeUp
-composeDown.shouldRunAfter test
+integ {
+    enabled = false
+}
+test {
+    onlyIf {project.hasProperty("e2e")}
+    dependsOn composeUp
+    finalizedBy finalComposeDown
+}
