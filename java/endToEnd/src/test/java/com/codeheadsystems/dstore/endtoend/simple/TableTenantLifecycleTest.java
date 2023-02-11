@@ -22,6 +22,7 @@ import com.codeheadsystems.dstore.control.common.api.ControlNodeService;
 import com.codeheadsystems.dstore.control.javaclient.ControlServiceComponent;
 import com.codeheadsystems.dstore.control.javaclient.DaggerControlServiceComponent;
 import com.codeheadsystems.dstore.control.javaclient.module.ControlServiceModule;
+import com.codeheadsystems.dstore.endtoend.EnvironmentManager;
 import com.codeheadsystems.dstore.node.api.NodeTenantTableService;
 import com.codeheadsystems.dstore.node.api.TenantTableInfo;
 import io.etcd.jetcd.Client;
@@ -34,24 +35,12 @@ public class TableTenantLifecycleTest {
 
   private static final String TABLE = "TableTenantLifecycleTest.table";
   private static final String TENANT = "TableTenantLifecycleTest.tenant";
-  private ControlNodeService controlNodeService;
-  private NodeTenantTableService nodeTenantTableService;
-  private Client client;
 
-
-  @BeforeEach
-  void setup() {
-    final String url = "http://localhost:9090/";
-    ControlServiceComponent component = DaggerControlServiceComponent.builder()
-        .controlServiceModule(new ControlServiceModule(url))
-        .build();
-    controlNodeService = component.controlNodeService();
-    nodeTenantTableService = component.nodeTenantTableService();
-  }
 
   @Test
   void createTable() {
-    final TenantTableInfo info = nodeTenantTableService.createTenantTable(TENANT, TABLE);
+    final TenantTableInfo info = EnvironmentManager.COMPONENT.nodeTenantTableService()
+        .createTenantTable(TENANT, TABLE);
     LOGGER.info("Create table {} ", info);
 
   }

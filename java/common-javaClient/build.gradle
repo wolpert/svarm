@@ -28,7 +28,7 @@ checkstyle {
 }
 
 dependencies {
-    implementation project(":common")
+    api project(":common")
     implementation libs.guava
 
     implementation libs.javax.inject

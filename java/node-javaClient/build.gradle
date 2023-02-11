@@ -28,8 +28,8 @@ checkstyle {
 }
 
 dependencies {
-    implementation project(":common")
-    implementation project(":common-javaClient")
+    api project(":common")
+    api project(":common-javaClient")
     implementation project(":node-common")
 
     implementation libs.jackson.annotations

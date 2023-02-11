@@ -14,20 +14,16 @@
  * limitations under the License.
  */
 
-package com.codeheadsystems.dstore.endtoend.simple;
+package com.codeheadsystems.dstore.endtoend;
 
-import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.platform.suite.api.SelectPackages;
+import org.junit.platform.suite.api.Suite;
+import org.junit.platform.suite.api.SuiteDisplayName;
 
-public class Sample2Test {
+@Suite
+@SelectPackages({"com.codeheadsystems.dstore.endtoend.simple"})
+@SuiteDisplayName("Test Everything!")
+public class EndToEndSuite {
 
-  @Test
-  @DisplayName("Sample2Test.testThis")
-  public void testThis() {
-    System.out.println("test this from 2");
-    Assertions.assertThat(true)
-        .isTrue();
-  }
 
 }

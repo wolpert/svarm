@@ -72,12 +72,14 @@ public class ControlServiceModule {
    * Get a usable control service.
    *
    * @param builder feign builder to use.
+   * @param url     the url of the control service.
    * @return a control service.
    */
   @Provides
   @Singleton
-  public NodeTenantTableService nodeTenantTableService(final Feign.Builder builder) {
-    return builder.target(NodeTenantTableService.class, connectionUrl);
+  public NodeTenantTableService nodeTenantTableService(final Feign.Builder builder,
+                                                       @Named(INTERNAL_CONTROL_SERVICE_CONNECTION_URL) final String url) {
+    return builder.target(NodeTenantTableService.class, url);
   }
 
   /**

@@ -52,6 +52,14 @@ from that directory. (May end up moving the docker start/stop into the test suit
 
 ### Troubleshooting
 
+#### Dependencies
+
+The dependencies for this project are controlled by the dependencies
+artifact. (`com.codeheadsystesms:dependencies`). The SNAPSHOT build is
+used so it is easy to update dependencies here. For whatever reason, if
+the dependencies in the public nexus service is out of date, you can clone
+`github.com:wolpert/dependencies` and run `gradle publishToMavenLocal`.
+
 #### :node:run
 
 If you run into problems when trying to run :node:run, remove
