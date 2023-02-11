@@ -30,6 +30,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -161,12 +163,12 @@ public class EtcdAccessor {
     final CompletableFuture<GetResponse> future =
         client.getKVClient().get(byteSequenceKey, getOption);
     try {
-      return future.get().getKvs().stream()
+      return future.get(10, TimeUnit.SECONDS).getKvs().stream()
           .collect(Collectors.toMap(
               kv -> kv.getKey().toString(),
               kv -> kv.getValue().toString()
           ));
-    } catch (InterruptedException | ExecutionException e) {
+    } catch (TimeoutException | InterruptedException | ExecutionException e) {
       LOGGER.error("Unable to get from etcd {}", namespaceKey, e);
       throw new IllegalArgumentException(e);
     }

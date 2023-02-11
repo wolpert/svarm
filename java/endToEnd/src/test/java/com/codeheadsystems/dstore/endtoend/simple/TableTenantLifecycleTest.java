@@ -20,6 +20,7 @@ import static com.codeheadsystems.dstore.endtoend.EnvironmentManager.COMPONENT;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import com.codeheadsystems.dstore.node.api.TenantTableInfo;
+import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -41,6 +42,7 @@ public class TableTenantLifecycleTest {
     final TenantTableInfo info = COMPONENT.nodeTenantTableService()
         .createTenantTable(TENANT, TABLE);
     LOGGER.info("Create table {} ", info);
+    COMPONENT.etcdAccessor().getAll("node", "").forEach(LOGGER::info);
   }
 
 }

@@ -21,6 +21,7 @@ import static com.codeheadsystems.dstore.control.javaclient.module.ControlServic
 import com.codeheadsystems.common.javaclient.JavaClientModule;
 import com.codeheadsystems.dstore.common.config.EtcdConfiguration;
 import com.codeheadsystems.dstore.common.config.ImmutableEtcdConfiguration;
+import com.codeheadsystems.dstore.common.config.accessor.EtcdAccessor;
 import com.codeheadsystems.dstore.common.config.module.EtcdModule;
 import com.codeheadsystems.dstore.common.engine.TraceUuidEngine;
 import com.codeheadsystems.dstore.common.module.JsonModule;
@@ -51,13 +52,14 @@ public interface DstoreComponent {
   Client client();
 
   TraceUuidEngine traceUuidEngine();
+  EtcdAccessor etcdAccessor();
 
   @Module
   class Configuration {
     @Provides
     @Singleton
     public EtcdConfiguration etcdConfiguration() {
-      return ImmutableEtcdConfiguration.builder().target("ip:///etcd:2379").build();
+      return ImmutableEtcdConfiguration.builder().target("ip:///localhost:2379").build();
     }
 
 
