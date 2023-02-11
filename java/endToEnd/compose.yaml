@@ -41,8 +41,9 @@ services:
     networks:
       - back-tier
     volumes:
-      - ./control/build/install/control:/control
-      - ./config:/config
+      - ../control/build/install/control:/control
+      - ./src/test/resources:/config
+      - ./build/docker-log:/tmp/logs
     command: ["/control/bin/control", "server", "/config/control-config.yaml"]
     depends_on:
       etcd:
@@ -50,7 +51,7 @@ services:
       database:
         condition: service_started
 
-  node01:
+  node:
     image: amazoncorretto:17
     ports:
       - 9080:9080
@@ -58,8 +59,9 @@ services:
       - front-tier
       - back-tier
     volumes:
-      - ./node/build/install/node:/node
-      - ./config:/config
+      - ../node/build/install/node:/node
+      - ./src/test/resources:/config
+      - ./build/docker-log:/tmp/logs
     command: ["/node/bin/node", "server", "/config/node-config.yaml"]
     depends_on:
       etcd:

@@ -82,10 +82,10 @@ public class EnvironmentManager implements TestExecutionListener {
 
   private ServiceManager[] generateList() {
     return new ServiceManager[]{
-        new EtcdServiceManager(),
-        new PgsqlServiceManager(),
-        new ControlServiceManager(),
-        new NodeServiceManager()
+//        new EtcdServiceManager(),
+//        new PgsqlServiceManager(),
+//        new ControlServiceManager(),
+//        new NodeServiceManager()
     };
   }
 

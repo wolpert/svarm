@@ -7,6 +7,11 @@ logging:
   appenders:
     - type: console
       logFormat: "%d{HH:mm:ss.SSS} [%thread] [trace:%X{trace}] %-5level %logger{36} - %msg%n"
+    - type: file
+      maxFileSize: 50MB
+      currentLogFilename: /tmp/logs/control.log
+      archivedLogFilenamePattern: /tmp/logs/control-%i.log.gz
+      logFormat: "%d{HH:mm:ss.SSS} [%thread] [trace:%X{trace}] %-5level %logger{36} - %msg%n"
 
 # A test db for now, hsql. Also, we will use liquibase by default in the config file. Production won't do this.
 runLiquibase: true
@@ -14,10 +19,10 @@ database:
   driverClass: org.postgresql.Driver
   user: control
   password: control
-  url: jdbc:postgresql://localhost:15432/endToEnd?sslmode=disable
+  url: jdbc:postgresql://database:5432/control?sslmode=disable
 
 etcdConfiguration:
-  target: ip:///localhost:2379
+  target: ip:///etcd:2379
 
 #metrics:
 #  frequency: 1 minute
@@ -52,7 +57,7 @@ health:
       critical: true
       initialState: true
       schedule:
-        checkInterval: 10s
+        checkInterval: 60s
         downtimeInterval: 2s
         initialDelay: 5s
         failureAttempts: 1
@@ -62,7 +67,7 @@ health:
       critical: true
       initialState: true
       schedule:
-        checkInterval: 10s
+        checkInterval: 30s
         downtimeInterval: 2s
         initialDelay: 5s
         failureAttempts: 1
@@ -72,7 +77,7 @@ health:
       critical: true
       initialState: true
       schedule:
-        checkInterval: 10s
+        checkInterval: 60s
         downtimeInterval: 2s
         initialDelay: 5s
         failureAttempts: 1

@@ -1,7 +1,7 @@
 databaseDirectory: /tmp/endToEnd
-runDatabaseInMemory: true
-controlPlaneUrl: http://localhost:9090/
-nodeHost: localhost
+runDatabaseInMemory: false
+controlPlaneUrl: http://control:9090/
+nodeHost: node
 nodePort: 9080
 
 logging:
@@ -11,6 +11,11 @@ logging:
     com.mchange.v2.c3p0: WARN
   appenders:
     - type: console
+      logFormat: "%d{HH:mm:ss.SSS} [%thread] [trace:%X{trace}] %-5level %logger{36} - %msg%n"
+    - type: file
+      maxFileSize: 50MB
+      currentLogFilename: /tmp/logs/node.log
+      archivedLogFilenamePattern: /tmp/logs/node-%i.log.gz
       logFormat: "%d{HH:mm:ss.SSS} [%thread] [trace:%X{trace}] %-5level %logger{36} - %msg%n"
 
 server:
@@ -26,7 +31,7 @@ server:
       port: 9081
 
 etcdConfiguration:
-  target: ip:///localhost:2379
+  target: ip:///etcd:2379
 
 health:
   healthCheckUrlPaths: [ "/health-check" ]
@@ -36,7 +41,7 @@ health:
       critical: true
       initialState: true
       schedule:
-        checkInterval: 10s
+        checkInterval: 60s
         downtimeInterval: 2s
         initialDelay: 5s
         failureAttempts: 1
@@ -46,7 +51,7 @@ health:
       critical: true
       initialState: false
       schedule:
-        checkInterval: 10s
+        checkInterval: 60s
         downtimeInterval: 2s
         initialDelay: 5s
         failureAttempts: 1
@@ -56,7 +61,7 @@ health:
       critical: true
       initialState: false
       schedule:
-        checkInterval: 10s
+        checkInterval: 60s
         downtimeInterval: 2s
         initialDelay: 5s
         failureAttempts: 1
@@ -76,7 +81,7 @@ health:
       critical: true
       initialState: true
       schedule:
-        checkInterval: 10s
+        checkInterval: 30s
         downtimeInterval: 2s
         initialDelay: 5s
         failureAttempts: 1
