@@ -16,17 +16,11 @@
 
 package com.codeheadsystems.dstore.endtoend.simple;
 
+import static com.codeheadsystems.dstore.endtoend.EnvironmentManager.COMPONENT;
 import static org.slf4j.LoggerFactory.getLogger;
 
-import com.codeheadsystems.dstore.control.common.api.ControlNodeService;
-import com.codeheadsystems.dstore.control.javaclient.ControlServiceComponent;
-import com.codeheadsystems.dstore.control.javaclient.DaggerControlServiceComponent;
-import com.codeheadsystems.dstore.control.javaclient.module.ControlServiceModule;
-import com.codeheadsystems.dstore.endtoend.EnvironmentManager;
-import com.codeheadsystems.dstore.node.api.NodeTenantTableService;
 import com.codeheadsystems.dstore.node.api.TenantTableInfo;
-import io.etcd.jetcd.Client;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 
@@ -36,13 +30,17 @@ public class TableTenantLifecycleTest {
   private static final String TABLE = "TableTenantLifecycleTest.table";
   private static final String TENANT = "TableTenantLifecycleTest.tenant";
 
+  @AfterEach
+  void clearTraceUuid(){
+    COMPONENT.traceUuidEngine().clear();
+  }
 
   @Test
   void createTable() {
-    final TenantTableInfo info = EnvironmentManager.COMPONENT.nodeTenantTableService()
+    COMPONENT.traceUuidEngine().set("TableTenantLifecycleTest.createTable");
+    final TenantTableInfo info = COMPONENT.nodeTenantTableService()
         .createTenantTable(TENANT, TABLE);
     LOGGER.info("Create table {} ", info);
-
   }
 
 }
