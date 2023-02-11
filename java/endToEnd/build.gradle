@@ -82,6 +82,11 @@ dependencies {
     implementation libs.jakarta.servlet.api
     implementation libs.javax.servlet.api
 }
+
+task logDir(type: Exec) {
+    commandLine "mkdir", "-p", "build/docker-log"
+}
+
 task composeUp(type: Exec) {
     commandLine "docker", "compose", "up", "--wait"
 }
@@ -89,6 +94,7 @@ task composeDown(type: Exec) {
     commandLine "docker", "compose", "down"
 }
 
+composeUp.dependsOn logDir
 composeUp.dependsOn ':control:installDist'
 composeUp.dependsOn ':node:installDist'
 test.dependsOn composeUp

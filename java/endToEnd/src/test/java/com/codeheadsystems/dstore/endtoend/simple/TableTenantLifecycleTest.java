@@ -22,12 +22,10 @@ import com.codeheadsystems.dstore.control.common.api.ControlNodeService;
 import com.codeheadsystems.dstore.control.javaclient.ControlServiceComponent;
 import com.codeheadsystems.dstore.control.javaclient.DaggerControlServiceComponent;
 import com.codeheadsystems.dstore.control.javaclient.module.ControlServiceModule;
-import com.codeheadsystems.dstore.endtoend.EnvironmentManager;
 import com.codeheadsystems.dstore.node.api.NodeTenantTableService;
 import com.codeheadsystems.dstore.node.api.TenantTableInfo;
 import io.etcd.jetcd.Client;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 
@@ -43,17 +41,15 @@ public class TableTenantLifecycleTest {
 
   @BeforeEach
   void setup() {
-    final String url = EnvironmentManager.environmentConfiguration().getControlConnectionUrl();
+    final String url = "http://localhost:9090/";
     ControlServiceComponent component = DaggerControlServiceComponent.builder()
         .controlServiceModule(new ControlServiceModule(url))
         .build();
     controlNodeService = component.controlNodeService();
     nodeTenantTableService = component.nodeTenantTableService();
-    client = EnvironmentManager.environmentConfiguration().getEtcdClient();
   }
 
-//  @Test
-//  @Order(0)
+  @Test
   void createTable() {
     final TenantTableInfo info = nodeTenantTableService.createTenantTable(TENANT, TABLE);
     LOGGER.info("Create table {} ", info);

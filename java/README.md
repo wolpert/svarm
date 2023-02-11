@@ -14,12 +14,6 @@ gradle clean build test
 gradle :node:run
 ```
 
-### Docker compose
-```shell
-gradle :control:installDist :node:installDist
-docker compose up
-```
-
 Integration tests take additional time. To execute build with full integration
 tests, do this:
 
@@ -49,6 +43,12 @@ This will enable the endToEnd subproject. Else that project is skipped.
 Note, when trying to run e2e tests in the intelij instance, you'll need to edit
 the configuration since intelij will start ignoring tests labeled integ now. Do
 this by adding `-Pe2e` to the params.
+
+Logs for the services in these runs are in `build/docker-logs`.
+
+When end to end tests fail, the `docker compose down` command will not execute from
+the endToEnd directory. If you start having problems, issue that command manually
+from that directory. (May end up moving the docker start/stop into the test suite)
 
 ### Troubleshooting
 
