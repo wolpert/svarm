@@ -16,6 +16,7 @@
 
 package com.codeheadsystems.dstore.node.module;
 
+import com.codeheadsystems.dstore.node.manager.ControlPlaneWatcherManager;
 import com.codeheadsystems.dstore.node.resource.TenantResource;
 import com.codeheadsystems.dstore.node.resource.TenantTableEntryResource;
 import com.codeheadsystems.dstore.node.resource.TenantTableResource;
@@ -23,6 +24,7 @@ import com.codeheadsystems.server.resource.JerseyResource;
 import dagger.Binds;
 import dagger.Module;
 import dagger.multibindings.IntoSet;
+import io.dropwizard.lifecycle.Managed;
 
 /**
  * List of resource implementations we support.
@@ -59,5 +61,15 @@ public interface ResourceModule {
   @Binds
   @IntoSet
   JerseyResource tenantTableEntryResource(TenantTableEntryResource resource);
+
+  /**
+   * Managed resource: control plane.
+   *
+   * @param resource control plane watcher.
+   * @return managed.
+   */
+  @Binds
+  @IntoSet
+  Managed controlPlaneWatcherManager(ControlPlaneWatcherManager resource);
 
 }
