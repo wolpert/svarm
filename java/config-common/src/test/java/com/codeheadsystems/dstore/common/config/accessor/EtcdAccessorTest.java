@@ -19,7 +19,11 @@ package com.codeheadsystems.dstore.common.config.accessor;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import io.etcd.jetcd.Client;
+import io.etcd.jetcd.Watch;
 import io.etcd.jetcd.test.EtcdClusterExtension;
+import io.etcd.jetcd.watch.WatchEvent;
+import io.etcd.jetcd.watch.WatchResponse;
+import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
@@ -62,6 +66,42 @@ class EtcdAccessorTest {
     accessor.delete(NAMESPACE, KEY);
     assertThat(accessor.get(NAMESPACE, KEY))
         .isNotPresent();
+  }
+
+  @Test
+  void watcher() {
+    final AtomicReference<WatchResponse> ref = new AtomicReference<>();
+    try (Watch.Watcher watcher = accessor.watch(NAMESPACE, KEY, Watch.listener(ref::set))) {
+      accessor.put(NAMESPACE, KEY, VALUE);
+      retry(5, () -> assertThat(ref.get()).isNotNull());
+      assertThat(ref.get().getEvents())
+          .hasSize(1)
+          .singleElement()
+          .hasFieldOrPropertyWithValue("eventType", WatchEvent.EventType.PUT);
+    }
+  }
+
+  private void retry(final int times, final Runnable runnable) {
+    AssertionError error = null;
+    for (int attempt = 0; attempt < times; attempt++) {
+      try {
+        runnable.run();
+        return;
+      } catch (AssertionError ae) {
+        error = ae;
+        System.out.println("Failed, attempt " + attempt);
+        try {
+          Thread.sleep(200);
+        } catch (InterruptedException e) {
+          throw new RuntimeException(e);
+        }
+      }
+    }
+    if (error != null) {
+      throw error;
+    } else {
+      throw new IllegalStateException("Should have caught an error");
+    }
   }
 
 }

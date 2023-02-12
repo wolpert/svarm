@@ -21,10 +21,12 @@ import io.etcd.jetcd.Client;
 import io.etcd.jetcd.KV;
 import io.etcd.jetcd.KeyValue;
 import io.etcd.jetcd.Txn;
+import io.etcd.jetcd.Watch;
 import io.etcd.jetcd.kv.GetResponse;
 import io.etcd.jetcd.op.Op;
 import io.etcd.jetcd.options.GetOption;
 import io.etcd.jetcd.options.PutOption;
+import io.etcd.jetcd.options.WatchOption;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Optional;
@@ -120,6 +122,25 @@ public class EtcdAccessor {
       LOGGER.error("Unable to delete from etcd {}", namespaceKey, e);
       throw new IllegalArgumentException(e);
     }
+  }
+
+  /**
+   * Returns a watcher for the given arguments.
+   *
+   * @param namespace you are watching.
+   * @param key       you want to watch. (Can be empty string)
+   * @param listener  who gets the events.
+   * @return watcher so you can cancel it.
+   */
+  public Watch.Watcher watch(final String namespace,
+                             final String key,
+                             final Watch.Listener listener) {
+    LOGGER.trace("watch({},{})", namespace, key);
+    final String namespaceKey = String.format("%s/%s", namespace, key);
+    final ByteSequence namespaceKeyBytes = ByteSequence.from(namespaceKey.getBytes(StandardCharsets.UTF_8));
+    final WatchOption watchOption = WatchOption.newBuilder().isPrefix(true).build();
+    final Watch watch = client.getWatchClient();
+    return watch.watch(namespaceKeyBytes, watchOption, listener);
   }
 
   /**
