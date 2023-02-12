@@ -19,15 +19,17 @@ package com.codeheadsystems.dstore.common.config.engine;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import com.codeheadsystems.dstore.common.config.accessor.EtcdAccessor;
+import com.codeheadsystems.dstore.common.config.factory.WatchEngineFactory;
+import com.codeheadsystems.metrics.Metrics;
+import com.google.common.annotations.VisibleForTesting;
 import dagger.assisted.Assisted;
-import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import io.etcd.jetcd.Watch;
 import io.etcd.jetcd.watch.WatchResponse;
-import java.util.Optional;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.function.Consumer;
-import javax.inject.Singleton;
-import org.immutables.value.Value;
 import org.slf4j.Logger;
 
 /**
@@ -36,14 +38,15 @@ import org.slf4j.Logger;
 public class WatchEngine {
 
   private static final Logger LOGGER = getLogger(WatchEngine.class);
-  private static final String NAMESPACE = "NAMESPACE";
-  private static final String KEY = "KEY";
 
   private final String namespace;
   private final String key;
   private final Consumer<Event> eventConsumer;
+  private final Metrics metrics;
   private final Watch.Watcher watcher;
   private final String tag;
+  private final ExecutorService executorService;
+  private final LinkedBlockingQueue<Event> queue;
 
   /**
    * Constructor.
@@ -52,21 +55,41 @@ public class WatchEngine {
    * @param namespace     the namespace.
    * @param key           the key.
    * @param eventConsumer who will get the events.
+   * @param metrics       to track what's going on.
    */
   @AssistedInject
   public WatchEngine(final EtcdAccessor accessor,
-                     @Assisted(NAMESPACE) final String namespace,
-                     @Assisted(KEY) final String key,
+                     final Metrics metrics,
+                     @Assisted(WatchEngineFactory.NAMESPACE) final String namespace,
+                     @Assisted(WatchEngineFactory.KEY) final String key,
                      @Assisted final Consumer<Event> eventConsumer) {
+    this.metrics = metrics;
     this.tag = namespace + "/" + key;
     this.namespace = namespace;
     this.key = key;
     this.eventConsumer = eventConsumer;
     LOGGER.info("WatchEngine({},{},{})", namespace, key, eventConsumer);
+    executorService = Executors.newSingleThreadExecutor();
+    queue = new LinkedBlockingQueue<>();
+    executorService.submit(this::handleEvent);
     watcher = accessor.watch(
         namespace,
         key,
         Watch.listener(this::watchResponse, this::error, this::complete));
+  }
+
+  private void handleEvent() {
+    LOGGER.trace("{}:handleEvent()", tag);
+    metrics.time("WatchEngine.handleEvent", () -> {
+      try {
+        final Event event = queue.take();
+        LOGGER.trace("{}:handleEvent(): {}", tag, event);
+        eventConsumer.accept(event);
+      } catch (InterruptedException e) {
+        LOGGER.warn("{}:handleEvent() : Interrupted", tag);
+      }
+      return null;
+    });
   }
 
   /**
@@ -74,83 +97,66 @@ public class WatchEngine {
    */
   public void close() {
     LOGGER.trace("{}:close()", tag);
-    watcher.close();
-    // TODO: release all resources.
+    metrics.time("WatchEngine.close", () -> {
+      watcher.close();
+      executorService.shutdown();
+      LOGGER.info("{}: Shutdown started, queue size: {}", tag, queue.size());
+      return null;
+    });
   }
 
-  private void watchResponse(final WatchResponse watchResponse) {
+  @VisibleForTesting
+  int queueSize() {
+    return queue.size();
+  }
+
+  @VisibleForTesting
+  void watchResponse(final WatchResponse watchResponse) {
     LOGGER.trace("{}:watchResponse({})", tag, watchResponse);
+    metrics.time("WatchEngine.watchResponse", () -> {
+      watchResponse.getEvents().forEach(e -> {
+        metrics.registry().counter("WatchEngine.watchResponse.event",
+            "tag", tag, "type", e.getEventType().name()).increment();
+        try {
+          switch (e.getEventType()) {
+            case PUT:
+              queue.put(ImmutableEvent.builder()
+                  .key(e.getKeyValue().getKey().toString())
+                  .value(e.getKeyValue().getValue().toString())
+                  .type(Event.Type.PUT)
+                  .build());
+              break;
+            case DELETE:
+              queue.put(ImmutableEvent.builder()
+                  .key(e.getKeyValue().getKey().toString())
+                  .value(e.getKeyValue().getValue().toString())
+                  .type(Event.Type.DELETE)
+                  .build());
+              break;
+            default:
+              LOGGER.warn("{}: Unknown event: {}", tag, e);
+          }
+        } catch (InterruptedException ex) {
+          LOGGER.error("{}: Unable to put event {}", tag, e, ex);
+        }
+      });
+      return null;
+    });
   }
 
-  private void error(final Throwable throwable) {
+
+  @VisibleForTesting
+  void error(final Throwable throwable) {
     LOGGER.error("{}:error({})", tag, throwable.getMessage(), throwable);
+    metrics.registry().counter("WatchEngine.error", "tag", tag).increment();
   }
 
-  private void complete() {
-    LOGGER.trace("{}:complete()", tag);
-  }
 
-  /**
-   * Dagger injected assisting factory.
-   */
-  @AssistedFactory
-  @Singleton
-  public interface WatchEngineFactory {
-
-    /**
-     * Factory to generate a watch engine.
-     *
-     * @param namespace     to watch.
-     * @param key           to watch.
-     * @param eventConsumer to consume the events.
-     * @return the engine.
-     */
-    WatchEngine watchEngine(@Assisted(NAMESPACE) final String namespace,
-                            @Assisted(KEY) final String key,
-                            @Assisted final Consumer<Event> eventConsumer);
-
-  }
-
-  /**
-   * Event that happened in the config engine.
-   */
-  @Value.Immutable
-  public interface Event {
-
-    /**
-     * Key of the event.
-     *
-     * @return the key.
-     */
-    String key();
-
-    /**
-     * Value of event. Empty if its a delete.
-     *
-     * @return the value.
-     */
-    Optional<String> value();
-
-    /**
-     * Type of event.
-     *
-     * @return the type.
-     */
-    Type type();
-
-    /**
-     * Type of events.
-     */
-    enum Type {
-      /**
-       * This is what was putted.
-       */
-      PUT,
-      /**
-       * This is what was deleted.
-       */
-      DELETE
-    }
+  @VisibleForTesting
+  void complete() {
+    LOGGER.info("{}: Shutdown complete, queue size: {}", tag, queue.size());
+    metrics.registry().counter("WatchEngine.complete", "tag", tag).increment();
+    queue.clear();
   }
 
 }
