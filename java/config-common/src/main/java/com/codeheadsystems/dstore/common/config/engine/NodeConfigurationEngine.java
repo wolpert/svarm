@@ -17,23 +17,19 @@
 package com.codeheadsystems.dstore.common.config.engine;
 
 import com.codeheadsystems.dstore.common.config.accessor.EtcdAccessor;
-import com.codeheadsystems.dstore.common.config.api.ImmutableNodeTenantResource;
-import com.codeheadsystems.dstore.common.config.api.ImmutableNodeTenantResourceRange;
-import com.codeheadsystems.dstore.common.config.api.ImmutableTenantResource;
 import com.codeheadsystems.dstore.common.config.api.ImmutableTenantResourceRange;
 import com.codeheadsystems.dstore.common.config.api.NodeRange;
 import com.codeheadsystems.dstore.common.config.api.NodeTenantResource;
 import com.codeheadsystems.dstore.common.config.api.NodeTenantResourceRange;
-import com.codeheadsystems.dstore.common.config.api.Range;
 import com.codeheadsystems.dstore.common.config.api.TenantResource;
 import com.codeheadsystems.dstore.common.config.api.TenantResourceRange;
+import com.codeheadsystems.dstore.common.config.converter.NodeTenantResourceRangeConverter;
 import com.codeheadsystems.dstore.common.engine.JsonEngine;
 import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.slf4j.Logger;
@@ -57,19 +53,23 @@ public class NodeConfigurationEngine {
   };
   private final EtcdAccessor accessor;
   private final JsonEngine jsonEngine;
+  private final NodeTenantResourceRangeConverter nodeTenantResourceRangeConverter;
 
   /**
    * Constructor.
    *
-   * @param accessor   for reading/writing values.
-   * @param jsonEngine for updating json.
+   * @param accessor                         for reading/writing values.
+   * @param jsonEngine                       for updating json.
+   * @param nodeTenantResourceRangeConverter converter.
    */
   @Inject
   public NodeConfigurationEngine(final EtcdAccessor accessor,
-                                 final JsonEngine jsonEngine) {
-    LOGGER.info("NodeConfigurationEngine({},{})", accessor, jsonEngine);
+                                 final JsonEngine jsonEngine,
+                                 final NodeTenantResourceRangeConverter nodeTenantResourceRangeConverter) {
+    this.nodeTenantResourceRangeConverter = nodeTenantResourceRangeConverter;
     this.jsonEngine = jsonEngine;
     this.accessor = accessor;
+    LOGGER.info("NodeConfigurationEngine({},{},{})", accessor, jsonEngine, nodeTenantResourceRangeConverter);
   }
 
   /**
@@ -134,35 +134,8 @@ public class NodeConfigurationEngine {
   public List<NodeTenantResourceRange> readNodeResources(final String uuid) {
     LOGGER.trace("readNodeResources({})", uuid);
     final String key = String.format("%s/id/", uuid);
-    return accessor.getAll(NODE_NAMESPACE, key).entrySet().stream()
-        .map(e -> toNodeTenantResourceRange(e.getKey(), e.getValue()))
-        .collect(Collectors.toList());
-  }
-
-  /**
-   * Converter.
-   *
-   * @param key   in format: node/{uuid}/id/{tenant}/{tenantResource}
-   * @param value in format: {"lowHash":0,"highHash":32767}
-   * @return a note tenant resource range.
-   */
-  private NodeTenantResourceRange toNodeTenantResourceRange(final String key,
-                                                            final String value) {
-    LOGGER.trace("toNodeTenantResourceRange({},{})", key, value);
-    final String[] tokens = key.split("/");
-    final Range range = jsonEngine.readValue(value, Range.class);
-    final TenantResource tenantResource = ImmutableTenantResource.builder()
-        .tenant(tokens[3])
-        .resource(tokens[4])
-        .build();
-    final NodeTenantResource nodeTenantResource = ImmutableNodeTenantResource.builder()
-        .tenantResource(tenantResource)
-        .uuid(tokens[1])
-        .build();
-    return ImmutableNodeTenantResourceRange.builder()
-        .range(range)
-        .nodeTenantResource(nodeTenantResource)
-        .build();
+    final Map<String, String> map = accessor.getAll(NODE_NAMESPACE, key);
+    return nodeTenantResourceRangeConverter.from(map);
   }
 
   /**

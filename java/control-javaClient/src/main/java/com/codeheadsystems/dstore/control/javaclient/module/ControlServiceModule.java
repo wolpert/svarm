@@ -20,6 +20,10 @@ public class ControlServiceModule {
    * Declare this in your module if you want to inject the configuration.
    */
   public static final String CONTROL_SERVICE_CONNECTION_URL = "ControlServiceConnectionUrl";
+  /**
+   * Qualifier for the node tenant table service to differ from the nodes one.
+   */
+  public static final String CONTROL_NODE_TENANT_TABLE_SERVICE = "control.nodeTenantTableService";
   private static final String INTERNAL_CONTROL_SERVICE_CONNECTION_URL = "InternalControlServiceConnectionUrl";
   private final String connectionUrl;
 
@@ -77,6 +81,7 @@ public class ControlServiceModule {
    */
   @Provides
   @Singleton
+  @Named(CONTROL_NODE_TENANT_TABLE_SERVICE)
   public NodeTenantTableService nodeTenantTableService(final Feign.Builder builder,
                                                        @Named(INTERNAL_CONTROL_SERVICE_CONNECTION_URL) final String url) {
     return builder.target(NodeTenantTableService.class, url);

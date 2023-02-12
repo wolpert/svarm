@@ -1,5 +1,7 @@
 package com.codeheadsystems.dstore.node.javaclient;
 
+import static com.codeheadsystems.dstore.node.javaclient.module.NodeServiceModule.NODE_NODE_TENANT_TABLE_SERVICE;
+
 import com.codeheadsystems.common.javaclient.JavaClientModule;
 import com.codeheadsystems.dstore.common.module.JsonModule;
 import com.codeheadsystems.dstore.node.api.NodeTenantService;
@@ -7,6 +9,7 @@ import com.codeheadsystems.dstore.node.api.NodeTenantTableEntryService;
 import com.codeheadsystems.dstore.node.api.NodeTenantTableService;
 import com.codeheadsystems.dstore.node.javaclient.module.NodeServiceModule;
 import dagger.Component;
+import javax.inject.Named;
 import javax.inject.Singleton;
 
 /**
@@ -44,6 +47,7 @@ public interface NodeServiceComponent {
    *
    * @return a node service.
    */
+  @Named(NODE_NODE_TENANT_TABLE_SERVICE)
   NodeTenantTableService nodeTenantTableService();
 
   /**

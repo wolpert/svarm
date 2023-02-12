@@ -1,11 +1,14 @@
 package com.codeheadsystems.dstore.control.javaclient;
 
+import static com.codeheadsystems.dstore.control.javaclient.module.ControlServiceModule.CONTROL_NODE_TENANT_TABLE_SERVICE;
+
 import com.codeheadsystems.common.javaclient.JavaClientModule;
 import com.codeheadsystems.dstore.common.module.JsonModule;
 import com.codeheadsystems.dstore.control.common.api.ControlNodeService;
 import com.codeheadsystems.dstore.control.javaclient.module.ControlServiceModule;
 import com.codeheadsystems.dstore.node.api.NodeTenantTableService;
 import dagger.Component;
+import javax.inject.Named;
 import javax.inject.Singleton;
 
 /**
@@ -43,6 +46,7 @@ public interface ControlServiceComponent {
    *
    * @return the service.
    */
+  @Named(CONTROL_NODE_TENANT_TABLE_SERVICE)
   NodeTenantTableService nodeTenantTableService();
 
 }

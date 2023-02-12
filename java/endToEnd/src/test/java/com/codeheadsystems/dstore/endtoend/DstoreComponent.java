@@ -16,6 +16,7 @@
 
 package com.codeheadsystems.dstore.endtoend;
 
+import static com.codeheadsystems.dstore.control.javaclient.module.ControlServiceModule.CONTROL_NODE_TENANT_TABLE_SERVICE;
 import static com.codeheadsystems.dstore.control.javaclient.module.ControlServiceModule.CONTROL_SERVICE_CONNECTION_URL;
 
 import com.codeheadsystems.common.javaclient.JavaClientModule;
@@ -47,6 +48,7 @@ public interface DstoreComponent {
 
   ControlNodeService controlNodeService();
 
+  @Named(CONTROL_NODE_TENANT_TABLE_SERVICE)
   NodeTenantTableService nodeTenantTableService();
 
   Client client();
