@@ -15,10 +15,6 @@ import javax.inject.Singleton;
 @Module
 public class NodeServiceModule {
 
-  /**
-   * Qualifier to differentiate from the control one.
-   */
-  public static final String NODE_NODE_TENANT_TABLE_SERVICE = "node.nodeTenantTableService";
   private final String connectionUrl;
 
   /**
@@ -50,7 +46,6 @@ public class NodeServiceModule {
    */
   @Provides
   @Singleton
-  @Named(NODE_NODE_TENANT_TABLE_SERVICE)
   public NodeTenantTableService nodeTenantTableService(final Feign.Builder builder) {
     return builder.target(NodeTenantTableService.class, connectionUrl);
   }

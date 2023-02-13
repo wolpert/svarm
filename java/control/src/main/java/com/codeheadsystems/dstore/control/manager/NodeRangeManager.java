@@ -30,6 +30,7 @@ import com.codeheadsystems.dstore.node.api.TenantTableVersion;
 import com.codeheadsystems.metrics.Metrics;
 import java.time.Clock;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -87,6 +88,38 @@ public class NodeRangeManager {
   }
 
   /**
+   * Sets the ready boolean for the node range.
+   *
+   * @param range to set.
+   * @param ready the flag.
+   * @return the updated nodeRange.
+   */
+  public NodeRange setReady(final NodeRange range, final boolean ready) {
+    LOGGER.trace("setReady({},{})", range, ready);
+    return metrics.time("NodeRangeManager.resources", () -> {
+      final NodeRange updated = ImmutableNodeRange.copyOf(range).withReady(ready);
+      nodeRangeDao.update(updated);
+      return updated;
+    });
+  }
+
+  /**
+   * Gets the node range dao, if it exists.
+   *
+   * @param uuid     of the node.
+   * @param tenant   to get.
+   * @param resource to get.
+   * @return the range.
+   */
+  public Optional<NodeRange> getNodeRange(final String uuid,
+                                          final String tenant,
+                                          final String resource) {
+    LOGGER.trace("getNodeRange({},{},{})", uuid, tenant, resource);
+    return metrics.time("NodeRangeManager.getNodeRange",
+        () -> Optional.ofNullable(nodeRangeDao.read(uuid, tenant, resource)));
+  }
+
+  /**
    * Return back created node ranges that are being used.
    *
    * @param tenant   the tenant.
@@ -113,10 +146,10 @@ public class NodeRangeManager {
       nodeRange.forEach(nodeRangeDao::insert); // TODO: This should be done in a transaction. All or nothing.
       final TenantResource tenantResource = ImmutableTenantResource.builder().tenant(tenant).resource(resource).build();
       nodeRange.stream().map(nr -> ImmutableNodeTenantResourceRange.builder()
-          .nodeTenantResource(
-              ImmutableNodeTenantResource.builder().uuid(nr.uuid()).tenantResource(tenantResource).build())
-          .range(ImmutableRange.builder().lowHash(nr.lowHash()).highHash(nr.highHash()).build())
-          .build())
+              .nodeTenantResource(
+                  ImmutableNodeTenantResource.builder().uuid(nr.uuid()).tenantResource(tenantResource).build())
+              .range(ImmutableRange.builder().lowHash(nr.lowHash()).highHash(nr.highHash()).build())
+              .build())
           .forEach(nodeConfigurationEngine::write); // TODO: This should be done in a transaction. All or nothing.
       return nodeRange;
     });

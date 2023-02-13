@@ -22,6 +22,7 @@ import com.codeheadsystems.dstore.control.common.api.NodeInfo;
 import com.codeheadsystems.dstore.node.NodeConfiguration;
 import com.codeheadsystems.dstore.node.accessor.ControlAccessor;
 import com.codeheadsystems.dstore.node.model.NodeInternalConfiguration;
+import com.codeheadsystems.dstore.node.model.TenantTableIdentifier;
 import com.codeheadsystems.metrics.Metrics;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -80,6 +81,16 @@ public class RealControlPlaneManager implements ControlPlaneManager {
     LOGGER.trace("keyForTenant({})", tenantId);
     return metrics.time("RealControlPlaneManager.keyForTenant",
         () -> controlAccessor.keyForResource(nodeUuid, tenantId));
+  }
+
+  @Override
+  public void enable(final TenantTableIdentifier identifier) {
+    LOGGER.trace("enable({})", identifier);
+    metrics.time("RealControlPlaneManager.enableTableTenant",
+        () -> {
+          controlAccessor.enable(nodeUuid, identifier);
+          return null;
+        });
   }
 
   private String getStatus() {

@@ -16,6 +16,8 @@
 
 package com.codeheadsystems.dstore.node.manager;
 
+import com.codeheadsystems.dstore.node.model.TenantTableIdentifier;
+
 /**
  * Provides methods to talk to the control plane.
  */
@@ -36,4 +38,10 @@ public interface ControlPlaneManager {
    */
   String keyForTenant(String tenantId);
 
+  /**
+   * Enables the table in the control plane.
+   *
+   * @param identifier to enable.
+   */
+  void enable(TenantTableIdentifier identifier);
 }

@@ -22,6 +22,7 @@ import com.codeheadsystems.dstore.control.common.api.ControlNodeService;
 import com.codeheadsystems.dstore.control.common.api.ImmutableNodeMetaData;
 import com.codeheadsystems.dstore.control.common.api.NodeInfo;
 import com.codeheadsystems.dstore.control.common.api.NodeMetaData;
+import com.codeheadsystems.dstore.node.model.TenantTableIdentifier;
 import com.codeheadsystems.metrics.Metrics;
 import feign.FeignException;
 import java.util.Optional;
@@ -84,6 +85,22 @@ public class ControlAccessor {
     LOGGER.trace("enable({})", uuid);
     metrics.time("ControlAccessor.enable", () -> {
       final NodeInfo info = controlNodeService.enable(uuid);
+      LOGGER.trace("result:{}", info);
+      return null;
+    });
+  }
+
+  /**
+   * Enables the tenant table.
+   *
+   * @param uuid       from us.
+   * @param identifier the table.
+   */
+  public void enable(final String uuid,
+                     final TenantTableIdentifier identifier) {
+    LOGGER.trace("enable({},{})", uuid, identifier);
+    metrics.time("ControlAccessor.disable", () -> {
+      final NodeInfo info = controlNodeService.enable(uuid, identifier.tenantId(), identifier.tableName());
       LOGGER.trace("result:{}", info);
       return null;
     });

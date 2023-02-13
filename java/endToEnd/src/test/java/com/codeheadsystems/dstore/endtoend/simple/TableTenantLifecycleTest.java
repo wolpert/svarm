@@ -43,6 +43,8 @@ public class TableTenantLifecycleTest {
         .createTenantTable(TENANT, TABLE);
     LOGGER.info("Create table {} ", info);
     COMPONENT.etcdAccessor().getAll("node", "").forEach(LOGGER::info);
+    for(int i=0;i<10;i++){
+    }
   }
 
 }

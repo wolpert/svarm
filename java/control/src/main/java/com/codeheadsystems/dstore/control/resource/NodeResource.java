@@ -26,7 +26,9 @@ import com.codeheadsystems.dstore.control.common.api.NodeMetaData;
 import com.codeheadsystems.dstore.control.converter.KeyInfoConverter;
 import com.codeheadsystems.dstore.control.converter.NodeInfoConverter;
 import com.codeheadsystems.dstore.control.manager.NodeManager;
+import com.codeheadsystems.dstore.control.manager.NodeRangeManager;
 import com.codeheadsystems.dstore.control.model.Node;
+import com.codeheadsystems.dstore.control.model.NodeRange;
 import com.codeheadsystems.server.exception.NotFoundException;
 import com.codeheadsystems.server.resource.JerseyResource;
 import javax.inject.Inject;
@@ -43,6 +45,7 @@ public class NodeResource implements JerseyResource, ControlNodeService {
   private static final Logger LOGGER = LoggerFactory.getLogger(NodeResource.class);
 
   private final NodeManager nodeManager;
+  private final NodeRangeManager nodeRangeManager;
   private final NodeInfoConverter nodeInfoConverter;
   private final KeyInfoConverter keyInfoConverter;
 
@@ -50,13 +53,16 @@ public class NodeResource implements JerseyResource, ControlNodeService {
    * The constructor.
    *
    * @param nodeManager       to use.
+   * @param nodeRangeManager  for node ranges.
    * @param nodeInfoConverter converter.
    * @param keyInfoConverter  converter.
    */
   @Inject
   public NodeResource(final NodeManager nodeManager,
+                      final NodeRangeManager nodeRangeManager,
                       final NodeInfoConverter nodeInfoConverter,
                       final KeyInfoConverter keyInfoConverter) {
+    this.nodeRangeManager = nodeRangeManager;
     LOGGER.info("NodeResource({},{})", nodeManager, nodeInfoConverter);
     this.nodeManager = nodeManager;
     this.nodeInfoConverter = nodeInfoConverter;
@@ -86,9 +92,41 @@ public class NodeResource implements JerseyResource, ControlNodeService {
   @Timed
   @ExceptionMetered
   @ResponseMetered
+  public NodeInfo enable(final String nodeUuid,
+                         final String tenant,
+                         final String resource) {
+    LOGGER.trace("enable({},{},{})", nodeUuid, tenant, resource);
+    final Node node = nodeManager.read(nodeUuid)
+        .orElseThrow(() -> new NotFoundException("No such node"));
+    final NodeRange nodeRange = nodeRangeManager.getNodeRange(nodeUuid, tenant, resource)
+        .orElseThrow(() -> new NotFoundException("No resource for node"));
+    nodeRangeManager.setReady(nodeRange, true);
+    return nodeInfoConverter.from(node);
+  }
+
+  @Override
+  @Timed
+  @ExceptionMetered
+  @ResponseMetered
   public NodeInfo disable(final String nodeUuid) {
     LOGGER.trace("disable({})", nodeUuid);
     final Node node = nodeManager.disable(nodeUuid);
+    return nodeInfoConverter.from(node);
+  }
+
+  @Override
+  @Timed
+  @ExceptionMetered
+  @ResponseMetered
+  public NodeInfo disable(final String nodeUuid,
+                          final String tenant,
+                          final String resource) {
+    LOGGER.trace("disable({},{},{})", nodeUuid, tenant, resource);
+    final Node node = nodeManager.read(nodeUuid)
+        .orElseThrow(() -> new NotFoundException("No such node"));
+    final NodeRange nodeRange = nodeRangeManager.getNodeRange(nodeUuid, tenant, resource)
+        .orElseThrow(() -> new NotFoundException("No resource for node"));
+    nodeRangeManager.setReady(nodeRange, false);
     return nodeInfoConverter.from(node);
   }
 

@@ -18,6 +18,7 @@ package com.codeheadsystems.dstore.node.manager;
 
 import com.codeheadsystems.dstore.common.crypt.CryptUtils;
 import com.codeheadsystems.dstore.node.model.NodeInternalConfiguration;
+import com.codeheadsystems.dstore.node.model.TenantTableIdentifier;
 import java.nio.ByteBuffer;
 import java.util.UUID;
 import javax.inject.Inject;
@@ -73,5 +74,10 @@ public class FakeControlPlaneManager implements ControlPlaneManager {
   @Override
   public String keyForTenant(final String tenantId) {
     return key;
+  }
+
+  @Override
+  public void enable(final TenantTableIdentifier identifier) {
+    // Nothing to do.
   }
 }

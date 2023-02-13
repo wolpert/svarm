@@ -27,7 +27,7 @@ import javax.ws.rs.core.MediaType;
 /**
  * Defines the methods nodes use by the control plane.
  */
-@Path("/v1/node")
+@Path("/v1/node/{node}")
 public interface ControlNodeService {
 
   /**
@@ -38,7 +38,7 @@ public interface ControlNodeService {
    * @return a node info object.
    */
   @PUT
-  @Path("/{node}")
+  @Path("/")
   @Consumes(MediaType.APPLICATION_JSON)
   @Produces(MediaType.APPLICATION_JSON)
   NodeInfo register(@PathParam("node") final String nodeUuid, final NodeMetaData metaData);
@@ -50,10 +50,26 @@ public interface ControlNodeService {
    * @return a node info object.
    */
   @PUT
-  @Path("/{node}/enable")
+  @Path("enable")
   @Consumes(MediaType.APPLICATION_JSON)
   @Produces(MediaType.APPLICATION_JSON)
   NodeInfo enable(@PathParam("node") final String nodeUuid);
+
+  /**
+   * Enables a given node resource.
+   *
+   * @param nodeUuid to enable.
+   * @param tenant   to enable.
+   * @param resource to enable.
+   * @return a node info object.
+   */
+  @PUT
+  @Path("enable/{tenant}/{resource}")
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON)
+  NodeInfo enable(@PathParam("node") final String nodeUuid,
+                  @PathParam("tenant") final String tenant,
+                  @PathParam("resource") final String resource);
 
   /**
    * Disables a given node into the swarm.
@@ -62,10 +78,26 @@ public interface ControlNodeService {
    * @return a node info object.
    */
   @PUT
-  @Path("/{node}/disable")
+  @Path("disable")
   @Consumes(MediaType.APPLICATION_JSON)
   @Produces(MediaType.APPLICATION_JSON)
   NodeInfo disable(@PathParam("node") final String nodeUuid);
+
+  /**
+   * Disable a given node resource.
+   *
+   * @param nodeUuid to disable.
+   * @param tenant   to disable.
+   * @param resource to disable.
+   * @return a node info object.
+   */
+  @PUT
+  @Path("disable/{tenant}/{resource}")
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON)
+  NodeInfo disable(@PathParam("node") final String nodeUuid,
+                   @PathParam("tenant") final String tenant,
+                   @PathParam("resource") final String resource);
 
   /**
    * Disables a given node into the swarm.
@@ -74,7 +106,7 @@ public interface ControlNodeService {
    * @return a node info object.
    */
   @GET
-  @Path("/{node}/")
+  @Path("/")
   @Consumes(MediaType.APPLICATION_JSON)
   @Produces(MediaType.APPLICATION_JSON)
   NodeInfo status(@PathParam("node") final String nodeUuid);
@@ -87,7 +119,7 @@ public interface ControlNodeService {
    * @return a node info object.
    */
   @GET
-  @Path("/{node}/key")
+  @Path("key")
   @Consumes(MediaType.APPLICATION_JSON)
   @Produces(MediaType.APPLICATION_JSON)
   KeyInfo nodeKey(@PathParam("node") final String nodeUuid);
@@ -98,12 +130,12 @@ public interface ControlNodeService {
    * will ensure this is a) consistent, b) idempotent. This is the part of the
    * key the control plane controls.
    *
-   * @param nodeUuid to get the key for.
+   * @param nodeUuid  to get the key for.
    * @param reference the reference.
    * @return a node info object.
    */
   @GET
-  @Path("/{node}/key/{reference}")
+  @Path("key/{reference}")
   @Consumes(MediaType.APPLICATION_JSON)
   @Produces(MediaType.APPLICATION_JSON)
   KeyInfo nodeKey(@PathParam("node") final String nodeUuid,

@@ -46,8 +46,9 @@ public class ControlPlaneWatcherManager implements Managed {
   private final String uuid;
   private final WatchEngineFactory watchEngineFactory;
   private final TenantTableManager tenantTableManager;
+  private final NodeTenantResourceRangeConverter nodeTenantResourceRangeConverter;
+  private final ControlPlaneManager controlPlaneManager;
   private WatchEngine engine;
-  private NodeTenantResourceRangeConverter nodeTenantResourceRangeConverter;
 
   /**
    * Constructor.
@@ -56,16 +57,19 @@ public class ControlPlaneWatcherManager implements Managed {
    * @param factory                          to generate the engine.
    * @param tenantTableManager               to create tenant tables.
    * @param nodeTenantResourceRangeConverter to convert into tenant tables.
+   * @param controlPlaneManager              for enablement.
    */
   @Inject
   public ControlPlaneWatcherManager(final NodeInternalConfiguration configuration,
                                     final WatchEngineFactory factory,
                                     final TenantTableManager tenantTableManager,
-                                    final NodeTenantResourceRangeConverter nodeTenantResourceRangeConverter) {
+                                    final NodeTenantResourceRangeConverter nodeTenantResourceRangeConverter,
+                                    final ControlPlaneManager controlPlaneManager) {
     this.tenantTableManager = tenantTableManager;
     this.watchEngineFactory = factory;
     this.uuid = configuration.uuid();
     this.nodeTenantResourceRangeConverter = nodeTenantResourceRangeConverter;
+    this.controlPlaneManager = controlPlaneManager;
     LOGGER.info("ControlPlaneWatcherManager({},{})", factory, tenantTableManager);
   }
 
@@ -87,6 +91,7 @@ public class ControlPlaneWatcherManager implements Managed {
     final TenantTableIdentifier identifier = ImmutableTenantTableIdentifier.builder()
         .tenantId(tenantResource.tenant()).tableName(tenantResource.resource()).build();
     final TenantTable tenantTable = tenantTableManager.create(identifier, V1SingleEntryEngine.DEFINITION_NAME);
+    controlPlaneManager.enable(identifier);
     LOGGER.info("handleNewTable({},{}) : {}", key, value, tenantTable);
   }
 

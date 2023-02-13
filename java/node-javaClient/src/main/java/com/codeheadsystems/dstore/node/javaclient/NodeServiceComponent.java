@@ -1,7 +1,5 @@
 package com.codeheadsystems.dstore.node.javaclient;
 
-import static com.codeheadsystems.dstore.node.javaclient.module.NodeServiceModule.NODE_NODE_TENANT_TABLE_SERVICE;
-
 import com.codeheadsystems.common.javaclient.JavaClientModule;
 import com.codeheadsystems.dstore.common.module.JsonModule;
 import com.codeheadsystems.dstore.node.api.NodeTenantService;
@@ -47,7 +45,6 @@ public interface NodeServiceComponent {
    *
    * @return a node service.
    */
-  @Named(NODE_NODE_TENANT_TABLE_SERVICE)
   NodeTenantTableService nodeTenantTableService();
 
   /**
