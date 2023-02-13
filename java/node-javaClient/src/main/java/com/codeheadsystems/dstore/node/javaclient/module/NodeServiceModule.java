@@ -6,7 +6,6 @@ import com.codeheadsystems.dstore.node.api.NodeTenantTableService;
 import dagger.Module;
 import dagger.Provides;
 import feign.Feign;
-import javax.inject.Named;
 import javax.inject.Singleton;
 
 /**

@@ -7,7 +7,6 @@ import com.codeheadsystems.dstore.node.api.NodeTenantTableEntryService;
 import com.codeheadsystems.dstore.node.api.NodeTenantTableService;
 import com.codeheadsystems.dstore.node.javaclient.module.NodeServiceModule;
 import dagger.Component;
-import javax.inject.Named;
 import javax.inject.Singleton;
 
 /**

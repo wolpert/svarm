@@ -69,11 +69,12 @@ class EtcdAccessorTest {
   }
 
   @Test
-  void watcher() {
+  void watcher() throws InterruptedException {
     final AtomicReference<WatchResponse> ref = new AtomicReference<>();
     try (Watch.Watcher watcher = accessor.watch(NAMESPACE, KEY, Watch.listener(ref::set))) {
       accessor.put(NAMESPACE, KEY, VALUE);
       retry(5, () -> assertThat(ref.get()).isNotNull());
+      Thread.sleep(200); // just make sure we processed everything... :(
       assertThat(ref.get().getEvents())
           .hasSize(1)
           .singleElement()

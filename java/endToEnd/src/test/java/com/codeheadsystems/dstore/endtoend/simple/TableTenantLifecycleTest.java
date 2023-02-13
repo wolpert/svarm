@@ -17,10 +17,10 @@
 package com.codeheadsystems.dstore.endtoend.simple;
 
 import static com.codeheadsystems.dstore.endtoend.EnvironmentManager.COMPONENT;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.slf4j.LoggerFactory.getLogger;
 
-import com.codeheadsystems.dstore.node.api.TenantTableInfo;
-import java.util.List;
+import com.codeheadsystems.dstore.control.common.api.TenantResourceInfo;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -32,19 +32,28 @@ public class TableTenantLifecycleTest {
   private static final String TENANT = "TableTenantLifecycleTest.tenant";
 
   @AfterEach
-  void clearTraceUuid(){
+  void clearTraceUuid() {
     COMPONENT.traceUuidEngine().clear();
   }
 
   @Test
-  void createTable() {
+  void createTable() throws InterruptedException {
     COMPONENT.traceUuidEngine().set("TableTenantLifecycleTest.createTable");
-    final TenantTableInfo info = COMPONENT.nodeTenantTableService()
-        .createTenantTable(TENANT, TABLE);
+    final TenantResourceInfo info = COMPONENT.controlTenantResourceService()
+        .createResource(TENANT, TABLE);
     LOGGER.info("Create table {} ", info);
     COMPONENT.etcdAccessor().getAll("node", "").forEach(LOGGER::info);
-    for(int i=0;i<10;i++){
+    boolean ready = false;
+    for (int i = 0; i < 10; i++) {
+      ready = COMPONENT.controlTenantResourceService().readResource(TENANT, TABLE).get().ready();
+      if (ready) {
+        LOGGER.info("Ready in iteration " + i);
+        break;
+      } else {
+        Thread.sleep(100);
+      }
     }
+    assertThat(ready).isTrue();
   }
 
 }

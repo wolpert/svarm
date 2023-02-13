@@ -1,7 +1,7 @@
 package com.codeheadsystems.dstore.control.javaclient.module;
 
 import com.codeheadsystems.dstore.control.common.api.ControlNodeService;
-import com.codeheadsystems.dstore.node.api.NodeTenantTableService;
+import com.codeheadsystems.dstore.control.common.api.ControlTenantResourceService;
 import dagger.BindsOptionalOf;
 import dagger.Module;
 import dagger.Provides;
@@ -63,8 +63,9 @@ public class ControlServiceModule {
    */
   @Provides
   @Singleton
-  public ControlNodeService nodeService(final Feign.Builder builder,
-                                        @Named(INTERNAL_CONTROL_SERVICE_CONNECTION_URL) final String url) {
+  public ControlNodeService nodeService(
+      final Feign.Builder builder,
+      @Named(INTERNAL_CONTROL_SERVICE_CONNECTION_URL) final String url) {
     return builder.target(ControlNodeService.class, url);
   }
 
@@ -77,9 +78,10 @@ public class ControlServiceModule {
    */
   @Provides
   @Singleton
-  public NodeTenantTableService nodeTenantTableService(final Feign.Builder builder,
-                                                       @Named(INTERNAL_CONTROL_SERVICE_CONNECTION_URL) final String url) {
-    return builder.target(NodeTenantTableService.class, url);
+  public ControlTenantResourceService controlTenantResourceService(
+      final Feign.Builder builder,
+      @Named(INTERNAL_CONTROL_SERVICE_CONNECTION_URL) final String url) {
+    return builder.target(ControlTenantResourceService.class, url);
   }
 
   /**

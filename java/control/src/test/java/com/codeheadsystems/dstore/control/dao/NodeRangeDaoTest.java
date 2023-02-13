@@ -15,7 +15,9 @@
  */
 
 package com.codeheadsystems.dstore.control.dao;
+
 import static org.assertj.core.api.Assertions.assertThat;
+
 import com.codeheadsystems.dstore.control.model.ImmutableNodeRange;
 import com.codeheadsystems.dstore.control.model.NodeRange;
 import java.time.Instant;

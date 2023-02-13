@@ -3,10 +3,9 @@ package com.codeheadsystems.dstore.control.javaclient;
 import com.codeheadsystems.common.javaclient.JavaClientModule;
 import com.codeheadsystems.dstore.common.module.JsonModule;
 import com.codeheadsystems.dstore.control.common.api.ControlNodeService;
+import com.codeheadsystems.dstore.control.common.api.ControlTenantResourceService;
 import com.codeheadsystems.dstore.control.javaclient.module.ControlServiceModule;
-import com.codeheadsystems.dstore.node.api.NodeTenantTableService;
 import dagger.Component;
-import javax.inject.Named;
 import javax.inject.Singleton;
 
 /**
@@ -40,10 +39,10 @@ public interface ControlServiceComponent {
   ControlNodeService controlNodeService();
 
   /**
-   * The node tenant table service.
+   * The control tenant table service.
    *
    * @return the service.
    */
-  NodeTenantTableService nodeTenantTableService();
+  ControlTenantResourceService controlTenantResourceService();
 
 }

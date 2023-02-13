@@ -26,7 +26,6 @@ import com.codeheadsystems.dstore.control.dao.NodeRangeDao;
 import com.codeheadsystems.dstore.control.engine.NodeAvailabilityEngine;
 import com.codeheadsystems.dstore.control.model.ImmutableNodeRange;
 import com.codeheadsystems.dstore.control.model.NodeRange;
-import com.codeheadsystems.dstore.node.api.TenantTableVersion;
 import com.codeheadsystems.metrics.Metrics;
 import java.time.Clock;
 import java.util.List;
@@ -44,6 +43,7 @@ import org.slf4j.LoggerFactory;
 public class NodeRangeManager {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(NodeRangeManager.class);
+  private static final String V_1_SINGLE_ENTRY_ENGINE = "V1SingleEntryEngine";
 
   private final NodeRangeDao nodeRangeDao;
   private final Clock clock;
@@ -120,6 +120,20 @@ public class NodeRangeManager {
   }
 
   /**
+   * Gets the node range list, if it exists.
+   *
+   * @param tenant   to get.
+   * @param resource to get.
+   * @return the range.
+   */
+  public List<NodeRange> getNodeRange(final String tenant,
+                                      final String resource) {
+    LOGGER.trace("getNodeRange({},{})", tenant, resource);
+    return metrics.time("NodeRangeManager.getNodeRange",
+        () -> nodeRangeDao.nodeRanges(tenant, resource));
+  }
+
+  /**
    * Return back created node ranges that are being used.
    *
    * @param tenant   the tenant.
@@ -138,7 +152,7 @@ public class NodeRangeManager {
       // TODO: The following needs to be smarter about getting nodes. This is just to set it up.
       final List<NodeRange> nodeRange = nodeAvailabilityEngine.getAvailableNodes(1)
           .stream().map(uuid -> ImmutableNodeRange.builder()
-              .uuid(uuid).tenant(tenant).resource(resource).tableVersion(TenantTableVersion.V1SingleEntry)
+              .uuid(uuid).tenant(tenant).resource(resource).tableVersion(V_1_SINGLE_ENTRY_ENGINE)
               .createDate(clock.instant()).status("INIT").ready(false)
               .lowHash(Integer.MIN_VALUE).highHash(Integer.MAX_VALUE)
               .build())

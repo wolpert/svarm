@@ -16,7 +16,6 @@
 
 package com.codeheadsystems.dstore.node.module;
 
-import com.codeheadsystems.dstore.control.common.api.ControlNodeService;
 import com.codeheadsystems.dstore.node.NodeConfiguration;
 import com.codeheadsystems.dstore.node.manager.ControlPlaneManager;
 import com.codeheadsystems.dstore.node.manager.FakeControlPlaneManager;

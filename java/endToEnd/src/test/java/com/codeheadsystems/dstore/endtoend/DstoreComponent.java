@@ -26,8 +26,8 @@ import com.codeheadsystems.dstore.common.config.module.EtcdModule;
 import com.codeheadsystems.dstore.common.engine.TraceUuidEngine;
 import com.codeheadsystems.dstore.common.module.JsonModule;
 import com.codeheadsystems.dstore.control.common.api.ControlNodeService;
+import com.codeheadsystems.dstore.control.common.api.ControlTenantResourceService;
 import com.codeheadsystems.dstore.control.javaclient.module.ControlServiceModule;
-import com.codeheadsystems.dstore.node.api.NodeTenantTableService;
 import dagger.Component;
 import dagger.Module;
 import dagger.Provides;
@@ -47,11 +47,12 @@ public interface DstoreComponent {
 
   ControlNodeService controlNodeService();
 
-  NodeTenantTableService nodeTenantTableService();
+  ControlTenantResourceService controlTenantResourceService();
 
   Client client();
 
   TraceUuidEngine traceUuidEngine();
+
   EtcdAccessor etcdAccessor();
 
   @Module

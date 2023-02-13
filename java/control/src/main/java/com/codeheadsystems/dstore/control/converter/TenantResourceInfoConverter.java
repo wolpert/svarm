@@ -18,9 +18,9 @@ package com.codeheadsystems.dstore.control.converter;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
+import com.codeheadsystems.dstore.control.common.api.ImmutableTenantResourceInfo;
+import com.codeheadsystems.dstore.control.common.api.TenantResourceInfo;
 import com.codeheadsystems.dstore.control.model.NodeRange;
-import com.codeheadsystems.dstore.node.api.ImmutableTenantTableInfo;
-import com.codeheadsystems.dstore.node.api.TenantTableInfo;
 import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -30,16 +30,16 @@ import org.slf4j.Logger;
  * Converts values for tenant table infos.
  */
 @Singleton
-public class TenantTableInfoConverter {
-  private static final Logger LOGGER = getLogger(TenantTableInfoConverter.class);
+public class TenantResourceInfoConverter {
+  private static final Logger LOGGER = getLogger(TenantResourceInfoConverter.class);
 
 
   /**
    * Constructor.
    */
   @Inject
-  public TenantTableInfoConverter() {
-    LOGGER.info("TenantTableInfoConverter()");
+  public TenantResourceInfoConverter() {
+    LOGGER.info("TenantResourceInfoConverter()");
   }
 
   /**
@@ -48,10 +48,13 @@ public class TenantTableInfoConverter {
    * @param nodeRanges to convert from.
    * @return to a tenant table info.
    */
-  public TenantTableInfo from(final List<NodeRange> nodeRanges) {
+  public TenantResourceInfo from(final List<NodeRange> nodeRanges) {
     LOGGER.trace("from({})", nodeRanges);
-    return ImmutableTenantTableInfo.builder()
-        .id(nodeRanges.get(0).resource()) // TODO: this is dumb. Maybe control doesn't just reuse the node-common stuff.
+    final NodeRange nodeRange = nodeRanges.get(0);
+    return ImmutableTenantResourceInfo.builder()
+        .tenantId(nodeRange.tenant())
+        .resource(nodeRange.resource())
+        .ready(nodeRanges.stream().allMatch(NodeRange::ready))
         .build();
   }
 

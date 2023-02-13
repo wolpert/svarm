@@ -34,7 +34,6 @@ dependencies {
     implementation project(":server-common")
     implementation project(":config-common")
     implementation project(":control-common")
-    implementation project(":node-common")
 
     // SQL
     implementation libs.liquibase.core
