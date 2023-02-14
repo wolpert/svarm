@@ -3,10 +3,6 @@
  * Ned Wolpert <ned.wolpert@codeheadsystems.com>
  */
 
-apply plugin: "java-library"
-apply plugin: "eclipse"
-apply plugin: 'checkstyle'
-
 ext {
     appName = "node-common"
 }
@@ -17,16 +13,6 @@ configurations {
 }
 
 //jacocoTestReport.finalizedBy jacocoTestCoverageVerification
-
-checkstyleTest { // ignore checkstyle in tests
-    ignoreFailures true
-    showViolations false
-    enabled = false
-}
-checkstyle {
-    ignoreFailures = false
-    maxWarnings = 0
-}
 
 dependencies {
     implementation project(":common")

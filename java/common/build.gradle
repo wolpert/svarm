@@ -3,9 +3,6 @@
  * Ned Wolpert <ned.wolpert@codeheadsystems.com>
  */
 
-apply plugin: "java-library"
-apply plugin: "eclipse"
-
 ext {
     appName = "common"
     configPath = "${rootProject.projectDir}/node/src/main/resources/"

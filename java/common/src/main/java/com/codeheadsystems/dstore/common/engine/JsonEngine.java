@@ -94,24 +94,6 @@ public class JsonEngine {
   }
 
   /**
-   * Writes the value to the file in question.
-   *
-   * @param configurationFile to write to.
-   * @param object            we want to write into JSON.
-   * @param <T>               type of object we are wriing.
-   */
-  public <T> void writeValue(final File configurationFile,
-                             final T object) {
-    LOGGER.debug("writeValue(file,{})", configurationFile);
-    try {
-      objectMapper.writeValue(configurationFile, object);
-    } catch (IOException e) {
-      LOGGER.error("Unable to write value to file: {}", configurationFile, e);
-      throw new IllegalArgumentException("Unable to read value", e);
-    }
-  }
-
-  /**
    * Reads the file and returns an object based on the class.
    *
    * @param configureFile to read.
@@ -126,6 +108,24 @@ public class JsonEngine {
       return objectMapper.readValue(configureFile, clazz);
     } catch (IOException e) {
       LOGGER.error("Unable to read value for class: {}", clazz, e);
+      throw new IllegalArgumentException("Unable to read value", e);
+    }
+  }
+
+  /**
+   * Writes the value to the file in question.
+   *
+   * @param configurationFile to write to.
+   * @param object            we want to write into JSON.
+   * @param <T>               type of object we are wriing.
+   */
+  public <T> void writeValue(final File configurationFile,
+                             final T object) {
+    LOGGER.debug("writeValue(file,{})", configurationFile);
+    try {
+      objectMapper.writeValue(configurationFile, object);
+    } catch (IOException e) {
+      LOGGER.error("Unable to write value to file: {}", configurationFile, e);
       throw new IllegalArgumentException("Unable to read value", e);
     }
   }
