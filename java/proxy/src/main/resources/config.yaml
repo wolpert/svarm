@@ -48,3 +48,13 @@ health:
         initialDelay: 5s
         failureAttempts: 1
         successAttempts: 2
+    - name: EtcdHealthCheck
+      type: alive
+      critical: true
+      initialState: true
+      schedule:
+        checkInterval: 60s
+        downtimeInterval: 2s
+        initialDelay: 5s
+        failureAttempts: 1
+        successAttempts: 2

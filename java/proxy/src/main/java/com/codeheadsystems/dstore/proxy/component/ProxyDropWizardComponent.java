@@ -18,6 +18,7 @@ package com.codeheadsystems.dstore.proxy.component;
 
 import com.codeheadsystems.dstore.common.config.module.EtcdModule;
 import com.codeheadsystems.dstore.proxy.module.ProxyConfigurationModule;
+import com.codeheadsystems.dstore.proxy.module.ResourceModule;
 import com.codeheadsystems.server.component.DropWizardComponent;
 import com.codeheadsystems.server.module.DropWizardModule;
 import dagger.Component;
@@ -29,7 +30,8 @@ import javax.inject.Singleton;
 @Component(modules = {
     DropWizardModule.class,
     EtcdModule.class,
-    ProxyConfigurationModule.class
+    ProxyConfigurationModule.class,
+    ResourceModule.class
 })
 @Singleton
 public interface ProxyDropWizardComponent extends DropWizardComponent {

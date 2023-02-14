@@ -3,11 +3,8 @@
  * Ned Wolpert <ned.wolpert@codeheadsystems.com>
  */
 
-apply plugin: 'application'
-
 ext {
-    appName = "proxy"
-    configPath = "${rootProject.projectDir}/proxy/src/main/resources/"
+    appName = "proxy-javaClient"
 }
 
 configurations {
@@ -18,23 +15,29 @@ configurations {
 //jacocoTestReport.finalizedBy jacocoTestCoverageVerification
 
 dependencies {
-    implementation project(":common")
-    implementation project(":server-common")
-    implementation project(":config-common")
+    api project(":common")
+    api project(":common-javaClient")
     implementation project(":proxy-common")
 
+    implementation libs.jackson.annotations
+    implementation libs.jackson.core
+    implementation libs.jackson.databind
+    implementation libs.jackson.datatype.jdk8
     implementation libs.dropwizard.auth
     implementation libs.dropwizard.core
     implementation libs.dropwizard.jackson
-    implementation libs.dropwizard.metrics.graphite
     implementation libs.micrometer.core
     implementation libs.metrics.core
 
-    // etcd
-    implementation libs.jetcd.core
-    testImplementation libs.jetcd.test
+    implementation libs.openfeign.core
+    implementation libs.openfeign.jackson
+    implementation libs.feign.slf4j
+    implementation libs.feign.micrometer
+    implementation libs.openfeign.java11
+    implementation libs.openfeign.jaxrs2
 
-    testImplementation libs.jackson.dataformat.yaml
+    implementation libs.retrofit
+    implementation libs.retrofit2.converter.jackson
 
     // Logging stuff... need all these for logback changes
     implementation libs.logback.classic
@@ -42,9 +45,4 @@ dependencies {
     implementation libs.logback.access
     implementation libs.jakarta.servlet.api
     implementation libs.javax.servlet.api
-}
-
-run {
-    args 'server', configPath + 'config.yaml'
-    mainClassName = "com.codeheadsystems.dstore.proxy.Proxy"
 }

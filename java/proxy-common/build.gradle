@@ -3,11 +3,9 @@
  * Ned Wolpert <ned.wolpert@codeheadsystems.com>
  */
 
-apply plugin: 'application'
-
 ext {
-    appName = "proxy"
-    configPath = "${rootProject.projectDir}/proxy/src/main/resources/"
+    appName = "proxy-common"
+    configPath = "${rootProject.projectDir}/proxy-common/src/main/resources/"
 }
 
 configurations {
@@ -19,22 +17,9 @@ configurations {
 
 dependencies {
     implementation project(":common")
-    implementation project(":server-common")
-    implementation project(":config-common")
-    implementation project(":proxy-common")
-
     implementation libs.dropwizard.auth
     implementation libs.dropwizard.core
     implementation libs.dropwizard.jackson
-    implementation libs.dropwizard.metrics.graphite
-    implementation libs.micrometer.core
-    implementation libs.metrics.core
-
-    // etcd
-    implementation libs.jetcd.core
-    testImplementation libs.jetcd.test
-
-    testImplementation libs.jackson.dataformat.yaml
 
     // Logging stuff... need all these for logback changes
     implementation libs.logback.classic
@@ -44,7 +29,3 @@ dependencies {
     implementation libs.javax.servlet.api
 }
 
-run {
-    args 'server', configPath + 'config.yaml'
-    mainClassName = "com.codeheadsystems.dstore.proxy.Proxy"
-}
