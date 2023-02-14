@@ -23,6 +23,7 @@ configurations {
 checkstyleTest { // ignore checkstyle in tests
     ignoreFailures true
     showViolations false
+    enabled = false
 }
 checkstyle {
     ignoreFailures = false

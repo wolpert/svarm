@@ -8,17 +8,17 @@ Requires
 
 * JDK17
 * Gradle (Tested with 7.6)
+* Docker for endToEnd tests
 
 ```shell
 gradle clean build test
-gradle :node:run
 ```
 
 Integration tests take additional time. To execute build with full integration
 tests, do this:
 
 ```shell
-gradle clean build test integ
+gradle build test integ
 ```
 
 and, of course, if you just want to run the integ tests...
@@ -36,6 +36,12 @@ To run the end to end tests, you can simply do
 
 ```shell
 gradle test -Pe2e
+```
+
+or
+
+```shell
+gradle clean build test integ -Pe2e
 ```
 
 This will enable the endToEnd subproject. Else that project is skipped.
@@ -118,7 +124,7 @@ friendliness. Flat hierarchy. Packages are as follows;
 * Every internal public method for the classes are logged at trace.
 * Adding extra logs as needed, but when in doubt, consider metrics.
 
-## Testing with curl
+## Testing with curl (node)
 
 ```shell
 curl -v -X PUT 'http://localhost:8080/v1/tenant/customer01'

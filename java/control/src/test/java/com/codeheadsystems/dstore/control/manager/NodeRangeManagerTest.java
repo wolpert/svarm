@@ -19,6 +19,7 @@ package com.codeheadsystems.dstore.control.manager;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
+import com.codeheadsystems.dstore.common.config.converter.NodeTenantResourceRangeConverter;
 import com.codeheadsystems.dstore.common.config.engine.NodeConfigurationEngine;
 import com.codeheadsystems.dstore.control.dao.NodeRangeDao;
 import com.codeheadsystems.dstore.control.engine.NodeAvailabilityEngine;

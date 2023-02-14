@@ -92,7 +92,8 @@ public class ControlJdbiFactory {
     jdbi.getConfig(JdbiImmutables.class)
         .registerImmutable(Key.class)
         .registerImmutable(Node.class)
-        .registerImmutable(NodeRange.class);
+        .registerImmutable(NodeRange.class)
+        .registerImmutable(com.codeheadsystems.dstore.common.config.api.NodeRange.class);
     jdbi.installPlugin(new SqlObjectPlugin());
     if (Boolean.TRUE.equals(runLiquibase)) {
       jdbi.useHandle(this::runLiquibase);

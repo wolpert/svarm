@@ -85,6 +85,19 @@ public interface NodeRangeDao extends Transactional {
   List<NodeRange> nodeRanges(@Bind("uuid") String uuid);
 
   /**
+   * Get the node ranges from the datastore for the tenant/resource, but using the API version of node ranges.
+   *
+   * @param tenant   to use.
+   * @param resource to use.
+   * @return the list of node ranges.
+   */
+  @SqlQuery("select * from NODE_RANGE, NODE where NODE_RANGE.tenant = :tenant and NODE_RANGE.resource = :resource "
+      + "and NODE_RANGE.uuid = NODE.uuid")
+  List<com.codeheadsystems.dstore.common.config.api.NodeRange> apiNodeRanges(
+      @Bind("tenant") String tenant,
+      @Bind("resource") String resource);
+
+  /**
    * List all tenants.
    *
    * @return the tenants.

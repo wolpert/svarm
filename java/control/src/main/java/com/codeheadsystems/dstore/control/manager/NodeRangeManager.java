@@ -20,7 +20,9 @@ import com.codeheadsystems.dstore.common.config.api.ImmutableNodeTenantResource;
 import com.codeheadsystems.dstore.common.config.api.ImmutableNodeTenantResourceRange;
 import com.codeheadsystems.dstore.common.config.api.ImmutableRange;
 import com.codeheadsystems.dstore.common.config.api.ImmutableTenantResource;
+import com.codeheadsystems.dstore.common.config.api.ImmutableTenantResourceRange;
 import com.codeheadsystems.dstore.common.config.api.TenantResource;
+import com.codeheadsystems.dstore.common.config.api.TenantResourceRange;
 import com.codeheadsystems.dstore.common.config.engine.NodeConfigurationEngine;
 import com.codeheadsystems.dstore.control.dao.NodeRangeDao;
 import com.codeheadsystems.dstore.control.engine.NodeAvailabilityEngine;
@@ -29,7 +31,9 @@ import com.codeheadsystems.dstore.control.model.NodeRange;
 import com.codeheadsystems.metrics.Metrics;
 import java.time.Clock;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -131,6 +135,30 @@ public class NodeRangeManager {
     LOGGER.trace("getNodeRange({},{})", tenant, resource);
     return metrics.time("NodeRangeManager.getNodeRange",
         () -> nodeRangeDao.nodeRanges(tenant, resource));
+  }
+
+  /**
+   * Updates the configuration service (like etcd) with the list of node ranges.
+   *
+   * @param tenant   to get.
+   * @param resource to get.
+   */
+  public void updateConfiguration(final String tenant,
+                                  final String resource) {
+    LOGGER.trace("updateConfiguration({},{})", tenant, resource);
+    metrics.time("NodeRangeManager.updateConfiguration", () -> {
+      final List<com.codeheadsystems.dstore.common.config.api.NodeRange> nodeRanges =
+          nodeRangeDao.apiNodeRanges(tenant, resource);
+      final Map<Integer, Set<com.codeheadsystems.dstore.common.config.api.NodeRange>> map = nodeRanges.stream()
+          .collect(Collectors.groupingBy(
+              com.codeheadsystems.dstore.common.config.api.NodeRange::lowHash,
+              Collectors.mapping(nr -> nr, Collectors.toSet())
+          ));
+      final TenantResourceRange tenantResourceRange = ImmutableTenantResourceRange.builder()
+          .tenant(tenant).resource(resource).hashToNodeRangeSet(map).build();
+      nodeConfigurationEngine.write(tenantResourceRange);
+      return null;
+    });
   }
 
   /**

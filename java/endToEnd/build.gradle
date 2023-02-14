@@ -5,7 +5,6 @@
 
 apply plugin: "java-library"
 apply plugin: "eclipse"
-apply plugin: 'checkstyle'
 
 ext {
     appName = "endToEnd"
@@ -14,17 +13,6 @@ ext {
 configurations {
     project.archivesBaseName = "${appName}"
     jar.archiveBaseName = "${appName}"
-}
-
-//jacocoTestReport.finalizedBy jacocoTestCoverageVerification
-
-checkstyleTest { // ignore checkstyle in tests
-    ignoreFailures true
-    showViolations false
-}
-checkstyle {
-    ignoreFailures = false
-    maxWarnings = 0
 }
 
 dependencies {
