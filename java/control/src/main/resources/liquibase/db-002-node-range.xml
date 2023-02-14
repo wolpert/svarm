@@ -23,7 +23,7 @@
 
     <changeSet id="2023-02-01-01" author="wolpert">
         <createTable tableName="NODE_RANGE">
-            <column name="UUID" type="varchar(256)">
+            <column name="NODE_UUID" type="varchar(256)">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="TENANT" type="varchar(256)">
@@ -55,8 +55,8 @@
             </column>
         </createTable>
 
-        <createIndex tableName="NODE_RANGE" indexName="NODE_RANGE_UUID_IDX">
-            <column name="UUID"/>
+        <createIndex tableName="NODE_RANGE" indexName="NODE_RANGE_NODE_UUID_IDX">
+            <column name="NODE_UUID"/>
         </createIndex>
 
         <createIndex tableName="NODE_RANGE" indexName="NODE_RANGE_TENANT_RESOURCE_IDX">

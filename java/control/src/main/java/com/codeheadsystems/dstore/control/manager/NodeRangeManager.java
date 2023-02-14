@@ -27,8 +27,10 @@ import com.codeheadsystems.dstore.common.config.engine.NodeConfigurationEngine;
 import com.codeheadsystems.dstore.control.dao.NodeRangeDao;
 import com.codeheadsystems.dstore.control.engine.NodeAvailabilityEngine;
 import com.codeheadsystems.dstore.control.model.ImmutableNodeRange;
+import com.codeheadsystems.dstore.control.model.Node;
 import com.codeheadsystems.dstore.control.model.NodeRange;
 import com.codeheadsystems.metrics.Metrics;
+import com.codeheadsystems.server.exception.NotFoundException;
 import java.time.Clock;
 import java.util.List;
 import java.util.Map;
@@ -54,6 +56,7 @@ public class NodeRangeManager {
   private final Metrics metrics;
   private final NodeAvailabilityEngine nodeAvailabilityEngine;
   private final NodeConfigurationEngine nodeConfigurationEngine;
+  private final NodeManager nodeManager;
 
   /**
    * Constructor.
@@ -63,13 +66,15 @@ public class NodeRangeManager {
    * @param metrics                 for timing.
    * @param nodeAvailabilityEngine  for finding nodes.
    * @param nodeConfigurationEngine for updating the configuration engine.
+   * @param nodeManager             for getting node details.
    */
   @Inject
   public NodeRangeManager(final NodeRangeDao nodeRangeDao,
                           final Clock clock,
                           final Metrics metrics,
                           final NodeAvailabilityEngine nodeAvailabilityEngine,
-                          final NodeConfigurationEngine nodeConfigurationEngine) {
+                          final NodeConfigurationEngine nodeConfigurationEngine, final NodeManager nodeManager) {
+    this.nodeManager = nodeManager;
     LOGGER.info("NodeRangeManager({},{},{},{},{})",
         nodeRangeDao, clock, metrics, nodeAvailabilityEngine, nodeConfigurationEngine);
     this.clock = clock;
@@ -94,15 +99,28 @@ public class NodeRangeManager {
   /**
    * Sets the ready boolean for the node range.
    *
-   * @param range to set.
-   * @param ready the flag.
+   * @param nodeUuid to set.
+   * @param tenant   to set.
+   * @param resource to set.
+   * @param ready    the flag.
    * @return the updated nodeRange.
    */
-  public NodeRange setReady(final NodeRange range, final boolean ready) {
-    LOGGER.trace("setReady({},{})", range, ready);
+  public NodeRange setReady(final String nodeUuid,
+                            final String tenant,
+                            final String resource,
+                            final boolean ready) {
+    LOGGER.trace("setReady({},{},{},{})", nodeUuid, tenant, ready, ready);
     return metrics.time("NodeRangeManager.resources", () -> {
-      final NodeRange updated = ImmutableNodeRange.copyOf(range).withReady(ready);
+      final Node node = nodeManager.read(nodeUuid)
+          .orElseThrow(() -> new NotFoundException("No such node"));
+      final NodeRange nodeRange = getNodeRange(nodeUuid, tenant, resource)
+          .orElseThrow(() -> new NotFoundException("No resource for node"));
+      final NodeRange updated = ImmutableNodeRange.copyOf(nodeRange).withReady(ready);
       nodeRangeDao.update(updated);
+      final boolean allReady = getNodeRange(tenant, resource).stream().allMatch(NodeRange::ready);
+      if (allReady) {
+        updateConfiguration(tenant, resource);
+      }
       return updated;
     });
   }
@@ -179,8 +197,8 @@ public class NodeRangeManager {
       }
       // TODO: The following needs to be smarter about getting nodes. This is just to set it up.
       final List<NodeRange> nodeRange = nodeAvailabilityEngine.getAvailableNodes(1)
-          .stream().map(uuid -> ImmutableNodeRange.builder()
-              .uuid(uuid).tenant(tenant).resource(resource).tableVersion(V_1_SINGLE_ENTRY_ENGINE)
+          .stream().map(nodeUuid -> ImmutableNodeRange.builder()
+              .nodeUuid(nodeUuid).tenant(tenant).resource(resource).tableVersion(V_1_SINGLE_ENTRY_ENGINE)
               .createDate(clock.instant()).status("INIT").ready(false)
               .lowHash(Integer.MIN_VALUE).highHash(Integer.MAX_VALUE)
               .build())
@@ -189,7 +207,7 @@ public class NodeRangeManager {
       final TenantResource tenantResource = ImmutableTenantResource.builder().tenant(tenant).resource(resource).build();
       nodeRange.stream().map(nr -> ImmutableNodeTenantResourceRange.builder()
               .nodeTenantResource(
-                  ImmutableNodeTenantResource.builder().uuid(nr.uuid()).tenantResource(tenantResource).build())
+                  ImmutableNodeTenantResource.builder().uuid(nr.nodeUuid()).tenantResource(tenantResource).build())
               .range(ImmutableRange.builder().lowHash(nr.lowHash()).highHash(nr.highHash()).build())
               .build())
           .forEach(nodeConfigurationEngine::write); // TODO: This should be done in a transaction. All or nothing.

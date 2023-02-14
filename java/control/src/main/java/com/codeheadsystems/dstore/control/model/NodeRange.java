@@ -32,8 +32,8 @@ public interface NodeRange {
    *
    * @return the value.
    */
-  @JsonProperty("uuid")
-  String uuid();
+  @JsonProperty("nodeUuid")
+  String nodeUuid();
 
   /**
    * Accessor for tenant.

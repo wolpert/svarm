@@ -19,7 +19,6 @@ package com.codeheadsystems.dstore.control.manager;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import com.codeheadsystems.dstore.common.config.converter.NodeTenantResourceRangeConverter;
 import com.codeheadsystems.dstore.common.config.engine.NodeConfigurationEngine;
 import com.codeheadsystems.dstore.control.dao.NodeRangeDao;
 import com.codeheadsystems.dstore.control.engine.NodeAvailabilityEngine;
@@ -47,7 +46,7 @@ class NodeRangeManagerTest extends BaseMetricTest {
 
   @BeforeEach
   void setup() {
-    nodeRangeManager = new NodeRangeManager(nodeRangeDao, clock, metrics, nodeAvailabilityEngine, nodeConfigurationEngine);
+    nodeRangeManager = new NodeRangeManager(nodeRangeDao, clock, metrics, nodeAvailabilityEngine, nodeConfigurationEngine, nodeManager);
   }
 
   @Test

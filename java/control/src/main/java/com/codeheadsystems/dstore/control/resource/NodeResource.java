@@ -28,7 +28,6 @@ import com.codeheadsystems.dstore.control.converter.NodeInfoConverter;
 import com.codeheadsystems.dstore.control.manager.NodeManager;
 import com.codeheadsystems.dstore.control.manager.NodeRangeManager;
 import com.codeheadsystems.dstore.control.model.Node;
-import com.codeheadsystems.dstore.control.model.NodeRange;
 import com.codeheadsystems.server.exception.NotFoundException;
 import com.codeheadsystems.server.resource.JerseyResource;
 import javax.inject.Inject;
@@ -98,9 +97,7 @@ public class NodeResource implements JerseyResource, ControlNodeService {
     LOGGER.trace("enable({},{},{})", nodeUuid, tenant, resource);
     final Node node = nodeManager.read(nodeUuid)
         .orElseThrow(() -> new NotFoundException("No such node"));
-    final NodeRange nodeRange = nodeRangeManager.getNodeRange(nodeUuid, tenant, resource)
-        .orElseThrow(() -> new NotFoundException("No resource for node"));
-    nodeRangeManager.setReady(nodeRange, true);
+    nodeRangeManager.setReady(nodeUuid, tenant, resource, true);
     return nodeInfoConverter.from(node);
   }
 
@@ -124,9 +121,7 @@ public class NodeResource implements JerseyResource, ControlNodeService {
     LOGGER.trace("disable({},{},{})", nodeUuid, tenant, resource);
     final Node node = nodeManager.read(nodeUuid)
         .orElseThrow(() -> new NotFoundException("No such node"));
-    final NodeRange nodeRange = nodeRangeManager.getNodeRange(nodeUuid, tenant, resource)
-        .orElseThrow(() -> new NotFoundException("No resource for node"));
-    nodeRangeManager.setReady(nodeRange, false);
+    nodeRangeManager.setReady(nodeUuid, tenant, resource, false);
     return nodeInfoConverter.from(node);
   }
 

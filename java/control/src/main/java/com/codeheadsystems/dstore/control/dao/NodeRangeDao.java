@@ -35,9 +35,9 @@ public interface NodeRangeDao extends Transactional {
    * @param instance to use.
    */
   @SqlUpdate("insert into NODE_RANGE "
-      + "(uuid,tenant,resource, create_date, update_date, table_version, ready, status, low_hash, high_hash) "
+      + "(node_uuid,tenant,resource, create_date, update_date, table_version, ready, status, low_hash, high_hash) "
       + "values "
-      + "(:uuid, :tenant, :resource, :createDate, :updateDate, :tableVersion, :ready, :status, :lowHash, :highHash)")
+      + "(:nodeUuid, :tenant, :resource, :createDate, :updateDate, :tableVersion, :ready, :status, :lowHash, :highHash)")
   void insert(@BindPojo final NodeRange instance);
 
   /**
@@ -51,19 +51,19 @@ public interface NodeRangeDao extends Transactional {
       + "status = :status, "
       + "low_hash = :lowHash, "
       + "high_hash = :highHash "
-      + "where uuid = :uuid and tenant = :tenant and resource = :resource")
+      + "where node_uuid = :nodeUuid and tenant = :tenant and resource = :resource")
   void update(@BindPojo final NodeRange instance);
 
   /**
    * Get the entry from the datastore.
    *
-   * @param uuid     to use.
+   * @param nodeUuid to use.
    * @param tenant   to use.
    * @param resource to use.
    * @return the node range.
    */
-  @SqlQuery("select * from NODE_RANGE where uuid = :uuid and tenant = :tenant and resource = :resource")
-  NodeRange read(@Bind("uuid") String uuid, @Bind("tenant") String tenant, @Bind("resource") String resource);
+  @SqlQuery("select * from NODE_RANGE where node_uuid = :nodeUuid and tenant = :tenant and resource = :resource")
+  NodeRange read(@Bind("nodeUuid") String nodeUuid, @Bind("tenant") String tenant, @Bind("resource") String resource);
 
   /**
    * Get the node ranges from the datastore for the tenant/resource.
@@ -81,18 +81,21 @@ public interface NodeRangeDao extends Transactional {
    * @param uuid to use.
    * @return the list of node ranges.
    */
-  @SqlQuery("select * from NODE_RANGE where uuid = :uuid")
-  List<NodeRange> nodeRanges(@Bind("uuid") String uuid);
+  @SqlQuery("select * from NODE_RANGE where node_uuid = :nodeUuid")
+  List<NodeRange> nodeRanges(@Bind("nodeUuid") String uuid);
 
   /**
    * Get the node ranges from the datastore for the tenant/resource, but using the API version of node ranges.
+   * TODO: this is a little janky. Maybe we can figure out a better way.
    *
    * @param tenant   to use.
    * @param resource to use.
    * @return the list of node ranges.
    */
-  @SqlQuery("select * from NODE_RANGE, NODE where NODE_RANGE.tenant = :tenant and NODE_RANGE.resource = :resource "
-      + "and NODE_RANGE.uuid = NODE.uuid")
+  @SqlQuery("select *, NODES.host || ':' || NODES.port as uri "
+      + "from NODE_RANGE, NODES where NODE_RANGE.tenant = :tenant "
+      + "and NODE_RANGE.resource = :resource "
+      + "and NODE_RANGE.node_uuid = NODES.uuid")
   List<com.codeheadsystems.dstore.common.config.api.NodeRange> apiNodeRanges(
       @Bind("tenant") String tenant,
       @Bind("resource") String resource);
@@ -117,11 +120,11 @@ public interface NodeRangeDao extends Transactional {
   /**
    * Delete the entry from the database.
    *
-   * @param uuid     to delete.
+   * @param nodeUuid to delete.
    * @param tenant   to delete.
    * @param resource to delete.
    */
-  @SqlUpdate("delete from NODE_RANGE where uuid = :uuid and tenant = :tenant and resource = :resource")
-  void delete(@Bind("uuid") String uuid, @Bind("tenant") String tenant, @Bind("resource") String resource);
+  @SqlUpdate("delete from NODE_RANGE where node_uuid = :nodeUuid and tenant = :tenant and resource = :resource")
+  void delete(@Bind("nodeUuid") String nodeUuid, @Bind("tenant") String tenant, @Bind("resource") String resource);
 
 }
