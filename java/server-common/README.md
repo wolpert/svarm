@@ -26,6 +26,7 @@ public class YourServiceConfiguration extends Configuration {
 @Component(modules = {
     DropWizardModule.class
 })
+@Singleton
 public interface YourServiceDropWizardComponent extends DropWizardComponent {
 }
 
@@ -35,10 +36,9 @@ public class YourService extends Server<ControlConfiguration> {
   }
 
   @Override
-  protected DropWizardComponent dropWizardComponent(final YourServiceConfiguration configuration,
-                                                    final MetricRegistryModule metricRegistryModule) {
+  protected DropWizardComponent dropWizardComponent(final DropWizardModule module) {
     return DaggerYourServiceDropWizardComponent.builder()
-        .metricRegistryModule(metricRegistryModule)
+        .dropWizardModule(module)
         .build();
   }
 }

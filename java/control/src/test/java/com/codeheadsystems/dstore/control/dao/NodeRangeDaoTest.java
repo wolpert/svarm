@@ -43,11 +43,11 @@ class NodeRangeDaoTest extends JdbiDaoTest<NodeRangeDao> {
 
   @Test
   void roundTrip() {
-    final NodeRange nr1 = ImmutableNodeRange.builder().uuid(UUID1).tenant(TENANT).resource(RESOURCE1)
+    final NodeRange nr1 = ImmutableNodeRange.builder().nodeUuid(UUID1).tenant(TENANT).resource(RESOURCE1)
         .createDate(instant()).ready(false).status(STATUS).lowHash(1).highHash(10).tableVersion(TABLE_VERSION).build();
-    final NodeRange nr2 = ImmutableNodeRange.builder().uuid(UUID2).tenant(TENANT)
+    final NodeRange nr2 = ImmutableNodeRange.builder().nodeUuid(UUID2).tenant(TENANT)
         .resource(RESOURCE1).createDate(instant()).ready(true).status(STATUS).lowHash(10).highHash(20).tableVersion(TABLE_VERSION).build();
-    final NodeRange nr3 = ImmutableNodeRange.builder().uuid(UUID2).tenant(TENANT)
+    final NodeRange nr3 = ImmutableNodeRange.builder().nodeUuid(UUID2).tenant(TENANT)
         .resource(RESOURCE2).createDate(instant()).ready(true).status(STATUS).lowHash(1).highHash(20).tableVersion(TABLE_VERSION).build();
     dao.insert(nr1);
     dao.insert(nr2);

@@ -29,6 +29,10 @@ dependencies {
     implementation libs.micrometer.core
     implementation libs.metrics.core
 
+    // etcd
+    implementation libs.jetcd.core
+    testImplementation libs.jetcd.test
+
     testImplementation libs.jackson.dataformat.yaml
 
     // Logging stuff... need all these for logback changes
