@@ -68,7 +68,7 @@ health:
       initialState: true
       schedule:
         checkInterval: 30s
-        downtimeInterval: 2s
+        downtimeInterval: 10s
         initialDelay: 5s
         failureAttempts: 1
         successAttempts: 2
@@ -78,7 +78,7 @@ health:
       initialState: true
       schedule:
         checkInterval: 60s
-        downtimeInterval: 2s
+        downtimeInterval: 10s
         initialDelay: 5s
         failureAttempts: 1
         successAttempts: 2

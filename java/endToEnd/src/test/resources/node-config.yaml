@@ -8,6 +8,8 @@ logging:
   level: INFO
   loggers:
     com.codeheadsystems.dstore: TRACE
+    com.codeheadsystems.dstore.node.healthchecks: INFO
+    com.codeheadsystems.dstore.common.config.healthchecks: INFO
     com.mchange.v2.c3p0: WARN
   appenders:
     - type: console
@@ -42,7 +44,7 @@ health:
       initialState: true
       schedule:
         checkInterval: 60s
-        downtimeInterval: 2s
+        downtimeInterval: 10s
         initialDelay: 5s
         failureAttempts: 1
         successAttempts: 2
@@ -52,7 +54,7 @@ health:
       initialState: false
       schedule:
         checkInterval: 60s
-        downtimeInterval: 2s
+        downtimeInterval: 10s
         initialDelay: 5s
         failureAttempts: 1
         successAttempts: 2
@@ -62,7 +64,7 @@ health:
       initialState: false
       schedule:
         checkInterval: 60s
-        downtimeInterval: 2s
+        downtimeInterval: 10s
         initialDelay: 5s
         failureAttempts: 1
         successAttempts: 2
@@ -72,7 +74,7 @@ health:
       initialState: false
       schedule:
         checkInterval: 60s
-        downtimeInterval: 2s
+        downtimeInterval: 10s
         initialDelay: 5s
         failureAttempts: 1
         successAttempts: 2
@@ -81,8 +83,8 @@ health:
       critical: true
       initialState: true
       schedule:
-        checkInterval: 30s
-        downtimeInterval: 2s
+        checkInterval: 60s
+        downtimeInterval: 10s
         initialDelay: 5s
         failureAttempts: 1
         successAttempts: 2

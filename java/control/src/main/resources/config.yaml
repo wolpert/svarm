@@ -3,6 +3,8 @@ logging:
   loggers:
     com.codeheadsystems: DEBUG
     com.codeheadsystems.dstore: TRACE
+    com.codeheadsystems.dstore.control.healthchecks: INFO
+    com.codeheadsystems.dstore.common.config.healthchecks: INFO
     com.mchange.v2.c3p0: WARN
   appenders:
     - type: console

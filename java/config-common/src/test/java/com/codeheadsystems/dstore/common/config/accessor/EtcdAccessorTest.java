@@ -45,7 +45,7 @@ class EtcdAccessorTest {
   @BeforeEach
   void setupClient() {
     client = Client.builder().endpoints(cluster.clientEndpoints()).build();
-    accessor = new EtcdAccessor(client);
+    accessor = new EtcdAccessor(client, "test");
   }
 
   @AfterEach

@@ -16,6 +16,8 @@
 
 package com.codeheadsystems.dstore.common.config.accessor;
 
+import static com.codeheadsystems.dstore.common.config.module.EtcdModule.INTERNAL_ETCD_ACCESSOR_PREAMBLE;
+
 import io.etcd.jetcd.ByteSequence;
 import io.etcd.jetcd.Client;
 import io.etcd.jetcd.KV;
@@ -36,6 +38,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,15 +52,24 @@ public class EtcdAccessor {
   private static final Logger LOGGER = LoggerFactory.getLogger(EtcdAccessor.class);
 
   private final Client client;
+  private final String namespaceKeyFormat;
 
   /**
    * Constructor.
    *
-   * @param client for etcd.
+   * @param client   for etcd.
+   * @param preamble for us to use.
    */
   @Inject
-  public EtcdAccessor(final Client client) {
+  public EtcdAccessor(final Client client,
+                      @Named(INTERNAL_ETCD_ACCESSOR_PREAMBLE) final String preamble) {
     this.client = client;
+    this.namespaceKeyFormat = "" + preamble + "_%s/%s";
+    LOGGER.info("EtcdAccessor({},{})", namespaceKeyFormat, client);
+  }
+
+  private String getNamespaceKey(final String namespace, final String key) {
+    return String.format(namespaceKeyFormat, namespace, key);
   }
 
   /**
@@ -68,7 +80,7 @@ public class EtcdAccessor {
    * @param value     the value.
    */
   public void put(final String namespace, final String key, final String value) {
-    final String namespaceKey = String.format("%s/%s", namespace, key);
+    final String namespaceKey = getNamespaceKey(namespace, key);
     LOGGER.trace("put({},{})", namespaceKey, value);
     try {
       client.getKVClient().put(
@@ -93,7 +105,7 @@ public class EtcdAccessor {
     final Txn txn = kv.txn();
     try {
       map.entrySet().stream()
-          .map(e -> Map.entry(String.format("%s/%s", namespace, e.getKey()), e.getValue()))
+          .map(e -> Map.entry(getNamespaceKey(namespace, e.getKey()), e.getValue()))
           .map(e -> Map.entry(ByteSequence.from(e.getKey().getBytes()), ByteSequence.from(e.getValue().getBytes())))
           .forEach(e ->
               txn.Then(Op.put(e.getKey(), e.getValue(), PutOption.DEFAULT)));
@@ -113,7 +125,7 @@ public class EtcdAccessor {
    */
   public void delete(final String namespace, final String key) {
     LOGGER.trace("delete({},{})", namespace, key);
-    final String namespaceKey = String.format("%s/%s", namespace, key);
+    final String namespaceKey = getNamespaceKey(namespace, key);
     try {
       client.getKVClient()
           .delete(ByteSequence.from(namespaceKey.getBytes(StandardCharsets.UTF_8)))
@@ -136,7 +148,7 @@ public class EtcdAccessor {
                              final String key,
                              final Watch.Listener listener) {
     LOGGER.trace("watch({},{})", namespace, key);
-    final String namespaceKey = String.format("%s/%s", namespace, key);
+    final String namespaceKey = getNamespaceKey(namespace, key);
     final ByteSequence namespaceKeyBytes = ByteSequence.from(namespaceKey.getBytes(StandardCharsets.UTF_8));
     final WatchOption watchOption = WatchOption.newBuilder().isPrefix(true).build();
     final Watch watch = client.getWatchClient();
@@ -152,7 +164,7 @@ public class EtcdAccessor {
    */
   public Optional<String> get(final String namespace, final String key) {
     LOGGER.trace("get({},{})", namespace, key);
-    final String namespaceKey = String.format("%s/%s", namespace, key);
+    final String namespaceKey = getNamespaceKey(namespace, key);
     LOGGER.trace("get({})", namespaceKey);
     final CompletableFuture<GetResponse> future =
         client.getKVClient().get(ByteSequence.from(namespaceKey.getBytes(StandardCharsets.UTF_8)));
@@ -177,7 +189,7 @@ public class EtcdAccessor {
    * @return the values.
    */
   public Map<String, String> getAll(final String namespace, final String key) {
-    final String namespaceKey = String.format("%s/%s", namespace, key);
+    final String namespaceKey = getNamespaceKey(namespace, key);
     LOGGER.trace("getAll({})", namespaceKey);
     final ByteSequence byteSequenceKey = ByteSequence.from(namespaceKey.getBytes(StandardCharsets.UTF_8));
     final GetOption getOption = GetOption.newBuilder().isPrefix(true).build();

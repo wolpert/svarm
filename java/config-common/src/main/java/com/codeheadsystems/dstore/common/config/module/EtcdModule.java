@@ -20,11 +20,14 @@ import com.codahale.metrics.health.HealthCheck;
 import com.codeheadsystems.dstore.common.config.EtcdConfiguration;
 import com.codeheadsystems.dstore.common.config.healthchecks.EtcdHealthCheck;
 import dagger.Binds;
+import dagger.BindsOptionalOf;
 import dagger.Module;
 import dagger.Provides;
 import dagger.multibindings.IntoSet;
 import io.etcd.jetcd.Client;
 import java.net.URI;
+import java.util.Optional;
+import javax.inject.Named;
 import javax.inject.Singleton;
 
 /**
@@ -32,6 +35,29 @@ import javax.inject.Singleton;
  */
 @Module(includes = {EtcdModule.Binder.class})
 public class EtcdModule {
+
+  /**
+   * External value to set if you want.
+   */
+  public static final String ETCD_ACCESSOR_PREAMBLE = "ETCD_ACCESSOR_PREAMBLE";
+
+  /**
+   * Internal value to set if you want.
+   */
+  public static final String INTERNAL_ETCD_ACCESSOR_PREAMBLE = "INTERNAL_ETCD_ACCESSOR_PREAMBLE";
+
+  /**
+   * Provide the preamble for the accessor.
+   *
+   * @param preamble if we have a custom one.
+   * @return our preamble.
+   */
+  @Provides
+  @Singleton
+  @Named(INTERNAL_ETCD_ACCESSOR_PREAMBLE)
+  public String etcdPreamble(@Named(ETCD_ACCESSOR_PREAMBLE) final Optional<String> preamble) {
+    return preamble.orElse("dstore");
+  }
 
   /**
    * Provides the client.
@@ -65,6 +91,14 @@ public class EtcdModule {
     @IntoSet
     HealthCheck etcHealthCheck(EtcdHealthCheck healthCheck);
 
+    /**
+     * Optional Preamble for the etcd configuration..
+     *
+     * @return value.
+     */
+    @BindsOptionalOf
+    @Named(ETCD_ACCESSOR_PREAMBLE)
+    String etcdPreamble();
   }
 
 }
