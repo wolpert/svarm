@@ -22,7 +22,10 @@ import com.codahale.metrics.annotation.ExceptionMetered;
 import com.codahale.metrics.annotation.ResponseMetered;
 import com.codahale.metrics.annotation.Timed;
 import com.codeheadsystems.dstore.proxy.common.api.ProxyService;
+import com.codeheadsystems.dstore.proxy.manager.TableEntryManager;
 import com.codeheadsystems.server.resource.JerseyResource;
+import com.fasterxml.jackson.databind.JsonNode;
+import java.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.slf4j.Logger;
@@ -35,12 +38,17 @@ public class ProxyResource implements ProxyService, JerseyResource {
 
   private static final Logger LOGGER = getLogger(ProxyResource.class);
 
+  private final TableEntryManager tableEntryManager;
+
 
   /**
    * Constructor.
+   *
+   * @param tableEntryManager to get the real data.
    */
   @Inject
-  public ProxyResource() {
+  public ProxyResource(final TableEntryManager tableEntryManager) {
+    this.tableEntryManager = tableEntryManager;
     LOGGER.info("ProxyResource()");
   }
 
@@ -48,7 +56,31 @@ public class ProxyResource implements ProxyService, JerseyResource {
   @Timed
   @ExceptionMetered
   @ResponseMetered
-  public void ping() {
-    LOGGER.trace("ping()");
+  public Optional<JsonNode> readTenantTableEntry(final String tenantId,
+                                                 final String table,
+                                                 final String entry) {
+    LOGGER.trace("readTenantTableEntry({},{},{})", tenantId, table, entry);
+    return Optional.empty();
+  }
+
+  @Override
+  @Timed
+  @ExceptionMetered
+  @ResponseMetered
+  public void createTenantTableEntry(final String tenantId,
+                                     final String table,
+                                     final String entry,
+                                     final JsonNode data) {
+    LOGGER.trace("createTenantTableEntry({},{},{})", tenantId, table, entry);
+  }
+
+  @Override
+  @Timed
+  @ExceptionMetered
+  @ResponseMetered
+  public void deleteTenantTableEntry(final String tenantId,
+                                     final String table,
+                                     final String entry) {
+    LOGGER.trace("readTenantTableEntry({},{},{})", tenantId, table, entry);
   }
 }

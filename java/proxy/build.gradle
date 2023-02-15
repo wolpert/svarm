@@ -22,6 +22,8 @@ dependencies {
     implementation project(":server-common")
     implementation project(":config-common")
     implementation project(":proxy-common")
+    implementation project(":node-common")
+    implementation project(":node-javaClient")
 
     implementation libs.dropwizard.auth
     implementation libs.dropwizard.core
@@ -29,6 +31,16 @@ dependencies {
     implementation libs.dropwizard.metrics.graphite
     implementation libs.micrometer.core
     implementation libs.metrics.core
+
+    implementation libs.openfeign.core
+    implementation libs.openfeign.jackson
+    implementation libs.feign.slf4j
+    implementation libs.feign.micrometer
+    implementation libs.openfeign.java11
+    implementation libs.openfeign.jaxrs2
+
+    implementation libs.retrofit
+    implementation libs.retrofit2.converter.jackson
 
     // etcd
     implementation libs.jetcd.core
