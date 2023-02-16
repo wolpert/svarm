@@ -22,6 +22,7 @@ import com.codeheadsystems.dstore.common.engine.TraceUuidEngine;
 import com.codeheadsystems.dstore.common.module.JsonModule;
 import com.codeheadsystems.metrics.helper.DropwizardMetricsHelper;
 import com.codeheadsystems.server.resource.JerseyResource;
+import com.codeheadsystems.server.resource.MetricTagsResource;
 import com.codeheadsystems.server.resource.NotFoundExceptionMapper;
 import com.codeheadsystems.server.resource.TraceUuidResource;
 import dagger.Binds;
@@ -34,6 +35,7 @@ import io.dropwizard.lifecycle.Managed;
 import io.dropwizard.setup.Environment;
 import io.micrometer.core.instrument.MeterRegistry;
 import java.util.Set;
+import javax.inject.Named;
 import javax.inject.Singleton;
 
 /**
@@ -45,29 +47,50 @@ import javax.inject.Singleton;
 })
 public class DropWizardModule {
 
+  /**
+   * Identifier for the application name.
+   */
+  public static final String DROPWIZARD_APPLICATION_NAME = "Dropwizard Application Name";
   private final TraceUuidEngine engine;
   private final MetricRegistry metricRegistry;
   private final MeterRegistry meterRegistry;
   private final Environment environment;
   private final Configuration configuration;
+  private final String applicationName;
 
   /**
    * Constructor.
    *
-   * @param engine         to use.
-   * @param metricRegistry for metrics.
-   * @param environment    for the environment.
-   * @param configuration  the configuration.
+   * @param engine          to use.
+   * @param metricRegistry  for metrics.
+   * @param environment     for the environment.
+   * @param configuration   the configuration.
+   * @param applicationName so everyone can know what the app name is.
    */
   public DropWizardModule(final TraceUuidEngine engine,
                           final MetricRegistry metricRegistry,
                           final Environment environment,
-                          final Configuration configuration) {
+                          final Configuration configuration,
+                          final String applicationName) {
     this.engine = engine;
     this.metricRegistry = metricRegistry;
     this.meterRegistry = new DropwizardMetricsHelper().instrument(metricRegistry);
     this.environment = environment;
     this.configuration = configuration;
+    this.applicationName = applicationName;
+  }
+
+
+  /**
+   * Accessor to application name.
+   *
+   * @return the the name.
+   */
+  @Provides
+  @Singleton
+  @Named(DROPWIZARD_APPLICATION_NAME)
+  public String applicationName() {
+    return applicationName;
   }
 
   /**
@@ -175,6 +198,16 @@ public class DropWizardModule {
     @Binds
     @IntoSet
     JerseyResource notFoundExceptionMapper(NotFoundExceptionMapper resource);
+
+    /**
+     * Metrics tag resource.
+     *
+     * @param resource resource.
+     * @return JerseyResource.
+     */
+    @Binds
+    @IntoSet
+    JerseyResource metricTagsResource(MetricTagsResource resource);
 
   }
 }

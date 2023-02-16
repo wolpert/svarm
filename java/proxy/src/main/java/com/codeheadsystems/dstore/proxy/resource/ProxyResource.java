@@ -60,7 +60,7 @@ public class ProxyResource implements ProxyService, JerseyResource {
                                                  final String table,
                                                  final String entry) {
     LOGGER.trace("readTenantTableEntry({},{},{})", tenantId, table, entry);
-    return Optional.empty();
+    return tableEntryManager.getTenantTableEntry(tenantId, table, entry);
   }
 
   @Override

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.codeheadsystems.dstore.proxy.manager;
+package com.codeheadsystems.dstore.proxy.engine;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -33,9 +33,9 @@ import org.slf4j.Logger;
  * Provides a caching accessor to the node.
  */
 @Singleton
-public class NodeTenantTableEntryServiceCache {
+public class NodeTenantTableEntryServiceEngine {
 
-  private static final Logger LOGGER = getLogger(NodeTenantTableEntryServiceCache.class);
+  private static final Logger LOGGER = getLogger(NodeTenantTableEntryServiceEngine.class);
 
   private final LoadingCache<String, NodeTenantTableEntryService> cache;
 
@@ -45,12 +45,12 @@ public class NodeTenantTableEntryServiceCache {
    * @param nodeServiceFactory for getting node instances.
    */
   @Inject
-  public NodeTenantTableEntryServiceCache(final NodeServiceFactory nodeServiceFactory) {
+  public NodeTenantTableEntryServiceEngine(final NodeServiceFactory nodeServiceFactory) {
     cache = CacheBuilder.newBuilder()
         .maximumSize(100) // TODO: make this a configuration
         .removalListener(this::onRemoval)
         .build(CacheLoader.from(nodeServiceFactory::nodeService));
-    LOGGER.info("NodeTenantTableEntryServiceCache()");
+    LOGGER.info("NodeTenantTableEntryServiceEngine()");
   }
 
   private void onRemoval(final RemovalNotification<String, NodeTenantTableEntryService> removalNotification) {

@@ -20,6 +20,9 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import com.codeheadsystems.dstore.common.config.engine.NodeConfigurationEngine;
 import com.codeheadsystems.dstore.common.config.factory.WatchEngineFactory;
+import com.codeheadsystems.dstore.proxy.engine.NodeTenantTableEntryServiceEngine;
+import com.fasterxml.jackson.databind.JsonNode;
+import java.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.slf4j.Logger;
@@ -32,7 +35,7 @@ public class TableEntryManager {
 
   private static final Logger LOGGER = getLogger(TableEntryManager.class);
 
-  private final NodeTenantTableEntryServiceCache nodeTenantTableEntryServiceCache;
+  private final NodeTenantTableEntryServiceEngine nodeTenantTableEntryServiceEngine;
   private final WatchEngineFactory watchEngineFactory;
   private final NodeConfigurationEngine nodeConfigurationEngine;
 
@@ -40,19 +43,35 @@ public class TableEntryManager {
   /**
    * Constructor.
    *
-   * @param nodeTenantTableEntryServiceCache to get the node connections.
-   * @param watchEngineFactory               to watch etcd.
-   * @param nodeConfigurationEngine          to get node configuration data.
+   * @param nodeTenantTableEntryServiceEngine to get the node connections.
+   * @param watchEngineFactory                to watch etcd.
+   * @param nodeConfigurationEngine           to get node configuration data.
    */
   @Inject
-  public TableEntryManager(final NodeTenantTableEntryServiceCache nodeTenantTableEntryServiceCache,
+  public TableEntryManager(final NodeTenantTableEntryServiceEngine nodeTenantTableEntryServiceEngine,
                            final WatchEngineFactory watchEngineFactory,
                            final NodeConfigurationEngine nodeConfigurationEngine) {
-    this.nodeTenantTableEntryServiceCache = nodeTenantTableEntryServiceCache;
+    this.nodeTenantTableEntryServiceEngine = nodeTenantTableEntryServiceEngine;
     this.watchEngineFactory = watchEngineFactory;
     this.nodeConfigurationEngine = nodeConfigurationEngine;
     LOGGER.info("TableEntryManager()");
   }
 
-
+  /**
+   * Provide a way to get the entry from the data stores.
+   *
+   * @param tenantId who it belongs to.
+   * @param table    the table.
+   * @param entry    the actual entry.
+   * @return the value.
+   */
+  public Optional<JsonNode> getTenantTableEntry(final String tenantId,
+                                                final String table,
+                                                final String entry) {
+    LOGGER.info("getTenantTableEntry({},{},{})", tenantId, table, entry);
+    // get the node lists from etcd.
+    // fan out the reads
+    // collect the data and return.
+    return Optional.empty();
+  }
 }
