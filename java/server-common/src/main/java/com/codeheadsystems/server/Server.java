@@ -67,7 +67,7 @@ public abstract class Server<T extends Configuration> extends Application<T> {
     engine.set(getName() + ":init:" + UUID.randomUUID());
     final MetricRegistry metricRegistry = environment.metrics();
     final DropWizardModule module = new DropWizardModule(
-        engine, metricRegistry, environment, configuration, getClass().getCanonicalName());
+        engine, metricRegistry, environment, configuration, getClass().getSimpleName());
     final DropWizardComponent component = dropWizardComponent(module);
     final JerseyEnvironment jerseyEnvironment = environment.jersey();
     LOGGER.info("\n---\n--- Registering Managed Objects ---\n---");

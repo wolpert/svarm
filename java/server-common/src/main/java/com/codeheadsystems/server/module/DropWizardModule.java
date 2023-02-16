@@ -34,7 +34,12 @@ import io.dropwizard.Configuration;
 import io.dropwizard.lifecycle.Managed;
 import io.dropwizard.setup.Environment;
 import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Tags;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.Optional;
 import java.util.Set;
+import java.util.function.Supplier;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
@@ -80,6 +85,13 @@ public class DropWizardModule {
     this.applicationName = applicationName;
   }
 
+  private static String getHost() {
+    try {
+      return InetAddress.getLocalHost().getCanonicalHostName();
+    } catch (UnknownHostException e) {
+      throw new RuntimeException(e);
+    }
+  }
 
   /**
    * Accessor to application name.
@@ -144,9 +156,33 @@ public class DropWizardModule {
    */
   @Provides
   @Singleton
-  @javax.inject.Named("Meter Registry")
+  @Named("Meter Registry")
   public MeterRegistry meterRegistry() {
     return meterRegistry;
+  }
+
+  /**
+   * The instrumented meter registry.
+   *
+   * @return registry.
+   */
+  @Provides
+  @Singleton
+  public Tags defaultTags() {
+    return Tags.of("host", getHost(), "application", applicationName);
+  }
+
+  /**
+   * Returns the supplier for the default tags.
+   *
+   * @param defaultTags base set.
+   * @return the supplier.
+   */
+  @Provides
+  @Singleton
+  public Supplier<Tags> defaultTagSupplier(final Tags defaultTags) {
+    final Optional<Tags> optional = Optional.of(defaultTags);
+    return optional::get;
   }
 
   /**

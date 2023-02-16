@@ -16,15 +16,11 @@
 
 package com.codeheadsystems.server.resource;
 
-import static com.codeheadsystems.server.module.DropWizardModule.DROPWIZARD_APPLICATION_NAME;
-
 import com.codeheadsystems.metrics.Metrics;
-import io.micrometer.core.instrument.Tags;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import javax.inject.Inject;
-import javax.inject.Named;
 import javax.inject.Singleton;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
@@ -41,19 +37,16 @@ public class MetricTagsResource implements ContainerRequestFilter, ContainerResp
 
   private static final Logger LOGGER = LoggerFactory.getLogger(MetricTagsResource.class);
   private final Metrics metrics;
-  private final Tags defaultTags;
 
   /**
    * Default constructor.
    *
    * @param metrics metrics object to set the tags.
-   * @param appName for creating tags.
    */
   @Inject
-  public MetricTagsResource(final Metrics metrics, @Named(DROPWIZARD_APPLICATION_NAME) final String appName) {
+  public MetricTagsResource(final Metrics metrics) {
     this.metrics = metrics;
-    defaultTags = Tags.of("host", getHost(), "application", appName);
-    LOGGER.info("MetricTagsResource({},{})", metrics, defaultTags);
+    LOGGER.info("MetricTagsResource({},{})", metrics);
   }
 
   private static String getHost() {
@@ -74,8 +67,8 @@ public class MetricTagsResource implements ContainerRequestFilter, ContainerResp
   @Override
   public void filter(final ContainerRequestContext requestContext) throws IOException {
     metrics.close();
-    metrics.and(defaultTags.and("request", requestContext.getMethod()));
-    LOGGER.trace("setting default tags: {}", defaultTags);
+    //TODO: this is bad when tenant/table or whatnot appears in the path. Figure it out. :/
+    //metrics.and("path", requestContext.getUriInfo().getPath());
   }
 
   /**
@@ -88,7 +81,6 @@ public class MetricTagsResource implements ContainerRequestFilter, ContainerResp
   @Override
   public void filter(final ContainerRequestContext requestContext,
                      final ContainerResponseContext responseContext) throws IOException {
-    LOGGER.trace("Clearing tags");
     metrics.close();
   }
 }

@@ -20,6 +20,19 @@ logging:
       archivedLogFilenamePattern: /tmp/logs/node-%i.log.gz
       logFormat: "%d{HH:mm:ss.SSS} [%thread] [trace:%X{trace}] %-5level %logger{36} - %msg%n"
 
+metrics:
+  frequency: 1 minute
+  reportOnStop: true
+  reporters:
+    - type: log
+      logger: metrics
+      markerName: SLF4j
+#    - type: graphite
+#      host: localhost
+#      port: 2003
+#      prefix: node
+#      transport: tcp
+
 server:
   adminMinThreads: 1
   adminMaxThreads: 64
