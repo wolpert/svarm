@@ -1,8 +1,8 @@
 databaseDirectory: /tmp/endToEnd
 runDatabaseInMemory: false
-controlPlaneUrl: http://control:9090/
+controlPlaneUrl: http://control:8080/
 nodeHost: node
-nodePort: 9080
+nodePort: 8080
 
 logging:
   level: INFO
@@ -40,10 +40,10 @@ server:
   applicationContextPath: /
   applicationConnectors:
     - type: http
-      port: 9080
+      port: 8080
   adminConnectors:
     - type: http
-      port: 9081
+      port: 8081
 
 etcdConfiguration:
   target: ip:///etcd:2379

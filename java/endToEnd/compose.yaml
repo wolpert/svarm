@@ -47,7 +47,7 @@ services:
   control:
     image: amazoncorretto:17
     ports:
-      - 9090:9090
+      - 9090:8080
     networks:
       - back-tier
     volumes:
@@ -61,7 +61,7 @@ services:
       database:
         condition: service_healthy
     healthcheck:
-      test: curl --fail http://localhost:9091/healthcheck || exit 1
+      test: curl --fail http://localhost:8081/healthcheck || exit 1
       timeout: 2s
       interval: 2s
       retries: 10
@@ -69,9 +69,8 @@ services:
   node:
     image: amazoncorretto:17
     ports:
-      - 9080:9080
+      - 9080:8080
     networks:
-      - front-tier
       - back-tier
     volumes:
       - ../node/build/install/node:/node
@@ -84,7 +83,7 @@ services:
       control:
         condition: service_healthy
     healthcheck:
-      test: curl --fail http://localhost:9081/healthcheck || exit 1
+      test: curl --fail http://localhost:8081/healthcheck || exit 1
       timeout: 2s
       interval: 2s
       retries: 10
@@ -92,7 +91,7 @@ services:
   proxy:
     image: amazoncorretto:17
     ports:
-      - 8180:8180
+      - 8180:8080
     networks:
       - front-tier
       - back-tier
@@ -107,7 +106,7 @@ services:
       control:
         condition: service_healthy
     healthcheck:
-      test: curl --fail http://localhost:8181/healthcheck || exit 1
+      test: curl --fail http://localhost:8081/healthcheck || exit 1
       timeout: 2s
       interval: 2s
       retries: 10
