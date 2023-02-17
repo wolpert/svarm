@@ -78,7 +78,7 @@ public class TableEntryManager {
    */
   public Optional<JsonNode> getTenantTableEntry(final TenantResource tenantResource,
                                                 final String entry) {
-    LOGGER.info("getTenantTableEntry({},{})", tenantResource, entry);
+    LOGGER.trace("getTenantTableEntry({},{})", tenantResource, entry);
     // get the node lists from etcd.
     final Set<NodeRange> nodeRangeSet = nodeRangeSetForEntry(tenantResource, entry);
     // TODO: fan out the reads concurrently... be smarter here.
@@ -108,12 +108,13 @@ public class TableEntryManager {
                                   final String entry,
                                   final JsonNode data) {
 
-    LOGGER.info("putTenantTableEntry({},{},{})", tenantResource, entry, data);
+    LOGGER.trace("putTenantTableEntry({},{},{})", tenantResource, entry, data);
     // get the node lists from etcd.
     final Set<NodeRange> nodeRangeSet = nodeRangeSetForEntry(tenantResource, entry);
     // TODO: fan out the reads concurrently... be smarter here.
     // TODO: This is bad below... but just to get us started.
     for (NodeRange nodeRange : nodeRangeSet) {
+      LOGGER.trace("Processing {}", nodeRange);
       nodeTenantTableEntryServiceEngine.get(nodeRange)
           .createTenantTableEntry(
               tenantResource.tenant(),
@@ -132,7 +133,7 @@ public class TableEntryManager {
   public void deleteTenantTableEntry(final TenantResource tenantResource,
                                      final String entry) {
 
-    LOGGER.info("deleteTenantTableEntry({},{})", tenantResource, entry);
+    LOGGER.trace("deleteTenantTableEntry({},{})", tenantResource, entry);
     // get the node lists from etcd.
     final Set<NodeRange> nodeRangeSet = nodeRangeSetForEntry(tenantResource, entry);
     // TODO: fan out the reads concurrently... be smarter here.
@@ -152,11 +153,12 @@ public class TableEntryManager {
       final TenantResourceRange range = cachingTenantResourceRangeEngine.readTenantResourceRange(tenantResource)
           .orElseThrow(() -> new NotFoundException());
       try {
+        LOGGER.trace("Found TenantResourceRange: {}", range);
         final int hash = hashingEngine.hash(entry);
+        LOGGER.trace("hash: {}", hash);
         return range.hashToNodeRangeSet().entrySet().stream()
-            .filter(e -> !(e.getKey() <= hash)) // remove the values with a low-hash higher than our hash.
-            .sorted(Comparator.comparing(Map.Entry::getKey)) // low to high
-            .findFirst()
+            .filter(e -> (e.getKey() <= hash)) // remove the values with a low-hash higher than our hash.
+            .max(Map.Entry.comparingByKey()) // low to high
             .map(Map.Entry::getValue)
             .orElseThrow(() -> new IllegalStateException("Unable to find correct set!"));
       } catch (IllegalStateException e) {

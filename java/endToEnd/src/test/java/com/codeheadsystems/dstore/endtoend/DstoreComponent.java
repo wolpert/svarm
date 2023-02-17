@@ -17,6 +17,7 @@
 package com.codeheadsystems.dstore.endtoend;
 
 import static com.codeheadsystems.dstore.control.javaclient.module.ControlServiceModule.CONTROL_SERVICE_CONNECTION_URL;
+import static com.codeheadsystems.dstore.proxy.javaclient.module.ProxyServiceModule.PROXY_SERVICE_CONNECTION_URL;
 
 import com.codeheadsystems.common.javaclient.JavaClientModule;
 import com.codeheadsystems.dstore.common.config.EtcdConfiguration;
@@ -28,6 +29,9 @@ import com.codeheadsystems.dstore.common.module.JsonModule;
 import com.codeheadsystems.dstore.control.common.api.ControlNodeService;
 import com.codeheadsystems.dstore.control.common.api.ControlTenantResourceService;
 import com.codeheadsystems.dstore.control.javaclient.module.ControlServiceModule;
+import com.codeheadsystems.dstore.proxy.common.api.ProxyService;
+import com.codeheadsystems.dstore.proxy.javaclient.module.ProxyServiceModule;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import dagger.Component;
 import dagger.Module;
 import dagger.Provides;
@@ -40,7 +44,8 @@ import javax.inject.Singleton;
     EtcdModule.class,
     JavaClientModule.class,
     JsonModule.class,
-    ControlServiceModule.class
+    ControlServiceModule.class,
+    ProxyServiceModule.class
 })
 @Singleton
 public interface DstoreComponent {
@@ -49,11 +54,15 @@ public interface DstoreComponent {
 
   ControlTenantResourceService controlTenantResourceService();
 
+  ProxyService proxyService();
+
   Client client();
 
   TraceUuidEngine traceUuidEngine();
 
   EtcdAccessor etcdAccessor();
+
+  ObjectMapper objectMapper();
 
   @Module
   class Configuration {
@@ -69,6 +78,14 @@ public interface DstoreComponent {
     @Named(CONTROL_SERVICE_CONNECTION_URL)
     String controlServiceConnectionUrl() {
       return "http://localhost:9090/";
+    }
+
+
+    @Provides
+    @Singleton
+    @Named(PROXY_SERVICE_CONNECTION_URL)
+    String proxyServiceConnectionUrl() {
+      return "http://localhost:8180/";
     }
   }
 

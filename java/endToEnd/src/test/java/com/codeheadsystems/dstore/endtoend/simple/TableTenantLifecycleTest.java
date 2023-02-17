@@ -21,6 +21,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import com.codeheadsystems.dstore.control.common.api.TenantResourceInfo;
+import com.fasterxml.jackson.databind.JsonNode;
+import java.io.IOException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -30,6 +32,7 @@ public class TableTenantLifecycleTest {
 
   private static final String TABLE = "TableTenantLifecycleTest.table";
   private static final String TENANT = "TableTenantLifecycleTest.tenant";
+  private static final String ENTRY = "newEntry";
 
   @AfterEach
   void clearTraceUuid() {
@@ -37,12 +40,13 @@ public class TableTenantLifecycleTest {
   }
 
   @Test
-  void createTable() throws InterruptedException {
+  void createTable() throws InterruptedException, IOException {
     COMPONENT.traceUuidEngine().set("TableTenantLifecycleTest.createTable");
     final TenantResourceInfo info = COMPONENT.controlTenantResourceService()
         .createResource(TENANT, TABLE);
     LOGGER.info("Create table {} ", info);
     COMPONENT.etcdAccessor().getAll("node", "").forEach(LOGGER::info);
+    JsonNode data = COMPONENT.objectMapper().readValue("{\"a\":2}", JsonNode.class);
     boolean ready = false;
     for (int i = 0; i < 10; i++) {
       ready = COMPONENT.controlTenantResourceService().readResource(TENANT, TABLE).get().ready();
@@ -54,6 +58,10 @@ public class TableTenantLifecycleTest {
       }
     }
     assertThat(ready).isTrue();
+    COMPONENT.proxyService().createTenantTableEntry(TENANT, TABLE, ENTRY, data);
+    final JsonNode result = COMPONENT.proxyService().readTenantTableEntry(TENANT, TABLE, ENTRY).get();
+    assertThat(result).isEqualTo(data);
+    COMPONENT.proxyService().deleteTenantTableEntry(TENANT, TABLE, ENTRY);
   }
 
 }

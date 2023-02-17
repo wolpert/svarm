@@ -26,6 +26,8 @@ dependencies {
     implementation project(":node-javaClient")
     implementation project(":node")
     implementation project(":proxy")
+    implementation project(":proxy-common")
+    implementation project(":proxy-javaClient")
     implementation libs.guava
 
     // etcd
@@ -89,7 +91,7 @@ task finalComposeDown(type: Exec) {
     commandLine "docker", "compose", "down"
 }
 composeUp.dependsOn logDir, preTestComposeDown,
-        ':control:installDist', ':node:installDist'
+        ':control:installDist', ':node:installDist', ":proxy:installDist"
 
 integ {
     enabled = false

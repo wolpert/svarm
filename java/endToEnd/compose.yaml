@@ -89,6 +89,29 @@ services:
       interval: 2s
       retries: 10
 
+  proxy:
+    image: amazoncorretto:17
+    ports:
+      - 8180:8180
+    networks:
+      - front-tier
+      - back-tier
+    volumes:
+      - ../proxy/build/install/proxy:/proxy
+      - ./src/test/resources:/config
+      - logs:/tmp/logs
+    command: ["/proxy/bin/proxy", "server", "/config/proxy-config.yaml"]
+    depends_on:
+      etcd:
+        condition: service_started
+      control:
+        condition: service_healthy
+    healthcheck:
+      test: curl --fail http://localhost:8181/healthcheck || exit 1
+      timeout: 2s
+      interval: 2s
+      retries: 10
+
 volumes:
   logs:
     driver: local
