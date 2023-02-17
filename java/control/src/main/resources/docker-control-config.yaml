@@ -1,0 +1,84 @@
+logging:
+  level: INFO
+  loggers:
+    com.codeheadsystems: DEBUG
+    com.codeheadsystems.dstore: TRACE
+    com.mchange.v2.c3p0: WARN
+  appenders:
+    - type: console
+      logFormat: "%d{HH:mm:ss.SSS} [%thread] [trace:%X{trace}] %-5level %logger{36} - %msg%n"
+    - type: file
+      maxFileSize: 50MB
+      currentLogFilename: /server/logs/control.log
+      archivedLogFilenamePattern: /server/logs/control-%i.log.gz
+      logFormat: "%d{HH:mm:ss.SSS} [%thread] [trace:%X{trace}] %-5level %logger{36} - %msg%n"
+
+# A test db for now, hsql. Also, we will use liquibase by default in the config file. Production won't do this.
+runLiquibase: true
+database:
+  driverClass: org.postgresql.Driver
+  user: control
+  password: control
+  url: jdbc:postgresql://database:5432/control?sslmode=disable
+
+etcdConfiguration:
+  target: ip:///etcd:2379
+
+#metrics:
+#  frequency: 1 minute
+#  reportOnStop: true
+#  reporters:
+#    - type: log
+#      logger: metrics
+#      markerName: SLF4j
+#    - type: graphite
+#      host: localhost
+#      port: 2003
+#      prefix: node
+#      transport: tcp
+
+server:
+  adminMinThreads: 1
+  adminMaxThreads: 64
+  adminContextPath: /
+  applicationContextPath: /
+  applicationConnectors:
+    - type: http
+      port: 8080
+  adminConnectors:
+    - type: http
+      port: 8081
+
+health:
+  healthCheckUrlPaths: [ "/health-check" ]
+  healthChecks:
+    - name: deadlocks
+      type: alive
+      critical: true
+      initialState: true
+      schedule:
+        checkInterval: 60s
+        downtimeInterval: 2s
+        initialDelay: 5s
+        failureAttempts: 1
+        successAttempts: 2
+    - name: database
+      type: alive
+      critical: true
+      initialState: true
+      schedule:
+        checkInterval: 30s
+        downtimeInterval: 10s
+        initialDelay: 5s
+        failureAttempts: 1
+        successAttempts: 2
+    - name: EtcdHealthCheck
+      type: alive
+      critical: true
+      initialState: true
+      schedule:
+        checkInterval: 60s
+        downtimeInterval: 10s
+        initialDelay: 5s
+        failureAttempts: 1
+        successAttempts: 2

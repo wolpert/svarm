@@ -29,7 +29,6 @@ dependencies {
     implementation libs.pgjdbc
     implementation libs.hsqldb
     implementation libs.jdbi.core
-    implementation libs.jdbi.testing
     implementation libs.jdbi.guava
     implementation libs.jdbi.jackson2
     implementation libs.jdbi.postgres
@@ -54,6 +53,7 @@ dependencies {
     implementation libs.jakarta.servlet.api
     implementation libs.javax.servlet.api
 
+    testImplementation libs.jdbi.testing
     testImplementation libs.jackson.dataformat.yaml
     testImplementation libs.dropwizard.testing
     testImplementation project(":control-javaClient")
@@ -65,3 +65,8 @@ run {
     args 'server', configPath + 'config.yaml'
     mainClassName = "com.codeheadsystems.dstore.control.Control"
 }
+
+task dockerImage(type: Exec) {
+    commandLine "docker", "build", "-t", "codehead/control:${version}", "."
+}
+dockerImage.dependsOn installDist
