@@ -73,10 +73,11 @@ public class NodeRangeManager {
                           final Clock clock,
                           final Metrics metrics,
                           final NodeAvailabilityEngine nodeAvailabilityEngine,
-                          final NodeConfigurationEngine nodeConfigurationEngine, final NodeManager nodeManager) {
+                          final NodeConfigurationEngine nodeConfigurationEngine,
+                          final NodeManager nodeManager) {
     this.nodeManager = nodeManager;
-    LOGGER.info("NodeRangeManager({},{},{},{},{})",
-        nodeRangeDao, clock, metrics, nodeAvailabilityEngine, nodeConfigurationEngine);
+    LOGGER.info("NodeRangeManager({},{},{},{},{},{})",
+        nodeRangeDao, clock, metrics, nodeAvailabilityEngine, nodeConfigurationEngine, nodeManager);
     this.clock = clock;
     this.metrics = metrics;
     this.nodeRangeDao = nodeRangeDao;
@@ -111,8 +112,6 @@ public class NodeRangeManager {
                             final boolean ready) {
     LOGGER.trace("setReady({},{},{},{})", nodeUuid, tenant, ready, ready);
     return metrics.time("NodeRangeManager.resources", () -> {
-      final Node node = nodeManager.read(nodeUuid)
-          .orElseThrow(() -> new NotFoundException("No such node"));
       final NodeRange nodeRange = getNodeRange(nodeUuid, tenant, resource)
           .orElseThrow(() -> new NotFoundException("No resource for node"));
       final NodeRange updated = ImmutableNodeRange.copyOf(nodeRange).withReady(ready);

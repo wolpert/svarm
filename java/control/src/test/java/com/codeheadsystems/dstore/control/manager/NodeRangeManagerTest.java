@@ -17,17 +17,24 @@
 package com.codeheadsystems.dstore.control.manager;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.codeheadsystems.dstore.common.config.engine.NodeConfigurationEngine;
 import com.codeheadsystems.dstore.control.dao.NodeRangeDao;
 import com.codeheadsystems.dstore.control.engine.NodeAvailabilityEngine;
+import com.codeheadsystems.dstore.control.model.NodeRange;
 import com.codeheadsystems.metrics.test.BaseMetricTest;
+import com.codeheadsystems.server.exception.NotFoundException;
 import java.time.Clock;
+import java.time.Instant;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -35,12 +42,18 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class NodeRangeManagerTest extends BaseMetricTest {
 
   private static final String TENANT = "TENANT";
+  private static final String TABLE = "table";
+  private static final String UUID = "uuid";
+  private static final String STATUS = "status";
+  private static final String VERSION = "version";
   @Mock private NodeRangeDao nodeRangeDao;
   @Mock private NodeManager nodeManager;
   @Mock private Clock clock;
   @Mock private List<String> list;
   @Mock private NodeAvailabilityEngine nodeAvailabilityEngine;
   @Mock private NodeConfigurationEngine nodeConfigurationEngine;
+  @Mock private NodeRange nodeRange;
+  @Captor private ArgumentCaptor<NodeRange> nodeRangeArgumentCaptor;
 
   private NodeRangeManager nodeRangeManager;
 
@@ -53,5 +66,49 @@ class NodeRangeManagerTest extends BaseMetricTest {
   void resources() {
     when(nodeRangeDao.resources(TENANT)).thenReturn(list);
     assertThat(nodeRangeManager.resources(TENANT)).isEqualTo(list);
+  }
+
+  @Test
+  void setReady_notfound() {
+    assertThatExceptionOfType(NotFoundException.class)
+        .isThrownBy(() -> nodeRangeManager.setReady(UUID, TENANT, TABLE, true));
+  }
+
+  @Test
+  void setReady_found_ready_notAllRady(){
+    mockIt(nodeRange, false);
+    when(nodeRangeDao.read(UUID, TENANT, TABLE)).thenReturn(nodeRange);
+    when(nodeRangeDao.nodeRanges(TENANT, TABLE)).thenReturn(List.of(nodeRange)); // with the false set.
+
+    nodeRangeManager.setReady(UUID, TENANT, TABLE, true);
+
+    verify(nodeRangeDao).update(nodeRangeArgumentCaptor.capture());
+    assertThat(nodeRangeArgumentCaptor.getValue())
+        .hasFieldOrPropertyWithValue("ready", true);
+  }
+
+  @Test
+  void setReady_found_notReady_notAllRady(){
+    mockIt(nodeRange, false);
+    when(nodeRangeDao.read(UUID, TENANT, TABLE)).thenReturn(nodeRange);
+    when(nodeRangeDao.nodeRanges(TENANT, TABLE)).thenReturn(List.of(nodeRange)); // with the false set.
+
+    nodeRangeManager.setReady(UUID, TENANT, TABLE, true);
+
+    verify(nodeRangeDao).update(nodeRangeArgumentCaptor.capture());
+    assertThat(nodeRangeArgumentCaptor.getValue())
+        .hasFieldOrPropertyWithValue("ready", true);
+  }
+
+  private void mockIt(final NodeRange nodeRange, final boolean ready) {
+    when(nodeRange.nodeUuid()).thenReturn(UUID);
+    when(nodeRange.createDate()).thenReturn(Instant.now());
+    when(nodeRange.ready()).thenReturn(ready);
+    when(nodeRange.resource()).thenReturn(TABLE);
+    when(nodeRange.tenant()).thenReturn(TENANT);
+    when(nodeRange.lowHash()).thenReturn(Integer.MIN_VALUE);
+    when(nodeRange.highHash()).thenReturn(Integer.MAX_VALUE);
+    when(nodeRange.status()).thenReturn(STATUS);
+    when(nodeRange.tableVersion()).thenReturn(VERSION);
   }
 }

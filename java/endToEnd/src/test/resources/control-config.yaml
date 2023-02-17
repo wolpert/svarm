@@ -24,13 +24,13 @@ database:
 etcdConfiguration:
   target: ip:///etcd:2379
 
-metrics:
-  frequency: 1 minute
-  reportOnStop: true
-  reporters:
-    - type: log
-      logger: metrics
-      markerName: SLF4j
+#metrics:
+#  frequency: 1 minute
+#  reportOnStop: true
+#  reporters:
+#    - type: log
+#      logger: metrics
+#      markerName: SLF4j
 #    - type: graphite
 #      host: localhost
 #      port: 2003

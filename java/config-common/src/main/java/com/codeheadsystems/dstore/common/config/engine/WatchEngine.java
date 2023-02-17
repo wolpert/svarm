@@ -29,6 +29,7 @@ import io.etcd.jetcd.watch.WatchResponse;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import org.slf4j.Logger;
 
@@ -47,6 +48,7 @@ public class WatchEngine {
   private final String tag;
   private final ExecutorService executorService;
   private final LinkedBlockingQueue<Event> queue;
+  private final AtomicBoolean closed;
 
   /**
    * Constructor.
@@ -72,6 +74,7 @@ public class WatchEngine {
     executorService = Executors.newSingleThreadExecutor();
     queue = new LinkedBlockingQueue<>();
     executorService.submit(this::handleEvent);
+    closed = new AtomicBoolean(false);
     watcher = accessor.watch(
         namespace,
         key,
@@ -97,12 +100,25 @@ public class WatchEngine {
    */
   public void close() {
     LOGGER.trace("{}:close()", tag);
+    if (closed.get()) {
+      LOGGER.trace("Already closed");
+      return;
+    }
     metrics.time("WatchEngine.close", () -> {
       watcher.close();
       executorService.shutdown();
       LOGGER.info("{}: Shutdown started, queue size: {}", tag, queue.size());
       return null;
     });
+  }
+
+  /**
+   * Returns if we closed the current watcher yet.
+   *
+   * @return the value.
+   */
+  public boolean isClosed() {
+    return closed.get();
   }
 
   @VisibleForTesting

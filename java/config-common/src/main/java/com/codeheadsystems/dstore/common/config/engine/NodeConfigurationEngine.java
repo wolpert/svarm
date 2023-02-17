@@ -45,10 +45,12 @@ import org.slf4j.LoggerFactory;
 @Singleton
 public class NodeConfigurationEngine {
 
+  /**
+   * The tenant namespace.
+   */
+  public static final String TENANT_NAMESPACE = "tenant";
   private static final Logger LOGGER = LoggerFactory.getLogger(NodeConfigurationEngine.class);
   private static final String NODE_NAMESPACE = "node";
-  private static final String TENANT_NAMESPACE = "tenant";
-
   private static final TypeReference<Map<Integer, Set<NodeRange>>> MAP_TYPE_REFERENCE = new TypeReference<>() {
   };
   private final EtcdAccessor accessor;
@@ -139,20 +141,30 @@ public class NodeConfigurationEngine {
   }
 
   /**
-   * Reads all the configuration for the tenent resource.
+   * Reads all the configuration for the tenant resource.
    *
    * @param tenantResource of the node.
    * @return the list of resource ranges.
    */
   public Optional<TenantResourceRange> readTenantResourceRange(final TenantResource tenantResource) {
     LOGGER.trace("readTenantResourceRange({})", tenantResource);
-    final String key = String.format("%s/%s", tenantResource.tenant(), tenantResource.resource());
+    final String key = getTenantResourceKey(tenantResource);
     return accessor.get(TENANT_NAMESPACE, key)
         .map(json -> ImmutableTenantResourceRange.builder()
             .tenant(tenantResource.tenant())
             .resource(tenantResource.resource())
             .hashToNodeRangeSet(jsonEngine.readValue(json, MAP_TYPE_REFERENCE))
             .build());
+  }
+
+  /**
+   * Accessor to the tenant resource key.
+   *
+   * @param tenantResource we want the key from.
+   * @return the key.
+   */
+  public String getTenantResourceKey(final TenantResource tenantResource) {
+    return String.format("%s/%s", tenantResource.tenant(), tenantResource.resource());
   }
 
 }
