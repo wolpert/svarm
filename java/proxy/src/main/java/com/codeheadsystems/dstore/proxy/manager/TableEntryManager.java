@@ -18,11 +18,19 @@ package com.codeheadsystems.dstore.proxy.manager;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
-import com.codeheadsystems.dstore.common.config.engine.NodeConfigurationEngine;
-import com.codeheadsystems.dstore.common.config.factory.WatchEngineFactory;
+import com.codeheadsystems.dstore.common.config.api.NodeRange;
+import com.codeheadsystems.dstore.common.config.api.TenantResource;
+import com.codeheadsystems.dstore.common.config.api.TenantResourceRange;
+import com.codeheadsystems.dstore.common.engine.HashingEngine;
+import com.codeheadsystems.dstore.proxy.engine.CachingTenantResourceRangeEngine;
 import com.codeheadsystems.dstore.proxy.engine.NodeTenantTableEntryServiceEngine;
+import com.codeheadsystems.metrics.Metrics;
+import com.codeheadsystems.server.exception.NotFoundException;
 import com.fasterxml.jackson.databind.JsonNode;
+import java.util.Comparator;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.slf4j.Logger;
@@ -36,42 +44,129 @@ public class TableEntryManager {
   private static final Logger LOGGER = getLogger(TableEntryManager.class);
 
   private final NodeTenantTableEntryServiceEngine nodeTenantTableEntryServiceEngine;
-  private final WatchEngineFactory watchEngineFactory;
-  private final NodeConfigurationEngine nodeConfigurationEngine;
+  private final CachingTenantResourceRangeEngine cachingTenantResourceRangeEngine;
+  private final HashingEngine hashingEngine;
+  private final Metrics metrics;
 
 
   /**
    * Constructor.
    *
    * @param nodeTenantTableEntryServiceEngine to get the node connections.
-   * @param watchEngineFactory                to watch etcd.
-   * @param nodeConfigurationEngine           to get node configuration data.
+   * @param cachingTenantResourceRangeEngine  to get node configuration data.
+   * @param hashingEngine                     to hash the data.
+   * @param metrics                           for processing.
    */
   @Inject
   public TableEntryManager(final NodeTenantTableEntryServiceEngine nodeTenantTableEntryServiceEngine,
-                           final WatchEngineFactory watchEngineFactory,
-                           final NodeConfigurationEngine nodeConfigurationEngine) {
+                           final CachingTenantResourceRangeEngine cachingTenantResourceRangeEngine,
+                           final HashingEngine hashingEngine,
+                           final Metrics metrics) {
     this.nodeTenantTableEntryServiceEngine = nodeTenantTableEntryServiceEngine;
-    this.watchEngineFactory = watchEngineFactory;
-    this.nodeConfigurationEngine = nodeConfigurationEngine;
+    this.cachingTenantResourceRangeEngine = cachingTenantResourceRangeEngine;
+    this.hashingEngine = hashingEngine;
+    this.metrics = metrics;
     LOGGER.info("TableEntryManager()");
   }
 
   /**
    * Provide a way to get the entry from the data stores.
    *
-   * @param tenantId who it belongs to.
-   * @param table    the table.
-   * @param entry    the actual entry.
+   * @param tenantResource tenantResource to lookup.
+   * @param entry          the actual entry.
    * @return the value.
    */
-  public Optional<JsonNode> getTenantTableEntry(final String tenantId,
-                                                final String table,
+  public Optional<JsonNode> getTenantTableEntry(final TenantResource tenantResource,
                                                 final String entry) {
-    LOGGER.info("getTenantTableEntry({},{},{})", tenantId, table, entry);
+    LOGGER.info("getTenantTableEntry({},{})", tenantResource, entry);
     // get the node lists from etcd.
-    // fan out the reads
-    // collect the data and return.
+    final Set<NodeRange> nodeRangeSet = nodeRangeSetForEntry(tenantResource, entry);
+    // TODO: fan out the reads concurrently... be smarter here.
+    // TODO: This is bad below... but just to get us started.
+    for (NodeRange nodeRange : nodeRangeSet) {
+      final Optional<JsonNode> result =
+          nodeTenantTableEntryServiceEngine.get(nodeRange)
+              .readTenantTableEntry(
+                  tenantResource.tenant(),
+                  tenantResource.resource(),
+                  entry);
+      if (result.isPresent()) {
+        return result;
+      }
+    }
     return Optional.empty();
   }
+
+  /**
+   * Writes the value to all the nodes in the set.
+   *
+   * @param tenantResource to write.
+   * @param entry          the entry.
+   * @param data           the data.
+   */
+  public void putTenantTableEntry(final TenantResource tenantResource,
+                                  final String entry,
+                                  final JsonNode data) {
+
+    LOGGER.info("putTenantTableEntry({},{},{})", tenantResource, entry, data);
+    // get the node lists from etcd.
+    final Set<NodeRange> nodeRangeSet = nodeRangeSetForEntry(tenantResource, entry);
+    // TODO: fan out the reads concurrently... be smarter here.
+    // TODO: This is bad below... but just to get us started.
+    for (NodeRange nodeRange : nodeRangeSet) {
+      nodeTenantTableEntryServiceEngine.get(nodeRange)
+          .createTenantTableEntry(
+              tenantResource.tenant(),
+              tenantResource.resource(),
+              entry,
+              data);
+    }
+  }
+
+  /**
+   * Writes the value to all the nodes in the set.
+   *
+   * @param tenantResource to write.
+   * @param entry          the entry.
+   */
+  public void deleteTenantTableEntry(final TenantResource tenantResource,
+                                     final String entry) {
+
+    LOGGER.info("deleteTenantTableEntry({},{})", tenantResource, entry);
+    // get the node lists from etcd.
+    final Set<NodeRange> nodeRangeSet = nodeRangeSetForEntry(tenantResource, entry);
+    // TODO: fan out the reads concurrently... be smarter here.
+    // TODO: This is bad below... but just to get us started.
+    for (NodeRange nodeRange : nodeRangeSet) {
+      nodeTenantTableEntryServiceEngine.get(nodeRange)
+          .deleteTenantTableEntry(
+              tenantResource.tenant(),
+              tenantResource.resource(),
+              entry);
+    }
+  }
+
+  private Set<NodeRange> nodeRangeSetForEntry(final TenantResource tenantResource,
+                                              final String entry) {
+    return metrics.time("TableEntryManager.nodeRangeSetForEntry", () -> {
+      final TenantResourceRange range = cachingTenantResourceRangeEngine.readTenantResourceRange(tenantResource)
+          .orElseThrow(() -> new NotFoundException());
+      try {
+        final int hash = hashingEngine.hash(entry);
+        return range.hashToNodeRangeSet().entrySet().stream()
+            .filter(e -> !(e.getKey() <= hash)) // remove the values with a low-hash higher than our hash.
+            .sorted(Comparator.comparing(Map.Entry::getKey)) // low to high
+            .findFirst()
+            .map(Map.Entry::getValue)
+            .orElseThrow(() -> new IllegalStateException("Unable to find correct set!"));
+      } catch (IllegalStateException e) {
+        metrics.registry()
+            .counter("TableEntryManager.nodeRangeSetForEntry.abjectFailure", metrics.getTags())
+            .increment();
+        LOGGER.error("Lost data due to lack of nodes! tenant={} entry={} range={}", tenantResource, entry, range);
+        throw e;
+      }
+    });
+  }
+
 }

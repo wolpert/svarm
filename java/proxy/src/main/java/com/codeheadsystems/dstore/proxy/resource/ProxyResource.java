@@ -21,6 +21,8 @@ import static org.slf4j.LoggerFactory.getLogger;
 import com.codahale.metrics.annotation.ExceptionMetered;
 import com.codahale.metrics.annotation.ResponseMetered;
 import com.codahale.metrics.annotation.Timed;
+import com.codeheadsystems.dstore.common.config.api.ImmutableTenantResource;
+import com.codeheadsystems.dstore.common.config.api.TenantResource;
 import com.codeheadsystems.dstore.proxy.common.api.ProxyService;
 import com.codeheadsystems.dstore.proxy.manager.TableEntryManager;
 import com.codeheadsystems.server.resource.JerseyResource;
@@ -60,7 +62,9 @@ public class ProxyResource implements ProxyService, JerseyResource {
                                                  final String table,
                                                  final String entry) {
     LOGGER.trace("readTenantTableEntry({},{},{})", tenantId, table, entry);
-    return tableEntryManager.getTenantTableEntry(tenantId, table, entry);
+    final TenantResource tenantResource = ImmutableTenantResource.builder()
+        .tenant(tenantId).resource(table).build();
+    return tableEntryManager.getTenantTableEntry(tenantResource, entry);
   }
 
   @Override
@@ -72,6 +76,9 @@ public class ProxyResource implements ProxyService, JerseyResource {
                                      final String entry,
                                      final JsonNode data) {
     LOGGER.trace("createTenantTableEntry({},{},{})", tenantId, table, entry);
+    final TenantResource tenantResource = ImmutableTenantResource.builder()
+        .tenant(tenantId).resource(table).build();
+    tableEntryManager.putTenantTableEntry(tenantResource, entry, data);
   }
 
   @Override
@@ -81,6 +88,9 @@ public class ProxyResource implements ProxyService, JerseyResource {
   public void deleteTenantTableEntry(final String tenantId,
                                      final String table,
                                      final String entry) {
-    LOGGER.trace("readTenantTableEntry({},{},{})", tenantId, table, entry);
+    LOGGER.trace("deleteTenantTableEntry({},{},{})", tenantId, table, entry);
+    final TenantResource tenantResource = ImmutableTenantResource.builder()
+        .tenant(tenantId).resource(table).build();
+    tableEntryManager.deleteTenantTableEntry(tenantResource, entry);
   }
 }
