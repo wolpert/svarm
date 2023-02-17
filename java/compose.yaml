@@ -1,0 +1,138 @@
+services:
+  etcd:
+    image: quay.io/coreos/etcd
+    ports:
+      - 2379:2379
+    volumes:
+      - etcd:/etcd_data
+    networks:
+      - front-tier
+      - back-tier
+    command:
+      - /usr/local/bin/etcd
+      - -name
+      - etcd0
+      - --data-dir
+      - /etcd_data
+      - -advertise-client-urls
+      - http://0.0.0.0:2379
+      - -listen-client-urls
+      - http://0.0.0.0:2379
+      - -initial-cluster-token
+      - etcd-cluster-1
+      - -initial-cluster
+      - etcd0=http://localhost:2380
+      - -initial-cluster-state
+      - new
+
+  database:
+    image: postgres:latest
+    ports:
+      - 5432:5432
+    volumes:
+      - pgsql:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: control
+      POSTGRES_PASSWORD: control
+      POSTGRES_DB: control
+    networks:
+      - back-tier
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-q", "-d", "control", "-U", "control" ]
+      timeout: 2s
+      interval: 2s
+      retries: 10
+
+  metrics:
+    image: prom/prometheus:latest
+    ports:
+      - 5050:9090
+
+  control:
+    image: codehead/control:1.0.0-SNAPSHOT
+    ports:
+      - 9090:8080
+    networks:
+      - back-tier
+    volumes:
+      - logs:/server/logs
+    depends_on:
+      etcd:
+        condition: service_started
+      database:
+        condition: service_healthy
+    healthcheck:
+      test: curl --fail http://localhost:8081/healthcheck || exit 1
+      timeout: 2s
+      interval: 2s
+      retries: 10
+
+  node:
+    image: codehead/node:1.0.0-SNAPSHOT
+    ports:
+      - 9080:8080
+    networks:
+      - back-tier
+    volumes:
+      - logs:/server/logs
+      - node:/server/work
+    depends_on:
+      etcd:
+        condition: service_started
+      control:
+        condition: service_healthy
+    healthcheck:
+      test: curl --fail http://localhost:8081/healthcheck || exit 1
+      timeout: 2s
+      interval: 2s
+      retries: 10
+
+  proxy:
+    image: codehead/control:1.0.0-SNAPSHOT
+    ports:
+      - 8180:8080
+    networks:
+      - front-tier
+      - back-tier
+    volumes:
+      - logs:/server/logs
+    depends_on:
+      etcd:
+        condition: service_started
+      control:
+        condition: service_healthy
+    healthcheck:
+      test: curl --fail http://localhost:8081/healthcheck || exit 1
+      timeout: 2s
+      interval: 2s
+      retries: 10
+
+volumes:
+  logs:
+    driver: local
+    driver_opts:
+      type: none
+      device: "build/docker-log"
+      o: bind
+  pgsql:
+    driver: local
+    driver_opts:
+      type: none
+      device: "build/work/pgsql"
+      o: bind
+  etcd:
+    driver: local
+    driver_opts:
+      type: none
+      device: "build/work/etcd"
+      o: bind
+  node:
+    driver: local
+    driver_opts:
+      type: none
+      device: "build/work/node"
+      o: bind
+
+networks:
+  back-tier: {}
+  front-tier: {}

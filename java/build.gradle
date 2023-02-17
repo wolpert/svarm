@@ -167,3 +167,13 @@ allprojects {
         useJUnitPlatform { includeTags "integ" }
     }
 }
+
+task dockerLogs(type: Exec) {
+    commandLine "mkdir", "-p", "build/docker-log", "build/work/pgsql", "build/work/etcd", "build/work/node"
+}
+
+task dockerCompose(type: Exec) {
+    commandLine "docker", "compose", "up"
+}
+dockerCompose.dependsOn dockerLogs
+dockerCompose.dependsOn ':control:dockerImage',':proxy:dockerImage',':node:dockerImage'
