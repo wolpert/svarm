@@ -1,22 +1,15 @@
-databaseDirectory: /tmp/endToEnd
-runDatabaseInMemory: false
-controlPlaneUrl: http://control:8080/
-nodePort: 8080
-
 logging:
   level: INFO
   loggers:
+    com.codeheadsystems: DEBUG
     com.codeheadsystems.dstore: TRACE
-    com.codeheadsystems.dstore.node.healthchecks: INFO
-    com.codeheadsystems.dstore.common.config.healthchecks: INFO
-    com.mchange.v2.c3p0: WARN
   appenders:
     - type: console
       logFormat: "%d{HH:mm:ss.SSS} [%thread] [trace:%X{trace}] %-5level %logger{36} - %msg%n"
     - type: file
       maxFileSize: 50MB
-      currentLogFilename: /tmp/logs/node.log
-      archivedLogFilenamePattern: /tmp/logs/node-%i.log.gz
+      currentLogFilename: /server/logs/proxy.log
+      archivedLogFilenamePattern: /server/logs/proxy-%i.log.gz
       logFormat: "%d{HH:mm:ss.SSS} [%thread] [trace:%X{trace}] %-5level %logger{36} - %msg%n"
 
 #metrics:
@@ -55,38 +48,8 @@ health:
       critical: true
       initialState: true
       schedule:
-        checkInterval: 60s
-        downtimeInterval: 10s
-        initialDelay: 5s
-        failureAttempts: 1
-        successAttempts: 2
-    - name: InternalDataSourceHealthCheck
-      type: ready
-      critical: true
-      initialState: false
-      schedule:
-        checkInterval: 60s
-        downtimeInterval: 10s
-        initialDelay: 5s
-        failureAttempts: 1
-        successAttempts: 2
-    - name: TenantTablelDataSourceHealthCheck
-      type: ready
-      critical: true
-      initialState: false
-      schedule:
-        checkInterval: 60s
-        downtimeInterval: 10s
-        initialDelay: 5s
-        failureAttempts: 1
-        successAttempts: 2
-    - name: BasicHealthCheck
-      type: alive
-      critical: true
-      initialState: false
-      schedule:
-        checkInterval: 60s
-        downtimeInterval: 10s
+        checkInterval: 10s
+        downtimeInterval: 2s
         initialDelay: 5s
         failureAttempts: 1
         successAttempts: 2
@@ -96,7 +59,7 @@ health:
       initialState: true
       schedule:
         checkInterval: 60s
-        downtimeInterval: 10s
+        downtimeInterval: 2s
         initialDelay: 5s
         failureAttempts: 1
         successAttempts: 2

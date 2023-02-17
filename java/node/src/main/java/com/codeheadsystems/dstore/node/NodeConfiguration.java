@@ -30,7 +30,7 @@ public class NodeConfiguration extends Configuration {
   private boolean disableControlPlane = false;
   private EtcdConfiguration etcdConfiguration;
   private boolean runDatabaseInMemory = false;
-  private String nodeHost = "localhost";
+  private String nodeHost;
   private Integer nodePort = 8080;
 
   /**

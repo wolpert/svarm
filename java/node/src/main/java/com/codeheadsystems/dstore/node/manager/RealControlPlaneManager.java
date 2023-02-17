@@ -24,6 +24,8 @@ import com.codeheadsystems.dstore.node.accessor.ControlAccessor;
 import com.codeheadsystems.dstore.node.model.NodeInternalConfiguration;
 import com.codeheadsystems.dstore.node.model.TenantTableIdentifier;
 import com.codeheadsystems.metrics.Metrics;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -59,9 +61,27 @@ public class RealControlPlaneManager implements ControlPlaneManager {
     this.metrics = metrics;
     this.controlAccessor = controlAccessor;
     this.nodeUuid = internalConfiguration.uuid();
-    this.host = nodeConfiguration.getNodeHost();
+    if (nodeConfiguration.getNodeHost() == null) {
+      this.host = getHostByInet();
+      LOGGER.trace("Using discovered host: {}", host);
+    } else {
+      this.host = nodeConfiguration.getNodeHost();
+      LOGGER.trace("Using host from configuration: {}", host);
+    }
     this.port = nodeConfiguration.getNodePort();
-    LOGGER.info("RealControlPlaneManager({}.{},{},{})", nodeUuid, controlAccessor, host, port);
+    LOGGER.info("RealControlPlaneManager({},{},{},{})", nodeUuid, controlAccessor, this.host, port);
+  }
+
+  private static String getHostnameByServer() {
+    return System.getenv("HOSTNAME");
+  }
+
+  private static String getHostByInet() {
+    try {
+      return InetAddress.getLocalHost().getCanonicalHostName();
+    } catch (UnknownHostException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @Override

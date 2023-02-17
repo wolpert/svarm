@@ -1,4 +1,4 @@
-databaseDirectory: /tmp/endToEnd
+databaseDirectory: /server/work
 runDatabaseInMemory: false
 controlPlaneUrl: http://control:8080/
 nodePort: 8080
@@ -15,8 +15,8 @@ logging:
       logFormat: "%d{HH:mm:ss.SSS} [%thread] [trace:%X{trace}] %-5level %logger{36} - %msg%n"
     - type: file
       maxFileSize: 50MB
-      currentLogFilename: /tmp/logs/node.log
-      archivedLogFilenamePattern: /tmp/logs/node-%i.log.gz
+      currentLogFilename: /server/logs/node.log
+      archivedLogFilenamePattern: /server/logs/node-%i.log.gz
       logFormat: "%d{HH:mm:ss.SSS} [%thread] [trace:%X{trace}] %-5level %logger{36} - %msg%n"
 
 #metrics:

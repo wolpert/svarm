@@ -60,3 +60,8 @@ run {
     args 'server', configPath + 'config.yaml'
     mainClassName = "com.codeheadsystems.dstore.proxy.Proxy"
 }
+
+task dockerImage(type: Exec) {
+    commandLine "docker", "build", "-t", "codehead/proxy:${version}", "."
+}
+dockerImage.dependsOn installDist
