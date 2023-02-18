@@ -17,6 +17,7 @@
 package com.codeheadsystems.dstore.common.crypt;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import java.util.Arrays;
 import java.util.Random;
@@ -40,6 +41,17 @@ class CryptUtilsTest {
     final String base64 = cryptUtils.toBase64(orig);
     final byte[] result = cryptUtils.fromBase64(base64);
     assertThat(orig).isEqualTo(result);
+  }
+
+  @Test
+  public void xor_values(){
+    assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(()->cryptUtils.xor());
+  }
+
+  @Test
+  public void xor_badByteLengths(){
+    assertThatExceptionOfType(IllegalArgumentException.class)
+        .isThrownBy(()->cryptUtils.xor(cryptUtils.randomKey(5), cryptUtils.randomKey(4)));
   }
 
   @Test

@@ -17,6 +17,7 @@
 package com.codeheadsystems.dstore.common.crypt;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import java.util.Base64;
 import java.util.Random;
@@ -60,6 +61,34 @@ class AesGcmSivManagerTest {
     final byte[] decrypted = manager.decrypt(encrypted, key, nonce);
     assertThat(payload).describedAs("encrypting works").isNotEqualTo(encrypted);
     assertThat(payload).describedAs("decrypting works").isEqualTo(decrypted);
+  }
+
+  @Test
+  public void roundTrip_badCipherText() {
+    final byte[] payload = bytes(1024);
+    final byte[] key = bytes(AesGcmSivManager.KEY_LENGTH);
+    final byte[] nonce = bytes(AesGcmSivManager.NONCE_LENGTH);
+    random.nextBytes(payload);
+    assertThatExceptionOfType(IllegalArgumentException.class)
+        .isThrownBy(() ->  manager.decrypt(payload, key, nonce));
+  }
+
+  @Test
+  public void roundTrip_badKeyLength() {
+    final byte[] payload = bytes(1024);
+    final byte[] key = bytes(AesGcmSivManager.KEY_LENGTH - 1);
+    final byte[] nonce = bytes(AesGcmSivManager.NONCE_LENGTH);
+    assertThatExceptionOfType(IllegalArgumentException.class)
+        .isThrownBy(() -> manager.encrypt(payload, key, nonce));
+  }
+
+  @Test
+  public void roundTrip_badNonceLength() {
+    final byte[] payload = bytes(1024);
+    final byte[] key = bytes(AesGcmSivManager.KEY_LENGTH);
+    final byte[] nonce = bytes(AesGcmSivManager.NONCE_LENGTH - 1);
+    assertThatExceptionOfType(IllegalArgumentException.class)
+        .isThrownBy(() -> manager.encrypt(payload, key, nonce));
   }
 
   private byte[] bytes(int length) {

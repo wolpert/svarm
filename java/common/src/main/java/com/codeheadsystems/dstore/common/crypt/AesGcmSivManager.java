@@ -121,7 +121,7 @@ public class AesGcmSivManager {
     int processed = cypher.processBytes(payload, 0, payload.length, result, 0);
     try {
       processed += cypher.doFinal(result, processed);
-      LOGGER.trace("Avail:{} Processed:{} match:{}", outputSize, processed, outputSize == processed);
+      LOGGER.trace("Avail:{} Processed:{}", outputSize, processed);
     } catch (InvalidCipherTextException e) {
       throw new IllegalArgumentException("Unable to execute cipher", e);
     } finally {

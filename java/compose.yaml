@@ -40,8 +40,8 @@ services:
     healthcheck:
       test: [ "CMD", "pg_isready", "-q", "-d", "control", "-U", "control" ]
       timeout: 2s
-      interval: 2s
-      retries: 10
+      interval: 15s
+      retries: 4
 
   metrics:
     image: prom/prometheus:latest
@@ -64,8 +64,8 @@ services:
     healthcheck:
       test: curl --fail http://localhost:8081/healthcheck || exit 1
       timeout: 2s
-      interval: 2s
-      retries: 10
+      interval: 15s
+      retries: 4
 
   node:
     image: codehead/node:1.0.0-SNAPSHOT
@@ -84,8 +84,8 @@ services:
     healthcheck:
       test: curl --fail http://localhost:8081/healthcheck || exit 1
       timeout: 2s
-      interval: 2s
-      retries: 10
+      interval: 15s
+      retries: 4
 
   proxy:
     image: codehead/control:1.0.0-SNAPSHOT
@@ -104,8 +104,8 @@ services:
     healthcheck:
       test: curl --fail http://localhost:8081/healthcheck || exit 1
       timeout: 2s
-      interval: 2s
-      retries: 10
+      interval: 15s
+      retries: 4
 
 volumes:
   logs:
