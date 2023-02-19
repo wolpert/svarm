@@ -22,6 +22,7 @@ import static org.mockito.Mockito.when;
 import com.codeheadsystems.dstore.node.engine.DatabaseEngine;
 import com.codeheadsystems.dstore.node.engine.DatabaseInitializationEngine;
 import com.codeheadsystems.dstore.node.model.TenantTable;
+import com.codeheadsystems.metrics.test.BaseMetricTest;
 import javax.sql.DataSource;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -36,7 +37,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
  * Then, we can make this a proper unit test.
  */
 @ExtendWith(MockitoExtension.class)
-class TenantTableDataSourceManagerTest {
+class TenantTableDataSourceManagerTest extends BaseMetricTest {
 
   @Mock private TenantTable tenantTable;
 

@@ -19,6 +19,7 @@ package com.codeheadsystems.dstore.node.manager;
 import com.codeheadsystems.dstore.node.engine.DatabaseEngine;
 import com.codeheadsystems.dstore.node.engine.DatabaseInitializationEngine;
 import com.codeheadsystems.dstore.node.model.TenantTable;
+import com.codeheadsystems.metrics.Metrics;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -42,17 +43,21 @@ public class TenantTableDataSourceManager {
   private final LoadingCache<TenantTable, DataSource> tenantDataSourceLoadingCache;
   private final DatabaseEngine databaseEngine;
   private final DatabaseInitializationEngine databaseInitializationEngine;
+  private final Metrics metrics;
 
   /**
    * Default constructor for the DSM.
    *
    * @param databaseEngine               to get new data sources.
    * @param databaseInitializationEngine to initialize the database.
+   * @param metrics                      to track.
    */
   @Inject
   public TenantTableDataSourceManager(final DatabaseEngine databaseEngine,
-                                      final DatabaseInitializationEngine databaseInitializationEngine) {
+                                      final DatabaseInitializationEngine databaseInitializationEngine,
+                                      final Metrics metrics) {
     LOGGER.info("TenantTableDataSourceManager({},{})", databaseEngine, databaseInitializationEngine);
+    this.metrics = metrics;
     this.databaseEngine = databaseEngine;
     this.databaseInitializationEngine = databaseInitializationEngine;
     this.tenantDataSourceLoadingCache = CacheBuilder.newBuilder()
@@ -122,9 +127,6 @@ public class TenantTableDataSourceManager {
   public void deleteEverything(final TenantTable tenantTable) {
     LOGGER.info("deleteEverything({})", tenantTable.identifier());
     evictTenant(tenantTable);
-    databaseEngine.tenantDataStoreLocation(tenantTable).ifPresentOrElse(databasePath -> {
-      LOGGER.warn("Deleting path {}", databasePath);
-      //TODO Do the delete, add metrics here.
-    }, () -> LOGGER.info("No files to delete for {}", tenantTable.identifier()));
+    databaseEngine.deleteTenantDataStoreLocation(tenantTable);
   }
 }

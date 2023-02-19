@@ -17,7 +17,6 @@
 package com.codeheadsystems.dstore.node.engine;
 
 import com.codeheadsystems.dstore.node.model.TenantTable;
-import java.util.Optional;
 import javax.sql.DataSource;
 
 /**
@@ -42,13 +41,11 @@ public interface DatabaseEngine {
   DataSource internalDataSource();
 
   /**
-   * Returns the location of the tenant table data store.
+   * Delete the data associated with the tenant table..
    *
    * @param tenantTable to look for.
-   * @return the location.
    */
-  default Optional<String> tenantDataStoreLocation(final TenantTable tenantTable) {
-    return Optional.empty();
+  default void deleteTenantDataStoreLocation(final TenantTable tenantTable) {
   }
 
 }

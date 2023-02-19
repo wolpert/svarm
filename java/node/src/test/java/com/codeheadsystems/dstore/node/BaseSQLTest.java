@@ -54,7 +54,7 @@ public abstract class BaseSQLTest extends BaseMetricTest {
     final DataSourceModule dataSourceModule = new DataSourceModule();
     internalDataSource = dataSourceModule.internalDataSource(databaseEngine, databaseInitializationEngine);
     internalJdbi = dataSourceModule.internalJdbi(internalDataSource, new MetricRegistry());
-    tenantTableDataSourceManager = new TenantTableDataSourceManager(databaseEngine, databaseInitializationEngine);
+    tenantTableDataSourceManager = new TenantTableDataSourceManager(databaseEngine, databaseInitializationEngine, metrics);
     sqlEngine = new SqlEngine(metrics, tenantTableDataSourceManager, internalDataSource);
   }
 

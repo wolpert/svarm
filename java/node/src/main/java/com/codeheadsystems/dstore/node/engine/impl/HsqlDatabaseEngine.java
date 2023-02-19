@@ -26,12 +26,12 @@ import com.codeheadsystems.dstore.node.manager.ControlPlaneManager;
 import com.codeheadsystems.dstore.node.model.NodeInternalConfiguration;
 import com.codeheadsystems.dstore.node.model.TenantTable;
 import com.codeheadsystems.dstore.node.model.TenantTableIdentifier;
+import com.codeheadsystems.dstore.node.utils.DeletingFileVisitor;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.Security;
-import java.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.sql.DataSource;
@@ -151,7 +151,7 @@ public class HsqlDatabaseEngine implements DatabaseEngine {
    */
   private String getTenantConnectionUrl(final TenantTable tenantTable) {
     LOGGER.trace("getTenantConnectionUrl({})", tenantTable);
-    final String directory = getInternalTenantTableDirectoryStore(tenantTable);
+    final String directory = getTenantTableDirectoryFilePath(tenantTable);
     final byte[] key = cryptUtils.xor(tenantTable.key(),
         controlPlaneManager.keyForTenant(tenantTable.identifier().tenantId()));
     final byte[] nonce = cryptUtils.fromBase64(tenantTable.nonce());
@@ -164,14 +164,26 @@ public class HsqlDatabaseEngine implements DatabaseEngine {
    * @param tenantTable we are looking for.
    * @return the location.
    */
-  private String getInternalTenantTableDirectoryStore(final TenantTable tenantTable) {
+  private String getTenantTableDirectoryFilePath(final TenantTable tenantTable) {
     final String name = getTenantDatabaseName(tenantTable);
     return getDatabasePath(name);
   }
 
   @Override
-  public Optional<String> tenantDataStoreLocation(final TenantTable tenantTable) {
-    return Optional.of(getInternalTenantTableDirectoryStore(tenantTable));
+  public void deleteTenantDataStoreLocation(final TenantTable tenantTable) {
+    LOGGER.warn("Deleting data store location {}", tenantTable.identifier());
+    final String fullPath = getTenantTableDirectoryFilePath(tenantTable);
+    final Path path = Path.of(fullPath);
+    if (!Files.isWritable(path)) {
+      throw new IllegalArgumentException("Unable to delete path: " + path);
+    }
+    LOGGER.warn("Deleting data store location {}:{}", tenantTable.identifier(), path);
+    try {
+      Files.walkFileTree(path, new DeletingFileVisitor());
+    } catch (IOException re) {
+      LOGGER.error("Unable to delete path {}", path, re);
+      throw new IllegalStateException("Unable to delete " + path, re);
+    }
   }
 
   private String getTenantDatabaseName(final TenantTable tenantTable) {
