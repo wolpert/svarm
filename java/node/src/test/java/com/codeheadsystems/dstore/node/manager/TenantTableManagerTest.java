@@ -93,6 +93,7 @@ class TenantTableManagerTest extends BaseMetricTest {
 
   @Test
   void delete() {
+    when(dao.read(TENANT_ID, TABLE_NAME)).thenReturn(Optional.of(tenantTable));
     when(dao.delete(stringArgumentCaptor.capture(), stringArgumentCaptor.capture())).thenReturn(true);
     manager.delete(IDENTIFIER);
     assertThat(stringArgumentCaptor.getAllValues())

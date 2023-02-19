@@ -18,7 +18,6 @@ package com.codeheadsystems.dstore.node.manager;
 
 import com.codeheadsystems.dstore.node.engine.DatabaseEngine;
 import com.codeheadsystems.dstore.node.engine.DatabaseInitializationEngine;
-import com.codeheadsystems.dstore.node.model.Tenant;
 import com.codeheadsystems.dstore.node.model.TenantTable;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
@@ -85,11 +84,11 @@ public class TenantTableDataSourceManager {
   /**
    * Removes tenant from the cache.
    *
-   * @param tenant to remove.
+   * @param tenantTable to remove.
    */
-  public void evictTenant(Tenant tenant) {
-    LOGGER.trace("evictTenant({})", tenant);
-    tenantDataSourceLoadingCache.invalidate(tenant);
+  public void evictTenant(final TenantTable tenantTable) {
+    LOGGER.trace("evictTenant({})", tenantTable);
+    tenantDataSourceLoadingCache.invalidate(tenantTable);
   }
 
   private void onRemoval(RemovalNotification<TenantTable, DataSource> notification) {
@@ -113,5 +112,19 @@ public class TenantTableDataSourceManager {
     } catch (SQLException e) {
       throw new IllegalArgumentException("Unable to get tenant initialized connection", e);
     }
+  }
+
+  /**
+   * Invalidates the cache entry, deletes the database.
+   *
+   * @param tenantTable to delete.
+   */
+  public void deleteEverything(final TenantTable tenantTable) {
+    LOGGER.info("deleteEverything({})", tenantTable.identifier());
+    evictTenant(tenantTable);
+    databaseEngine.tenantDataStoreLocation(tenantTable).ifPresentOrElse(databasePath -> {
+      LOGGER.warn("Deleting path {}", databasePath);
+      //TODO Do the delete, add metrics here.
+    }, () -> LOGGER.info("No files to delete for {}", tenantTable.identifier()));
   }
 }

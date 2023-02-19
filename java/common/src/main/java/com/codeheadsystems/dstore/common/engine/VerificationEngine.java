@@ -18,47 +18,27 @@ package com.codeheadsystems.dstore.common.engine;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
-import com.google.common.base.Charsets;
-import com.google.common.hash.Hashing;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.slf4j.Logger;
 
 /**
- * Provides generic hashing functions.
+ * Used to verify types of data.
  */
 @Singleton
-public class HashingEngine {
+public class VerificationEngine {
 
-  private static final Logger LOGGER = getLogger(HashingEngine.class);
-
+  private static final Logger LOGGER = getLogger(VerificationEngine.class);
 
   /**
    * Constructor.
    */
   @Inject
-  public HashingEngine() {
-    LOGGER.info("HashingEngine()");
+  public VerificationEngine() {
+    LOGGER.info("VerificationEngine()");
   }
 
-  /**
-   * The main hashFunction for the system.
-   *
-   * @param value to be hashed.
-   * @return the value.
-   */
-  public int murmur3(final String value) {
-    return Hashing.murmur3_32_fixed().hashString(value, Charsets.UTF_8).asInt();
-  }
 
-  /**
-   * Provides for hashing a string to the hex array.
-   *
-   * @param value to be hashed.
-   * @return the string.
-   */
-  public String sha256(final String value) {
-    return Hashing.sha256().hashString(value, Charsets.UTF_8).toString();
-  }
+
 
 }

@@ -27,7 +27,6 @@ import com.codeheadsystems.dstore.proxy.engine.NodeTenantTableEntryServiceEngine
 import com.codeheadsystems.metrics.Metrics;
 import com.codeheadsystems.server.exception.NotFoundException;
 import com.fasterxml.jackson.databind.JsonNode;
-import java.util.Comparator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -154,7 +153,7 @@ public class TableEntryManager {
           .orElseThrow(() -> new NotFoundException());
       try {
         LOGGER.trace("Found TenantResourceRange: {}", range);
-        final int hash = hashingEngine.hash(entry);
+        final int hash = hashingEngine.murmur3(entry);
         LOGGER.trace("hash: {}", hash);
         return range.hashToNodeRangeSet().entrySet().stream()
             .filter(e -> (e.getKey() <= hash)) // remove the values with a low-hash higher than our hash.

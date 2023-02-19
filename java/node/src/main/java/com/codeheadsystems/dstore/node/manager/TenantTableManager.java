@@ -159,7 +159,15 @@ public class TenantTableManager {
   public boolean delete(final TenantTableIdentifier identifier) {
     LOGGER.trace("delete({}})", identifier);
     return metrics.time("TenantTableManager.delete",
-        () -> dao.delete(identifier.tenantId(), identifier.tableName()));
+        () -> {
+          final Optional<TenantTable> tenantTable = get(identifier);
+          if (tenantTable.isEmpty()) {
+            return false;
+          }
+          dao.delete(identifier.tenantId(), identifier.tableName());
+          tenantTableDataSourceManager.deleteEverything(tenantTable.get());
+          return true;
+        });
   }
 
 }

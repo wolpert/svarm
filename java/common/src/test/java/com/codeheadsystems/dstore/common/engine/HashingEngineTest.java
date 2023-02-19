@@ -18,6 +18,7 @@ package com.codeheadsystems.dstore.common.engine;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -31,8 +32,8 @@ class HashingEngineTest {
   }
 
   @Test
-  void hash(){
-    assertThat(hashingEngine.hash("fred")).isNotZero();
+  void murmur3(){
+    assertThat(hashingEngine.murmur3("fred")).isNotZero();
   }
 
 

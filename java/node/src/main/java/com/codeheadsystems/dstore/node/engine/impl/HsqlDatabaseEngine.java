@@ -19,6 +19,7 @@ package com.codeheadsystems.dstore.node.engine.impl;
 import static org.bouncycastle.util.encoders.Hex.toHexString;
 
 import com.codeheadsystems.dstore.common.crypt.CryptUtils;
+import com.codeheadsystems.dstore.common.engine.HashingEngine;
 import com.codeheadsystems.dstore.node.NodeConfiguration;
 import com.codeheadsystems.dstore.node.engine.DatabaseEngine;
 import com.codeheadsystems.dstore.node.manager.ControlPlaneManager;
@@ -30,6 +31,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.Security;
+import java.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.sql.DataSource;
@@ -59,6 +61,7 @@ public class HsqlDatabaseEngine implements DatabaseEngine {
   private final NodeInternalConfiguration nodeInternalConfiguration;
   private final NodeConfiguration nodeConfiguration;
   private final CryptUtils cryptUtils;
+  private final HashingEngine hashingEngine;
   private final String connectionUrlToUse;
 
   /**
@@ -68,12 +71,14 @@ public class HsqlDatabaseEngine implements DatabaseEngine {
    * @param nodeInternalConfiguration to use.
    * @param nodeConfiguration         to use.
    * @param cryptUtils                to use.
+   * @param hashingEngine             to use.
    */
   @Inject
   public HsqlDatabaseEngine(final ControlPlaneManager controlPlaneManager,
                             final NodeInternalConfiguration nodeInternalConfiguration,
                             final NodeConfiguration nodeConfiguration,
-                            final CryptUtils cryptUtils) {
+                            final CryptUtils cryptUtils, final HashingEngine hashingEngine) {
+    this.hashingEngine = hashingEngine;
     LOGGER.info("DatabaseManager({},{},{},{})",
         controlPlaneManager, nodeInternalConfiguration, nodeConfiguration, cryptUtils);
     this.controlPlaneManager = controlPlaneManager;
@@ -126,23 +131,6 @@ public class HsqlDatabaseEngine implements DatabaseEngine {
   }
 
   /**
-   * Gets the connection URL for the tenant.
-   *
-   * @param tenantTable to use, from us.
-   * @return the URL.
-   */
-  private String getTenantConnectionUrl(final TenantTable tenantTable) {
-    LOGGER.trace("getTenantConnectionUrl({})", tenantTable);
-    final TenantTableIdentifier identifier = tenantTable.identifier();
-    final String name = String.format("%s-%s", identifier.tenantId(), identifier.tableName());
-    final String directory = getDatabasePath(name);
-    final byte[] key = cryptUtils.xor(tenantTable.key(),
-        controlPlaneManager.keyForTenant(tenantTable.identifier().tenantId()));
-    final byte[] nonce = cryptUtils.fromBase64(tenantTable.nonce());
-    return getConnectionUrl(directory, key, nonce);
-  }
-
-  /**
    * Generates the internal database to use.
    *
    * @return the URL.
@@ -155,8 +143,48 @@ public class HsqlDatabaseEngine implements DatabaseEngine {
     return getConnectionUrl(directory, key, nonce);
   }
 
+  /**
+   * Gets the connection URL for the tenant.
+   *
+   * @param tenantTable to use, from us.
+   * @return the URL.
+   */
+  private String getTenantConnectionUrl(final TenantTable tenantTable) {
+    LOGGER.trace("getTenantConnectionUrl({})", tenantTable);
+    final String directory = getInternalTenantTableDirectoryStore(tenantTable);
+    final byte[] key = cryptUtils.xor(tenantTable.key(),
+        controlPlaneManager.keyForTenant(tenantTable.identifier().tenantId()));
+    final byte[] nonce = cryptUtils.fromBase64(tenantTable.nonce());
+    return getConnectionUrl(directory, key, nonce);
+  }
+
+  /**
+   * Provides the TenantTable directory store.
+   *
+   * @param tenantTable we are looking for.
+   * @return the location.
+   */
+  private String getInternalTenantTableDirectoryStore(final TenantTable tenantTable) {
+    final String name = getTenantDatabaseName(tenantTable);
+    return getDatabasePath(name);
+  }
+
+  @Override
+  public Optional<String> tenantDataStoreLocation(final TenantTable tenantTable) {
+    return Optional.of(getInternalTenantTableDirectoryStore(tenantTable));
+  }
+
+  private String getTenantDatabaseName(final TenantTable tenantTable) {
+    final TenantTableIdentifier identifier = tenantTable.identifier();
+    final String name = String.format("%s-%s", identifier.tenantId(), identifier.tableName());
+    final String hexBytes = hashingEngine.sha256(name);
+    LOGGER.info("Convert: from={} to={}", name, hexBytes);
+    return hexBytes;
+  }
+
   private String getDatabasePath(final String name) {
     final Path directory = Path.of(nodeConfiguration.getDatabaseDirectory(), name);
+    LOGGER.info("getDatabasePath({})", directory);
     if (!Files.exists(directory)) {
       try {
         Files.createDirectories(directory);
