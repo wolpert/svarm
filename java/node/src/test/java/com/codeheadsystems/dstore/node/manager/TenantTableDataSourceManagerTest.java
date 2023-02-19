@@ -22,11 +22,12 @@ import static org.mockito.Mockito.when;
 import com.codeheadsystems.dstore.node.engine.DatabaseEngine;
 import com.codeheadsystems.dstore.node.engine.DatabaseInitializationEngine;
 import com.codeheadsystems.dstore.node.model.TenantTable;
+import com.codeheadsystems.dstore.node.model.TenantTableIdentifier;
 import com.codeheadsystems.metrics.test.BaseMetricTest;
 import javax.sql.DataSource;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -39,18 +40,27 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class TenantTableDataSourceManagerTest extends BaseMetricTest {
 
+  private static final String TENANT_ID = "tenantId";
+  private static final String TABLE_NAME = "tableName";
   @Mock private TenantTable tenantTable;
-
+  @Mock private TenantTableIdentifier identifier;
   @Mock private DataSource dataSource;
-
   @Mock private DatabaseInitializationEngine databaseInitializationEngine;
   @Mock private DatabaseEngine databaseEngine;
 
-  @InjectMocks private TenantTableDataSourceManager tenantTableDataSourceManager;
+  private TenantTableDataSourceManager tenantTableDataSourceManager;
+
+  @BeforeEach
+  public void setup() {
+    tenantTableDataSourceManager = new TenantTableDataSourceManager(databaseEngine, databaseInitializationEngine, metrics);
+  }
 
   @Test
   void loadTenant_realInitialization() {
     when(databaseEngine.tenantDataSource(tenantTable)).thenReturn(dataSource);
+    when(tenantTable.identifier()).thenReturn(identifier);
+    when(identifier.tenantId()).thenReturn(TENANT_ID);
+    when(identifier.tableName()).thenReturn(TABLE_NAME);
     final DataSource dataSource = tenantTableDataSourceManager.getDataSource(tenantTable);
     assertThat(dataSource).isEqualTo(dataSource);
   }

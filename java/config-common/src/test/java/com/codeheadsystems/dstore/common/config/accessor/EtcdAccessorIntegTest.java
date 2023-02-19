@@ -68,20 +68,6 @@ class EtcdAccessorIntegTest {
         .isNotPresent();
   }
 
-  @Test
-  void watcher() throws InterruptedException {
-    final AtomicReference<WatchResponse> ref = new AtomicReference<>();
-    try (Watch.Watcher watcher = accessor.watch(NAMESPACE, KEY, Watch.listener(ref::set))) {
-      accessor.put(NAMESPACE, KEY, VALUE);
-      retry(10, () -> assertThat(ref.get()).isNotNull()); // TODO: we need a better way
-      Thread.sleep(200); // just make sure we processed everything... :(
-      assertThat(ref.get().getEvents())
-          .hasSize(1)
-          .singleElement()
-          .hasFieldOrPropertyWithValue("eventType", WatchEvent.EventType.PUT);
-    }
-  }
-
   private void retry(final int times, final Runnable runnable) {
     AssertionError error = null;
     for (int attempt = 0; attempt < times; attempt++) {

@@ -16,6 +16,8 @@
 
 package com.codeheadsystems.dstore.node.manager;
 
+import static com.codeheadsystems.dstore.node.utils.TagHelper.from;
+
 import com.codeheadsystems.dstore.node.engine.DatabaseEngine;
 import com.codeheadsystems.dstore.node.engine.DatabaseInitializationEngine;
 import com.codeheadsystems.dstore.node.model.TenantTable;
@@ -74,6 +76,7 @@ public class TenantTableDataSourceManager {
    */
   public DataSource getDataSource(final TenantTable tenantTable) {
     LOGGER.trace("getDataSource({})", tenantTable);
+    metrics.counter("TenantTableDataSourceManager.getDataSource", from(tenantTable)).increment();
     return tenantDataSourceLoadingCache.getUnchecked(tenantTable);
   }
 
@@ -93,11 +96,13 @@ public class TenantTableDataSourceManager {
    */
   public void evictTenant(final TenantTable tenantTable) {
     LOGGER.trace("evictTenant({})", tenantTable);
+    metrics.counter("TenantTableDataSourceManager.evictTenant", from(tenantTable)).increment();
     tenantDataSourceLoadingCache.invalidate(tenantTable);
   }
 
   private void onRemoval(RemovalNotification<TenantTable, DataSource> notification) {
     LOGGER.debug("onRemoval({},{})", notification.getKey(), notification.getCause());
+    metrics.counter("TenantTableDataSourceManager.onRemoval", from(notification.getKey())).increment();
   }
 
   /**
@@ -126,6 +131,7 @@ public class TenantTableDataSourceManager {
    */
   public void deleteEverything(final TenantTable tenantTable) {
     LOGGER.info("deleteEverything({})", tenantTable.identifier());
+    metrics.counter("TenantTableDataSourceManager.deleteEverything", from(tenantTable)).increment();
     evictTenant(tenantTable);
     databaseEngine.deleteTenantDataStoreLocation(tenantTable);
   }
