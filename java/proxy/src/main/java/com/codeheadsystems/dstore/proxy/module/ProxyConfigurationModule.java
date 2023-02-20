@@ -16,11 +16,10 @@
 
 package com.codeheadsystems.dstore.proxy.module;
 
-import com.codeheadsystems.dstore.common.config.EtcdConfiguration;
 import com.codeheadsystems.dstore.proxy.ProxyConfiguration;
+import com.codeheadsystems.server.ServerConfiguration;
 import dagger.Module;
 import dagger.Provides;
-import io.dropwizard.Configuration;
 import javax.inject.Singleton;
 
 /**
@@ -37,20 +36,8 @@ public class ProxyConfigurationModule {
    */
   @Provides
   @Singleton
-  public ProxyConfiguration configuration(final Configuration configuration) {
+  public ProxyConfiguration configuration(final ServerConfiguration configuration) {
     return (ProxyConfiguration) configuration;
-  }
-
-  /**
-   * Provider for the etcd configuration.
-   *
-   * @param configuration from us.
-   * @return etcd config.
-   */
-  @Provides
-  @Singleton
-  public EtcdConfiguration etcdConfiguration(final ProxyConfiguration configuration) {
-    return configuration.getEtcdConfiguration();
   }
 
 }

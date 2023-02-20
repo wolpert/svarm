@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
 /**
  * This is our application itself. Very little here is node specific.
  */
-public abstract class Server<T extends Configuration> extends Application<T> {
+public abstract class Server<T extends ServerConfiguration> extends Application<T> {
   private static final Logger LOGGER = LoggerFactory.getLogger(Server.class);
 
   /**

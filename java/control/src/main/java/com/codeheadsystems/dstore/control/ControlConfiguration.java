@@ -16,9 +16,8 @@
 
 package com.codeheadsystems.dstore.control;
 
-import com.codeheadsystems.dstore.common.config.EtcdConfiguration;
+import com.codeheadsystems.server.ServerConfiguration;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.dropwizard.Configuration;
 import io.dropwizard.db.DataSourceFactory;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -26,17 +25,16 @@ import javax.validation.constraints.NotNull;
 /**
  * Configuration for the control plane.
  */
-public class ControlConfiguration extends Configuration {
+public class ControlConfiguration extends ServerConfiguration {
 
   @Valid
   @NotNull
   private DataSourceFactory database = new DataSourceFactory();
   private Boolean runLiquibase;
-  private EtcdConfiguration etcdConfiguration;
 
   /**
    * Can be null. If set runs liquibase support.
-
+   *
    * @return boolean, can be null.
    */
   public Boolean getRunLiquibase() {
@@ -53,16 +51,6 @@ public class ControlConfiguration extends Configuration {
   }
 
   /**
-   * Setter for the factory.
-   *
-   * @param factory to set.
-   */
-  @JsonProperty("database")
-  public void setDataSourceFactory(DataSourceFactory factory) {
-    this.database = factory;
-  }
-
-  /**
    * Getter for the factory.
    *
    * @return to get.
@@ -73,21 +61,13 @@ public class ControlConfiguration extends Configuration {
   }
 
   /**
-   * The ETCD Configuration.
+   * Setter for the factory.
    *
-   * @return the configuration.
+   * @param factory to set.
    */
-  @JsonProperty("etcdConfiguration")
-  public EtcdConfiguration getEtcdConfiguration() {
-    return etcdConfiguration;
+  @JsonProperty("database")
+  public void setDataSourceFactory(DataSourceFactory factory) {
+    this.database = factory;
   }
 
-  /**
-   * The etc configuration.
-   *
-   * @param etcdConfiguration to be set.
-   */
-  public void setEtcdConfiguration(final EtcdConfiguration etcdConfiguration) {
-    this.etcdConfiguration = etcdConfiguration;
-  }
 }

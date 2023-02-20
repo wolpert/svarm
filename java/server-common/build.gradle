@@ -16,6 +16,7 @@ configurations {
 //jacocoTestReport.finalizedBy jacocoTestCoverageVerification
 
 dependencies {
+    api project(":config-common")
     implementation project(":common")
 
     implementation libs.dropwizard.auth

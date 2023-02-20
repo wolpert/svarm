@@ -20,7 +20,7 @@ There needs to be at least 3 Java classes.
 Examples (Where the service is called `YourService`:
 
 ```java
-public class YourServiceConfiguration extends Configuration {
+public class YourServiceConfiguration extends ServerConfiguration {
 }
 
 @Component(modules = {
@@ -30,7 +30,7 @@ public class YourServiceConfiguration extends Configuration {
 public interface YourServiceDropWizardComponent extends DropWizardComponent {
 }
 
-public class YourService extends Server<ControlConfiguration> {
+public class YourService extends Server<YourServiceConfiguration> {
   public static void main(String[] args) throws Exception {
     new YourService().run(args);
   }

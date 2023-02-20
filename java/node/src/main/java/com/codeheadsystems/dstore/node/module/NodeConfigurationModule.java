@@ -22,6 +22,7 @@ import com.codeheadsystems.dstore.common.config.EtcdConfiguration;
 import com.codeheadsystems.dstore.node.NodeConfiguration;
 import com.codeheadsystems.dstore.node.factory.NodeConfigurationFactory;
 import com.codeheadsystems.dstore.node.model.NodeInternalConfiguration;
+import com.codeheadsystems.server.ServerConfiguration;
 import dagger.Module;
 import dagger.Provides;
 import io.dropwizard.Configuration;
@@ -42,20 +43,8 @@ public class NodeConfigurationModule {
    */
   @Provides
   @Singleton
-  public NodeConfiguration configuration(final Configuration configuration) {
+  public NodeConfiguration configuration(final ServerConfiguration configuration) {
     return (NodeConfiguration) configuration;
-  }
-
-  /**
-   * Provider for the etcd configuration.
-   *
-   * @param configuration from us.
-   * @return the etcd configuration.
-   */
-  @Provides
-  @Singleton
-  public EtcdConfiguration etcdConfiguration(final NodeConfiguration configuration) {
-    return configuration.getEtcdConfiguration();
   }
 
   /**

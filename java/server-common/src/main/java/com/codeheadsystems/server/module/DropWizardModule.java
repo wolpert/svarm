@@ -18,9 +18,11 @@ package com.codeheadsystems.server.module;
 
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.health.HealthCheck;
+import com.codeheadsystems.dstore.common.config.EtcdConfiguration;
 import com.codeheadsystems.dstore.common.engine.TraceUuidEngine;
 import com.codeheadsystems.dstore.common.module.JsonModule;
 import com.codeheadsystems.metrics.helper.DropwizardMetricsHelper;
+import com.codeheadsystems.server.ServerConfiguration;
 import com.codeheadsystems.server.resource.JerseyResource;
 import com.codeheadsystems.server.resource.MetricTagsResource;
 import com.codeheadsystems.server.resource.NotFoundExceptionMapper;
@@ -30,7 +32,6 @@ import dagger.Module;
 import dagger.Provides;
 import dagger.multibindings.IntoSet;
 import dagger.multibindings.Multibinds;
-import io.dropwizard.Configuration;
 import io.dropwizard.lifecycle.Managed;
 import io.dropwizard.setup.Environment;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -56,11 +57,15 @@ public class DropWizardModule {
    * Identifier for the application name.
    */
   public static final String DROPWIZARD_APPLICATION_NAME = "Dropwizard Application Name";
+  /**
+   * Identifier for the deployment stage.
+   */
+  public static final String DEPLOYMENT_STAGE = "Deployment stage";
   private final TraceUuidEngine engine;
   private final MetricRegistry metricRegistry;
   private final MeterRegistry meterRegistry;
   private final Environment environment;
-  private final Configuration configuration;
+  private final ServerConfiguration configuration;
   private final String applicationName;
 
   /**
@@ -75,7 +80,7 @@ public class DropWizardModule {
   public DropWizardModule(final TraceUuidEngine engine,
                           final MetricRegistry metricRegistry,
                           final Environment environment,
-                          final Configuration configuration,
+                          final ServerConfiguration configuration,
                           final String applicationName) {
     this.engine = engine;
     this.metricRegistry = metricRegistry;
@@ -105,6 +110,19 @@ public class DropWizardModule {
     return applicationName;
   }
 
+
+  /**
+   * Accessor to application name.
+   *
+   * @return the the name.
+   */
+  @Provides
+  @Singleton
+  @Named(DEPLOYMENT_STAGE)
+  public String deploymentStage() {
+    return configuration.getStage();
+  }
+
   /**
    * Accessor to environment.
    *
@@ -123,8 +141,20 @@ public class DropWizardModule {
    */
   @Provides
   @Singleton
-  public Configuration configuration() {
+  public ServerConfiguration serverConfiguration() {
     return configuration;
+  }
+
+  /**
+   * Accessor to configuration.
+   *
+   * @param serverConfiguration the server configuration.
+   * @return the configuration.
+   */
+  @Provides
+  @Singleton
+  public EtcdConfiguration etcdConfiguration(final ServerConfiguration serverConfiguration) {
+    return configuration.getEtcdConfiguration();
   }
 
   /**

@@ -16,11 +16,10 @@
 
 package com.codeheadsystems.dstore.control.module;
 
-import com.codeheadsystems.dstore.common.config.EtcdConfiguration;
 import com.codeheadsystems.dstore.control.ControlConfiguration;
+import com.codeheadsystems.server.ServerConfiguration;
 import dagger.Module;
 import dagger.Provides;
-import io.dropwizard.Configuration;
 import javax.inject.Singleton;
 
 /**
@@ -37,20 +36,8 @@ public class ControlConfigurationModule {
    */
   @Provides
   @Singleton
-  public ControlConfiguration configuration(final Configuration configuration) {
+  public ControlConfiguration configuration(final ServerConfiguration configuration) {
     return (ControlConfiguration) configuration;
-  }
-
-  /**
-   * Provider for the etcd configuration.
-   *
-   * @param configuration from us.
-   * @return etcd config.
-   */
-  @Provides
-  @Singleton
-  public EtcdConfiguration etcdConfiguration(final ControlConfiguration configuration) {
-    return configuration.getEtcdConfiguration();
   }
 
 }

@@ -16,30 +16,11 @@
 
 package com.codeheadsystems.dstore.proxy;
 
-import com.codeheadsystems.dstore.common.config.EtcdConfiguration;
-import io.dropwizard.Configuration;
+import com.codeheadsystems.server.ServerConfiguration;
 
 /**
  * Configuration for the proxy.
  */
-public class ProxyConfiguration extends Configuration {
-  private EtcdConfiguration etcdConfiguration;
+public class ProxyConfiguration extends ServerConfiguration {
 
-  /**
-   * Getter.
-   *
-   * @return value.
-   */
-  public EtcdConfiguration getEtcdConfiguration() {
-    return etcdConfiguration;
-  }
-
-  /**
-   * Setter.
-   *
-   * @param etcdConfiguration to set.
-   */
-  public void setEtcdConfiguration(final EtcdConfiguration etcdConfiguration) {
-    this.etcdConfiguration = etcdConfiguration;
-  }
 }
