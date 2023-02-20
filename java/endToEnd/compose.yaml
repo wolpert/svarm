@@ -54,7 +54,7 @@ services:
       - ../control/build/install/control:/control
       - ./src/test/resources:/config
       - logs:/tmp/logs
-    command: ["/control/bin/control", "server", "/config/control-config.yaml"]
+    command: [ "/control/bin/control", "server", "/config/control-config.yaml" ]
     depends_on:
       etcd:
         condition: service_started
@@ -76,7 +76,7 @@ services:
       - ../node/build/install/node:/node
       - ./src/test/resources:/config
       - logs:/tmp/logs
-    command: ["/node/bin/node", "server", "/config/node-config.yaml"]
+    command: [ "/node/bin/node", "server", "/config/node-config.yaml" ]
     depends_on:
       etcd:
         condition: service_started
@@ -99,7 +99,7 @@ services:
       - ../proxy/build/install/proxy:/proxy
       - ./src/test/resources:/config
       - logs:/tmp/logs
-    command: ["/proxy/bin/proxy", "server", "/config/proxy-config.yaml"]
+    command: [ "/proxy/bin/proxy", "server", "/config/proxy-config.yaml" ]
     depends_on:
       etcd:
         condition: service_started
@@ -120,5 +120,5 @@ volumes:
       o: bind
 
 networks:
-  back-tier: {}
-  front-tier: {}
+  back-tier: { }
+  front-tier: { }

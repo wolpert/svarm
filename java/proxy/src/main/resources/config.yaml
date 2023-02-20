@@ -2,7 +2,7 @@ logging:
   level: INFO
   loggers:
     com.codeheadsystems: DEBUG
-    com.codeheadsystems.dstore: TRACE
+    org.svarm: TRACE
   appenders:
     - type: console
       logFormat: "%d{HH:mm:ss.SSS} [%thread] [trace:%X{trace}] %-5level %logger{36} - %msg%n"

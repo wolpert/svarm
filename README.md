@@ -1,4 +1,4 @@
-# Distributed Store
+# SVARM
 
 Multi-tenant key/value datastore. This is a love-letter to DynamoDB.
 
@@ -26,13 +26,13 @@ multiple partitioning keys, and available indexing on high-cardinality fields.
 Companies and research teams can simply provide the hardware, kubernetes 
 instances or docker swarm and start using today on or off prem.
 
-"Our small lab was able to install dStore within a day and get up and running"
+"Our small lab was able to install svarm within a day and get up and running"
 says Professor Utonium at PPG Chem LLC. "Real-time data capture of our ionic capture
 array operating at 60khz from our instruments is now possible... resulting in a transfer
 data transfer rate of well over 25 Gbs. Good thing our fibre optic array is working
 on our single 42U rack!" 
 
-Download your copy of Apache 2.0 licensed dStore today!
+Download your copy of Apache 2.0 licensed svarm today!
 ## FAQ
 
 ### Is it done?
@@ -47,3 +47,11 @@ datasets simpler for the development team. DynamoDB ability to scale
 also is easier, but of course, AWS hides that complexity with its oncall
 staff. So building a self-sustaining cluster where the operator only
 has to add nodes or instances to it seemed like a fun project.
+
+### Why Svarm?
+
+The project is designed so many servers can work together to achieve a highly
+scalable datastore... one that scales linearly. The data nodes themselves can
+grow and shrink as needed by the collective. 'Swarming' is how I pictur the
+nodes working together. Svarm is the Swedish word for 'swarm' and was available
+to register. So... there you go.

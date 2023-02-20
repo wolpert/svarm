@@ -63,10 +63,10 @@ dependencies {
 
 run {
     args 'server', configPath + 'config.yaml'
-    mainClassName = "com.codeheadsystems.dstore.control.Control"
+    mainClassName = "org.svarm.control.Control"
 }
 
 task dockerImage(type: Exec) {
-    commandLine "docker", "build", "-t", "codehead/control:${version}", "."
+    commandLine "docker", "build", "-t", "svarm/control:${version}", "."
 }
 dockerImage.dependsOn installDist

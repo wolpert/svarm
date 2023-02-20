@@ -52,19 +52,27 @@ this by adding `-Pe2e` to the params.
 
 Logs for the services in these runs are in `build/docker-logs`.
 
-When end to end tests fail, the `docker compose down` command will not execute from
-the endToEnd directory. If you start having problems, issue that command manually
-from that directory. (May end up moving the docker start/stop into the test suite)
+When end to end tests fail, the `docker compose down` command will not execute
+from the endToEnd directory. If you start having problems, issue that command
+manually from that directory. (May end up moving the docker start/stop into the
+test suite)
 
 ### Troubleshooting
 
 #### Dependencies
 
 The dependencies for this project are controlled by the dependencies
-artifact. (`com.codeheadsystesms:dependencies`). The SNAPSHOT build is
-used so it is easy to update dependencies here. For whatever reason, if
-the dependencies in the public nexus service is out of date, you can clone
+artifact. (`com.codeheadsystesms:dependencies`). The SNAPSHOT build is used so
+it is easy to update dependencies here. For whatever reason, if the dependencies
+in the public nexus service is out of date, you can clone
 `github.com:wolpert/dependencies` and run `gradle publishToMavenLocal`.
+
+#### Docker volume mess-up
+
+Sometimes doing a clean isn't enough, especially if you change the name of the
+project. Docker volumes may need to be removed. Example 
+
+`docker volume rm endtoend_logs`
 
 #### :node:run
 

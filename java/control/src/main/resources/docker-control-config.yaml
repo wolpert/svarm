@@ -2,7 +2,7 @@ logging:
   level: INFO
   loggers:
     com.codeheadsystems: DEBUG
-    com.codeheadsystems.dstore: TRACE
+    org.svarm: TRACE
     com.mchange.v2.c3p0: WARN
   appenders:
     - type: console

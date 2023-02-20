@@ -79,15 +79,15 @@ task logDir(type: Exec) {
 }
 
 task composeUp(type: Exec) {
-    onlyIf {project.hasProperty("e2e")}
+    onlyIf { project.hasProperty("e2e") }
     commandLine "docker", "compose", "up", "--wait"
 }
 task preTestComposeDown(type: Exec) {
-    onlyIf {project.hasProperty("e2e")}
+    onlyIf { project.hasProperty("e2e") }
     commandLine "docker", "compose", "down"
 }
 task finalComposeDown(type: Exec) {
-    onlyIf {project.hasProperty("e2e")}
+    onlyIf { project.hasProperty("e2e") }
     commandLine "docker", "compose", "down"
 }
 composeUp.dependsOn logDir, preTestComposeDown,
@@ -97,7 +97,7 @@ integ {
     enabled = false
 }
 test {
-    onlyIf {project.hasProperty("e2e")}
+    onlyIf { project.hasProperty("e2e") }
     dependsOn composeUp
     finalizedBy finalComposeDown
 }

@@ -8,7 +8,7 @@ logging:
   level: INFO
   loggers:
     com.codeheadsystems: DEBUG
-    com.codeheadsystems.dstore.node: TRACE
+    org.svarm.node: TRACE
     com.mchange.v2.c3p0: TRACE
   appenders:
     - type: console

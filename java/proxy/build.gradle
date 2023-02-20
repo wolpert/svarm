@@ -58,10 +58,10 @@ dependencies {
 
 run {
     args 'server', configPath + 'config.yaml'
-    mainClassName = "com.codeheadsystems.dstore.proxy.Proxy"
+    mainClassName = "org.svarm.proxy.Proxy"
 }
 
 task dockerImage(type: Exec) {
-    commandLine "docker", "build", "-t", "codehead/proxy:${version}", "."
+    commandLine "docker", "build", "-t", "svarm/proxy:${version}", "."
 }
 dockerImage.dependsOn installDist

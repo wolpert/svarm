@@ -134,5 +134,5 @@ volumes:
       o: bind
 
 networks:
-  back-tier: {}
-  front-tier: {}
+  back-tier: { }
+  front-tier: { }

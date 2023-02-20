@@ -6,9 +6,9 @@ nodePort: 8080
 logging:
   level: INFO
   loggers:
-    com.codeheadsystems.dstore: TRACE
-    com.codeheadsystems.dstore.node.healthchecks: INFO
-    com.codeheadsystems.dstore.common.config.healthchecks: INFO
+    org.svarm: TRACE
+    org.svarm.node.healthchecks: INFO
+    org.svarm.common.config.healthchecks: INFO
     com.mchange.v2.c3p0: WARN
   appenders:
     - type: console

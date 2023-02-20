@@ -1,28 +1,28 @@
-# dStore
+# Svarm
 
-Distributed Storage
+Svarm is a distributed storage solution.
 
 # tl;dr
 
-dStore provides an open-source enterprise-grade, federated, multi-tenant
+svarm provides an open-source enterprise-grade, federated, multi-tenant
 key/value datastore in the same vein as DynamoDB and Cassandra that scales
 linearly and with little required maintenance.
 
 # Summary
 
-dStore is a key/value datastore, designed for those familiar with DynamoDB and
+svarm is a key/value datastore, designed for those familiar with DynamoDB and
 Cassandra. It's built to easily add nodes to the cluster and internally
 re-distribute the workload as needed. Designed from the ground up to allow for
 multi-tenant usages, and minimal maintenance. Security is built in from the
 start.
 
-It would be great if dStore was API compatible with DynamoDB.
+It would be great if svarm was API compatible with DynamoDB.
 
 # System Components
 
 [![SystemComponents](./dStore-components.png)](https://viewer.diagrams.net/?tags=%7B%7D&highlight=0000ff&edit=_blank&layers=1&nav=1&title=dStoreSystemComponent.drawio#R7VrZctowFP0aHpuxLYzhkSVtZ5q0mTDdnjrCVowa4UuFWNyvr4RlbCOH0NREpBPyEOnoyss551oXmRYazjbvOJ5PryEirOU50aaFRi3Pc512V%2F5TSJohgdvJgJjTSAcVwJj%2BJvlMjS5pRBaVQAHABJ1XwRCShISigmHOYV0NuwNWPescx8QAxiFmJvqVRmKaoV3fKfD3hMbT%2FMyuo0dmOA%2FWwGKKI1iXIHTZQkMOILLWbDMkTJGX85LNe%2FvA6O7COEnEMRMGYhlGn%2Fv9%2FuT2x%2F31l5VDPvx64%2FWyw6wwW%2Bo71lcr0pwCDsskIuooTgsN1lMqyHiOQzW6lqJLbCpmTPZc2dSHI1yQzYMX6u5uX%2FqGwIwInsqQfEJOblq1wrrg3%2B9obFri3g80iLXm8e7QBS2yoZn5C5YQMkghkbSJ7gIXU4ghweyyQAdV2oqYK4C5JusnESLVnsdLAVUqJV08%2FabnbzvfVefCz7ujTXlwlOreQnC437m1EEVd8mFJ5B3CkofkABU6ewXmMREH4rI0NzXmhGFBV9ULaVwwr9Owre8oY0NgwLdz0Z2v%2FhQOiSjh2WenQWmks%2F00lCCdaoIgM0FQUJMg7fapEiSwkR8NujpfWR5ztWfT1K7h6SGj6lb3uZcrzVw1lzPWD4Vy4ED5jcpV7QpPCLuBBRUUEhkyASFgVgroMxqrAQF7GQBLwWgiLZ2vs04zZu5Vvew5NWau8XLnVFbuvXAre0dauW3Vyo4Nlp%2B6oFpQx7eqjvuqzkF1rNY2rlnKvKpTqdatVp7GIn3DYZP%2BW%2FXZRM14xDrres%2B50CKDqREWWCIfISLW%2BUJ7NbZvm672i6LLtc6X%2F6L4su8v8xvzOfOFrPOFrCzDJ93bcY%2Fe3AlsLrGuadVbMpdk0iS2blT%2F7IzqBgZdLa%2FD5GkHEV3JZqyafenCVNBwkY%2FJc5WGa2Zkj4cjg8cCOMnxCd%2BP3J%2F%2FwIZGmDIq1eTocSknme5Xkx2Aw%2Ft464ZP2U5GnlFZqrl%2BQ%2FoHwYVfcUA78A0HdH3TAL1TGcAza9IhyCId1MwbhhP7j%2Ff9rKnb83%2FerPGsbGme9PHutY98vHt29%2B7NSvfs7Brs2dWzblez3D2P752775nnk9ldgypd6dabS967qMvS%2FOVOAmotqbwh0hDWe%2Bmh5IqUd%2BHzTfYZjaLtg6NOh6pSDUhxxGujXo0Q6GQVtGMIEek64b%2BVYO%2FVtl9THda92n6CBrJb%2FLZgO1b6hQa6%2FAM%3D)
 
-dStore has four main layers that work together.
+svarm has four main layers that work together.
 
 - **Proxy**: Provides for client access. Routes the request internally to the
   correct data node, handling redundancy and failover.
@@ -226,14 +226,14 @@ The reporting infrastructure pushes data to an external data store. It does not
 define the reports required, rather provides the mechanism to export the data
 out. Data here includes the utilization of servers from the client side and the
 storage that is actually used. The goal is to provide data on client utilization
-for dStore service, as well as how the nodes are doing keeping up with demand.
+for svarm service, as well as how the nodes are doing keeping up with demand.
 But at this point in the project, the first goal is to provide the data funnel.
 
 # API
 
 ## Resource ID
 
-Resource IDs identify structure within dStore and related properties. This
+Resource IDs identify structure within svarm and related properties. This
 format is a variation of what is found within Amazon's ARN. It represents the
 unique tenantResource of any `resource` within this system.
 
@@ -241,18 +241,18 @@ General format is:
 
     rid:service:tenant:location:resource_type:resource_id
 
-So for example, dStore object would generically look like this:
+So for example, svarm object would generically look like this:
 
-    rid:dStore:<tenant>:<location>:table:<table_name>
+    rid:svarm:<tenant>:<location>:table:<table_name>
 
 And given the tenant id being 1234, the location is NA for the table named
 entries, we would have:
 
-    rid:dStore:1234:NA:table:entries
+    rid:svarm:1234:NA:table:entries
 
-## DSTORE URLS
+## SVARM URLS
 
-Vi URLs for dStore are effectively `CRUD` operations. Storage initially is based
+Vi URLs for svarm are effectively `CRUD` operations. Storage initially is based
 on a simple ID for each entry in the table. The ID is either String, Integer or
 Bytes. When you define the table, you have to pick one type for the ID.
 

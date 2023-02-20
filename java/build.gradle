@@ -30,7 +30,7 @@ ext {
 }
 
 allprojects {
-    group 'com.codeheadsystems.dstore'
+    group 'org.svarm'
     version '1.0.0-SNAPSHOT'
 
     apply plugin: "java-library"
@@ -176,4 +176,4 @@ task dockerCompose(type: Exec) {
     commandLine "docker", "compose", "up"
 }
 dockerCompose.dependsOn dockerLogs
-dockerCompose.dependsOn ':control:dockerImage',':proxy:dockerImage',':node:dockerImage'
+dockerCompose.dependsOn ':control:dockerImage', ':proxy:dockerImage', ':node:dockerImage'
