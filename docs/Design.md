@@ -166,6 +166,16 @@ The Control segment allows for new nodes to be added or nodes discontinued. This
 also impacts the proxies as they need to know which nodes to access. The
 configuration for the nodes and proxies exists in etcd.
 
+### Node Management
+
+Control will use a consistent hashing approach to map entry ids to the nodes
+themselves. The familiar 'ring-space' will be used, which entry ids and node
+ids are hashed to be place on a ring based on the hash range. Data replication
+is done by sub-dividing the hashed value into the ring so its equally divided
+out.
+
+Assuming a ring-space size is equal to 10 for this.
+
 ### etcd
 
 #### How it's used
