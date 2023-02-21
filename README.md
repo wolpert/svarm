@@ -4,7 +4,10 @@ Multi-tenant key/value datastore. This is a love-letter to DynamoDB.
 
 ## Design Doc
 
-The project is a work-in-progress. For details, see [the design](./docs/Design.md)
+The project is a work-in-progress. For details, see [the design](./docs/Design.md).
+
+The control plane itself is designed to be usable for large-scale node management.
+Details can be found in [this doc](./docs/Control.md).
 
 ***
 
