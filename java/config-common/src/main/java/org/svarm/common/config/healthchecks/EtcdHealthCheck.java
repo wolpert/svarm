@@ -57,7 +57,7 @@ public class EtcdHealthCheck extends HealthCheck {
     try {
       accessor.put(NAMESPACE, key, value);
       final Optional<String> result = accessor.get(NAMESPACE, key);
-      if (!result.isPresent()) {
+      if (result.isEmpty()) {
         LOGGER.warn("Missing value");
         return Result.unhealthy("No value present");
       } else if (!value.equals(result.get())) {

@@ -63,9 +63,23 @@ cluster it belongs to, not all the nodes in the overall svarm. If every node
 knew about every single tenant table cluster, it would overwhelm the data store
 itself.
 
+## Adding nodes
+
+## Removing nodes planned
+
+## Node failure
+
 # Appendix
 
 ## Glossary
+
+* **svarm**: A set of clusters, where each cluster is unique to a tenant's resource.
+* **cluster**: A set of nodes that participate providing service for a tenant's resource.
+* **tenant resource**: a software component like a database table or a notification queue.
+* **node**: a single server instance that can participate in serving in multiple clusters. The node only manages a single resource type. (Table, for example)
+* **proxy**: handles management of finding the correct set of nodes to talk to.
+* **control**: manages the process of adding nodes to the svarm and to clusters as needed.
+* **configuration**: stores data about the resources and nodes in the svarm with their responsibilities.
 
 ## FAQ
 
