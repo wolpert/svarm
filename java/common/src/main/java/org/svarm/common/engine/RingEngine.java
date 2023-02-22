@@ -18,10 +18,8 @@ package org.svarm.common.engine;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
+import com.google.common.collect.ImmutableSet;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.slf4j.Logger;
@@ -67,24 +65,23 @@ public class RingEngine {
   public RingEntry ringEntry(final String id) {
     LOGGER.trace("ringEntry({})", id);
     final int hash = hashingEngine.murmur3(id);
-    final AtomicInteger nextReplicationHash = new AtomicInteger(hash);
-    final Set<Integer> otherHashes = (replicationFactor > 1 ? getLocations(nextReplicationHash) : Set.of(hash));
+    final Set<Integer> otherHashes = (replicationFactor > 1 ? getLocations(hash) : Set.of(hash));
     return ImmutableRingEntry.builder().id(id).hash(hash).locationStores(otherHashes).build();
   }
 
-  private Set<Integer> getLocations(final AtomicInteger nextReplicationHash) {
-    return IntStream.range(0, replicationFactor)
-        .mapToObj(i -> {
-          final int currentValue = nextReplicationHash.get();
-          Long replicationHash = Long.valueOf(currentValue + replicationAddition);
-          if (replicationHash > Integer.MAX_VALUE) {
-            replicationHash -= Integer.MAX_VALUE; // remove the max value
-            replicationHash += Integer.MIN_VALUE; // add what's left to the min value.
-          }
-          nextReplicationHash.set(replicationHash.intValue());
-          return currentValue;
-        }).collect(Collectors.toSet());
+  private Set<Integer> getLocations(final int initialHash) {
+    final ImmutableSet.Builder<Integer> builder = ImmutableSet.<Integer>builder().add(initialHash);
+    int currentHash = initialHash;
+    for (int i = 1; i < replicationFactor; i++) {
+      long replicationHash = currentHash + replicationAddition;
+      if (replicationHash > Integer.MAX_VALUE) {
+        replicationHash -= Integer.MAX_VALUE; // remove the max value
+        replicationHash += Integer.MIN_VALUE; // add what's left to the min value.
+      }
+      currentHash = Math.toIntExact(replicationHash);
+      builder.add(currentHash);
+    }
+    return builder.build();
   }
-
 
 }
