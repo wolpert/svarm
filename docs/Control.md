@@ -63,23 +63,54 @@ cluster it belongs to, not all the nodes in the overall svarm. If every node
 knew about every single tenant table cluster, it would overwhelm the data store
 itself.
 
-## Adding nodes
+### The replication factor
 
-## Removing nodes planned
+When nodes are added to the tenant resource, they are assigned a hash. The
+control service attempts to assign hashes to even out the distribution of the
+data each node will need to consume, but this is expected to not be guaranteed.
+But each node is given one hash range they will be responsible for.
 
-## Node failure
+When getting the hash for the entry being added to the table, we take into
+account the replication factor set for the table. We create one entry per
+replication factor. The first hash is calculated using the murmur3 algorithm.
+The remainder are calculated to evenly distribute the hashes across the
+available space in the hashing algorithm. This is designed to be a fast
+mechanism to generate values as this will happen for each entry added, queried
+updated or deleted from the system. Those hashes are used to help find the node
+to place/search for the data.
+
+## Resource creation
+
+When the resource is first created, the replication factor is set, and initial
+nodes are assigned. The system will allow less nodes on initial assignment than
+the replication factor. This is because if multiple hashes for an entry ends up
+being assigned to the same node, that node will still only contain one data
+element. The downside is, of course, less replication than desired. If the
+replication factor needs to be strict, then the creation request needs to
+require a minimum number of nodes.
+
+Once the nodes are selected, etcd is updated and the nodes watching etcd will
+auto-configure themselves. The control plane is notified when the nodes are
+ready directly via an API call. Once the initial cluster is complete, data can
+then be added as needed.
 
 # Appendix
 
 ## Glossary
 
-* **svarm**: A set of clusters, where each cluster is unique to a tenant's resource.
-* **cluster**: A set of nodes that participate providing service for a tenant's resource.
-* **tenant resource**: a software component like a database table or a notification queue.
-* **node**: a single server instance that can participate in serving in multiple clusters. The node only manages a single resource type. (Table, for example)
+* **svarm**: A set of clusters, where each cluster is unique to a tenant's
+  resource.
+* **cluster**: A set of nodes that participate providing service for a tenant's
+  resource.
+* **tenant resource**: a software component like a database table or a
+  notification queue.
+* **node**: a single server instance that can participate in serving in multiple
+  clusters. The node only manages a single resource type. (Table, for example)
 * **proxy**: handles management of finding the correct set of nodes to talk to.
-* **control**: manages the process of adding nodes to the svarm and to clusters as needed.
-* **configuration**: stores data about the resources and nodes in the svarm with their responsibilities.
+* **control**: manages the process of adding nodes to the svarm and to clusters
+  as needed.
+* **configuration**: stores data about the resources and nodes in the svarm with
+  their responsibilities.
 
 ## FAQ
 
