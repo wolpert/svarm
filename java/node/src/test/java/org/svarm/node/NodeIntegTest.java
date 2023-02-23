@@ -45,6 +45,8 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.svarm.common.factory.ObjectMapperFactory;
+import org.svarm.node.api.EntryInfo;
+import org.svarm.node.api.ImmutableEntryInfo;
 import org.svarm.node.api.NodeTenantService;
 import org.svarm.node.api.NodeTenantTableEntryService;
 import org.svarm.node.api.NodeTenantTableService;
@@ -97,9 +99,9 @@ public class NodeIntegTest {
     BASE_DIRECTORY_PATH = null;
   }
 
-  private static void oneTest(final String tenant, final String table, final Map.Entry<String, JsonNode> e) {
+  private static void oneTest(final String tenant, final String table, final Map.Entry<String, EntryInfo> e) {
     final String key = e.getKey();
-    final JsonNode value = e.getValue();
+    final EntryInfo value = e.getValue();
     System.out.println(key + " creating entry");
     NODE_ENTRY.createTenantTableEntry(tenant, table, key, value);
     System.out.println(key + " reading entry");
@@ -113,8 +115,8 @@ public class NodeIntegTest {
     final String table1 = UUID.randomUUID().toString();
     final String table2 = UUID.randomUUID().toString();
 
-    final Map<String, JsonNode> t1Data = randomData(5);
-    final Map<String, JsonNode> t2Data = randomData(6);
+    final Map<String, EntryInfo> t1Data = randomData(5);
+    final Map<String, EntryInfo> t2Data = randomData(6);
     NODE_TENANT.createTenant(tenant);
     NODE_TABLE.createTenantTable(tenant, table1);
     NODE_TABLE.createTenantTable(tenant, table2);
@@ -137,7 +139,7 @@ public class NodeIntegTest {
     final String table = UUID.randomUUID().toString();
     final int threads = 30;
 
-    final Map<String, JsonNode> data = randomData(threads);
+    final Map<String, EntryInfo> data = randomData(threads);
     NODE_TENANT.createTenant(tenant);
     NODE_TABLE.createTenantTable(tenant, table);
 
@@ -147,21 +149,25 @@ public class NodeIntegTest {
         .collect(Collectors.toList());
     System.out.println("Sent, now waiting to join");
     tasks.forEach(ForkJoinTask::join);
-    data.forEach((k, v) -> assertThat(NODE_ENTRY.readTenantTableEntry(tenant, table, k)).isEqualTo(v));
+    data.forEach((k, v) -> assertThat(NODE_ENTRY.readTenantTableEntry(tenant, table, k)).contains(v));
 
     NODE_TABLE.deleteTenantTable(tenant, table);
     NODE_TENANT.deleteTenant(tenant);
   }
 
-  private Map<String, JsonNode> randomData(final int elements) {
-    final ImmutableMap.Builder<String, JsonNode> builder = ImmutableMap.builder();
-    IntStream.range(0, elements).forEach(i -> builder.put(
-        "data-" + i + "-" + UUID.randomUUID(),
-        OBJECT_MAPPER.createObjectNode()
-            .put(UUID.randomUUID().toString(), UUID.randomUUID().toString())
-            .put(UUID.randomUUID().toString(), UUID.randomUUID().toString())
-            .put(UUID.randomUUID().toString(), RANDOM.nextInt())
-    ));
+  private Map<String, EntryInfo> randomData(final int elements) {
+    final ImmutableMap.Builder<String, EntryInfo> builder = ImmutableMap.builder();
+    IntStream.range(0, elements).forEach(i -> {
+      final Long timestamp = System.currentTimeMillis();
+      final String key = "data-" + i + "-" + UUID.randomUUID();
+      final int hash = RANDOM.nextInt();
+      final JsonNode data =
+          OBJECT_MAPPER.createObjectNode()
+              .put(UUID.randomUUID().toString(), UUID.randomUUID().toString())
+              .put(UUID.randomUUID().toString(), UUID.randomUUID().toString())
+              .put(UUID.randomUUID().toString(), RANDOM.nextInt());
+      builder.put(key, ImmutableEntryInfo.builder().id(key).data(data).timestamp(timestamp).locationHash(hash).build());
+    });
     return builder.build();
   }
 
@@ -178,21 +184,18 @@ public class NodeIntegTest {
     assertThat(NODE_TABLE.createTenantTable(tenant, table)).hasFieldOrPropertyWithValue("id", table);
     assertThat(NODE_TABLE.listTenantTables(tenant)).containsExactly(table);
 
-    final JsonNode j1 = OBJECT_MAPPER.createObjectNode().put("One", "a thing").put("two", 2);
-    final JsonNode j2 = OBJECT_MAPPER.createObjectNode().put("Free", "a different thing").put("four", 4);
+    final EntryInfo e1 = randomData(1).values().stream().findFirst().get();
+    final EntryInfo e2 = randomData(1).values().stream().findFirst().get();
 
-    final String j1Entry = "something";
-    final String j2Entry = "different";
+    NODE_ENTRY.createTenantTableEntry(tenant, table, e1.id(), e1);
+    NODE_ENTRY.createTenantTableEntry(tenant, table, e2.id(), e2);
 
-    NODE_ENTRY.createTenantTableEntry(tenant, table, j1Entry, j1);
-    NODE_ENTRY.createTenantTableEntry(tenant, table, j2Entry, j2);
+    assertThat(NODE_ENTRY.readTenantTableEntry(tenant, table, e1.id())).contains(e1);
+    assertThat(NODE_ENTRY.readTenantTableEntry(tenant, table, e2.id())).contains(e2);
 
-    assertThat(NODE_ENTRY.readTenantTableEntry(tenant, table, j1Entry)).contains(j1);
-    assertThat(NODE_ENTRY.readTenantTableEntry(tenant, table, j2Entry)).contains(j2);
-
-    NODE_ENTRY.deleteTenantTableEntry(tenant, table, j1Entry);
+    NODE_ENTRY.deleteTenantTableEntry(tenant, table, e1.id());
     assertThatExceptionOfType(FeignException.NotFound.class)
-        .isThrownBy(() -> NODE_ENTRY.readTenantTableEntry(tenant, table, j1Entry));
+        .isThrownBy(() -> NODE_ENTRY.readTenantTableEntry(tenant, table, e1.id()));
 
     NODE_TABLE.deleteTenantTable(tenant, table);
     assertThat(NODE_TABLE.listTenantTables(tenant)).isEmpty();

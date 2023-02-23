@@ -16,7 +16,6 @@
 
 package org.svarm.node.api;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import java.util.Optional;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -46,17 +45,17 @@ public interface NodeTenantTableEntryService {
   @GET
   @Path("/{entry}")
   @Produces(MediaType.APPLICATION_JSON)
-  Optional<JsonNode> readTenantTableEntry(@PathParam("tenant") final String tenantId,
-                                          @PathParam("table") final String table,
-                                          @PathParam("entry") final String entry);
+  Optional<EntryInfo> readTenantTableEntry(@PathParam("tenant") final String tenantId,
+                                           @PathParam("table") final String table,
+                                           @PathParam("entry") final String entry);
 
   /**
    * Create the tenant table entry.
    *
-   * @param tenantId that owns the table.
-   * @param table    the table.
-   * @param entry    for the table.
-   * @param data     the data we care about in JSON form.
+   * @param tenantId  that owns the table.
+   * @param table     the table.
+   * @param entry     for the table.
+   * @param entryInfo the data we care about in JSON form.
    */
   @PUT
   @Path("/{entry}")
@@ -64,7 +63,7 @@ public interface NodeTenantTableEntryService {
   void createTenantTableEntry(@PathParam("tenant") final String tenantId,
                               @PathParam("table") final String table,
                               @PathParam("entry") final String entry,
-                              @NotNull @Valid final JsonNode data);
+                              @NotNull @Valid final EntryInfo entryInfo);
 
   /**
    * Delete the tenant table entry.

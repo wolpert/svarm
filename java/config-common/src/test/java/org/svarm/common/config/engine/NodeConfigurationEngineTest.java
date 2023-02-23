@@ -71,21 +71,20 @@ class NodeConfigurationEngineTest {
   }
 
   private static TenantResourceRange randomTenantResourceRange(final int count) {
-    final Map<Integer, Set<NodeRange>> hashToNodeRangeSet = IntStream.range(0, count)
+    final Map<Integer, NodeRange> hashToNodeRange = IntStream.range(0, count)
         .mapToObj(i -> Map.entry(
             i * 23,
-            IntStream.range(0, count)
-                .mapToObj(j -> (NodeRange) ImmutableNodeRange.builder()
+            ImmutableNodeRange.builder()
                     .highHash(random.nextInt(100000))
                     .lowHash(i)
                     .uri(uuid())
                     .uuid(uuid())
-                    .build()).collect(Collectors.toSet())))
+                    .build()))
         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     return ImmutableTenantResourceRange.builder()
         .resource(uuid())
         .tenant(uuid())
-        .hashToNodeRangeSet(hashToNodeRangeSet)
+        .hashToNodeRange(hashToNodeRange)
         .build();
   }
 

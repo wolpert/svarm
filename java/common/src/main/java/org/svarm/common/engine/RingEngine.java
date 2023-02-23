@@ -21,6 +21,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 import com.google.common.collect.ImmutableSet;
 import java.util.Set;
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.svarm.common.model.ImmutableRingEntry;
@@ -32,6 +33,10 @@ import org.svarm.common.model.RingEntry;
 @Singleton
 public class RingEngine {
 
+  /**
+   * Provides the replication factory injection.
+   */
+  public static final String REPLICATION_FACTOR = "RingEngine.ReplicationFactor";
   private static final Logger LOGGER = getLogger(RingEngine.class);
 
   private final HashingEngine hashingEngine;
@@ -45,7 +50,7 @@ public class RingEngine {
    * @param hashingEngine     for hashing values.
    */
   @Inject
-  public RingEngine(final int replicationFactor,
+  public RingEngine(@Named(REPLICATION_FACTOR) final int replicationFactor,
                     final HashingEngine hashingEngine) {
     if (replicationFactor < 1) {
       throw new IllegalStateException("Cannot initialize with a replication factor < 1. Found " + replicationFactor);

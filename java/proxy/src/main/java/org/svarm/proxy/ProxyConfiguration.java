@@ -23,4 +23,23 @@ import org.svarm.server.ServerConfiguration;
  */
 public class ProxyConfiguration extends ServerConfiguration {
 
+  private int replicationFactor = 3;
+
+  /**
+   * Getter.
+   *
+   * @return value.
+   */
+  public int getReplicationFactor() {
+    return replicationFactor;
+  }
+
+  /**
+   * Setter.
+   *
+   * @param replicationFactor to set.
+   */
+  public void setReplicationFactor(final int replicationFactor) {
+    this.replicationFactor = replicationFactor;
+  }
 }

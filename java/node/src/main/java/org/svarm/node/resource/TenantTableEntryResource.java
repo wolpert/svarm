@@ -19,15 +19,12 @@ package org.svarm.node.resource;
 import com.codahale.metrics.annotation.ExceptionMetered;
 import com.codahale.metrics.annotation.ResponseMetered;
 import com.codahale.metrics.annotation.Timed;
-import com.fasterxml.jackson.databind.JsonNode;
 import java.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.svarm.common.engine.HashingEngine;
 import org.svarm.node.api.EntryInfo;
-import org.svarm.node.api.ImmutableEntryInfo;
 import org.svarm.node.api.NodeTenantTableEntryService;
 import org.svarm.node.manager.TenantTableEntryManager;
 import org.svarm.node.model.TenantTableIdentifier;
@@ -43,18 +40,14 @@ public class TenantTableEntryResource implements NodeTenantTableEntryService, Je
   private static final Logger LOGGER = LoggerFactory.getLogger(TenantTableEntryResource.class);
 
   private final TenantTableEntryManager tenantTableEntryManager;
-  private final HashingEngine hashingEngine;
 
   /**
    * Default constructor.
    *
    * @param tenantTableEntryManager to manage the tenant table.
-   * @param hashingEngine           for hashing. Temporary.
    */
   @Inject
-  public TenantTableEntryResource(final TenantTableEntryManager tenantTableEntryManager,
-                                  final HashingEngine hashingEngine) {
-    this.hashingEngine = hashingEngine;
+  public TenantTableEntryResource(final TenantTableEntryManager tenantTableEntryManager) {
     LOGGER.info("TenantTableEntryResource({})", tenantTableEntryManager);
     this.tenantTableEntryManager = tenantTableEntryManager;
   }
@@ -71,21 +64,20 @@ public class TenantTableEntryResource implements NodeTenantTableEntryService, Je
   @ExceptionMetered
   @ResponseMetered
   @Override
-  public Optional<JsonNode> readTenantTableEntry(final String tenantId,
-                                                 final String table,
-                                                 final String entry) {
+  public Optional<EntryInfo> readTenantTableEntry(final String tenantId,
+                                                  final String table,
+                                                  final String entry) {
     LOGGER.debug("readTenantTableEntry({},{},{})", tenantId, table, entry);
-    return tenantTableEntryManager.read(TenantTableIdentifier.from(tenantId, table), entry)
-        .map(EntryInfo::data);
+    return tenantTableEntryManager.read(TenantTableIdentifier.from(tenantId, table), entry);
   }
 
   /**
    * Create the tenant table entry.
    *
-   * @param tenantId that owns the table.
-   * @param table    the table.
-   * @param entry    for the table.
-   * @param data     the data we care about in JSON form.
+   * @param tenantId  that owns the table.
+   * @param table     the table.
+   * @param entry     for the table.
+   * @param entryInfo the data we care about in JSON form.
    */
   @Timed
   @ExceptionMetered
@@ -94,14 +86,8 @@ public class TenantTableEntryResource implements NodeTenantTableEntryService, Je
   public void createTenantTableEntry(final String tenantId,
                                      final String table,
                                      final String entry,
-                                     final JsonNode data) { // Do NOT log this data!
+                                     final EntryInfo entryInfo) { // Do NOT log this data!
     LOGGER.debug("write({},{},{})", tenantId, table, entry);
-    final EntryInfo entryInfo = ImmutableEntryInfo.builder()
-        .id(entry)
-        .data(data)
-        .timestamp(System.currentTimeMillis())
-        .locationHash(hashingEngine.murmur3(entry))// temporary.
-        .build();
     tenantTableEntryManager.write(TenantTableIdentifier.from(tenantId, table), entryInfo);
   }
 

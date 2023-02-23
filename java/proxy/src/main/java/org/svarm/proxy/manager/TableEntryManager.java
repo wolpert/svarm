@@ -20,16 +20,20 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import com.codeheadsystems.metrics.Metrics;
 import com.fasterxml.jackson.databind.JsonNode;
+import java.time.Clock;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.svarm.common.config.api.NodeRange;
 import org.svarm.common.config.api.TenantResource;
 import org.svarm.common.config.api.TenantResourceRange;
-import org.svarm.common.engine.HashingEngine;
+import org.svarm.common.engine.RingEngine;
+import org.svarm.common.model.RingEntry;
+import org.svarm.node.api.EntryInfo;
+import org.svarm.node.api.ImmutableEntryInfo;
 import org.svarm.proxy.engine.CachingTenantResourceRangeEngine;
 import org.svarm.proxy.engine.NodeTenantTableEntryServiceEngine;
 import org.svarm.server.exception.NotFoundException;
@@ -44,7 +48,8 @@ public class TableEntryManager {
 
   private final NodeTenantTableEntryServiceEngine nodeTenantTableEntryServiceEngine;
   private final CachingTenantResourceRangeEngine cachingTenantResourceRangeEngine;
-  private final HashingEngine hashingEngine;
+  private final RingEngine ringEngine;
+  private final Clock clock;
   private final Metrics metrics;
 
 
@@ -53,17 +58,20 @@ public class TableEntryManager {
    *
    * @param nodeTenantTableEntryServiceEngine to get the node connections.
    * @param cachingTenantResourceRangeEngine  to get node configuration data.
-   * @param hashingEngine                     to hash the data.
+   * @param ringEngine                        to hash the data.
+   * @param clock                             for timestamps.
    * @param metrics                           for processing.
    */
   @Inject
   public TableEntryManager(final NodeTenantTableEntryServiceEngine nodeTenantTableEntryServiceEngine,
                            final CachingTenantResourceRangeEngine cachingTenantResourceRangeEngine,
-                           final HashingEngine hashingEngine,
+                           final RingEngine ringEngine,
+                           final Clock clock,
                            final Metrics metrics) {
     this.nodeTenantTableEntryServiceEngine = nodeTenantTableEntryServiceEngine;
     this.cachingTenantResourceRangeEngine = cachingTenantResourceRangeEngine;
-    this.hashingEngine = hashingEngine;
+    this.ringEngine = ringEngine;
+    this.clock = clock;
     this.metrics = metrics;
     LOGGER.info("TableEntryManager()");
   }
@@ -75,15 +83,15 @@ public class TableEntryManager {
    * @param entry          the actual entry.
    * @return the value.
    */
-  public Optional<JsonNode> getTenantTableEntry(final TenantResource tenantResource,
-                                                final String entry) {
+  public Optional<EntryInfo> getTenantTableEntry(final TenantResource tenantResource,
+                                                 final String entry) {
     LOGGER.trace("getTenantTableEntry({},{})", tenantResource, entry);
     // get the node lists from etcd.
-    final Set<NodeRange> nodeRangeSet = nodeRangeSetForEntry(tenantResource, entry);
+    final Map<NodeRange, Integer> rangeHashMap = nodeRangeToHash(tenantResource, entry);
     // TODO: fan out the reads concurrently... be smarter here.
     // TODO: This is bad below... but just to get us started.
-    for (NodeRange nodeRange : nodeRangeSet) {
-      final Optional<JsonNode> result =
+    for (NodeRange nodeRange : rangeHashMap.keySet()) {
+      final Optional<EntryInfo> result =
           nodeTenantTableEntryServiceEngine.get(nodeRange)
               .readTenantTableEntry(
                   tenantResource.tenant(),
@@ -109,17 +117,19 @@ public class TableEntryManager {
 
     LOGGER.trace("putTenantTableEntry({},{},{})", tenantResource, entry, data);
     // get the node lists from etcd.
-    final Set<NodeRange> nodeRangeSet = nodeRangeSetForEntry(tenantResource, entry);
+    final Map<NodeRange, Integer> rangeHashMap = nodeRangeToHash(tenantResource, entry);
+    final Long timestamp = clock.millis();
     // TODO: fan out the reads concurrently... be smarter here.
-    // TODO: This is bad below... but just to get us started.
-    for (NodeRange nodeRange : nodeRangeSet) {
-      LOGGER.trace("Processing {}", nodeRange);
-      nodeTenantTableEntryServiceEngine.get(nodeRange)
+    for (Map.Entry<NodeRange, Integer> tuple : rangeHashMap.entrySet()) {
+      LOGGER.trace("Processing {}", tuple);
+      final EntryInfo entryInfo = ImmutableEntryInfo.builder().id(entry).data(data).locationHash(tuple.getValue())
+          .timestamp(timestamp).build();
+      nodeTenantTableEntryServiceEngine.get(tuple.getKey())
           .createTenantTableEntry(
               tenantResource.tenant(),
               tenantResource.resource(),
               entry,
-              data);
+              entryInfo);
     }
   }
 
@@ -134,10 +144,10 @@ public class TableEntryManager {
 
     LOGGER.trace("deleteTenantTableEntry({},{})", tenantResource, entry);
     // get the node lists from etcd.
-    final Set<NodeRange> nodeRangeSet = nodeRangeSetForEntry(tenantResource, entry);
+    final Map<NodeRange, Integer> rangeHashMap = nodeRangeToHash(tenantResource, entry);
     // TODO: fan out the reads concurrently... be smarter here.
     // TODO: This is bad below... but just to get us started.
-    for (NodeRange nodeRange : nodeRangeSet) {
+    for (NodeRange nodeRange : rangeHashMap.keySet()) {
       nodeTenantTableEntryServiceEngine.get(nodeRange)
           .deleteTenantTableEntry(
               tenantResource.tenant(),
@@ -146,28 +156,35 @@ public class TableEntryManager {
     }
   }
 
-  private Set<NodeRange> nodeRangeSetForEntry(final TenantResource tenantResource,
-                                              final String entry) {
-    return metrics.time("TableEntryManager.nodeRangeSetForEntry", () -> {
+
+  private Map<NodeRange, Integer> nodeRangeToHash(final TenantResource tenantResource,
+                                                  final String entry) {
+    return metrics.time("TableEntryManager.nodeRangeToHash", () -> {
       final TenantResourceRange range = cachingTenantResourceRangeEngine.readTenantResourceRange(tenantResource)
-          .orElseThrow(() -> new NotFoundException());
-      try {
-        LOGGER.trace("Found TenantResourceRange: {}", range);
-        final int hash = hashingEngine.murmur3(entry);
-        LOGGER.trace("hash: {}", hash);
-        return range.hashToNodeRangeSet().entrySet().stream()
-            .filter(e -> (e.getKey() <= hash)) // remove the values with a low-hash higher than our hash.
-            .max(Map.Entry.comparingByKey()) // low to high
-            .map(Map.Entry::getValue)
-            .orElseThrow(() -> new IllegalStateException("Unable to find correct set!"));
-      } catch (IllegalStateException e) {
-        metrics.registry()
-            .counter("TableEntryManager.nodeRangeSetForEntry.abjectFailure", metrics.getTags())
-            .increment();
-        LOGGER.error("Lost data due to lack of nodes! tenant={} entry={} range={}", tenantResource, entry, range);
-        throw e;
-      }
+          .orElseThrow(NotFoundException::new);
+      final RingEntry ringEntry = ringEngine.ringEntry(entry);
+      return ringEntry.locationStores().stream()
+          .map(hash -> Map.entry(nodeRangeForHash(range, hash), hash))
+          .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
+              (oldValue, newValue) -> oldValue)); // if two have the same value, pick the old one... but we should warn.
     });
+  }
+
+  /**
+   * Return the node closest (smaller than) the hash. We should time this and see if we can speed it up. It will
+   * be called a lot.
+   *
+   * @param range for the table.
+   * @param hash  we are looking for.
+   * @return the node range that works.
+   */
+  private NodeRange nodeRangeForHash(final TenantResourceRange range, final Integer hash) {
+    final Map<Integer, NodeRange> hashNodeRangeMap = range.hashToNodeRange();
+    return hashNodeRangeMap.entrySet().stream()
+        .filter(e -> (e.getKey() <= hash)) // remove the values with a low-hash higher than our hash.
+        .max(Map.Entry.comparingByKey()) // low to high
+        .map(Map.Entry::getValue)
+        .orElseThrow(() -> new IllegalStateException("Unable to find correct set!"));
   }
 
 }

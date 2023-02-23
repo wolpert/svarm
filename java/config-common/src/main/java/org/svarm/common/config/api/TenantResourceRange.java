@@ -21,7 +21,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.util.Map;
-import java.util.Set;
 import org.immutables.value.Value;
 
 /**
@@ -55,7 +54,7 @@ public interface TenantResourceRange {
    *
    * @return value.
    */
-  @JsonProperty("hashToNodeRangeSet")
-  Map<Integer, Set<NodeRange>> hashToNodeRangeSet();
+  @JsonProperty("hashToNodeRange")
+  Map<Integer, NodeRange> hashToNodeRange();
 
 }

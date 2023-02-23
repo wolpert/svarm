@@ -20,7 +20,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.slf4j.Logger;
@@ -51,7 +50,7 @@ public class NodeConfigurationEngine {
   public static final String TENANT_NAMESPACE = "tenant";
   private static final Logger LOGGER = LoggerFactory.getLogger(NodeConfigurationEngine.class);
   private static final String NODE_NAMESPACE = "node";
-  private static final TypeReference<Map<Integer, Set<NodeRange>>> MAP_TYPE_REFERENCE = new TypeReference<>() {
+  private static final TypeReference<Map<Integer, NodeRange>> MAP_TYPE_REFERENCE = new TypeReference<>() {
   };
   private final EtcdAccessor accessor;
   private final JsonEngine jsonEngine;
@@ -98,7 +97,7 @@ public class NodeConfigurationEngine {
   public void write(final TenantResourceRange resourceRange) {
     LOGGER.trace("write({})", resourceRange);
     final String key = String.format("%s/%s", resourceRange.tenant(), resourceRange.resource());
-    final String value = jsonEngine.writeValue(resourceRange.hashToNodeRangeSet());
+    final String value = jsonEngine.writeValue(resourceRange.hashToNodeRange());
     accessor.put(TENANT_NAMESPACE, key, value);
   }
 
@@ -153,7 +152,7 @@ public class NodeConfigurationEngine {
         .map(json -> ImmutableTenantResourceRange.builder()
             .tenant(tenantResource.tenant())
             .resource(tenantResource.resource())
-            .hashToNodeRangeSet(jsonEngine.readValue(json, MAP_TYPE_REFERENCE))
+            .hashToNodeRange(jsonEngine.readValue(json, MAP_TYPE_REFERENCE))
             .build());
   }
 

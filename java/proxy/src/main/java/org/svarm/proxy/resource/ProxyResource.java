@@ -28,6 +28,7 @@ import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.svarm.common.config.api.ImmutableTenantResource;
 import org.svarm.common.config.api.TenantResource;
+import org.svarm.node.api.EntryInfo;
 import org.svarm.proxy.common.api.ProxyService;
 import org.svarm.proxy.manager.TableEntryManager;
 import org.svarm.server.resource.JerseyResource;
@@ -64,7 +65,7 @@ public class ProxyResource implements ProxyService, JerseyResource {
     LOGGER.trace("readTenantTableEntry({},{},{})", tenantId, table, entry);
     final TenantResource tenantResource = ImmutableTenantResource.builder()
         .tenant(tenantId).resource(table).build();
-    return tableEntryManager.getTenantTableEntry(tenantResource, entry);
+    return tableEntryManager.getTenantTableEntry(tenantResource, entry).map(EntryInfo::data);
   }
 
   @Override

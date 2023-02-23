@@ -21,7 +21,6 @@ import java.time.Clock;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -43,6 +42,7 @@ import org.svarm.server.exception.NotFoundException;
 
 /**
  * Manages node ranges.
+ * TODO: THIS NEEDS UPDATING AS IT JUST CREATES ONE NODE.
  */
 @Singleton
 public class NodeRangeManager {
@@ -165,13 +165,10 @@ public class NodeRangeManager {
     metrics.time("NodeRangeManager.updateConfiguration", () -> {
       final List<org.svarm.common.config.api.NodeRange> nodeRanges =
           nodeRangeDao.apiNodeRanges(tenant, resource);
-      final Map<Integer, Set<org.svarm.common.config.api.NodeRange>> map = nodeRanges.stream()
-          .collect(Collectors.groupingBy(
-              org.svarm.common.config.api.NodeRange::lowHash,
-              Collectors.mapping(nr -> nr, Collectors.toSet())
-          ));
+      final Map<Integer, org.svarm.common.config.api.NodeRange> map = nodeRanges.stream()
+          .collect(Collectors.toMap(org.svarm.common.config.api.NodeRange::lowHash, nr -> nr));
       final TenantResourceRange tenantResourceRange = ImmutableTenantResourceRange.builder()
-          .tenant(tenant).resource(resource).hashToNodeRangeSet(map).build();
+          .tenant(tenant).resource(resource).hashToNodeRange(map).build();
       nodeConfigurationEngine.write(tenantResourceRange);
       return null;
     });
