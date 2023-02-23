@@ -16,7 +16,6 @@
 
 package org.svarm.node.manager;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import java.util.Map;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -25,7 +24,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.svarm.common.engine.HashingEngine;
 import org.svarm.node.api.EntryInfo;
-import org.svarm.node.api.ImmutableEntryInfo;
 import org.svarm.node.engine.TableDefinitionEngine;
 import org.svarm.node.model.TenantTable;
 import org.svarm.node.model.TenantTableIdentifier;
@@ -41,20 +39,16 @@ public class TenantTableEntryManager {
 
   private final Map<String, TableDefinitionEngine> tableDefinitionEngineMap;
   private final TenantTableManager tenantTableManager;
-  private final HashingEngine hashingEngine;
 
   /**
    * Constructor.
    *
    * @param tableDefinitionEngineMap the map of who does the hard work.
    * @param tenantTableManager       to get the tenant table.
-   * @param hashingEngine            for hashing, temporary.
    */
   @Inject
   public TenantTableEntryManager(final Map<String, TableDefinitionEngine> tableDefinitionEngineMap,
-                                 final TenantTableManager tenantTableManager,
-                                 final HashingEngine hashingEngine) {
-    this.hashingEngine = hashingEngine;
+                                 final TenantTableManager tenantTableManager) {
     LOGGER.info("TenantTableEntryManager({},{})", tableDefinitionEngineMap, tenantTableManager);
     this.tableDefinitionEngineMap = tableDefinitionEngineMap;
     this.tenantTableManager = tenantTableManager;
@@ -67,36 +61,26 @@ public class TenantTableEntryManager {
    * @param entity     to read.
    * @return the data, if found.
    */
-  public Optional<JsonNode> read(final TenantTableIdentifier identifier,
-                                 final String entity) {
+  public Optional<EntryInfo> read(final TenantTableIdentifier identifier,
+                                  final String entity) {
     LOGGER.trace("read({},{})", identifier, entity);
     final TenantTable tenantTable = tenantTableManager.get(identifier)
         .orElseThrow(() -> new NotFoundException("No such table:" + identifier));
-    // TODO, return the entry info object instead.
-    final Optional<EntryInfo> read = engine(tenantTable).read(tenantTable, entity);
-    return read.map(EntryInfo::data);
+    return engine(tenantTable).read(tenantTable, entity);
   }
 
   /**
    * Writes the entry.
    *
    * @param identifier of the table.
-   * @param entity     to write.
-   * @param jsonNode   the data, if found.
+   * @param entryInfo  to write.
    */
   public void write(final TenantTableIdentifier identifier,
-                    final String entity,
-                    final JsonNode jsonNode) {
-    LOGGER.trace("write({},{})", identifier, entity);
+                    final EntryInfo entryInfo) {
+    LOGGER.trace("write({},{})", identifier, entryInfo.id());
     final TenantTable tenantTable = tenantTableManager.get(identifier)
         .orElseThrow(() -> new NotFoundException("No such table:" + identifier));
-    // TODO take in an entry info object instead.
-    engine(tenantTable).write(tenantTable, ImmutableEntryInfo.builder()
-        .id(entity)
-        .data(jsonNode)
-        .timestamp(System.currentTimeMillis())
-        .locationHash(hashingEngine.murmur3(entity))
-        .build());
+    engine(tenantTable).write(tenantTable, entryInfo);
   }
 
   /**

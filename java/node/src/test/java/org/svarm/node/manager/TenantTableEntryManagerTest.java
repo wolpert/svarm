@@ -49,12 +49,9 @@ class TenantTableEntryManagerTest {
   @Mock private JsonNode jsonNode;
   @Mock private TenantTableIdentifier identifier;
   @Mock private TenantTable tenantTable;
-  @Mock private HashingEngine hashingEngine;
   @Mock private EntryInfo entryInfo;
 
   @Captor private ArgumentCaptor<TenantTable> tableArgumentCaptor;
-  @Captor private ArgumentCaptor<String> stringArgumentCaptor;
-  @Captor private ArgumentCaptor<JsonNode> jsonNodeArgumentCaptor;
   @Captor private ArgumentCaptor<EntryInfo> entryInfoArgumentCaptor;
 
   private TenantTableEntryManager manager;
@@ -62,19 +59,18 @@ class TenantTableEntryManagerTest {
   @BeforeEach
   void setup() {
     final Map<String, TableDefinitionEngine> map = ImmutableMap.of(TABLE_VERSION, tableDefinitionEngine);
-    manager = new TenantTableEntryManager(map, tenantTableManager, hashingEngine);
+    manager = new TenantTableEntryManager(map, tenantTableManager);
   }
 
   @Test
   void read_tableFound() {
     when(tenantTableManager.get(identifier)).thenReturn(Optional.of(tenantTable));
     when(tenantTable.tableVersion()).thenReturn(TABLE_VERSION);
-    when(entryInfo.data()).thenReturn(jsonNode);
     when(tableDefinitionEngine.read(tenantTable, ENTITY)).thenReturn(Optional.of(entryInfo));
 
     assertThat(manager.read(identifier, ENTITY))
         .isPresent()
-        .contains(jsonNode);
+        .contains(entryInfo);
   }
 
   @Test
@@ -97,11 +93,11 @@ class TenantTableEntryManagerTest {
   void write_tableFound() {
     when(tenantTableManager.get(identifier)).thenReturn(Optional.of(tenantTable));
     when(tenantTable.tableVersion()).thenReturn(TABLE_VERSION);
-    when(hashingEngine.murmur3(ENTITY)).thenReturn(10);
 
-    manager.write(identifier, ENTITY, jsonNode);
+    manager.write(identifier, entryInfo);
     verify(tableDefinitionEngine).write(tableArgumentCaptor.capture(), entryInfoArgumentCaptor.capture());
     assertThat(tableArgumentCaptor.getValue()).isEqualTo(tenantTable);
+    assertThat(entryInfoArgumentCaptor.getValue()).isEqualTo(entryInfo);
   }
 
   @Test
@@ -110,14 +106,14 @@ class TenantTableEntryManagerTest {
     when(tenantTable.tableVersion()).thenReturn(TABLE_VERSION + " not found");
 
     assertThatExceptionOfType(IllegalArgumentException.class)
-        .isThrownBy(() -> manager.write(identifier, ENTITY, jsonNode));
+        .isThrownBy(() -> manager.write(identifier, entryInfo));
   }
 
   @Test
   void write_tableNotFound() {
     when(tenantTableManager.get(identifier)).thenReturn(Optional.empty());
     assertThatExceptionOfType(NotFoundException.class)
-        .isThrownBy(() -> manager.write(identifier, ENTITY, jsonNode));
+        .isThrownBy(() -> manager.write(identifier, entryInfo));
   }
 
   @Test

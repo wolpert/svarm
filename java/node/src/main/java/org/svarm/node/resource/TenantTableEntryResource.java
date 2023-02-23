@@ -25,6 +25,9 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.svarm.common.engine.HashingEngine;
+import org.svarm.node.api.EntryInfo;
+import org.svarm.node.api.ImmutableEntryInfo;
 import org.svarm.node.api.NodeTenantTableEntryService;
 import org.svarm.node.manager.TenantTableEntryManager;
 import org.svarm.node.model.TenantTableIdentifier;
@@ -40,14 +43,18 @@ public class TenantTableEntryResource implements NodeTenantTableEntryService, Je
   private static final Logger LOGGER = LoggerFactory.getLogger(TenantTableEntryResource.class);
 
   private final TenantTableEntryManager tenantTableEntryManager;
+  private final HashingEngine hashingEngine;
 
   /**
    * Default constructor.
    *
    * @param tenantTableEntryManager to manage the tenant table.
+   * @param hashingEngine           for hashing. Temporary.
    */
   @Inject
-  public TenantTableEntryResource(final TenantTableEntryManager tenantTableEntryManager) {
+  public TenantTableEntryResource(final TenantTableEntryManager tenantTableEntryManager,
+                                  final HashingEngine hashingEngine) {
+    this.hashingEngine = hashingEngine;
     LOGGER.info("TenantTableEntryResource({})", tenantTableEntryManager);
     this.tenantTableEntryManager = tenantTableEntryManager;
   }
@@ -68,7 +75,8 @@ public class TenantTableEntryResource implements NodeTenantTableEntryService, Je
                                                  final String table,
                                                  final String entry) {
     LOGGER.debug("readTenantTableEntry({},{},{})", tenantId, table, entry);
-    return tenantTableEntryManager.read(TenantTableIdentifier.from(tenantId, table), entry);
+    return tenantTableEntryManager.read(TenantTableIdentifier.from(tenantId, table), entry)
+        .map(EntryInfo::data);
   }
 
   /**
@@ -86,9 +94,15 @@ public class TenantTableEntryResource implements NodeTenantTableEntryService, Je
   public void createTenantTableEntry(final String tenantId,
                                      final String table,
                                      final String entry,
-                                     JsonNode data) { // Do NOT log this data!
+                                     final JsonNode data) { // Do NOT log this data!
     LOGGER.debug("write({},{},{})", tenantId, table, entry);
-    tenantTableEntryManager.write(TenantTableIdentifier.from(tenantId, table), entry, data);
+    final EntryInfo entryInfo = ImmutableEntryInfo.builder()
+        .id(entry)
+        .data(data)
+        .timestamp(System.currentTimeMillis())
+        .locationHash(hashingEngine.murmur3(entry))// temporary.
+        .build();
+    tenantTableEntryManager.write(TenantTableIdentifier.from(tenantId, table), entryInfo);
   }
 
   /**
