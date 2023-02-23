@@ -2,6 +2,20 @@
 
 Multi-tenant key/value datastore. This is a love-letter to DynamoDB.
 
+## Purpose
+
+Svarm is a large-scale key/value data store. It consists of components that can
+be used in other projects as well. These include full systems such as the
+control plane to manage scaling resources in a linear fashion. It also includes
+sub-components to build other projects out of like the common server code that
+provides opinionated (Dagger, immutables, Dropwizard) framework extending the
+great work done by the dropwizard team.
+
+## Intended audience
+
+Svarm is for companies that want to rely on their own data centers for a
+reliable, scalable NoSQL data store. In essence, bringing the cloud back home.
+
 ## Design Doc
 
 The project is a work-in-progress. For details,
