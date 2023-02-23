@@ -47,9 +47,11 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import org.svarm.common.factory.ObjectMapperFactory;
 import org.svarm.node.api.EntryInfo;
 import org.svarm.node.api.ImmutableEntryInfo;
+import org.svarm.node.api.ImmutableTableMetaData;
 import org.svarm.node.api.NodeTenantService;
 import org.svarm.node.api.NodeTenantTableEntryService;
 import org.svarm.node.api.NodeTenantTableService;
+import org.svarm.node.api.TableMetaData;
 import org.svarm.node.javaclient.NodeServiceComponent;
 
 @Tag("integ")
@@ -59,6 +61,9 @@ public class NodeIntegTest {
   public static final EtcdClusterExtension cluster = EtcdClusterExtension.builder()
       .withNodes(1)
       .build();
+
+  private static final TableMetaData TABLE_META_DATA = ImmutableTableMetaData.builder()
+      .type(TableMetaData.Type.SINGLE_PRIMARY_KEY_V1.name()).replicationFactor(3).build();
 
   private static DropwizardTestSupport<NodeConfiguration> SUPPORT;
   private static Path BASE_DIRECTORY_PATH;
@@ -118,8 +123,8 @@ public class NodeIntegTest {
     final Map<String, EntryInfo> t1Data = randomData(5);
     final Map<String, EntryInfo> t2Data = randomData(6);
     NODE_TENANT.createTenant(tenant);
-    NODE_TABLE.createTenantTable(tenant, table1);
-    NODE_TABLE.createTenantTable(tenant, table2);
+    NODE_TABLE.createTenantTable(tenant, table1, TABLE_META_DATA);
+    NODE_TABLE.createTenantTable(tenant, table2, TABLE_META_DATA);
     t1Data.forEach((k, v) -> NODE_ENTRY.createTenantTableEntry(tenant, table1, k, v));
     t2Data.forEach((k, v) -> NODE_ENTRY.createTenantTableEntry(tenant, table2, k, v));
 
@@ -141,7 +146,7 @@ public class NodeIntegTest {
 
     final Map<String, EntryInfo> data = randomData(threads);
     NODE_TENANT.createTenant(tenant);
-    NODE_TABLE.createTenantTable(tenant, table);
+    NODE_TABLE.createTenantTable(tenant, table, TABLE_META_DATA);
 
     final ForkJoinPool pool = new ForkJoinPool(threads);
     final List<ForkJoinTask<?>> tasks = data.entrySet().stream()
@@ -181,7 +186,7 @@ public class NodeIntegTest {
     assertThat(NODE_TENANT.listTenants()).contains(tenant);
 
     assertThat(NODE_TABLE.listTenantTables(tenant)).isEmpty();
-    assertThat(NODE_TABLE.createTenantTable(tenant, table)).hasFieldOrPropertyWithValue("id", table);
+    assertThat(NODE_TABLE.createTenantTable(tenant, table, TABLE_META_DATA)).hasFieldOrPropertyWithValue("id", table);
     assertThat(NODE_TABLE.listTenantTables(tenant)).containsExactly(table);
 
     final EntryInfo e1 = randomData(1).values().stream().findFirst().get();

@@ -26,6 +26,7 @@ import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.svarm.node.api.NodeTenantTableService;
+import org.svarm.node.api.TableMetaData;
 import org.svarm.node.api.TenantTableInfo;
 import org.svarm.node.converter.TenantTableInfoConverter;
 import org.svarm.node.engine.impl.V1SingleEntryEngine;
@@ -107,7 +108,8 @@ public class TenantTableResource implements NodeTenantTableService, JerseyResour
   @ResponseMetered
   @Override
   public TenantTableInfo createTenantTable(final String tenantId,
-                                           final String table) {
+                                           final String table,
+                                           final TableMetaData tableMetaData) {
     LOGGER.debug("create({},{})", tenantId, table);
     final TenantTableIdentifier identifier = TenantTableIdentifier.from(tenantId, table);
     final TenantTable tenantTable = tenantTableManager

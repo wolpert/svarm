@@ -28,6 +28,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.svarm.node.api.TableMetaData;
 import org.svarm.node.api.TenantTableInfo;
 import org.svarm.node.converter.TenantTableInfoConverter;
 import org.svarm.node.engine.impl.V1SingleEntryEngine;
@@ -48,6 +49,7 @@ class TenantTableResourceTest {
   @Mock private TenantTableIdentifier identifier;
   @Mock private TenantTable tenantTable;
   @Mock private List<String> list;
+  @Mock private TableMetaData tableMetaData;
 
   @InjectMocks private TenantTableResource resource;
 
@@ -81,7 +83,7 @@ class TenantTableResourceTest {
         .thenReturn(tenantTable);
     when(tenantTable.identifier()).thenReturn(identifier);
     when(tenantTableInfoConverter.from(identifier)).thenReturn(tenantTableInfo);
-    assertThat(resource.createTenantTable(TENANT, TABLE_NAME))
+    assertThat(resource.createTenantTable(TENANT, TABLE_NAME, tableMetaData))
         .isEqualTo(tenantTableInfo);
   }
 

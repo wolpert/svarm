@@ -18,6 +18,7 @@ package org.svarm.node.api;
 
 import java.util.List;
 import java.util.Optional;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
@@ -59,15 +60,18 @@ public interface NodeTenantTableService {
   /**
    * Create the tenant.
    *
-   * @param tenantId that owns the table.
-   * @param table    the table.
+   * @param tenantId      that owns the table.
+   * @param table         the table.
+   * @param tableMetaData for the table.
    * @return response.
    */
   @PUT
   @Path("/{table}")
   @Produces(MediaType.APPLICATION_JSON)
+  @Consumes(MediaType.APPLICATION_JSON)
   TenantTableInfo createTenantTable(@PathParam("tenant") final String tenantId,
-                                    @PathParam("table") final String table);
+                                    @PathParam("table") final String table,
+                                    final TableMetaData tableMetaData);
 
   /**
    * Delete the tenant table.
