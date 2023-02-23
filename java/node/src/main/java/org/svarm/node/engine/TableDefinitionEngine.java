@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.hash.HashFunction;
 import java.util.Optional;
 import java.util.function.Supplier;
+import org.svarm.node.api.EntryInfo;
 import org.svarm.node.model.TenantTable;
 
 /**
@@ -56,18 +57,17 @@ public interface TableDefinitionEngine {
    *
    * @param tenantTable table to read from.
    * @param entity      the entity id.
-   * @return a json node if found.
+   * @return a EntryInfo if found.
    */
-  Optional<JsonNode> read(TenantTable tenantTable, String entity);
+  Optional<EntryInfo> read(TenantTable tenantTable, String entity);
 
   /**
    * Writes the entity to the table.
    *
    * @param tenantTable table to write to.
-   * @param entity      the entity id.
-   * @param data        the data.
+   * @param entity      the entity.
    */
-  void write(TenantTable tenantTable, String entity, final JsonNode data);
+  void write(final TenantTable tenantTable, final EntryInfo entity);
 
   /**
    * Delete the entity from the table, returning the JsonNode.

@@ -23,6 +23,9 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.svarm.common.engine.HashingEngine;
+import org.svarm.node.api.EntryInfo;
+import org.svarm.node.api.ImmutableEntryInfo;
 import org.svarm.node.engine.TableDefinitionEngine;
 import org.svarm.node.model.TenantTable;
 import org.svarm.node.model.TenantTableIdentifier;
@@ -38,16 +41,20 @@ public class TenantTableEntryManager {
 
   private final Map<String, TableDefinitionEngine> tableDefinitionEngineMap;
   private final TenantTableManager tenantTableManager;
+  private final HashingEngine hashingEngine;
 
   /**
    * Constructor.
    *
    * @param tableDefinitionEngineMap the map of who does the hard work.
    * @param tenantTableManager       to get the tenant table.
+   * @param hashingEngine            for hashing, temporary.
    */
   @Inject
   public TenantTableEntryManager(final Map<String, TableDefinitionEngine> tableDefinitionEngineMap,
-                                 final TenantTableManager tenantTableManager) {
+                                 final TenantTableManager tenantTableManager,
+                                 final HashingEngine hashingEngine) {
+    this.hashingEngine = hashingEngine;
     LOGGER.info("TenantTableEntryManager({},{})", tableDefinitionEngineMap, tenantTableManager);
     this.tableDefinitionEngineMap = tableDefinitionEngineMap;
     this.tenantTableManager = tenantTableManager;
@@ -65,7 +72,9 @@ public class TenantTableEntryManager {
     LOGGER.trace("read({},{})", identifier, entity);
     final TenantTable tenantTable = tenantTableManager.get(identifier)
         .orElseThrow(() -> new NotFoundException("No such table:" + identifier));
-    return engine(tenantTable).read(tenantTable, entity);
+    // TODO, return the entry info object instead.
+    final Optional<EntryInfo> read = engine(tenantTable).read(tenantTable, entity);
+    return read.map(EntryInfo::data);
   }
 
   /**
@@ -81,7 +90,13 @@ public class TenantTableEntryManager {
     LOGGER.trace("write({},{})", identifier, entity);
     final TenantTable tenantTable = tenantTableManager.get(identifier)
         .orElseThrow(() -> new NotFoundException("No such table:" + identifier));
-    engine(tenantTable).write(tenantTable, entity, jsonNode);
+    // TODO take in an entry info object instead.
+    engine(tenantTable).write(tenantTable, ImmutableEntryInfo.builder()
+        .id(entity)
+        .data(jsonNode)
+        .timestamp(System.currentTimeMillis())
+        .locationHash(hashingEngine.murmur3(entity))
+        .build());
   }
 
   /**

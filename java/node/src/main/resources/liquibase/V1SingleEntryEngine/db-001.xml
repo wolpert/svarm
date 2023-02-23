@@ -29,7 +29,10 @@
             <column name="C_COL" type="varchar(256)">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="HASH" type="bigint">
+            <column name="HASH" type="integer">
+                <constraints nullable="false"/>
+            </column>
+            <column name="TIMESTAMP" type="bigint">
                 <constraints nullable="false"/>
             </column>
             <column name="C_DATA_TYPE" type="varchar(256)">

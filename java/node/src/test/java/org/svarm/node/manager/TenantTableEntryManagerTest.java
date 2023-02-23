@@ -32,6 +32,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.svarm.common.engine.HashingEngine;
+import org.svarm.node.api.EntryInfo;
 import org.svarm.node.engine.TableDefinitionEngine;
 import org.svarm.node.model.TenantTable;
 import org.svarm.node.model.TenantTableIdentifier;
@@ -47,24 +49,28 @@ class TenantTableEntryManagerTest {
   @Mock private JsonNode jsonNode;
   @Mock private TenantTableIdentifier identifier;
   @Mock private TenantTable tenantTable;
+  @Mock private HashingEngine hashingEngine;
+  @Mock private EntryInfo entryInfo;
 
   @Captor private ArgumentCaptor<TenantTable> tableArgumentCaptor;
   @Captor private ArgumentCaptor<String> stringArgumentCaptor;
   @Captor private ArgumentCaptor<JsonNode> jsonNodeArgumentCaptor;
+  @Captor private ArgumentCaptor<EntryInfo> entryInfoArgumentCaptor;
 
   private TenantTableEntryManager manager;
 
   @BeforeEach
   void setup() {
     final Map<String, TableDefinitionEngine> map = ImmutableMap.of(TABLE_VERSION, tableDefinitionEngine);
-    manager = new TenantTableEntryManager(map, tenantTableManager);
+    manager = new TenantTableEntryManager(map, tenantTableManager, hashingEngine);
   }
 
   @Test
   void read_tableFound() {
     when(tenantTableManager.get(identifier)).thenReturn(Optional.of(tenantTable));
     when(tenantTable.tableVersion()).thenReturn(TABLE_VERSION);
-    when(tableDefinitionEngine.read(tenantTable, ENTITY)).thenReturn(Optional.of(jsonNode));
+    when(entryInfo.data()).thenReturn(jsonNode);
+    when(tableDefinitionEngine.read(tenantTable, ENTITY)).thenReturn(Optional.of(entryInfo));
 
     assertThat(manager.read(identifier, ENTITY))
         .isPresent()
@@ -91,12 +97,11 @@ class TenantTableEntryManagerTest {
   void write_tableFound() {
     when(tenantTableManager.get(identifier)).thenReturn(Optional.of(tenantTable));
     when(tenantTable.tableVersion()).thenReturn(TABLE_VERSION);
+    when(hashingEngine.murmur3(ENTITY)).thenReturn(10);
 
     manager.write(identifier, ENTITY, jsonNode);
-    verify(tableDefinitionEngine).write(tableArgumentCaptor.capture(), stringArgumentCaptor.capture(), jsonNodeArgumentCaptor.capture());
+    verify(tableDefinitionEngine).write(tableArgumentCaptor.capture(), entryInfoArgumentCaptor.capture());
     assertThat(tableArgumentCaptor.getValue()).isEqualTo(tenantTable);
-    assertThat(stringArgumentCaptor.getValue()).isEqualTo(ENTITY);
-    assertThat(jsonNodeArgumentCaptor.getValue()).isEqualTo(jsonNode);
   }
 
   @Test

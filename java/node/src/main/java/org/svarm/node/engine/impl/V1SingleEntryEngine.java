@@ -32,6 +32,8 @@ import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.svarm.common.engine.JsonEngine;
+import org.svarm.node.api.EntryInfo;
+import org.svarm.node.api.ImmutableEntryInfo;
 import org.svarm.node.engine.SqlEngine;
 import org.svarm.node.engine.TableDefinitionEngine;
 import org.svarm.node.model.TenantTable;
@@ -95,15 +97,17 @@ public class V1SingleEntryEngine implements TableDefinitionEngine {
    *
    * @param tenantTable table to read from.
    * @param entity      the entity id.
-   * @return a json node if found.
+   * @return a entry if found.
    */
   @Override
-  public Optional<JsonNode> read(final TenantTable tenantTable, final String entity) {
+  public Optional<EntryInfo> read(final TenantTable tenantTable, final String entity) {
     LOGGER.trace("read({},{})", tenantTable, entity);
     return sqlEngine.executePreparedTenant(tenantTable,
         "select * from TENANT_DATA where ID = ?",
         (ps) -> {
           try {
+            long timestamp = 0;
+            int hash = 0;
             ps.setString(1, entity);
             try (final ResultSet rs = ps.executeQuery()) {
               int rows = 0;
@@ -111,9 +115,10 @@ public class V1SingleEntryEngine implements TableDefinitionEngine {
               while (rs.next()) {
                 rows++;
                 final String col = rs.getString("C_COL");
-                LOGGER.trace("setting {}->{}", entity, col);
                 final String type = rs.getString("C_DATA_TYPE");
                 final String data = rs.getString("C_DATA");
+                hash = rs.getInt("HASH");
+                timestamp = Math.max(timestamp, rs.getLong("TIMESTAMP"));
                 switch (type) {
                   case INTEGER_TYPE -> node.put(col, Integer.valueOf(data));
                   case STRING_TYPE -> node.put(col, data);
@@ -124,7 +129,12 @@ public class V1SingleEntryEngine implements TableDefinitionEngine {
                 }
               }
               if (rows > 0) {
-                return Optional.of(node);
+                return Optional.of(ImmutableEntryInfo.builder()
+                    .data(node)
+                    .timestamp(timestamp)
+                    .locationHash(hash)
+                    .id(entity)
+                    .build());
               } else {
                 return Optional.empty();
               }
@@ -139,23 +149,21 @@ public class V1SingleEntryEngine implements TableDefinitionEngine {
    * Writes the entity to the table.
    *
    * @param tenantTable table to write to.
-   * @param entity      the entity id.
-   * @param data        the data.
+   * @param entryInfo   the data.
    */
   @Override
-  public void write(final TenantTable tenantTable, final String entity, final JsonNode data) {
-    LOGGER.trace("write({},{})", tenantTable, entity);
-    final Integer hash = hashFunctionSupplier().get().hashUnencodedChars(entity).asInt();
+  public void write(final TenantTable tenantTable, final EntryInfo entryInfo) {
+    LOGGER.trace("write({},{})", tenantTable, entryInfo);
     sqlEngine.executePreparedTenant(tenantTable,
-        "insert into TENANT_DATA (ID,C_COL,HASH,C_DATA_TYPE,C_DATA) values (?,?,?,?,?)",
+        "insert into TENANT_DATA (ID,C_COL,HASH,C_DATA_TYPE,C_DATA,TIMESTAMP) values (?,?,?,?,?,?)",
         (ps) -> {
           try {
-            data.fieldNames().forEachRemaining(col -> {
+            entryInfo.data().fieldNames().forEachRemaining(col -> {
               try {
-                ps.setString(1, entity);
+                ps.setString(1, entryInfo.id());
                 ps.setString(2, col);
-                ps.setInt(3, hash);
-                final JsonNode element = data.get(col);
+                ps.setInt(3, entryInfo.locationHash());
+                final JsonNode element = entryInfo.data().get(col);
                 if (element.isNumber()) {
                   ps.setString(4, INTEGER_TYPE);
                 } else if (element.isTextual()) {
@@ -164,16 +172,17 @@ public class V1SingleEntryEngine implements TableDefinitionEngine {
                   throw new IllegalArgumentException("Unknown type: " + element.getNodeType());
                 }
                 ps.setString(5, element.asText());
+                ps.setLong(6, entryInfo.timestamp());
                 ps.addBatch();
               } catch (SQLException e) {
-                LOGGER.error("Unable to add row: {},{}", tenantTable, entity, e);
+                LOGGER.error("Unable to add row: {},{}", tenantTable, entryInfo.id(), e);
                 throw new IllegalArgumentException("Unable to add row", e);
               }
             });
             ps.executeBatch();
             return null;
           } catch (SQLException e) {
-            LOGGER.error("Unable to execute batch: {},{}", tenantTable, entity, e);
+            LOGGER.error("Unable to execute batch: {},{}", tenantTable, entryInfo.id(), e);
             throw new IllegalArgumentException("Unable to execute batch", e);
           }
         });
