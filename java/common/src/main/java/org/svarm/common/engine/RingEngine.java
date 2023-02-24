@@ -20,6 +20,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import com.google.common.collect.ImmutableSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
@@ -40,8 +41,7 @@ public class RingEngine {
   private static final Logger LOGGER = getLogger(RingEngine.class);
 
   private final HashingEngine hashingEngine;
-  private final int replicationFactor;
-  private final long replicationAddition;
+  private final Set<Long> replicationBases;
 
   /**
    * Constructor.
@@ -55,10 +55,9 @@ public class RingEngine {
     if (replicationFactor < 1) {
       throw new IllegalStateException("Cannot initialize with a replication factor < 1. Found " + replicationFactor);
     }
-    this.replicationFactor = replicationFactor;
+    this.replicationBases = getReplicationBases(replicationFactor);
     this.hashingEngine = hashingEngine;
-    this.replicationAddition = (((long) Integer.MAX_VALUE * 2L) - 1L) / (long) replicationFactor;
-    LOGGER.info("RingEngine({},{},{})", hashingEngine, replicationFactor, replicationAddition);
+    LOGGER.info("RingEngine({},{},{})", replicationBases, hashingEngine, replicationFactor);
   }
 
   /**
@@ -70,23 +69,43 @@ public class RingEngine {
   public RingEntry ringEntry(final String id) {
     LOGGER.trace("ringEntry({})", id);
     final int hash = hashingEngine.murmur3(id);
-    final Set<Integer> otherHashes = (replicationFactor > 1 ? getLocations(hash) : Set.of(hash));
+    final Set<Integer> otherHashes = replicationBases.stream().map(base -> addNumbersWithIntegerWrap(hash, base)).collect(Collectors.toSet());
     return ImmutableRingEntry.builder().id(id).hash(hash).locationStores(otherHashes).build();
   }
 
-  private Set<Integer> getLocations(final int initialHash) {
-    final ImmutableSet.Builder<Integer> builder = ImmutableSet.<Integer>builder().add(initialHash);
-    int currentHash = initialHash;
+  /**
+   * This method will return a set of base hash values to add to the real hash value.
+   * The result is numbers you can add to see where the replication hashs are.
+   *
+   * @param replicationFactor how to divide the hashing space.
+   * @return the set of values.
+   */
+  private Set<Long> getReplicationBases(final int replicationFactor) {
+    long currentHash = 0;
+    final long replicationAddition = (((long) Integer.MAX_VALUE * 2L) - 1L) / (long) replicationFactor;
+    final ImmutableSet.Builder<Long> builder = ImmutableSet.<Long>builder().add(currentHash);
     for (int i = 1; i < replicationFactor; i++) {
-      long replicationHash = currentHash + replicationAddition;
-      if (replicationHash > Integer.MAX_VALUE) {
-        replicationHash -= Integer.MAX_VALUE; // remove the max value
-        replicationHash += Integer.MIN_VALUE; // add what's left to the min value.
-      }
-      currentHash = Math.toIntExact(replicationHash);
-      builder.add(currentHash);
+      currentHash = addNumbersWithIntegerWrap(Math.toIntExact(currentHash), replicationAddition);
+      builder.add((long) currentHash);
     }
     return builder.build();
+  }
+
+  /**
+   * This method will add the replication addition to the current hash.
+   * If the result is bigger than MAX_INT it will wrap around to the lower value.
+   *
+   * @param currentHash         we are looking at.
+   * @param replicationAddition what we are adding.
+   * @return the wrapped around value.
+   */
+  private int addNumbersWithIntegerWrap(int currentHash, long replicationAddition) {
+    long replicationHash = currentHash + replicationAddition;
+    if (replicationHash > Integer.MAX_VALUE) {
+      replicationHash -= Integer.MAX_VALUE; // remove the max value
+      replicationHash += Integer.MIN_VALUE; // add what's left to the min value.
+    }
+    return Math.toIntExact(replicationHash);
   }
 
 }
