@@ -4,6 +4,7 @@ logging:
     com.codeheadsystems: DEBUG
     org.svarm: TRACE
     com.mchange.v2.c3p0: WARN
+    org.eclipse.jetty.server.HttpChannel: ERROR
   appenders:
     - type: console
       logFormat: "%d{HH:mm:ss.SSS} [%thread] [trace:%X{trace}] %-5level %logger{36} - %msg%n"

@@ -88,8 +88,8 @@ public class TableEntryManager {
     LOGGER.trace("getTenantTableEntry({},{})", tenantResource, entry);
     // get the node lists from etcd.
     final Map<NodeRange, Integer> rangeHashMap = nodeRangeToHash(tenantResource, entry);
-    // TODO: fan out the reads concurrently... be smarter here.
-    // TODO: This is bad below... but just to get us started.
+    // TODO: Verify if a fan out makes sense, considering this could be a high-hit call.
+    // TODO: This is bad below... it finds the first result and returns. We should have quorum reads.
     for (NodeRange nodeRange : rangeHashMap.keySet()) {
       final Optional<EntryInfo> result =
           nodeTenantTableEntryServiceEngine.get(nodeRange)
@@ -119,7 +119,7 @@ public class TableEntryManager {
     // get the node lists from etcd.
     final Map<NodeRange, Integer> rangeHashMap = nodeRangeToHash(tenantResource, entry);
     final Long timestamp = clock.millis();
-    // TODO: fan out the reads concurrently... be smarter here.
+    // TODO: Verify if a fan out makes sense, considering this could be a high-hit call.
     for (Map.Entry<NodeRange, Integer> tuple : rangeHashMap.entrySet()) {
       LOGGER.trace("Processing {}", tuple);
       final EntryInfo entryInfo = ImmutableEntryInfo.builder().id(entry).data(data).locationHash(tuple.getValue())
@@ -145,8 +145,7 @@ public class TableEntryManager {
     LOGGER.trace("deleteTenantTableEntry({},{})", tenantResource, entry);
     // get the node lists from etcd.
     final Map<NodeRange, Integer> rangeHashMap = nodeRangeToHash(tenantResource, entry);
-    // TODO: fan out the reads concurrently... be smarter here.
-    // TODO: This is bad below... but just to get us started.
+    // TODO: Verify if a fan out makes sense, considering this could be a high-hit call.
     for (NodeRange nodeRange : rangeHashMap.keySet()) {
       nodeTenantTableEntryServiceEngine.get(nodeRange)
           .deleteTenantTableEntry(
@@ -155,7 +154,6 @@ public class TableEntryManager {
               entry);
     }
   }
-
 
   private Map<NodeRange, Integer> nodeRangeToHash(final TenantResource tenantResource,
                                                   final String entry) {

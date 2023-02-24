@@ -3,6 +3,7 @@ logging:
   loggers:
     com.codeheadsystems: DEBUG
     org.svarm: TRACE
+    org.eclipse.jetty.server.HttpChannel: ERROR
   appenders:
     - type: console
       logFormat: "%d{HH:mm:ss.SSS} [%thread] [trace:%X{trace}] %-5level %logger{36} - %msg%n"

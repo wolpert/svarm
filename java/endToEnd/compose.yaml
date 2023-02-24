@@ -67,9 +67,10 @@ services:
       retries: 10
 
   node:
+    deploy:
+      replicas: 3
+      mode: replicated
     image: amazoncorretto:17
-    ports:
-      - 9080:8080
     networks:
       - back-tier
     volumes:

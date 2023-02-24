@@ -48,12 +48,13 @@ public class TableTenantLifecycleTest {
     COMPONENT.etcdAccessor().getAll("node", "").forEach(LOGGER::info);
     JsonNode data = COMPONENT.objectMapper().readValue("{\"a\":2}", JsonNode.class);
     boolean ready = false;
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < 20; i++) {
       ready = COMPONENT.controlTenantResourceService().readResource(TENANT, TABLE).get().ready();
       if (ready) {
         LOGGER.info("Ready in iteration " + i);
         break;
       } else {
+        LOGGER.info("Failed ready in iteration " + i);
         Thread.sleep(100);
       }
     }
