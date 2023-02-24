@@ -16,12 +16,9 @@
 
 package org.svarm.proxy.module;
 
-import static org.svarm.common.engine.RingEngine.REPLICATION_FACTOR;
-
 import dagger.Module;
 import dagger.Provides;
 import java.time.Clock;
-import javax.inject.Named;
 import javax.inject.Singleton;
 import org.svarm.proxy.ProxyConfiguration;
 import org.svarm.server.ServerConfiguration;
@@ -55,16 +52,4 @@ public class ProxyConfigurationModule {
     return Clock.systemUTC();
   }
 
-  /**
-   * Default replication factor as coming from the configuration.
-   *
-   * @param proxyConfiguration to read from.
-   * @return replication factor. Should match what is in control. This may have to change.
-   */
-  @Provides
-  @Singleton
-  @Named(REPLICATION_FACTOR)
-  public Integer replicationFactor(final ProxyConfiguration proxyConfiguration) {
-    return proxyConfiguration.getReplicationFactor();
-  }
 }

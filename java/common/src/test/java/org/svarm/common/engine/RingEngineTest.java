@@ -71,9 +71,9 @@ class RingEngineTest {
   @ParameterizedTest
   @MethodSource("testValues")
   void runTest(final Integer repFactor, final Integer hashedValue, final Set<Integer> expected) {
-    final RingEngine ringEngine = new RingEngine(repFactor, hashingEngine);
+    final RingEngine ringEngine = new RingEngine(hashingEngine);
     when(hashingEngine.murmur3(ID)).thenReturn(hashedValue);
-    final RingEntry result = ringEngine.ringEntry(ID);
+    final RingEntry result = ringEngine.ringEntry(ID, repFactor);
     assertThat(result)
         .isNotNull()
         .hasFieldOrPropertyWithValue("id", ID)

@@ -45,7 +45,7 @@ import org.svarm.server.exception.NotFoundException;
 public class TableEntryManager {
 
   private static final Logger LOGGER = getLogger(TableEntryManager.class);
-
+  private static final int DEFAULT_REPLICATION_FACTOR = 3;
   private final NodeTenantTableEntryServiceEngine nodeTenantTableEntryServiceEngine;
   private final CachingTenantResourceRangeEngine cachingTenantResourceRangeEngine;
   private final RingEngine ringEngine;
@@ -162,7 +162,7 @@ public class TableEntryManager {
     return metrics.time("TableEntryManager.nodeRangeToHash", () -> {
       final TenantResourceRange range = cachingTenantResourceRangeEngine.readTenantResourceRange(tenantResource)
           .orElseThrow(NotFoundException::new);
-      final RingEntry ringEntry = ringEngine.ringEntry(entry);
+      final RingEntry ringEntry = ringEngine.ringEntry(entry, DEFAULT_REPLICATION_FACTOR);
       return ringEntry.locationStores().stream()
           .map(hash -> Map.entry(nodeRangeForHash(range, hash), hash))
           .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
