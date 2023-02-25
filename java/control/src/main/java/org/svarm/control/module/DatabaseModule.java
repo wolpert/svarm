@@ -20,7 +20,7 @@ import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.jdbi3.InstrumentedSqlLogger;
 import dagger.Module;
 import dagger.Provides;
-import io.dropwizard.setup.Environment;
+import io.dropwizard.core.setup.Environment;
 import javax.inject.Singleton;
 import org.jdbi.v3.core.Jdbi;
 import org.svarm.control.ControlConfiguration;

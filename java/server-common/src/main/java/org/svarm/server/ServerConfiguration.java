@@ -16,7 +16,7 @@
 
 package org.svarm.server;
 
-import io.dropwizard.Configuration;
+import io.dropwizard.core.Configuration;
 import org.svarm.common.config.EtcdConfiguration;
 
 /**

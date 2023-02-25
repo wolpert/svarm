@@ -37,11 +37,11 @@ dependencies {
     // etcd
     implementation libs.jetcd.core
 
-    implementation libs.dropwizard.auth
-    implementation libs.dropwizard.core
-    implementation libs.dropwizard.jackson
-    implementation libs.dropwizard.metrics.graphite
-    implementation libs.dropwizard.jdbi
+    implementation libs.dropwizard4.auth
+    implementation libs.dropwizard4.core
+    implementation libs.dropwizard4.jackson
+    implementation libs.dropwizard4.metrics.graphite
+    implementation libs.dropwizard4.jdbi
     implementation libs.micrometer.core
     implementation libs.metrics.core
     implementation libs.metrics.jdbi
@@ -50,12 +50,11 @@ dependencies {
     implementation libs.logback.classic
     implementation libs.logback.core
     implementation libs.logback.access
-    implementation libs.jakarta.servlet.api
-    implementation libs.javax.servlet.api
+
 
     testImplementation libs.jdbi.testing
     testImplementation libs.jackson.dataformat.yaml
-    testImplementation libs.dropwizard.testing
+    testImplementation libs.dropwizard4.testing
     testImplementation project(":control-javaClient")
     testImplementation libs.jetcd.test
     testImplementation libs.openfeign.core

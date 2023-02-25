@@ -16,8 +16,8 @@
 
 package org.svarm.control.factory;
 
+import io.dropwizard.core.setup.Environment;
 import io.dropwizard.jdbi3.JdbiFactory;
-import io.dropwizard.setup.Environment;
 import java.sql.Connection;
 import java.sql.SQLException;
 import javax.inject.Inject;

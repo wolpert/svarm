@@ -42,10 +42,10 @@ dependencies {
     implementation libs.jackson.core
     implementation libs.jackson.databind
     implementation libs.jackson.datatype.jdk8
-    implementation libs.dropwizard.auth
-    implementation libs.dropwizard.core
-    implementation libs.dropwizard.jackson
-    implementation libs.dropwizard.metrics.graphite
+    implementation libs.dropwizard4.auth
+    implementation libs.dropwizard4.core
+    implementation libs.dropwizard4.jackson
+    implementation libs.dropwizard4.metrics.graphite
     implementation libs.micrometer.core
     implementation libs.metrics.core
 
@@ -55,13 +55,14 @@ dependencies {
     implementation libs.feign.micrometer
     implementation libs.openfeign.java11
     implementation libs.openfeign.jaxrs2
+    implementation libs.openfeign.jakarta
 
     implementation libs.retrofit
     implementation libs.retrofit2.converter.jackson
 
     testImplementation libs.testcontainers
     testImplementation libs.testcontainers.postgresql
-    testImplementation libs.dropwizard.testing
+    testImplementation libs.dropwizard4.testing
     testImplementation libs.jackson.dataformat.yaml
     testAnnotationProcessor libs.dagger.compiler
     testImplementation libs.pgjdbc
@@ -70,8 +71,7 @@ dependencies {
     implementation libs.logback.classic
     implementation libs.logback.core
     implementation libs.logback.access
-    implementation libs.jakarta.servlet.api
-    implementation libs.javax.servlet.api
+
 }
 
 task logDir(type: Exec) {

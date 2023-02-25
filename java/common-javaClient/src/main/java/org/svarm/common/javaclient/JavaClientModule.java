@@ -24,6 +24,7 @@ import feign.Feign;
 import feign.jackson.JacksonDecoder;
 import feign.jackson.JacksonEncoder;
 import feign.jaxrs.JAXRSContract;
+import feign.jaxrs.JakartaContract;
 import feign.micrometer.MicrometerCapability;
 import feign.slf4j.Slf4jLogger;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -56,7 +57,7 @@ public class JavaClientModule {
     return Feign.builder()
         .requestInterceptor(traceInterceptor)
         .logger(new Slf4jLogger())
-        .contract(new JAXRSContract())
+        .contract(new JakartaContract())
         .addCapability(micrometerCapability)
         .decoder(new JacksonDecoder(objectMapper))
         .encoder(new JacksonEncoder(objectMapper));

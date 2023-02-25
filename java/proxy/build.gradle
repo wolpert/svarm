@@ -25,10 +25,10 @@ dependencies {
     implementation project(":node-common")
     implementation project(":node-javaClient")
 
-    implementation libs.dropwizard.auth
-    implementation libs.dropwizard.core
-    implementation libs.dropwizard.jackson
-    implementation libs.dropwizard.metrics.graphite
+    implementation libs.dropwizard4.auth
+    implementation libs.dropwizard4.core
+    implementation libs.dropwizard4.jackson
+    implementation libs.dropwizard4.metrics.graphite
     implementation libs.micrometer.core
     implementation libs.metrics.core
 
@@ -38,6 +38,7 @@ dependencies {
     implementation libs.feign.micrometer
     implementation libs.openfeign.java11
     implementation libs.openfeign.jaxrs2
+    implementation libs.openfeign.jakarta
 
     implementation libs.retrofit
     implementation libs.retrofit2.converter.jackson
@@ -52,8 +53,7 @@ dependencies {
     implementation libs.logback.classic
     implementation libs.logback.core
     implementation libs.logback.access
-    implementation libs.jakarta.servlet.api
-    implementation libs.javax.servlet.api
+
 }
 
 run {

@@ -16,7 +16,6 @@
 
 package org.svarm.node.engine;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.hash.HashFunction;
 import java.util.Optional;
 import java.util.function.Supplier;

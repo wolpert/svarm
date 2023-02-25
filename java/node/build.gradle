@@ -39,10 +39,10 @@ dependencies {
     implementation libs.jetcd.core
     testImplementation libs.jetcd.test
 
-    implementation libs.dropwizard.auth
-    implementation libs.dropwizard.core
-    implementation libs.dropwizard.jackson
-    implementation libs.dropwizard.metrics.graphite
+    implementation libs.dropwizard4.auth
+    implementation libs.dropwizard4.core
+    implementation libs.dropwizard4.jackson
+    implementation libs.dropwizard4.metrics.graphite
     implementation libs.micrometer.core
     implementation libs.metrics.core
     implementation libs.metrics.jdbi
@@ -50,7 +50,7 @@ dependencies {
     implementation libs.openfeign.core
 
     testImplementation libs.jackson.dataformat.yaml
-    testImplementation libs.dropwizard.testing
+    testImplementation libs.dropwizard4.testing
     testImplementation project(":node-javaClient")
     testImplementation libs.openfeign.core
     testImplementation libs.openfeign.jackson
@@ -58,13 +58,13 @@ dependencies {
     testImplementation libs.feign.micrometer
     testImplementation libs.openfeign.java11
     testImplementation libs.openfeign.jaxrs2
+    testImplementation libs.openfeign.jakarta
 
     // Logging stuff... need all these for logback changes
     implementation libs.logback.classic
     implementation libs.logback.core
     implementation libs.logback.access
-    implementation libs.jakarta.servlet.api
-    implementation libs.javax.servlet.api
+
 }
 
 run {
