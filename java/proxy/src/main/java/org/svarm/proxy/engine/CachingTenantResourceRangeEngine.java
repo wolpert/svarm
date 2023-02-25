@@ -54,7 +54,6 @@ public class CachingTenantResourceRangeEngine {
    * @param watchEngineFactory      to watch for changes.
    */
   @Inject
-
   public CachingTenantResourceRangeEngine(final NodeConfigurationEngine nodeConfigurationEngine,
                                           final WatchEngineFactory watchEngineFactory) {
     this.nodeConfigurationEngine = nodeConfigurationEngine;

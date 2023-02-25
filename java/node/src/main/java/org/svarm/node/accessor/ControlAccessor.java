@@ -70,7 +70,7 @@ public class ControlAccessor {
         LOGGER.trace("status({}) {}", uuid, result);
         return result;
       } catch (FeignException.NotFound e) {
-        LOGGER.info("status({}) Not found", uuid); // not an error, but we need to tell this.
+        LOGGER.info("status({}) Node not found", uuid); // not an error, but we need to tell this.
         return Optional.empty();
       }
     });

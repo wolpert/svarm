@@ -66,7 +66,7 @@ public class ControlJdbiFactory {
    * @return configured Jdbi instance.
    */
   public Jdbi generate(final String url, final String username, final String password) {
-    LOGGER.info("generate({})", url);
+    LOGGER.trace("generate({})", url);
     final Jdbi jdbi = Jdbi.create(url, username, password);
     setup(jdbi, true);
     return jdbi;

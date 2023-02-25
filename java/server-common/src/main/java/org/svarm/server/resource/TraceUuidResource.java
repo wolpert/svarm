@@ -66,7 +66,7 @@ public class TraceUuidResource implements ContainerRequestFilter, ContainerRespo
     final String uuidFromHeader = requestContext.getHeaderString(TRACE_UUID_HEADER);
     final boolean fromClient = uuidFromHeader != null; // the client set it.
     final String uuid = getOrCreatedUuid(uuidFromHeader);
-    LOGGER.info("filter(client_set:{}):{}", fromClient, uuid);
+    LOGGER.trace("filter(client_set:{}):{}", fromClient, uuid);
     traceUuidEngine.set(uuid);
   }
 
@@ -81,7 +81,7 @@ public class TraceUuidResource implements ContainerRequestFilter, ContainerRespo
   public void filter(final ContainerRequestContext requestContext,
                      final ContainerResponseContext responseContext) throws IOException {
     final String uuid = traceUuidEngine.get();
-    LOGGER.info("filter(response):{}", uuid);
+    LOGGER.trace("filter(response):{}", uuid);
     responseContext.getHeaders().add(TRACE_UUID_HEADER, getOrCreatedUuid(uuid));
     traceUuidEngine.clear();
   }
