@@ -35,9 +35,9 @@ public interface NodeRangeDao extends Transactional {
    * @param instance to use.
    */
   @SqlUpdate("insert into NODE_RANGE "
-      + "(node_uuid,tenant,resource, create_date, update_date, table_version, ready, status, low_hash, high_hash) "
+      + "(node_uuid,tenant,resource, create_date, update_date, table_version, ready, status, hash) "
       + "values "
-      + "(:nodeUuid, :tenant, :resource, :createDate, :updateDate, :tableVersion, :ready, :status, :lowHash, :highHash)")
+      + "(:nodeUuid, :tenant, :resource, :createDate, :updateDate, :tableVersion, :ready, :status, :hash)")
   void insert(@BindPojo final NodeRange instance);
 
   /**
@@ -49,8 +49,7 @@ public interface NodeRangeDao extends Transactional {
       + "update_date = :updateDate, "
       + "ready = :ready, "
       + "status = :status, "
-      + "low_hash = :lowHash, "
-      + "high_hash = :highHash "
+      + "hash = :hash "
       + "where node_uuid = :nodeUuid and tenant = :tenant and resource = :resource")
   void update(@BindPojo final NodeRange instance);
 

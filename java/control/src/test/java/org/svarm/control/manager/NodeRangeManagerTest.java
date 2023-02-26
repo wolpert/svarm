@@ -107,7 +107,7 @@ class NodeRangeManagerTest extends BaseMetricTest {
     when(nodeRange.ready()).thenReturn(ready);
     when(nodeRange.resource()).thenReturn(TABLE);
     when(nodeRange.tenant()).thenReturn(TENANT);
-    when(nodeRange.lowHash()).thenReturn(Integer.MIN_VALUE);
+    when(nodeRange.hash()).thenReturn(Integer.MIN_VALUE);
     when(nodeRange.status()).thenReturn(STATUS);
     when(nodeRange.tableVersion()).thenReturn(VERSION);
   }

@@ -36,15 +36,7 @@ public interface MetaData {
    *
    * @return value.
    */
-  @JsonProperty("lowHash")
-  Integer lowHash();
-
-  /**
-   * The high value of the hash range, exclusive.
-   *
-   * @return value.
-   */
-  @JsonProperty("highHash")
-  Integer highHash();
+  @JsonProperty("hash")
+  Integer hash();
 
 }

@@ -92,18 +92,11 @@ public interface NodeRange {
   String status();
 
   /**
-   * Accessor for lowHash.
+   * Accessor for hash.
    *
    * @return the value.
    */
-  @JsonProperty("lowHash")
-  Integer lowHash();
+  @JsonProperty("hash")
+  Integer hash();
 
-  /**
-   * Accessor for highHash.
-   *
-   * @return the value.
-   */
-  @JsonProperty("highHash")
-  Integer highHash();
 }

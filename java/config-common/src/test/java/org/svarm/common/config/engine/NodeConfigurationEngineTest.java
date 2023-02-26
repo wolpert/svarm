@@ -65,7 +65,7 @@ class NodeConfigurationEngineTest {
     return ImmutableNodeTenantResourceRange.builder()
         .nodeTenantResource(ImmutableNodeTenantResource.builder().uuid(node)
             .tenantResource(ImmutableTenantResource.builder().tenant(uuid()).resource(uuid()).build()).build())
-        .range(ImmutableMetaData.builder().highHash(random.nextInt()).lowHash(random.nextInt()).build())
+        .range(ImmutableMetaData.builder().hash(random.nextInt()).build())
         .build();
   }
 
@@ -74,8 +74,7 @@ class NodeConfigurationEngineTest {
         .mapToObj(i -> Map.entry(
             i * 23,
             ImmutableNodeRange.builder()
-                    .highHash(random.nextInt(100000))
-                    .lowHash(i)
+                    .hash(i)
                     .uri(uuid())
                     .uuid(uuid())
                     .build()))

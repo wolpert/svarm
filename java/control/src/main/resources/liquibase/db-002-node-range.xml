@@ -47,10 +47,7 @@
             <column name="STATUS" type="varchar(256)">
                 <constraints nullable="false"/>
             </column>
-            <column name="LOW_HASH" type="integer">
-                <constraints nullable="false"/>
-            </column>
-            <column name="HIGH_HASH" type="integer">
+            <column name="HASH" type="integer">
                 <constraints nullable="false"/>
             </column>
         </createTable>

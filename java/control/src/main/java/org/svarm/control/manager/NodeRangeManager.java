@@ -167,7 +167,7 @@ public class NodeRangeManager {
       final List<org.svarm.common.config.api.NodeRange> nodeRanges =
           nodeRangeDao.apiNodeRanges(tenant, resource);
       final Map<Integer, org.svarm.common.config.api.NodeRange> map = nodeRanges.stream()
-          .collect(Collectors.toMap(org.svarm.common.config.api.NodeRange::lowHash, nr -> nr));
+          .collect(Collectors.toMap(org.svarm.common.config.api.NodeRange::hash, nr -> nr));
       final TenantResourceRange tenantResourceRange = ImmutableTenantResourceRange.builder()
           .tenant(tenant).resource(resource).hashToNodeRange(map).build();
       nodeConfigurationEngine.write(tenantResourceRange);
@@ -206,7 +206,7 @@ public class NodeRangeManager {
         .stream().map(nodeUuid -> ImmutableNodeRange.builder()
             .nodeUuid(nodeUuid).tenant(tenant).resource(resource).tableVersion(V_1_SINGLE_ENTRY_ENGINE)
             .createDate(clock.instant()).status("INIT").ready(false)
-            .lowHash(Integer.MIN_VALUE).highHash(Integer.MAX_VALUE)
+            .hash(Integer.MIN_VALUE)
             .build())
         .collect(Collectors.toList());
     nodeRange.forEach(nodeRangeDao::insert); // TODO: This should be done in a transaction. All or nothing.
@@ -220,7 +220,7 @@ public class NodeRangeManager {
     nodeRange.stream().map(nr -> ImmutableNodeTenantResourceRange.builder()
             .nodeTenantResource(
                 ImmutableNodeTenantResource.builder().uuid(nr.nodeUuid()).tenantResource(tenantResource).build())
-            .range(ImmutableMetaData.builder().lowHash(nr.lowHash()).highHash(nr.highHash()).build())
+            .range(ImmutableMetaData.builder().hash(nr.hash()).build())
             .build())
         .forEach(nodeConfigurationEngine::write); // TODO: This should be done in a transaction. All or nothing.
   }
