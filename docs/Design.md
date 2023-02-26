@@ -198,7 +198,7 @@ that handle the data based on the hash.
 When a node range needs to be split, combined or shuffled, the control plane
 will do the following (simplified):
 
-1. Add the new node and tenant resource range to the system for the nodes to
+1. Add the new node and tenant resource metaData to the system for the nodes to
    init themselves.
 2. When the nodes are ready, add in the new changes to the tenant resource
    config.
@@ -224,10 +224,10 @@ path-style namespace for this. Here are the following structures:
 Note, the main line consists of the namespace and the id of the thing being
 named.
 
-| Namespace/Key                    | Value                                                                    | Purpose                                                                                                 |
-|----------------------------------|--------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------|
-| node/{uuid}/id/{tenant}/{tenantResource} | {"lowHash":0,"highHash":32767}                                           | Range of a table, defined by the controller . Node read this data                                       |
-| tenant/{tenant}/{tenantResource} | {"node":"{uuid}", "lowHash":"{lowHash}", "highHash":32767, "uri":"{uri}"} | Look up for a tenantResource range. Used by proxies to find nodes, and by nodes when transferring data. |
+| Namespace/Key                    | Value                                  | Purpose                                                                                                 |
+|----------------------------------|----------------------------------------|---------------------------------------------------------------------------------------------------------|
+| node/{uuid}/id/{tenant}/{tenantResource} | {"hash":32767}                         | Metadata of a table, defined by the controller . Node read this data                              |
+| tenant/{tenant}/{tenantResource} | {"node":"{uuid}", "hash":32767, "uri":"{uri}"} | Look up for a tenantResource metaData. Used by proxies to find nodes, and by nodes when transferring data. |
 
 ## Reporting
 

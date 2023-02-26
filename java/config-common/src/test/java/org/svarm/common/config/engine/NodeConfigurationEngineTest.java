@@ -33,10 +33,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.svarm.common.config.EtcdConfiguration;
 import org.svarm.common.config.ImmutableEtcdConfiguration;
+import org.svarm.common.config.api.ImmutableMetaData;
 import org.svarm.common.config.api.ImmutableNodeRange;
 import org.svarm.common.config.api.ImmutableNodeTenantResource;
 import org.svarm.common.config.api.ImmutableNodeTenantResourceRange;
-import org.svarm.common.config.api.ImmutableRange;
 import org.svarm.common.config.api.ImmutableTenantResource;
 import org.svarm.common.config.api.ImmutableTenantResourceRange;
 import org.svarm.common.config.api.NodeRange;
@@ -65,7 +65,7 @@ class NodeConfigurationEngineTest {
     return ImmutableNodeTenantResourceRange.builder()
         .nodeTenantResource(ImmutableNodeTenantResource.builder().uuid(node)
             .tenantResource(ImmutableTenantResource.builder().tenant(uuid()).resource(uuid()).build()).build())
-        .range(ImmutableRange.builder().highHash(random.nextInt()).lowHash(random.nextInt()).build())
+        .range(ImmutableMetaData.builder().highHash(random.nextInt()).lowHash(random.nextInt()).build())
         .build();
   }
 

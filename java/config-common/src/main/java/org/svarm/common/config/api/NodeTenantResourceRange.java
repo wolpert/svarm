@@ -23,7 +23,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.immutables.value.Value;
 
 /**
- * Range provided for this tenant resource on the node.
+ * MetaData provided for this tenant resource on the node.
  */
 @Value.Immutable
 @JsonSerialize(as = ImmutableNodeTenantResourceRange.class)
@@ -45,7 +45,7 @@ public interface NodeTenantResourceRange {
    * @return value.
    */
   @JsonProperty("range")
-  Range range();
+  MetaData range();
 
 
 }

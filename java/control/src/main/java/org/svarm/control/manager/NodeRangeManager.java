@@ -26,9 +26,9 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.svarm.common.config.api.ImmutableMetaData;
 import org.svarm.common.config.api.ImmutableNodeTenantResource;
 import org.svarm.common.config.api.ImmutableNodeTenantResourceRange;
-import org.svarm.common.config.api.ImmutableRange;
 import org.svarm.common.config.api.ImmutableTenantResource;
 import org.svarm.common.config.api.ImmutableTenantResourceRange;
 import org.svarm.common.config.api.TenantResource;
@@ -220,7 +220,7 @@ public class NodeRangeManager {
     nodeRange.stream().map(nr -> ImmutableNodeTenantResourceRange.builder()
             .nodeTenantResource(
                 ImmutableNodeTenantResource.builder().uuid(nr.nodeUuid()).tenantResource(tenantResource).build())
-            .range(ImmutableRange.builder().lowHash(nr.lowHash()).highHash(nr.highHash()).build())
+            .range(ImmutableMetaData.builder().lowHash(nr.lowHash()).highHash(nr.highHash()).build())
             .build())
         .forEach(nodeConfigurationEngine::write); // TODO: This should be done in a transaction. All or nothing.
   }

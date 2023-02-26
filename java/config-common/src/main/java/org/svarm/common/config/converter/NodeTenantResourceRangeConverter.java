@@ -27,9 +27,9 @@ import org.slf4j.Logger;
 import org.svarm.common.config.api.ImmutableNodeTenantResource;
 import org.svarm.common.config.api.ImmutableNodeTenantResourceRange;
 import org.svarm.common.config.api.ImmutableTenantResource;
+import org.svarm.common.config.api.MetaData;
 import org.svarm.common.config.api.NodeTenantResource;
 import org.svarm.common.config.api.NodeTenantResourceRange;
-import org.svarm.common.config.api.Range;
 import org.svarm.common.config.api.TenantResource;
 import org.svarm.common.engine.JsonEngine;
 
@@ -77,7 +77,7 @@ public class NodeTenantResourceRangeConverter {
   public NodeTenantResourceRange fromKeyValue(final String key, final String value) {
     LOGGER.trace("toNodeTenantResourceRange({},{})", key, value);
     final String[] tokens = key.split("/");
-    final Range range = jsonEngine.readValue(value, Range.class);
+    final MetaData metaData = jsonEngine.readValue(value, MetaData.class);
     final TenantResource tenantResource = ImmutableTenantResource.builder()
         .tenant(tokens[3])
         .resource(tokens[4])
@@ -87,7 +87,7 @@ public class NodeTenantResourceRangeConverter {
         .uuid(tokens[1])
         .build();
     return ImmutableNodeTenantResourceRange.builder()
-        .range(range)
+        .range(metaData)
         .nodeTenantResource(nodeTenantResource)
         .build();
   }

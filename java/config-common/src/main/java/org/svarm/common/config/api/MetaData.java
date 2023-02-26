@@ -26,10 +26,10 @@ import org.immutables.value.Value;
  * has range, inclusive start, exclusive end.
  */
 @Value.Immutable
-@JsonSerialize(as = ImmutableRange.class)
-@JsonDeserialize(builder = ImmutableRange.Builder.class)
+@JsonSerialize(as = ImmutableMetaData.class)
+@JsonDeserialize(builder = ImmutableMetaData.Builder.class)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public interface Range {
+public interface MetaData {
 
   /**
    * The low value of the hash range, inclusive.

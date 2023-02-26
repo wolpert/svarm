@@ -61,6 +61,6 @@ public interface TenantResourceAccess {
    * @return value.
    */
   @JsonProperty("range")
-  Range range();
+  MetaData range();
 
 }
