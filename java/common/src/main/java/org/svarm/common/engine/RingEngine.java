@@ -21,8 +21,11 @@ import static org.slf4j.LoggerFactory.getLogger;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -75,7 +78,7 @@ public class RingEngine {
 
   /**
    * This method will return a set of base hash values to add to the real hash value.
-   * The result is numbers you can add to see where the replication hashs are.
+   * The result is numbers you can add to see where the replication hashes are.
    *
    * @param replicationFactor how to divide the hashing space.
    * @return the set of values.

@@ -47,7 +47,6 @@ class NodeRangeManagerTest extends BaseMetricTest {
   private static final String STATUS = "status";
   private static final String VERSION = "version";
   @Mock private NodeRangeDao nodeRangeDao;
-  @Mock private NodeManager nodeManager;
   @Mock private Clock clock;
   @Mock private List<String> list;
   @Mock private NodeAvailabilityEngine nodeAvailabilityEngine;
@@ -59,7 +58,7 @@ class NodeRangeManagerTest extends BaseMetricTest {
 
   @BeforeEach
   void setup() {
-    nodeRangeManager = new NodeRangeManager(nodeRangeDao, clock, metrics, nodeAvailabilityEngine, nodeConfigurationEngine, nodeManager);
+    nodeRangeManager = new NodeRangeManager(nodeRangeDao, clock, metrics, nodeAvailabilityEngine, nodeConfigurationEngine);
   }
 
   @Test

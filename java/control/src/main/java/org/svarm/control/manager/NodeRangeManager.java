@@ -17,6 +17,7 @@
 package org.svarm.control.manager;
 
 import com.codeheadsystems.metrics.Metrics;
+import com.google.common.annotations.VisibleForTesting;
 import java.time.Clock;
 import java.util.List;
 import java.util.Map;
@@ -42,7 +43,6 @@ import org.svarm.server.exception.NotFoundException;
 
 /**
  * Manages node ranges.
- * TODO: THIS NEEDS UPDATING AS IT JUST CREATES ONE NODE.
  */
 @Singleton
 public class NodeRangeManager {
@@ -55,7 +55,6 @@ public class NodeRangeManager {
   private final Metrics metrics;
   private final NodeAvailabilityEngine nodeAvailabilityEngine;
   private final NodeConfigurationEngine nodeConfigurationEngine;
-  private final NodeManager nodeManager;
 
   /**
    * Constructor.
@@ -65,23 +64,20 @@ public class NodeRangeManager {
    * @param metrics                 for timing.
    * @param nodeAvailabilityEngine  for finding nodes.
    * @param nodeConfigurationEngine for updating the configuration engine.
-   * @param nodeManager             for getting node details.
    */
   @Inject
   public NodeRangeManager(final NodeRangeDao nodeRangeDao,
                           final Clock clock,
                           final Metrics metrics,
                           final NodeAvailabilityEngine nodeAvailabilityEngine,
-                          final NodeConfigurationEngine nodeConfigurationEngine,
-                          final NodeManager nodeManager) {
-    this.nodeManager = nodeManager;
-    LOGGER.info("NodeRangeManager({},{},{},{},{},{})",
-        nodeRangeDao, clock, metrics, nodeAvailabilityEngine, nodeConfigurationEngine, nodeManager);
+                          final NodeConfigurationEngine nodeConfigurationEngine) {
     this.clock = clock;
     this.metrics = metrics;
     this.nodeRangeDao = nodeRangeDao;
     this.nodeAvailabilityEngine = nodeAvailabilityEngine;
     this.nodeConfigurationEngine = nodeConfigurationEngine;
+    LOGGER.info("NodeRangeManager({},{},{},{},{})",
+        nodeRangeDao, clock, metrics, nodeAvailabilityEngine, nodeConfigurationEngine);
   }
 
   /**
@@ -183,31 +179,45 @@ public class NodeRangeManager {
    */
   public List<NodeRange> createTenantResource(final String tenant,
                                               final String resource) {
-    LOGGER.trace("createTenantResource({},{})", tenant, resource);
+    LOGGER.info("createTenantResource({},{})", tenant, resource);
     return metrics.time("NodeRangeManager.resources", () -> {
-      final List<NodeRange> currentList = nodeRangeDao.nodeRanges(tenant, resource);
-      if (currentList.size() > 0) {
-        LOGGER.trace("Already exists, returning what we have");
-        return currentList; // TODO: Validate the config engine has these entries.
-      }
-      // TODO: The following needs to be smarter about getting nodes. This is just to set it up.
-      final List<NodeRange> nodeRange = nodeAvailabilityEngine.getAvailableNodes(1)
-          .stream().map(nodeUuid -> ImmutableNodeRange.builder()
-              .nodeUuid(nodeUuid).tenant(tenant).resource(resource).tableVersion(V_1_SINGLE_ENTRY_ENGINE)
-              .createDate(clock.instant()).status("INIT").ready(false)
-              .lowHash(Integer.MIN_VALUE).highHash(Integer.MAX_VALUE)
-              .build())
-          .collect(Collectors.toList());
-      nodeRange.forEach(nodeRangeDao::insert); // TODO: This should be done in a transaction. All or nothing.
-      final TenantResource tenantResource = ImmutableTenantResource.builder().tenant(tenant).resource(resource).build();
-      nodeRange.stream().map(nr -> ImmutableNodeTenantResourceRange.builder()
-              .nodeTenantResource(
-                  ImmutableNodeTenantResource.builder().uuid(nr.nodeUuid()).tenantResource(tenantResource).build())
-              .range(ImmutableRange.builder().lowHash(nr.lowHash()).highHash(nr.highHash()).build())
-              .build())
-          .forEach(nodeConfigurationEngine::write); // TODO: This should be done in a transaction. All or nothing.
+      final List<NodeRange> nodeRange = getOrCreateNodeRangeList(tenant, resource);
+      updateEtcdConfig(tenant, resource, nodeRange); // self-heal, we update even if the list is old.
+      LOGGER.info("Create for now resource, results: {},{},{}", tenant, resource, nodeRange);
       return nodeRange;
     });
+  }
+
+  private List<NodeRange> getOrCreateNodeRangeList(final String tenant,
+                                                   final String resource) {
+
+    final List<NodeRange> currentList = nodeRangeDao.nodeRanges(tenant, resource);
+    if (currentList.size() > 0) {
+      LOGGER.info("Create called on existing resource, using what we have: {},{},{}", tenant, resource, currentList);
+      return currentList;
+    }
+    // TODO: The following needs to be smarter about getting nodes. This is just to set it up.
+    final List<NodeRange> nodeRange = nodeAvailabilityEngine.getAvailableNodes(1)
+        .stream().map(nodeUuid -> ImmutableNodeRange.builder()
+            .nodeUuid(nodeUuid).tenant(tenant).resource(resource).tableVersion(V_1_SINGLE_ENTRY_ENGINE)
+            .createDate(clock.instant()).status("INIT").ready(false)
+            .lowHash(Integer.MIN_VALUE).highHash(Integer.MAX_VALUE)
+            .build())
+        .collect(Collectors.toList());
+    nodeRange.forEach(nodeRangeDao::insert); // TODO: This should be done in a transaction. All or nothing.
+    return nodeRange;
+  }
+
+  private void updateEtcdConfig(final String tenant,
+                                final String resource,
+                                final List<NodeRange> nodeRange) {
+    final TenantResource tenantResource = ImmutableTenantResource.builder().tenant(tenant).resource(resource).build();
+    nodeRange.stream().map(nr -> ImmutableNodeTenantResourceRange.builder()
+            .nodeTenantResource(
+                ImmutableNodeTenantResource.builder().uuid(nr.nodeUuid()).tenantResource(tenantResource).build())
+            .range(ImmutableRange.builder().lowHash(nr.lowHash()).highHash(nr.highHash()).build())
+            .build())
+        .forEach(nodeConfigurationEngine::write); // TODO: This should be done in a transaction. All or nothing.
   }
 
 }

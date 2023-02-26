@@ -19,6 +19,7 @@ package org.svarm.common.engine;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -36,7 +37,7 @@ class RingEngineTest {
 
   @Mock private HashingEngine hashingEngine;
 
-  public static Stream<Arguments> testValues() {
+  static Stream<Arguments> testValues() {
     return Stream.of(
         Arguments.of(1, 10, Set.of(10)),
         Arguments.of(2, 10, Set.of(10, -2147483639)),
