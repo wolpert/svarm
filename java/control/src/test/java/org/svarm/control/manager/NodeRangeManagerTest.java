@@ -35,6 +35,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.svarm.common.config.engine.NodeConfigurationEngine;
 import org.svarm.control.dao.NodeRangeDao;
 import org.svarm.control.engine.NodeAvailabilityEngine;
+import org.svarm.control.engine.ReplicationFactorEngine;
 import org.svarm.control.model.NodeRange;
 import org.svarm.server.exception.NotFoundException;
 
@@ -52,13 +53,14 @@ class NodeRangeManagerTest extends BaseMetricTest {
   @Mock private NodeAvailabilityEngine nodeAvailabilityEngine;
   @Mock private NodeConfigurationEngine nodeConfigurationEngine;
   @Mock private NodeRange nodeRange;
+  @Mock private ReplicationFactorEngine replicationFactorEngine;
   @Captor private ArgumentCaptor<NodeRange> nodeRangeArgumentCaptor;
 
   private NodeRangeManager nodeRangeManager;
 
   @BeforeEach
   void setup() {
-    nodeRangeManager = new NodeRangeManager(nodeRangeDao, clock, metrics, nodeAvailabilityEngine, nodeConfigurationEngine);
+    nodeRangeManager = new NodeRangeManager(nodeRangeDao, clock, metrics, nodeAvailabilityEngine, nodeConfigurationEngine, replicationFactorEngine);
   }
 
   @Test
@@ -106,7 +108,6 @@ class NodeRangeManagerTest extends BaseMetricTest {
     when(nodeRange.resource()).thenReturn(TABLE);
     when(nodeRange.tenant()).thenReturn(TENANT);
     when(nodeRange.lowHash()).thenReturn(Integer.MIN_VALUE);
-    when(nodeRange.highHash()).thenReturn(Integer.MAX_VALUE);
     when(nodeRange.status()).thenReturn(STATUS);
     when(nodeRange.tableVersion()).thenReturn(VERSION);
   }

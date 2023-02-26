@@ -17,7 +17,6 @@
 package org.svarm.control.manager;
 
 import com.codeheadsystems.metrics.Metrics;
-import com.google.common.annotations.VisibleForTesting;
 import java.time.Clock;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +36,7 @@ import org.svarm.common.config.api.TenantResourceRange;
 import org.svarm.common.config.engine.NodeConfigurationEngine;
 import org.svarm.control.dao.NodeRangeDao;
 import org.svarm.control.engine.NodeAvailabilityEngine;
+import org.svarm.control.engine.ReplicationFactorEngine;
 import org.svarm.control.model.ImmutableNodeRange;
 import org.svarm.control.model.NodeRange;
 import org.svarm.server.exception.NotFoundException;
@@ -49,12 +49,14 @@ public class NodeRangeManager {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(NodeRangeManager.class);
   private static final String V_1_SINGLE_ENTRY_ENGINE = "V1SingleEntryEngine";
+  private static final int DEFAULT_REPLICATION_FACTOR = 3;
 
   private final NodeRangeDao nodeRangeDao;
   private final Clock clock;
   private final Metrics metrics;
   private final NodeAvailabilityEngine nodeAvailabilityEngine;
   private final NodeConfigurationEngine nodeConfigurationEngine;
+  private final ReplicationFactorEngine replicationFactorEngine;
 
   /**
    * Constructor.
@@ -64,18 +66,21 @@ public class NodeRangeManager {
    * @param metrics                 for timing.
    * @param nodeAvailabilityEngine  for finding nodes.
    * @param nodeConfigurationEngine for updating the configuration engine.
+   * @param replicationFactorEngine for getting hash values.
    */
   @Inject
   public NodeRangeManager(final NodeRangeDao nodeRangeDao,
                           final Clock clock,
                           final Metrics metrics,
                           final NodeAvailabilityEngine nodeAvailabilityEngine,
-                          final NodeConfigurationEngine nodeConfigurationEngine) {
+                          final NodeConfigurationEngine nodeConfigurationEngine,
+                          final ReplicationFactorEngine replicationFactorEngine) {
     this.clock = clock;
     this.metrics = metrics;
     this.nodeRangeDao = nodeRangeDao;
     this.nodeAvailabilityEngine = nodeAvailabilityEngine;
     this.nodeConfigurationEngine = nodeConfigurationEngine;
+    this.replicationFactorEngine = replicationFactorEngine;
     LOGGER.info("NodeRangeManager({},{},{},{},{})",
         nodeRangeDao, clock, metrics, nodeAvailabilityEngine, nodeConfigurationEngine);
   }

@@ -87,7 +87,6 @@ Each data node has a table to describe tables it controls. Example columns
 - RID_TENANT: Indexed, first part of the primary composite key
 - TABLE_NAME: Index, second part of the primary composite key
 - HASH_START: String hash tenantResource if there is a min hash key allowed.
-- HASH_END: End hash tenantResource if there is a max hash key allowed.
 - QUANTITY_EST: Estimate number of entries in the table.
 - TABLE_VERSION: The version of table this requires.
 
