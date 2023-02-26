@@ -53,10 +53,7 @@
             <column name="TABLE_NAME" type="varchar(256)">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="HASH_START" type="varchar(256)">
-                <constraints primaryKey="false" nullable="true"/>
-            </column>
-            <column name="HASH_END" type="varchar(256)">
+            <column name="HASH" type="varchar(256)">
                 <constraints primaryKey="false" nullable="true"/>
             </column>
             <column name="QUANTITY_EST" type="bigint">

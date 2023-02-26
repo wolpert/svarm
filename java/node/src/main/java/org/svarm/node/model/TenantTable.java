@@ -39,15 +39,7 @@ public interface TenantTable {
    * @return value.
    */
   @Value.Auxiliary
-  Optional<String> hashStart();
-
-  /**
-   * The ending hash. Can be null in which it finishes at the end.
-   *
-   * @return value.
-   */
-  @Value.Auxiliary
-  Optional<String> hashEnd();
+  Optional<String> hash();
 
   /**
    * Number of rows in the table, estimated.

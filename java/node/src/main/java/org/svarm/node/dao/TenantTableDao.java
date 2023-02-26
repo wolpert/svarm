@@ -63,8 +63,8 @@ public class TenantTableDao {
 
     return internalJdbi.withHandle(handle -> {
       final int updateCount = handle.createUpdate(
-              "insert into NODE_TENANT_TABLES (RID_TENANT,TABLE_NAME,HASH_START,HASH_END, QUANTITY_EST, ENABLED, TABLE_VERSION, KEY, NONCE) "
-                  + "values (:identifier.tenantId,:identifier.tableName,:hashStart,:hashEnd,:estimatedQuantity,:enabled,:tableVersion,:key,:nonce)"
+              "insert into NODE_TENANT_TABLES (RID_TENANT,TABLE_NAME,HASH, QUANTITY_EST, ENABLED, TABLE_VERSION, KEY, NONCE) "
+                  + "values (:identifier.tenantId,:identifier.tableName,:hash,:estimatedQuantity,:enabled,:tableVersion,:key,:nonce)"
           )
           .bindPojo(tenantTable, TenantTable.class)
           .execute();
@@ -87,8 +87,7 @@ public class TenantTableDao {
     return internalJdbi.withHandle(handle -> {
       final int updateCount = handle.createUpdate(
               "update NODE_TENANT_TABLES set "
-                  + "HASH_START = :hashStart, "
-                  + "HASH_END = :hashEnd, "
+                  + "HASH = :hash, "
                   + "QUANTITY_EST = :estimatedQuantity, "
                   + "ENABLED = :enabled, "
                   + "TABLE_VERSION = :tableVersion "
@@ -167,8 +166,7 @@ public class TenantTableDao {
           .identifier(TenantTableIdentifier.from(
               rs.getString("RID_TENANT"),
               rs.getString("TABLE_NAME")))
-          .hashStart(Optional.ofNullable(rs.getString("HASH_START")))
-          .hashEnd(Optional.ofNullable(rs.getString("HASH_END")))
+          .hash(Optional.ofNullable(rs.getString("HASH")))
           .estimatedQuantity(rs.getInt("QUANTITY_EST"))
           .enabled(rs.getBoolean("ENABLED"))
           .tableVersion(rs.getString("TABLE_VERSION"))

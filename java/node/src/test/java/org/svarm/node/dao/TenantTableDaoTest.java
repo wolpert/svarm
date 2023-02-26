@@ -43,8 +43,7 @@ class TenantTableDaoTest extends BaseSQLTest {
   public static Stream<Arguments> tenantTables() {
     return Stream.of(
         Arguments.of(randomTenantTable()),
-        Arguments.of(ImmutableTenantTable.copyOf(randomTenantTable()).withHashEnd(Optional.empty())),
-        Arguments.of(ImmutableTenantTable.copyOf(randomTenantTable()).withHashStart(Optional.empty()))
+        Arguments.of(ImmutableTenantTable.copyOf(randomTenantTable()).withHash(Optional.empty()))
     );
   }
 
@@ -59,8 +58,7 @@ class TenantTableDaoTest extends BaseSQLTest {
         .build();
     return ImmutableTenantTable.builder()
         .identifier(identifier)
-        .hashStart(UUID.randomUUID().toString())
-        .hashEnd(UUID.randomUUID().toString())
+        .hash(UUID.randomUUID().toString())
         .estimatedQuantity(random.nextInt())
         .enabled(random.nextBoolean())
         .tableVersion(UUID.randomUUID().toString())
@@ -87,10 +85,10 @@ class TenantTableDaoTest extends BaseSQLTest {
     final TenantTable tt1 = randomTenantTable();
     dao.create(tt1);
     assertThat(dao.read(tt1.identifier().tenantId(), tt1.identifier().tableName())).isPresent().contains(tt1);
-    final TenantTable tt2 = ImmutableTenantTable.copyOf(tt1).withHashEnd(Optional.empty()).withHashStart(Optional.empty());
+    final TenantTable tt2 = ImmutableTenantTable.copyOf(tt1).withHash(Optional.empty());
     dao.update(tt2);
     assertThat(dao.read(tt1.identifier().tenantId(), tt1.identifier().tableName())).isPresent().contains(tt2);
-    final TenantTable tt3 = ImmutableTenantTable.copyOf(tt1).withHashEnd(Optional.of(UUID.randomUUID().toString())).withHashStart(Optional.of(UUID.randomUUID().toString()));
+    final TenantTable tt3 = ImmutableTenantTable.copyOf(tt1).withHash(Optional.of(UUID.randomUUID().toString()));
     dao.update(tt3);
     assertThat(dao.read(tt1.identifier().tenantId(), tt1.identifier().tableName())).isPresent().contains(tt3);
   }
