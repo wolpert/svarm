@@ -19,7 +19,6 @@ package org.svarm.node;
 import com.codahale.metrics.MetricRegistry;
 import com.codeheadsystems.metrics.test.BaseMetricTest;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
-import java.sql.SQLException;
 import java.util.UUID;
 import javax.sql.DataSource;
 import org.jdbi.v3.core.Jdbi;
@@ -31,7 +30,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.svarm.node.engine.DatabaseEngine;
 import org.svarm.node.engine.DatabaseInitializationEngine;
-import org.svarm.node.engine.SqlEngine;
 import org.svarm.node.manager.TenantTableDataSourceManager;
 import org.svarm.node.model.TenantTable;
 import org.svarm.node.module.DataSourceModule;
@@ -41,21 +39,19 @@ public abstract class BaseSQLTest extends BaseMetricTest {
 
   private static final Logger log = LoggerFactory.getLogger(BaseSQLTest.class);
 
-  protected SqlEngine sqlEngine;
   protected TenantTableDataSourceManager tenantTableDataSourceManager;
   protected DataSource internalDataSource;
   protected Jdbi internalJdbi;
   protected DatabaseEngine databaseEngine;
 
   @BeforeEach
-  void setupSQLEngine() throws SQLException {
+  void setupSQLEngine() {
     final DatabaseInitializationEngine databaseInitializationEngine = new DatabaseInitializationEngine();
     databaseEngine = databaseEngine();
     final DataSourceModule dataSourceModule = new DataSourceModule();
     internalDataSource = dataSourceModule.internalDataSource(databaseEngine, databaseInitializationEngine);
     internalJdbi = dataSourceModule.internalJdbi(internalDataSource, new MetricRegistry());
     tenantTableDataSourceManager = new TenantTableDataSourceManager(databaseEngine, databaseInitializationEngine, metrics);
-    sqlEngine = new SqlEngine(metrics, tenantTableDataSourceManager, internalDataSource);
   }
 
   private DatabaseEngine databaseEngine() {
@@ -87,8 +83,8 @@ public abstract class BaseSQLTest extends BaseMetricTest {
   }
 
   @AfterEach
-  void shutdownSQLEngine() throws SQLException {
-    internalDataSource.getConnection().createStatement().execute("shutdown;");
+  void shutdownSQLEngine() {
+    Jdbi.create(internalDataSource).withHandle(handle -> handle.execute("shutdown;"));
   }
 
 }
