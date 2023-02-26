@@ -27,18 +27,22 @@ import java.util.Optional;
 import java.util.function.Supplier;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import org.jdbi.v3.core.Jdbi;
+import org.jdbi.v3.core.result.ResultSetScanner;
+import org.jdbi.v3.core.statement.PreparedBatch;
+import org.jdbi.v3.core.statement.StatementContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.svarm.common.engine.JsonEngine;
 import org.svarm.datastore.common.TableDefinition;
 import org.svarm.node.api.EntryInfo;
 import org.svarm.node.api.ImmutableEntryInfo;
-import org.svarm.node.engine.SqlEngine;
 import org.svarm.node.engine.TableDefinitionEngine;
+import org.svarm.node.manager.TenantTableDataSourceManager;
 import org.svarm.node.model.TenantTable;
 
 /**
- * First implementation of reading/writing the data for a entry.
+ * First implementation of reading/writing the data for an entry.
  */
 @Singleton
 public class V1SingleEntryEngine implements TableDefinitionEngine {
@@ -47,24 +51,24 @@ public class V1SingleEntryEngine implements TableDefinitionEngine {
   private static final String INTEGER_TYPE = "INTEGER";
   private static final String STRING_TYPE = "STRING";
   private final Metrics metrics;
-  private final SqlEngine sqlEngine;
+  private final TenantTableDataSourceManager dataSourceManager;
   private final JsonEngine jsonEngine;
 
   /**
    * Default constructor.
    *
-   * @param metrics    for analytics.
-   * @param sqlEngine  to execute sql.NO
-   * @param jsonEngine for managing json.
+   * @param metrics           for analytics.
+   * @param dataSourceManager for retrieving data sources of tenant dbs
+   * @param jsonEngine        for managing json.
    */
   @Inject
   public V1SingleEntryEngine(final Metrics metrics,
-                             final SqlEngine sqlEngine,
+                             final TenantTableDataSourceManager dataSourceManager,
                              final JsonEngine jsonEngine) {
+    this.dataSourceManager = dataSourceManager;
     this.jsonEngine = jsonEngine;
-    LOGGER.info("V1SingleEntryEngine({},{})", metrics, sqlEngine);
     this.metrics = metrics;
-    this.sqlEngine = sqlEngine;
+    LOGGER.info("V1SingleEntryEngine({},{})", metrics, dataSourceManager);
   }
 
   /**
@@ -72,52 +76,17 @@ public class V1SingleEntryEngine implements TableDefinitionEngine {
    *
    * @param tenantTable table to read from.
    * @param entity      the entity id.
-   * @return a entry if found.
+   * @return an entry if found.
    */
   @Override
   public Optional<EntryInfo> read(final TenantTable tenantTable, final String entity) {
     LOGGER.trace("read({},{})", tenantTable, entity);
-    return sqlEngine.executePreparedTenant(tenantTable,
-        "select * from TENANT_DATA where ID = ?",
-        (ps) -> {
-          try {
-            long timestamp = 0;
-            int hash = 0;
-            ps.setString(1, entity);
-            try (final ResultSet rs = ps.executeQuery()) {
-              int rows = 0;
-              final ObjectNode node = jsonEngine.createObjectNode();
-              while (rs.next()) {
-                rows++;
-                final String col = rs.getString("C_COL");
-                final String type = rs.getString("C_DATA_TYPE");
-                final String data = rs.getString("C_DATA");
-                hash = rs.getInt("HASH");
-                timestamp = Math.max(timestamp, rs.getLong("TIMESTAMP"));
-                switch (type) {
-                  case INTEGER_TYPE -> node.put(col, Integer.valueOf(data));
-                  case STRING_TYPE -> node.put(col, data);
-                  default -> {
-                    LOGGER.error("Unknown: {}:{}:{}:{}", tenantTable, entity, col, type);
-                    throw new IllegalArgumentException("Unknown type: " + type + " for " + entity + ":" + tenantTable);
-                  }
-                }
-              }
-              if (rows > 0) {
-                return Optional.of(ImmutableEntryInfo.builder()
-                    .data(node)
-                    .timestamp(timestamp)
-                    .locationHash(hash)
-                    .id(entity)
-                    .build());
-              } else {
-                return Optional.empty();
-              }
-            }
-          } catch (SQLException e) {
-            throw new IllegalArgumentException("Unable to read data for: " + tenantTable + ":" + entity, e);
-          }
-        });
+
+    return Jdbi.create(dataSourceManager.getDataSource(tenantTable))
+        .withHandle(handle ->
+            handle.createQuery("select * from TENANT_DATA where ID = :id")
+                .bind("id", entity)
+                .scanResultSet(new EntryInfoResultSetScanner()));
   }
 
   /**
@@ -129,37 +98,35 @@ public class V1SingleEntryEngine implements TableDefinitionEngine {
   @Override
   public void write(final TenantTable tenantTable, final EntryInfo entryInfo) {
     LOGGER.trace("write({},{})", tenantTable, entryInfo);
-    sqlEngine.executePreparedTenant(tenantTable,
-        "insert into TENANT_DATA (ID,C_COL,HASH,C_DATA_TYPE,C_DATA,TIMESTAMP) values (?,?,?,?,?,?)",
-        (ps) -> {
-          try {
-            entryInfo.data().fieldNames().forEachRemaining(col -> {
-              try {
-                ps.setString(1, entryInfo.id());
-                ps.setString(2, col);
-                ps.setInt(3, entryInfo.locationHash());
-                final JsonNode element = entryInfo.data().get(col);
-                if (element.isNumber()) {
-                  ps.setString(4, INTEGER_TYPE);
-                } else if (element.isTextual()) {
-                  ps.setString(4, STRING_TYPE);
-                } else {
-                  throw new IllegalArgumentException("Unknown type: " + element.getNodeType());
-                }
-                ps.setString(5, element.asText());
-                ps.setLong(6, entryInfo.timestamp());
-                ps.addBatch();
-              } catch (SQLException e) {
-                LOGGER.error("Unable to add row: {},{}", tenantTable, entryInfo.id(), e);
-                throw new IllegalArgumentException("Unable to add row", e);
-              }
-            });
-            ps.executeBatch();
-            return null;
-          } catch (SQLException e) {
-            LOGGER.error("Unable to execute batch: {},{}", tenantTable, entryInfo.id(), e);
-            throw new IllegalArgumentException("Unable to execute batch", e);
-          }
+    Jdbi.create(dataSourceManager.getDataSource(tenantTable))
+        .withHandle(handle -> {
+          PreparedBatch batch = handle.prepareBatch("insert into TENANT_DATA (ID,C_COL,HASH,C_DATA_TYPE,C_DATA,TIMESTAMP) values (:id, :col, :hash, :dataType, :data, :timestamp)");
+
+          entryInfo.data().fieldNames().forEachRemaining(col -> {
+            JsonNode element = entryInfo.data().get(col);
+
+            String dataType;
+
+            if (element.isNumber()) {
+              dataType = INTEGER_TYPE;
+            } else if (element.isTextual()) {
+              dataType = STRING_TYPE;
+            } else {
+              throw new IllegalArgumentException("Unknown type: " + element.getNodeType());
+            }
+
+            batch
+                .bind("id", entryInfo.id())
+                .bind("hash", entryInfo.locationHash())
+                .bind("timestamp", entryInfo.timestamp())
+
+                .bind("col", col)
+                .bind("dataType", dataType)
+                .bind("data", element.asText())
+                .add();
+          });
+
+          return batch.execute();
         });
   }
 
@@ -173,18 +140,61 @@ public class V1SingleEntryEngine implements TableDefinitionEngine {
   @Override
   public boolean delete(final TenantTable tenantTable, final String entity) {
     LOGGER.trace("delete({},{})", tenantTable, entity);
-    return sqlEngine.executePreparedTenant(tenantTable,
-        "delete from TENANT_DATA where ID = ?",
-        (ps) -> {
-          try {
-            ps.setString(1, entity);
-            final int rows = ps.executeUpdate();
-            final boolean result = rows > 0;
-            LOGGER.trace("deleted: {}:{}:{}", tenantTable, entity, result);
-            return result;
-          } catch (SQLException e) {
-            throw new IllegalArgumentException("Unable to read data for: " + tenantTable + ":" + entity, e);
-          }
-        });
+
+    final int updateCount = Jdbi.create(dataSourceManager.getDataSource(tenantTable))
+        .withHandle(handle -> handle.createUpdate("delete from TENANT_DATA where ID = :id")
+            .bind("id", entity)
+            .execute()
+        );
+
+    final boolean result = updateCount > 0;
+
+    LOGGER.trace("deleted: {}:{}:{}", tenantTable, entity, result);
+    return result;
+  }
+
+  private class EntryInfoResultSetScanner implements ResultSetScanner<Optional<EntryInfo>> {
+    @Override
+    public Optional<EntryInfo> scanResultSet(final Supplier<ResultSet> resultSetSupplier, final StatementContext ctx) throws SQLException {
+      ResultSet rs = resultSetSupplier.get();
+
+      int rows = 0;
+      final ObjectNode node = jsonEngine.createObjectNode();
+      long timestamp = 0;
+      int hash = 0;
+      String entity = null;
+
+      while (rs.next()) {
+        rows++;
+
+        if (rs.isFirst()) {
+          hash = rs.getInt("HASH");
+          entity = rs.getString("ID");
+        }
+
+        timestamp = Math.max(timestamp, rs.getLong("TIMESTAMP"));
+
+        final String col = rs.getString("C_COL");
+        final String type = rs.getString("C_DATA_TYPE");
+        final String data = rs.getString("C_DATA");
+
+        switch (type) {
+          case INTEGER_TYPE -> node.put(col, Integer.valueOf(data));
+          case STRING_TYPE -> node.put(col, data);
+          default -> throw new IllegalArgumentException("Unknown type: " + type);
+        }
+      }
+
+      if (rows > 0) {
+        return Optional.of(ImmutableEntryInfo.builder()
+            .data(node)
+            .timestamp(timestamp)
+            .locationHash(hash)
+            .id(entity)
+            .build());
+      } else {
+        return Optional.empty();
+      }
+    }
   }
 }
