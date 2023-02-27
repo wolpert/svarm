@@ -209,7 +209,7 @@ public class NodeRangeManager {
             .hash(hashes.remove(0))
             .build())
         .collect(Collectors.toList());
-    nodeRange.forEach(nodeRangeDao::insert); // TODO: This should be done in a transaction. All or nothing.
+    nodeRangeDao.useTransaction(t -> nodeRange.forEach(t::insert));
     return nodeRange;
   }
 

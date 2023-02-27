@@ -18,22 +18,26 @@ package org.svarm.control.dao;
 
 import java.util.List;
 import org.jdbi.v3.sqlobject.customizer.Bind;
+import org.jdbi.v3.sqlobject.customizer.BindBean;
 import org.jdbi.v3.sqlobject.customizer.BindPojo;
+import org.jdbi.v3.sqlobject.statement.SqlBatch;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
+import org.jdbi.v3.sqlobject.transaction.Transaction;
 import org.jdbi.v3.sqlobject.transaction.Transactional;
 import org.svarm.control.model.NodeRange;
 
 /**
  * DAO for the Node range.
  */
-public interface NodeRangeDao extends Transactional {
+public interface NodeRangeDao extends Transactional<NodeRangeDao> {
 
   /**
    * Inserts a Node range by the values.
    *
    * @param instance to use.
    */
+  @Transaction
   @SqlUpdate("insert into NODE_RANGE "
       + "(node_uuid,tenant,resource, create_date, update_date, table_version, ready, status, hash) "
       + "values "

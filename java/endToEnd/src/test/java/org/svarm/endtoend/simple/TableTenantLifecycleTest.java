@@ -55,7 +55,7 @@ public class TableTenantLifecycleTest {
         break;
       } else {
         LOGGER.info("Failed ready in iteration " + i);
-        Thread.sleep(100);
+        Thread.sleep(200);
       }
     }
     assertThat(ready).isTrue();
