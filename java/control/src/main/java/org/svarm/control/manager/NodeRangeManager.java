@@ -49,7 +49,7 @@ public class NodeRangeManager {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(NodeRangeManager.class);
   private static final String V_1_SINGLE_ENTRY_ENGINE = "V1SingleEntryEngine";
-  private static final int DEFAULT_REPLICATION_FACTOR = 3;
+  private static final int DEFAULT_CLUSTER_SIZE = 2;
 
   private final NodeRangeDao nodeRangeDao;
   private final Clock clock;
@@ -201,12 +201,12 @@ public class NodeRangeManager {
       LOGGER.info("Create called on existing resource, using what we have: {},{},{}", tenant, resource, currentList);
       return currentList;
     }
-    // TODO: The following needs to be smarter about getting nodes. This is just to set it up.
-    final List<NodeRange> nodeRange = nodeAvailabilityEngine.getAvailableNodes(1)
+    final List<Integer> hashes = replicationFactorEngine.evenSplitHashes(DEFAULT_CLUSTER_SIZE);
+    final List<NodeRange> nodeRange = nodeAvailabilityEngine.getAvailableNodes(DEFAULT_CLUSTER_SIZE)
         .stream().map(nodeUuid -> ImmutableNodeRange.builder()
             .nodeUuid(nodeUuid).tenant(tenant).resource(resource).tableVersion(V_1_SINGLE_ENTRY_ENGINE)
             .createDate(clock.instant()).status("INIT").ready(false)
-            .hash(Integer.MIN_VALUE)
+            .hash(hashes.remove(0))
             .build())
         .collect(Collectors.toList());
     nodeRange.forEach(nodeRangeDao::insert); // TODO: This should be done in a transaction. All or nothing.
