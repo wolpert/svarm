@@ -8,9 +8,9 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-class ReplicationFactorEngineTest {
+class RingHashSplitEngineTest {
 
-  private ReplicationFactorEngine engine = new ReplicationFactorEngine();
+  private RingHashSplitEngine engine = new RingHashSplitEngine();
 
 
   static Stream<Arguments> defaultTestCases() {

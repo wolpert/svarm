@@ -91,7 +91,9 @@ task finalComposeDown(type: Exec) {
     commandLine "docker", "compose", "down"
 }
 composeUp.dependsOn logDir, preTestComposeDown,
-        ':control:installDist', ':node:installDist', ":proxy:installDist"
+        ':control:test', ':node:test', ':proxy:test',
+        ':control:integ', ':node:integ',
+        ':control:installDist', ':node:installDist', ':proxy:installDist'
 
 integ {
     enabled = false

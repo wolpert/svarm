@@ -37,7 +37,7 @@ import org.svarm.common.config.api.TenantResourceRange;
 import org.svarm.common.config.engine.NodeConfigurationEngine;
 import org.svarm.control.dao.NodeRangeDao;
 import org.svarm.control.engine.NodeAvailabilityEngine;
-import org.svarm.control.engine.ReplicationFactorEngine;
+import org.svarm.control.engine.RingHashSplitEngine;
 import org.svarm.control.model.ImmutableNodeRange;
 import org.svarm.control.model.NodeRange;
 import org.svarm.server.exception.NotFoundException;
@@ -57,7 +57,7 @@ public class NodeRangeManager {
   private final Metrics metrics;
   private final NodeAvailabilityEngine nodeAvailabilityEngine;
   private final NodeConfigurationEngine nodeConfigurationEngine;
-  private final ReplicationFactorEngine replicationFactorEngine;
+  private final RingHashSplitEngine ringHashSplitEngine;
 
   /**
    * Constructor.
@@ -67,7 +67,7 @@ public class NodeRangeManager {
    * @param metrics                 for timing.
    * @param nodeAvailabilityEngine  for finding nodes.
    * @param nodeConfigurationEngine for updating the configuration engine.
-   * @param replicationFactorEngine for getting hash values.
+   * @param ringHashSplitEngine for getting hash values.
    */
   @Inject
   public NodeRangeManager(final NodeRangeDao nodeRangeDao,
@@ -75,13 +75,13 @@ public class NodeRangeManager {
                           final Metrics metrics,
                           final NodeAvailabilityEngine nodeAvailabilityEngine,
                           final NodeConfigurationEngine nodeConfigurationEngine,
-                          final ReplicationFactorEngine replicationFactorEngine) {
+                          final RingHashSplitEngine ringHashSplitEngine) {
     this.clock = clock;
     this.metrics = metrics;
     this.nodeRangeDao = nodeRangeDao;
     this.nodeAvailabilityEngine = nodeAvailabilityEngine;
     this.nodeConfigurationEngine = nodeConfigurationEngine;
-    this.replicationFactorEngine = replicationFactorEngine;
+    this.ringHashSplitEngine = ringHashSplitEngine;
     LOGGER.info("NodeRangeManager({},{},{},{},{})",
         nodeRangeDao, clock, metrics, nodeAvailabilityEngine, nodeConfigurationEngine);
   }
@@ -119,14 +119,14 @@ public class NodeRangeManager {
       nodeRangeDao.update(updated);
       final boolean allReady = getNodeRange(tenant, resource).stream().allMatch(NodeRange::ready);
       if (allReady) {
-        updateConfiguration(tenant, resource);
+        updateTenantResourceConfiguration(tenant, resource);
       }
       return updated;
     });
   }
 
   /**
-   * Gets the node range dao, if it exists.
+   * Get the node range for the tenant resource on a specific node.
    *
    * @param uuid     of the node.
    * @param tenant   to get.
@@ -142,7 +142,8 @@ public class NodeRangeManager {
   }
 
   /**
-   * Gets the node range list, if it exists.
+   * Gets the node range list, if it exists. This will include all node in a tenant resource.
+   * As seen by the proxies.
    *
    * @param tenant   to get.
    * @param resource to get.
@@ -156,13 +157,13 @@ public class NodeRangeManager {
   }
 
   /**
-   * Updates the configuration service (like etcd) with the list of node ranges.
+   * Updates the configuration service (like etcd) with the list of node ranges from the tenant reesource namespace.
    *
    * @param tenant   to get.
    * @param resource to get.
    */
-  public void updateConfiguration(final String tenant,
-                                  final String resource) {
+  public void updateTenantResourceConfiguration(final String tenant,
+                                                final String resource) {
     LOGGER.trace("updateConfiguration({},{})", tenant, resource);
     metrics.time("NodeRangeManager.updateConfiguration", () -> {
       final List<org.svarm.common.config.api.NodeRange> nodeRanges =
@@ -177,7 +178,9 @@ public class NodeRangeManager {
   }
 
   /**
-   * Return back created node ranges that are being used.
+   * Return back created node ranges that are being used. This creates the database entries and the etcd entries
+   * on the node side. It will not update the tenant side, meaning the proxies won't see them yet.
+   * If they already exist, it will ensure the etcd is up-to-date.
    *
    * @param tenant   the tenant.
    * @param resource the resource.
@@ -202,7 +205,7 @@ public class NodeRangeManager {
       LOGGER.info("Create called on existing resource, using what we have: {},{},{}", tenant, resource, currentList);
       return currentList;
     }
-    final List<Integer> hashes = replicationFactorEngine.evenSplitHashes(DEFAULT_CLUSTER_SIZE);
+    final List<Integer> hashes = ringHashSplitEngine.evenSplitHashes(DEFAULT_CLUSTER_SIZE);
     final List<NodeRange> nodeRange = nodeAvailabilityEngine.getAvailableNodes(DEFAULT_CLUSTER_SIZE)
         .stream().map(nodeUuid -> ImmutableNodeRange.builder()
             .nodeUuid(nodeUuid).tenant(tenant).resource(resource).tableVersion(V_1_SINGLE_ENTRY_ENGINE)

@@ -21,11 +21,8 @@ import static org.slf4j.LoggerFactory.getLogger;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -35,6 +32,8 @@ import org.svarm.common.model.RingEntry;
 
 /**
  * Provides for a ring structure. Useful for the figuring out where things belong.
+ * TODO: Simplify by just creating, say, six static groups of replication bases. From 1 to 6. No reason
+ * to support unlimited replication bases here... and it'll go faster then.
  */
 @Singleton
 public class RingEngine {

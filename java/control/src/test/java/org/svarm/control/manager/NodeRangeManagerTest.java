@@ -35,7 +35,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.svarm.common.config.engine.NodeConfigurationEngine;
 import org.svarm.control.dao.NodeRangeDao;
 import org.svarm.control.engine.NodeAvailabilityEngine;
-import org.svarm.control.engine.ReplicationFactorEngine;
+import org.svarm.control.engine.RingHashSplitEngine;
 import org.svarm.control.model.NodeRange;
 import org.svarm.server.exception.NotFoundException;
 
@@ -53,14 +53,14 @@ class NodeRangeManagerTest extends BaseMetricTest {
   @Mock private NodeAvailabilityEngine nodeAvailabilityEngine;
   @Mock private NodeConfigurationEngine nodeConfigurationEngine;
   @Mock private NodeRange nodeRange;
-  @Mock private ReplicationFactorEngine replicationFactorEngine;
+  @Mock private RingHashSplitEngine ringHashSplitEngine;
   @Captor private ArgumentCaptor<NodeRange> nodeRangeArgumentCaptor;
 
   private NodeRangeManager nodeRangeManager;
 
   @BeforeEach
   void setup() {
-    nodeRangeManager = new NodeRangeManager(nodeRangeDao, clock, metrics, nodeAvailabilityEngine, nodeConfigurationEngine, replicationFactorEngine);
+    nodeRangeManager = new NodeRangeManager(nodeRangeDao, clock, metrics, nodeAvailabilityEngine, nodeConfigurationEngine, ringHashSplitEngine);
   }
 
   @Test
