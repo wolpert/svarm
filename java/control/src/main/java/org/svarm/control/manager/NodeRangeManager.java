@@ -31,6 +31,7 @@ import org.svarm.common.config.api.ImmutableNodeTenantResource;
 import org.svarm.common.config.api.ImmutableNodeTenantResourceRange;
 import org.svarm.common.config.api.ImmutableTenantResource;
 import org.svarm.common.config.api.ImmutableTenantResourceRange;
+import org.svarm.common.config.api.NodeTenantResourceRange;
 import org.svarm.common.config.api.TenantResource;
 import org.svarm.common.config.api.TenantResourceRange;
 import org.svarm.common.config.engine.NodeConfigurationEngine;
@@ -217,12 +218,13 @@ public class NodeRangeManager {
                                 final String resource,
                                 final List<NodeRange> nodeRange) {
     final TenantResource tenantResource = ImmutableTenantResource.builder().tenant(tenant).resource(resource).build();
-    nodeRange.stream().map(nr -> ImmutableNodeTenantResourceRange.builder()
+    final List<NodeTenantResourceRange> resourceRanges = nodeRange.stream().map(nr -> ImmutableNodeTenantResourceRange.builder()
             .nodeTenantResource(
                 ImmutableNodeTenantResource.builder().uuid(nr.nodeUuid()).tenantResource(tenantResource).build())
             .range(ImmutableMetaData.builder().hash(nr.hash()).build())
             .build())
-        .forEach(nodeConfigurationEngine::write); // TODO: This should be done in a transaction. All or nothing.
+        .collect(Collectors.toList());
+    nodeConfigurationEngine.write(resourceRanges);
   }
 
 }

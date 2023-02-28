@@ -20,6 +20,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.slf4j.Logger;
@@ -87,6 +88,21 @@ public class NodeConfigurationEngine {
     final String value = jsonEngine.writeValue(resourceRange.range());
     LOGGER.trace("put {} {}", key, value);
     accessor.put(NODE_NAMESPACE, key, value);
+  }
+
+  /**
+   * Writes to configuration store the nodes tenant resource.
+   *
+   * @param resourceRanges resource ranges.
+   */
+  public void write(final List<NodeTenantResourceRange> resourceRanges) {
+    LOGGER.trace("write({})", resourceRanges);
+    final Map<String, String> resourceMap = resourceRanges.stream().collect(Collectors.toMap(resourceRange -> {
+      final NodeTenantResource nodeTenantResource = resourceRange.nodeTenantResource();
+      final TenantResource tenantResource = nodeTenantResource.tenantResource();
+      return String.format("%s/id/%s/%s", nodeTenantResource.uuid(), tenantResource.tenant(), tenantResource.resource());
+    }, resourceRange -> jsonEngine.writeValue(resourceRange.range())));
+    accessor.putAll(NODE_NAMESPACE, resourceMap);
   }
 
   /**
