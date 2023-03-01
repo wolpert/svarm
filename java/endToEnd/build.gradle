@@ -74,32 +74,29 @@ dependencies {
 
 }
 
-task logDir(type: Exec) {
-    commandLine "mkdir", "-p", "build/docker-log"
-}
-
-task composeUp(type: Exec) {
-    onlyIf { project.hasProperty("e2e") }
-    commandLine "docker", "compose", "up", "--wait"
-}
-task preTestComposeDown(type: Exec) {
-    onlyIf { project.hasProperty("e2e") }
-    commandLine "docker", "compose", "down"
-}
-task finalComposeDown(type: Exec) {
-    onlyIf { project.hasProperty("e2e") }
-    commandLine "docker", "compose", "down"
-}
-composeUp.dependsOn logDir, preTestComposeDown,
-        ':control:test', ':node:test', ':proxy:test',
-        ':control:integ', ':node:integ',
-        ':control:installDist', ':node:installDist', ':proxy:installDist'
-
-integ {
-    enabled = false
-}
-test {
-    onlyIf { project.hasProperty("e2e") }
-    dependsOn composeUp
-    finalizedBy finalComposeDown
+if (project.hasProperty("e2e")) {
+    task logDir(type: Exec) {
+        commandLine "mkdir", "-p", "build/docker-log"
+    }
+    task preTestComposeDown(type: Exec) {
+        commandLine "docker", "compose", "down"
+    }
+    task composeUp(type: Exec) {
+        commandLine "docker", "compose", "up", "--wait"
+        dependsOn logDir, preTestComposeDown,
+                ':control:test', ':node:test', ':proxy:test',
+                //':control:integ', ':node:integ',
+                ':control:installDist', ':node:installDist', ':proxy:installDist'
+    }
+    task finalComposeDown(type: Exec) {
+        commandLine "docker", "compose", "down"
+    }
+    test {
+        dependsOn composeUp
+        finalizedBy finalComposeDown
+    }
+} else {
+    test {
+        enabled = false
+    }
 }

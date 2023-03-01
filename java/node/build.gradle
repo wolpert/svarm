@@ -76,5 +76,3 @@ task dockerImage(type: Exec) {
     commandLine "docker", "build", "-t", "svarm/node:${version}", "."
 }
 dockerImage.dependsOn installDist
-
-integ.dependsOn('test', ':control:integ')

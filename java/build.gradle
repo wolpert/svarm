@@ -160,11 +160,12 @@ allprojects {
         }
     }
 
-    tasks.named('test') {
-        useJUnitPlatform { excludeTags 'integ' }
-    }
-    def integ = tasks.register("integ", Test) {
-        useJUnitPlatform { includeTags "integ" }
+    test {
+        useJUnitPlatform {
+            if (!project.hasProperty('integ')) {
+                excludeTags 'integ'
+            }
+        }
     }
 }
 

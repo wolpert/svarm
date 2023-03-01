@@ -18,13 +18,13 @@ Integration tests take additional time. To execute build with full integration
 tests, do this:
 
 ```shell
-gradle build test integ
+gradle build test -Pinteg
 ```
 
 and, of course, if you just want to run the integ tests...
 
 ```shell
-gradle integ
+gradle test -Pinteg
 ```
 
 ### End to end tests
@@ -41,7 +41,7 @@ gradle test -Pe2e
 or
 
 ```shell
-gradle clean build test integ -Pe2e
+gradle clean build test -Pinteg -Pe2e
 ```
 
 This will enable the endToEnd subproject. Else that project is skipped.
