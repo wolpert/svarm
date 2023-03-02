@@ -39,11 +39,6 @@ services:
       interval: 2s
       retries: 10
 
-  metrics:
-    image: prom/prometheus:latest
-    ports:
-      - 5050:9090
-
   control:
     image: amazoncorretto:17
     ports:

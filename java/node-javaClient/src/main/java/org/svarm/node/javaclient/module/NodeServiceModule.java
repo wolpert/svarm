@@ -16,9 +16,12 @@
 
 package org.svarm.node.javaclient.module;
 
+import dagger.BindsOptionalOf;
 import dagger.Module;
 import dagger.Provides;
 import feign.Feign;
+import java.util.Optional;
+import javax.inject.Named;
 import javax.inject.Singleton;
 import org.svarm.node.api.NodeTenantService;
 import org.svarm.node.api.NodeTenantTableEntryService;
@@ -27,10 +30,22 @@ import org.svarm.node.api.NodeTenantTableService;
 /**
  * Module for the node service.
  */
-@Module
+@Module(includes = {NodeServiceModule.Binder.class})
 public class NodeServiceModule {
 
+  /**
+   * The client's node.
+   */
+  public static final String NODE_SERVICE_CONNECTION_URL = "NODE_SERVICE_CONNECTION_URL";
+  private static final String INTERNAL_NODE_SERVICE_CONNECTION_URL = "INTERNAL_NODE_SERVICE_CONNECTION_URL";
   private final String connectionUrl;
+
+  /**
+   * Default constructor to use if you want to derive the connection url.
+   */
+  public NodeServiceModule() {
+    this(null);
+  }
 
   /**
    * Constructor.
@@ -42,38 +57,77 @@ public class NodeServiceModule {
   }
 
   /**
-   * Get a usable node service.
+   * The real connection url.
    *
-   * @param builder feign builder to use.
-   * @return a node service.
+   * @param url the url.
+   * @return the value.
    */
   @Provides
   @Singleton
-  public NodeTenantService nodeTenantService(final Feign.Builder builder) {
-    return builder.target(NodeTenantService.class, connectionUrl);
+  @Named(INTERNAL_NODE_SERVICE_CONNECTION_URL)
+  public String internalControlServiceConnectionUrl(
+      @Named(NODE_SERVICE_CONNECTION_URL) final Optional<String> url) {
+    return url.orElse(connectionUrl);
   }
 
   /**
    * Get a usable node service.
    *
    * @param builder feign builder to use.
+   * @param url     the url.
    * @return a node service.
    */
   @Provides
   @Singleton
-  public NodeTenantTableService nodeTenantTableService(final Feign.Builder builder) {
-    return builder.target(NodeTenantTableService.class, connectionUrl);
+  public NodeTenantService nodeTenantService(
+      final Feign.Builder builder,
+      final @Named(INTERNAL_NODE_SERVICE_CONNECTION_URL) String url) {
+    return builder.target(NodeTenantService.class, url);
   }
 
   /**
    * Get a usable node service.
    *
    * @param builder feign builder to use.
+   * @param url     the url.
    * @return a node service.
    */
   @Provides
   @Singleton
-  public NodeTenantTableEntryService nodeTenantTableEntryService(final Feign.Builder builder) {
-    return builder.target(NodeTenantTableEntryService.class, connectionUrl);
+  public NodeTenantTableService nodeTenantTableService(
+      final Feign.Builder builder,
+      final @Named(INTERNAL_NODE_SERVICE_CONNECTION_URL) String url) {
+    return builder.target(NodeTenantTableService.class, url);
+  }
+
+  /**
+   * Get a usable node service.
+   *
+   * @param builder feign builder to use.
+   * @param url     the url.
+   * @return a node service.
+   */
+  @Provides
+  @Singleton
+  public NodeTenantTableEntryService nodeTenantTableEntryService(
+      final Feign.Builder builder,
+      final @Named(INTERNAL_NODE_SERVICE_CONNECTION_URL) String url) {
+    return builder.target(NodeTenantTableEntryService.class, url);
+  }
+
+  /**
+   * Binder so clients can do their own connection url.
+   */
+  @Module
+  interface Binder {
+
+    /**
+     * Optional connection url declared by the clients.
+     *
+     * @return value.
+     */
+    @BindsOptionalOf
+    @Named(NODE_SERVICE_CONNECTION_URL)
+    String nodeServiceConnectionUrl();
   }
 }
