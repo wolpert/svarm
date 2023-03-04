@@ -128,9 +128,9 @@ public class TenantTableManager {
         .nonce(aesGcmSivManager.randomNonceBase64Encoded())
         .build();
     try {
-      final TenantTable result = dao.create(tenantTable);
+      dao.create(tenantTable);
       tenantTableDataSourceManager.getDataSource(tenantTable);
-      return result;
+      return tenantTable;
     } catch (RuntimeException re) {
       LOGGER.error("Unable to create data source for {}, destroying", tenantTable);
       dao.delete(identifier.tenantId(), identifier.tableName());

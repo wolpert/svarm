@@ -20,13 +20,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
-import javax.inject.Inject;
-import javax.inject.Singleton;
-import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.statement.StatementContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.jdbi.v3.sqlobject.config.RegisterRowMapper;
+import org.jdbi.v3.sqlobject.customizer.Bind;
+import org.jdbi.v3.sqlobject.customizer.BindPojo;
+import org.jdbi.v3.sqlobject.statement.SqlQuery;
+import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.svarm.node.model.ImmutableTenantTable;
 import org.svarm.node.model.TenantTable;
 import org.svarm.node.model.TenantTableIdentifier;
@@ -34,79 +34,33 @@ import org.svarm.node.model.TenantTableIdentifier;
 /**
  * Accessor to tenant table records in the node.
  */
-@Singleton
-public class TenantTableDao {
-
-  private static final Logger LOGGER = LoggerFactory.getLogger(TenantTableDao.class);
-
-  private final Jdbi internalJdbi;
-
-  /**
-   * Default constructor.
-   *
-   * @param internalJdbi to execute sql.
-   */
-  @Inject
-  public TenantTableDao(final Jdbi internalJdbi) {
-    LOGGER.info("TenantDao({})", internalJdbi);
-    this.internalJdbi = internalJdbi;
-  }
+public interface TenantTableDao {
 
   /**
    * Creates the tenant table in the database. If it already exists, does nothing but returns the existing tenant.
    *
    * @param tenantTable to create.
-   * @return The tenant... either the one that was created or the existing one.
    */
-  public TenantTable create(final TenantTable tenantTable) {
-    LOGGER.trace("create({})", tenantTable);
-
-    return internalJdbi.withHandle(handle -> {
-      final int updateCount = handle.createUpdate(
-              "insert into NODE_TENANT_TABLES (RID_TENANT,TABLE_NAME,HASH, QUANTITY_EST, ENABLED, TABLE_VERSION, KEY, NONCE) "
-                  + "values (:identifier.tenantId,:identifier.tableName,:hash,:estimatedQuantity,:enabled,:tableVersion,:key,:nonce)"
-          )
-          .bindPojo(tenantTable, TenantTable.class)
-          .execute();
-
-      if (updateCount != 1) {
-        throw new IllegalArgumentException("Unable to create tenant table");
-      }
-      return tenantTable;
-    });
-  }
+  @SqlUpdate("insert into NODE_TENANT_TABLES "
+      + "(RID_TENANT,TABLE_NAME,HASH, QUANTITY_EST, ENABLED, TABLE_VERSION, KEY, NONCE) "
+      + "values (:identifier.tenantId,:identifier.tableName,:hash,:estimatedQuantity,:enabled,:tableVersion,:key,:nonce)")
+  void create(@BindPojo final TenantTable tenantTable);
 
   /**
    * Updates the record with things that can change. (Not the table name or tenant id).
    *
    * @param tenantTable that has the new values.
-   * @return the tenant table.
    */
-  public TenantTable update(final TenantTable tenantTable) {
-    LOGGER.trace("update({})", tenantTable);
-    return internalJdbi.withHandle(handle -> {
-      final int updateCount = handle.createUpdate(
-              "update NODE_TENANT_TABLES set "
-                  + "HASH = :hash, "
-                  + "QUANTITY_EST = :estimatedQuantity, "
-                  + "ENABLED = :enabled, "
-                  + "TABLE_VERSION = :tableVersion "
-                  + "where RID_TENANT = :identifier.tenantId "
-                  + "and TABLE_NAME = :identifier.tableName "
-                  + "and KEY = :key "
-                  + "and NONCE = :nonce "
-          ).bindPojo(tenantTable)
-          .execute();
-      if (updateCount == 0) {
-        LOGGER.warn("No entry to update for {}", tenantTable);
-        throw new IllegalArgumentException("No entry to update");
-      } else if (updateCount > 2) {
-        LOGGER.error("Oops, this is bad. More than one entry updated. {}", tenantTable);
-        throw new IllegalStateException("Multiple entries updated: " + updateCount);
-      }
-      return tenantTable;
-    });
-  }
+  @SqlUpdate("update NODE_TENANT_TABLES set "
+      + "HASH = :hash, "
+      + "QUANTITY_EST = :estimatedQuantity, "
+      + "ENABLED = :enabled, "
+      + "TABLE_VERSION = :tableVersion "
+      + "where RID_TENANT = :identifier.tenantId "
+      + "and TABLE_NAME = :identifier.tableName "
+      + "and KEY = :key "
+      + "and NONCE = :nonce ")
+  void update(@BindPojo final TenantTable tenantTable);
 
   /**
    * Reads from the current database if the tenant table exists.
@@ -115,16 +69,10 @@ public class TenantTableDao {
    * @param tableName to read.
    * @return optional tenant if it exists.
    */
-  public Optional<TenantTable> read(final String tenantId, final String tableName) {
-    LOGGER.trace("read({},{})", tenantId, tableName);
-    return internalJdbi.withHandle(handle -> handle
-        .createQuery("select * from NODE_TENANT_TABLES where RID_TENANT = :tenant_id and TABLE_NAME = :table_name")
-        .bind("tenant_id", tenantId)
-        .bind("table_name", tableName)
-        .map(new TenantTableRowMapper())
-        .findOne()
-    );
-  }
+  @SqlQuery("select * from NODE_TENANT_TABLES where RID_TENANT = :tenant_id and TABLE_NAME = :table_name")
+  @RegisterRowMapper(TenantTableRowMapper.class)
+  Optional<TenantTable> read(@Bind("tenant_id") final String tenantId,
+                             @Bind("table_name") final String tableName);
 
   /**
    * Returns a list of all tenants in the database.
@@ -132,33 +80,23 @@ public class TenantTableDao {
    * @param tenantId the look for
    * @return list ot tenant ids.
    */
-  public List<String> allTenantTables(final String tenantId) {
-    LOGGER.trace("allTenantTables({})", tenantId);
-    return internalJdbi.withHandle(handle -> handle
-        .createQuery("select TABLE_NAME from NODE_TENANT_TABLES where RID_TENANT = :tenant_id")
-        .bind("tenant_id", tenantId)
-        .mapTo(String.class)
-        .list());
-  }
+  @SqlQuery("select TABLE_NAME from NODE_TENANT_TABLES where RID_TENANT = :tenant_id")
+  List<String> allTenantTables(@Bind("tenant_id") final String tenantId);
 
   /**
    * Deletes the tenant from the database. If there was no tenant, does nothing.
    *
    * @param tenantId  to delete from.
    * @param tableName to delete.
-   * @return boolean if anyone was found to delete.
    */
-  public boolean delete(final String tenantId, final String tableName) {
-    LOGGER.trace("delete({})", tenantId);
-    return internalJdbi.withHandle(handle -> handle
-        .createUpdate("delete from NODE_TENANT_TABLES where RID_TENANT = :tenant_id and TABLE_NAME = :table_name")
-        .bind("tenant_id", tenantId)
-        .bind("table_name", tableName)
-        .execute() > 0
-    );
-  }
+  @SqlUpdate("delete from NODE_TENANT_TABLES where RID_TENANT = :tenant_id and TABLE_NAME = :table_name")
+  void delete(@Bind("tenant_id") final String tenantId,
+              @Bind("table_name") final String tableName);
 
-  private static class TenantTableRowMapper implements RowMapper<TenantTable> {
+  /**
+   * Row mapper.
+   */
+  class TenantTableRowMapper implements RowMapper<TenantTable> {
 
     @Override
     public TenantTable map(final ResultSet rs, final StatementContext ctx) throws SQLException {

@@ -69,14 +69,14 @@ class TenantTableDaoTest extends BaseSQLTest {
 
   @BeforeEach
   void setup() {
-    dao = new TenantTableDao(internalJdbi);
+    dao = internalJdbi.onDemand(TenantTableDao.class);
   }
 
   @ParameterizedTest
   @MethodSource("tenantTables")
   void roundTripWithTenants(final TenantTable tenantTable) {
     assertThat(dao.read(tenantTable.identifier().tenantId(), tenantTable.identifier().tableName())).isEmpty();
-    assertThat(dao.create(tenantTable)).isEqualTo(tenantTable);
+    dao.create(tenantTable);
     assertThat(dao.read(tenantTable.identifier().tenantId(), tenantTable.identifier().tableName())).isPresent().contains(tenantTable);
   }
 
@@ -97,7 +97,7 @@ class TenantTableDaoTest extends BaseSQLTest {
   void roundTrip() {
     final TenantTable tenantTable = randomTenantTable();
     assertThat(dao.read(tenantTable.identifier().tenantId(), tenantTable.identifier().tableName())).isEmpty();
-    assertThat(dao.create(tenantTable)).isEqualTo(tenantTable);
+    dao.create(tenantTable);
     assertThat(dao.read(tenantTable.identifier().tenantId(), tenantTable.identifier().tableName())).isPresent().contains(tenantTable);
   }
 
@@ -113,8 +113,10 @@ class TenantTableDaoTest extends BaseSQLTest {
   @Test
   void delete() {
     final TenantTable tenantTable = randomTenantTable();
-    assertThat(dao.delete(tenantTable.identifier().tenantId(), tenantTable.identifier().tableName())).isFalse();
+    assertThat(dao.read(tenantTable.identifier().tenantId(), tenantTable.identifier().tableName())).isEmpty();
     dao.create(tenantTable);
-    assertThat(dao.delete(tenantTable.identifier().tenantId(), tenantTable.identifier().tableName())).isTrue();
+    assertThat(dao.read(tenantTable.identifier().tenantId(), tenantTable.identifier().tableName())).isPresent().contains(tenantTable);
+    dao.delete(tenantTable.identifier().tenantId(), tenantTable.identifier().tableName());
+    assertThat(dao.read(tenantTable.identifier().tenantId(), tenantTable.identifier().tableName())).isEmpty();
   }
 }

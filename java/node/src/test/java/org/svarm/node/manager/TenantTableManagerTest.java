@@ -17,6 +17,7 @@
 package org.svarm.node.manager;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.codeheadsystems.metrics.test.BaseMetricTest;
@@ -75,8 +76,9 @@ class TenantTableManagerTest extends BaseMetricTest {
   void create() {
     when(aesManager.randomKeyBase64Encoded()).thenReturn(KEY);
     when(aesManager.randomNonceBase64Encoded()).thenReturn(NONCE);
-    when(dao.create(tenantTableArgumentCaptor.capture())).thenReturn(tenantTable);
-    Assertions.assertThat(manager.create(IDENTIFIER, ENGINE)).isEqualTo(tenantTable);
+    Assertions.assertThat(manager.create(IDENTIFIER, ENGINE))
+        .hasFieldOrPropertyWithValue("identifier", IDENTIFIER);
+    verify(dao).create(tenantTableArgumentCaptor.capture());
     assertThat(tenantTableArgumentCaptor.getValue())
         .hasFieldOrPropertyWithValue("tableVersion", ENGINE)
         .hasFieldOrPropertyWithValue("key", KEY)
@@ -95,8 +97,8 @@ class TenantTableManagerTest extends BaseMetricTest {
   @Test
   void delete() {
     when(dao.read(TENANT_ID, TABLE_NAME)).thenReturn(Optional.of(tenantTable));
-    when(dao.delete(stringArgumentCaptor.capture(), stringArgumentCaptor.capture())).thenReturn(true);
     manager.delete(IDENTIFIER);
+    verify(dao).delete(stringArgumentCaptor.capture(), stringArgumentCaptor.capture());
     assertThat(stringArgumentCaptor.getAllValues())
         .containsExactly(TENANT_ID, TABLE_NAME);
   }
