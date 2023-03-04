@@ -73,21 +73,4 @@
             </column>
         </createTable>
     </changeSet>
-
-    <changeSet id="2023-01-14-001" author="wolpert">
-        <createTable tableName="NODE_TENANT_TABLES_CONFIGURATION">
-            <column name="RID_TENANT" type="varchar(256)">
-                <constraints primaryKey="true" nullable="false"/>
-            </column>
-            <column name="TABLE_NAME" type="varchar(256)">
-                <constraints primaryKey="true" nullable="false"/>
-            </column>
-            <column name="KEY" type="varchar(256)">
-                <constraints primaryKey="true" nullable="false"/>
-            </column>
-            <column name="VALUE" type="varchar(256)">
-                <constraints primaryKey="false" nullable="false"/>
-            </column>
-        </createTable>
-    </changeSet>
 </databaseChangeLog>

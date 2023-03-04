@@ -45,7 +45,7 @@ class DatabaseInitializationEngineTest {
   public static Stream<Arguments> pathToTableNames() {
     return Stream.of(
         Arguments.of("liquibasetest", new String[]{"DATABASECHANGELOGLOCK", "DATABASECHANGELOG", "PERSON", "OTHERTABLE"}),
-        Arguments.of(DataSourceModule.INTERNAL, new String[]{"DATABASECHANGELOGLOCK", "DATABASECHANGELOG", "NODE_TENANT", "NODE_TENANT_TABLES", "NODE_TENANT_TABLES_CONFIGURATION"}),
+        Arguments.of(DataSourceModule.INTERNAL, new String[]{"DATABASECHANGELOGLOCK", "DATABASECHANGELOG", "NODE_TENANT", "NODE_TENANT_TABLES"}),
         Arguments.of(TENANT, new String[]{"DATABASECHANGELOGLOCK", "DATABASECHANGELOG", "TENANT_DATA"})
     );
   }
