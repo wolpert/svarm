@@ -28,6 +28,7 @@ import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.svarm.common.crypt.AesGcmSivManager;
+import org.svarm.datastore.common.TableDefinition;
 import org.svarm.node.dao.TenantTableDao;
 import org.svarm.node.engine.TableDefinitionEngine;
 import org.svarm.node.model.ImmutableTenantTable;
@@ -47,7 +48,7 @@ public class TenantTableManager {
   private final Metrics metrics;
   private final TenantTableDao dao;
   private final AesGcmSivManager aesGcmSivManager;
-  private final Map<String, TableDefinitionEngine> tableDefinitionEngineMap;
+  private final Map<TableDefinition, TableDefinitionEngine> tableDefinitionEngineMap;
   private final LoadingCache<TenantTableIdentifier, TenantTable> tenantTableCacheLoader;
   private final TenantTableDataSourceManager tenantTableDataSourceManager;
   private final ExceptionUtils exceptionUtils;
@@ -66,7 +67,7 @@ public class TenantTableManager {
   public TenantTableManager(final Metrics metrics,
                             final TenantTableDao dao,
                             final AesGcmSivManager aesGcmSivManager,
-                            final Map<String, TableDefinitionEngine> tableDefinitionEngineMap,
+                            final Map<TableDefinition, TableDefinitionEngine> tableDefinitionEngineMap,
                             final TenantTableDataSourceManager tenantTableDataSourceManager,
                             final ExceptionUtils exceptionUtils) {
     LOGGER.info("TenantManager({},{},{},{})", metrics, dao, aesGcmSivManager, tableDefinitionEngineMap);
@@ -101,29 +102,29 @@ public class TenantTableManager {
    * Created the tenant table. If it already exists, simply return the one we already have. Idempotent. Does not set the
    * hash values.
    *
-   * @param identifier   Table to create.
-   * @param tableVersion the version of the table we are creating.
+   * @param identifier      Table to create.
+   * @param tableDefinition the version of the table we are creating.
    * @return a tenant.
    */
   public TenantTable create(final TenantTableIdentifier identifier,
-                            final String tableVersion) {
-    LOGGER.debug("create({}, {})", identifier, tableVersion);
+                            final TableDefinition tableDefinition) {
+    LOGGER.debug("create({}, {})", identifier, tableDefinition);
     return get(identifier).orElseGet(() ->
         metrics.time("TenantTableManager.create",
-            () -> buildTenantTable(identifier, tableVersion)));
+            () -> buildTenantTable(identifier, tableDefinition)));
   }
 
   private TenantTable buildTenantTable(final TenantTableIdentifier identifier,
-                                       final String tableVersion) {
-    LOGGER.debug("buildTenantTable({}, {})", identifier, tableVersion);
-    if (!tableDefinitionEngineMap.containsKey(tableVersion)) {
-      throw new IllegalArgumentException("Unknown table version: " + tableVersion);
+                                       final TableDefinition tableDefinition) {
+    LOGGER.debug("buildTenantTable({}, {})", identifier, tableDefinition);
+    if (!tableDefinitionEngineMap.containsKey(tableDefinition)) {
+      throw new IllegalArgumentException("Unknown table version: " + tableDefinition);
     }
     final TenantTable tenantTable = ImmutableTenantTable.builder()
         .identifier(identifier)
         .enabled(true)
         .estimatedQuantity(0)
-        .tableVersion(tableVersion)
+        .tableVersion(tableDefinition.name())
         .key(aesGcmSivManager.randomKeyBase64Encoded())
         .nonce(aesGcmSivManager.randomNonceBase64Encoded())
         .build();

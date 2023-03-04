@@ -29,7 +29,7 @@ import org.svarm.common.config.converter.NodeTenantResourceRangeConverter;
 import org.svarm.common.config.engine.Event;
 import org.svarm.common.config.engine.WatchEngine;
 import org.svarm.common.config.factory.WatchEngineFactory;
-import org.svarm.node.engine.impl.V1SingleEntryEngine;
+import org.svarm.datastore.common.TableDefinition;
 import org.svarm.node.model.ImmutableTenantTableIdentifier;
 import org.svarm.node.model.NodeInternalConfiguration;
 import org.svarm.node.model.TenantTable;
@@ -90,7 +90,8 @@ public class ControlPlaneWatcherManager implements Managed {
     final TenantResource tenantResource = range.nodeTenantResource().tenantResource();
     final TenantTableIdentifier identifier = ImmutableTenantTableIdentifier.builder()
         .tenantId(tenantResource.tenant()).tableName(tenantResource.resource()).build();
-    final TenantTable tenantTable = tenantTableManager.create(identifier, V1SingleEntryEngine.DEFINITION_NAME);
+    // TODO: Get this table definition from the request!
+    final TenantTable tenantTable = tenantTableManager.create(identifier, TableDefinition.V1SingleEntryEngine);
     controlPlaneManager.enable(identifier);
     LOGGER.info("handleNewTable({},{}) : {}", key, value, tenantTable);
   }

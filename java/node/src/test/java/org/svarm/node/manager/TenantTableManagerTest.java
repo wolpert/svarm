@@ -33,6 +33,7 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.svarm.common.crypt.AesGcmSivManager;
+import org.svarm.datastore.common.TableDefinition;
 import org.svarm.node.dao.TenantTableDao;
 import org.svarm.node.engine.TableDefinitionEngine;
 import org.svarm.node.model.TenantTable;
@@ -45,7 +46,7 @@ class TenantTableManagerTest extends BaseMetricTest {
   private static final String KEY = "KEY";
   private static final String TENANT_ID = "tenant";
   private static final String TABLE_NAME = "tablename";
-  private static final String ENGINE = "engine";
+  private static final TableDefinition ENGINE = TableDefinition.V1SingleEntryEngine;
   private static final TenantTableIdentifier IDENTIFIER = TenantTableIdentifier.from(TENANT_ID, TABLE_NAME);
 
   @Mock private TenantTableDao dao;
@@ -58,7 +59,7 @@ class TenantTableManagerTest extends BaseMetricTest {
   @Captor private ArgumentCaptor<String> stringArgumentCaptor;
 
   private TenantTableManager manager;
-  private Map<String, TableDefinitionEngine> tableDefinitionEngineMap;
+  private Map<TableDefinition, TableDefinitionEngine> tableDefinitionEngineMap;
 
   @BeforeEach
   void setup() {
@@ -80,7 +81,7 @@ class TenantTableManagerTest extends BaseMetricTest {
         .hasFieldOrPropertyWithValue("identifier", IDENTIFIER);
     verify(dao).create(tenantTableArgumentCaptor.capture());
     assertThat(tenantTableArgumentCaptor.getValue())
-        .hasFieldOrPropertyWithValue("tableVersion", ENGINE)
+        .hasFieldOrPropertyWithValue("tableVersion", ENGINE.name())
         .hasFieldOrPropertyWithValue("key", KEY)
         .hasFieldOrPropertyWithValue("nonce", NONCE)
         .extracting("identifier")

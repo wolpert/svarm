@@ -32,6 +32,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.svarm.datastore.common.TableDefinition;
 import org.svarm.node.api.EntryInfo;
 import org.svarm.node.engine.TableDefinitionEngine;
 import org.svarm.node.model.TenantTable;
@@ -41,7 +42,7 @@ import org.svarm.server.exception.NotFoundException;
 @ExtendWith(MockitoExtension.class)
 class TenantTableEntryManagerTest {
 
-  private static final String TABLE_VERSION = "ENGINE";
+  private static final String TABLE_VERSION = TableDefinition.V1SingleEntryEngine.name();
   private static final String ENTITY = "entity";
   @Mock private TableDefinitionEngine tableDefinitionEngine;
   @Mock private TenantTableManager tenantTableManager;
@@ -57,7 +58,7 @@ class TenantTableEntryManagerTest {
 
   @BeforeEach
   void setup() {
-    final Map<String, TableDefinitionEngine> map = ImmutableMap.of(TABLE_VERSION, tableDefinitionEngine);
+    final Map<TableDefinition, TableDefinitionEngine> map = ImmutableMap.of(TableDefinition.V1SingleEntryEngine, tableDefinitionEngine);
     manager = new TenantTableEntryManager(map, tenantTableManager);
   }
 

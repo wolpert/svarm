@@ -16,12 +16,10 @@
 
 package org.svarm.node.module;
 
-import static org.svarm.node.engine.impl.V1SingleEntryEngine.DEFINITION_NAME;
-
 import dagger.Binds;
 import dagger.Module;
 import dagger.multibindings.IntoMap;
-import dagger.multibindings.StringKey;
+import org.svarm.datastore.common.TableDefinition;
 import org.svarm.node.engine.TableDefinitionEngine;
 import org.svarm.node.engine.impl.V1SingleEntryEngine;
 
@@ -39,7 +37,7 @@ public interface TableDefinitionEngineModule {
    */
   @Binds
   @IntoMap
-  @StringKey(DEFINITION_NAME)
+  @TableDefinition.TableDefinitionKey(TableDefinition.V1SingleEntryEngine)
   TableDefinitionEngine v1SingleEntry(V1SingleEntryEngine engine);
 
 }

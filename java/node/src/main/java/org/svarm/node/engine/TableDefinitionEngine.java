@@ -19,6 +19,7 @@ package org.svarm.node.engine;
 import com.google.common.hash.HashFunction;
 import java.util.Optional;
 import java.util.function.Supplier;
+import org.svarm.datastore.common.TableDefinition;
 import org.svarm.node.api.EntryInfo;
 import org.svarm.node.model.TenantTable;
 
@@ -26,30 +27,6 @@ import org.svarm.node.model.TenantTable;
  * Methods needed for a table definition.
  */
 public interface TableDefinitionEngine {
-
-  /**
-   * The hashing function needed for the table.
-   *
-   * @return a supplier for the required hashing function.
-   */
-  Supplier<HashFunction> hashFunctionSupplier();
-
-  /**
-   * Implementations need their own definition name for lookup.
-   *
-   * @return definition name.
-   */
-  String definitionName();
-
-  /**
-   * Hashes the string using the hashing function.
-   *
-   * @param string to hash.
-   * @return the resulting hash.
-   */
-  default int hash(final String string) {
-    return hashFunctionSupplier().get().hashUnencodedChars(string).asInt();
-  }
 
   /**
    * Reads the entity from the table, returning the JsonNode.

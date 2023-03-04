@@ -25,6 +25,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.svarm.datastore.common.TableDefinition;
 import org.svarm.node.api.NodeTenantTableService;
 import org.svarm.node.api.TableMetaData;
 import org.svarm.node.api.TenantTableInfo;
@@ -113,7 +114,7 @@ public class TenantTableResource implements NodeTenantTableService, JerseyResour
     LOGGER.debug("create({},{})", tenantId, table);
     final TenantTableIdentifier identifier = TenantTableIdentifier.from(tenantId, table);
     final TenantTable tenantTable = tenantTableManager
-        .create(identifier, V1SingleEntryEngine.DEFINITION_NAME);
+        .create(identifier, TableDefinition.V1SingleEntryEngine);
     return converter.from(tenantTable.identifier());
   }
 

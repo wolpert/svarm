@@ -28,6 +28,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.svarm.datastore.common.TableDefinition;
 import org.svarm.node.api.TableMetaData;
 import org.svarm.node.api.TenantTableInfo;
 import org.svarm.node.converter.TenantTableInfoConverter;
@@ -79,7 +80,7 @@ class TenantTableResourceTest {
 
   @Test
   void create() {
-    when(tenantTableManager.create(IDENTIFIER, V1SingleEntryEngine.DEFINITION_NAME))
+    when(tenantTableManager.create(IDENTIFIER, TableDefinition.V1SingleEntryEngine))
         .thenReturn(tenantTable);
     when(tenantTable.identifier()).thenReturn(identifier);
     when(tenantTableInfoConverter.from(identifier)).thenReturn(tenantTableInfo);

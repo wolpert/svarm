@@ -22,6 +22,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.svarm.datastore.common.TableDefinition;
 import org.svarm.node.api.EntryInfo;
 import org.svarm.node.engine.TableDefinitionEngine;
 import org.svarm.node.model.TenantTable;
@@ -36,7 +37,7 @@ public class TenantTableEntryManager {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(TenantTableEntryManager.class);
 
-  private final Map<String, TableDefinitionEngine> tableDefinitionEngineMap;
+  private final Map<TableDefinition, TableDefinitionEngine> tableDefinitionEngineMap;
   private final TenantTableManager tenantTableManager;
 
   /**
@@ -46,7 +47,7 @@ public class TenantTableEntryManager {
    * @param tenantTableManager       to get the tenant table.
    */
   @Inject
-  public TenantTableEntryManager(final Map<String, TableDefinitionEngine> tableDefinitionEngineMap,
+  public TenantTableEntryManager(final Map<TableDefinition, TableDefinitionEngine> tableDefinitionEngineMap,
                                  final TenantTableManager tenantTableManager) {
     LOGGER.info("TenantTableEntryManager({},{})", tableDefinitionEngineMap, tenantTableManager);
     this.tableDefinitionEngineMap = tableDefinitionEngineMap;
@@ -100,7 +101,7 @@ public class TenantTableEntryManager {
   private TableDefinitionEngine engine(final TenantTable tenantTable) {
     final String tableVersion = tenantTable.tableVersion();
     LOGGER.trace("engine({})", tableVersion);
-    final TableDefinitionEngine engine = tableDefinitionEngineMap.get(tableVersion);
+    final TableDefinitionEngine engine = tableDefinitionEngineMap.get(TableDefinition.valueOf(tableVersion));
     if (engine == null) {
       LOGGER.error("Bad version: {}", tableVersion);
       throw new IllegalArgumentException("No such version:" + tableVersion);

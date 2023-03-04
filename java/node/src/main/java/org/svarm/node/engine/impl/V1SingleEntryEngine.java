@@ -16,8 +16,6 @@
 
 package org.svarm.node.engine.impl;
 
-import static org.svarm.node.api.TenantTableVersion.V1SingleEntry;
-
 import com.codeheadsystems.metrics.Metrics;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -32,6 +30,7 @@ import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.svarm.common.engine.JsonEngine;
+import org.svarm.datastore.common.TableDefinition;
 import org.svarm.node.api.EntryInfo;
 import org.svarm.node.api.ImmutableEntryInfo;
 import org.svarm.node.engine.SqlEngine;
@@ -44,10 +43,6 @@ import org.svarm.node.model.TenantTable;
 @Singleton
 public class V1SingleEntryEngine implements TableDefinitionEngine {
 
-  /**
-   * Identifier.
-   */
-  public static final String DEFINITION_NAME = V1SingleEntry;
   private static final Logger LOGGER = LoggerFactory.getLogger(V1SingleEntryEngine.class);
   private static final String INTEGER_TYPE = "INTEGER";
   private static final String STRING_TYPE = "STRING";
@@ -70,26 +65,6 @@ public class V1SingleEntryEngine implements TableDefinitionEngine {
     LOGGER.info("V1SingleEntryEngine({},{})", metrics, sqlEngine);
     this.metrics = metrics;
     this.sqlEngine = sqlEngine;
-  }
-
-  /**
-   * Uses the murmur3/32b hashing function.
-   *
-   * @return supplier.
-   */
-  @Override
-  public Supplier<HashFunction> hashFunctionSupplier() {
-    return Hashing::murmur3_32_fixed;
-  }
-
-  /**
-   * Identifier.
-   *
-   * @return definition name.
-   */
-  @Override
-  public String definitionName() {
-    return DEFINITION_NAME;
   }
 
   /**

@@ -19,6 +19,7 @@ configurations {
 
 dependencies {
     implementation project(":common")
+    implementation project(':dataStore-common')
     implementation project(":common-javaClient")
     implementation project(":server-common")
     implementation project(":config-common")
