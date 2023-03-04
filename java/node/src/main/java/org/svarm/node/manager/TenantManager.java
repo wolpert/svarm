@@ -97,7 +97,11 @@ public class TenantManager {
   public Tenant create(final String tenantId) {
     LOGGER.debug("create({})", tenantId);
     return get(tenantId).orElseGet(() ->
-        metrics.time("TenantManager.create", () -> dao.create(buildTenant(tenantId))));
+        metrics.time("TenantManager.create", () -> {
+          final Tenant tenant = buildTenant(tenantId);
+          dao.create(tenant);
+          return tenant;
+        }));
   }
 
   private Tenant buildTenant(final String tenantId) {
@@ -129,9 +133,11 @@ public class TenantManager {
    */
   public boolean delete(final String tenantId) {
     LOGGER.trace("delete({})", tenantId);
-    final boolean result = metrics.time("TenantManager.tenants", () -> dao.delete(tenantId));
-    tenantLoadingCache.invalidate(tenantId);
-    return result;
+    return metrics.time("TenantManager.tenants", () -> {
+      dao.delete(tenantId);
+      tenantLoadingCache.invalidate(tenantId);
+      return true;
+    });
   }
 
 }

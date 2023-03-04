@@ -18,52 +18,24 @@ package org.svarm.node.dao;
 
 import java.util.List;
 import java.util.Optional;
-import javax.inject.Inject;
-import javax.inject.Singleton;
-import org.jdbi.v3.core.Jdbi;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.jdbi.v3.sqlobject.customizer.Bind;
+import org.jdbi.v3.sqlobject.customizer.BindPojo;
+import org.jdbi.v3.sqlobject.statement.SqlQuery;
+import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.svarm.node.model.Tenant;
 
 /**
  * Accessor to tenant records in the node. These are not the tenant tables, but the tenant itself.
  */
-@Singleton
-public class TenantDao {
-
-  private static final Logger LOGGER = LoggerFactory.getLogger(TenantDao.class);
-
-  private final Jdbi internalJdbi;
-
-  /**
-   * Default constructor.
-   *
-   * @param internalJdbi to get the internal datasource for tenant info
-   */
-  @Inject
-  public TenantDao(final Jdbi internalJdbi) {
-    LOGGER.trace("TenantDao({})", internalJdbi);
-    this.internalJdbi = internalJdbi;
-  }
+public interface TenantDao {
 
   /**
    * Creates the tenant in the database. If it already exists, it does nothing but returns the existing tenant.
    *
    * @param tenant to create.
-   * @return The tenant... either the one that was created or the existing one.
    */
-  public Tenant create(final Tenant tenant) {
-    LOGGER.trace("create({})", tenant);
-    final Integer updateCount = internalJdbi.withHandle(handle ->
-        handle.createUpdate("insert into NODE_TENANT (RID_TENANT,UUID,KEY,NONCE) values (:ridTenant, :uuid, :key, :nonce)")
-            .bindPojo(tenant)
-            .execute()
-    );
-    if (updateCount != 1) {
-      throw new IllegalArgumentException("Unable to create tenant");
-    }
-    return tenant;
-  }
+  @SqlUpdate("insert into NODE_TENANT (RID_TENANT,UUID,KEY,NONCE) values (:ridTenant, :uuid, :key, :nonce)")
+  void create(@BindPojo final Tenant tenant);
 
   /**
    * Reads from the current database if the tenant exists.
@@ -71,40 +43,23 @@ public class TenantDao {
    * @param tenantId tenant to read.
    * @return optional tenant if it exists.
    */
-  public Optional<Tenant> read(final String tenantId) {
-    LOGGER.trace("read({})", tenantId);
-    return internalJdbi.withHandle(handle ->
-        handle.createQuery("select * from NODE_TENANT where RID_TENANT = :tenantId")
-            .bind("tenantId", tenantId)
-            .mapTo(Tenant.class)
-            .findFirst());
-  }
+  @SqlQuery("select * from NODE_TENANT where RID_TENANT = :tenantId")
+  Optional<Tenant> read(@Bind("tenantId") final String tenantId);
 
   /**
    * Returns a list of all tenants in the database.
    *
    * @return list ot tenant ids.
    */
-  public List<String> allTenants() {
-    LOGGER.trace("allTenants()");
-    return internalJdbi.withHandle(handle ->
-        handle.createQuery("select RID_TENANT from NODE_TENANT")
-            .mapTo(String.class)
-            .list());
-  }
+  @SqlQuery("select RID_TENANT from NODE_TENANT")
+  List<String> allTenants();
 
   /**
    * Deletes the tenant from the database. If there was no tenant, does nothing.
    *
    * @param tenantId to delete.
-   * @return boolean if anyone was found to delete.
    */
-  public boolean delete(final String tenantId) {
-    LOGGER.trace("delete({})", tenantId);
-    return internalJdbi.withHandle(handle ->
-        handle.createUpdate("delete from NODE_TENANT where RID_TENANT = :tenantId")
-            .bind("tenantId", tenantId)
-            .execute() > 0);
-  }
+  @SqlUpdate("delete from NODE_TENANT where RID_TENANT = :tenantId")
+  void delete(@Bind("tenantId") final String tenantId);
 
 }

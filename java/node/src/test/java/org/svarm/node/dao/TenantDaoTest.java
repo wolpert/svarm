@@ -33,14 +33,14 @@ class TenantDaoTest extends BaseSQLTest {
 
   @BeforeEach
   void setup() {
-    dao = new TenantDao(internalJdbi);
+    dao = internalJdbi.onDemand(TenantDao.class);
   }
 
   @Test
   void roundTrip() {
     final Tenant tenant = randomTenant();
     Assertions.assertThat(dao.read(tenant.ridTenant())).isEmpty();
-    Assertions.assertThat(dao.create(tenant)).isEqualTo(tenant);
+    dao.create(tenant);
     Assertions.assertThat(dao.read(tenant.ridTenant())).isPresent().contains(tenant);
   }
 
@@ -55,9 +55,11 @@ class TenantDaoTest extends BaseSQLTest {
   @Test
   void delete() {
     final Tenant tenant = randomTenant();
-    assertThat(dao.delete(tenant.ridTenant())).isFalse();
+    Assertions.assertThat(dao.read(tenant.ridTenant())).isEmpty();
     dao.create(tenant);
-    assertThat(dao.delete(tenant.ridTenant())).isTrue();
+    Assertions.assertThat(dao.read(tenant.ridTenant())).isPresent().contains(tenant);
+    dao.delete(tenant.ridTenant());
+    Assertions.assertThat(dao.read(tenant.ridTenant())).isEmpty();
   }
 
   private Tenant randomTenant() {

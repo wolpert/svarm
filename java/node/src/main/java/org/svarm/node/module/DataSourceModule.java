@@ -26,6 +26,8 @@ import javax.inject.Singleton;
 import javax.sql.DataSource;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.mapper.immutables.JdbiImmutables;
+import org.jdbi.v3.sqlobject.SqlObjectPlugin;
+import org.svarm.node.dao.TenantDao;
 import org.svarm.node.engine.DatabaseEngine;
 import org.svarm.node.engine.DatabaseInitializationEngine;
 import org.svarm.node.model.Tenant;
@@ -81,7 +83,21 @@ public class DataSourceModule {
         .registerImmutable(Tenant.class)
         .registerImmutable(TenantTable.class)
         .registerImmutable(TenantTableIdentifier.class);
+    jdbi.installPlugin(new SqlObjectPlugin());
     jdbi.setSqlLogger(new InstrumentedSqlLogger(metricRegistry));
     return jdbi;
+  }
+
+
+  /**
+   * Generates the dao.
+   *
+   * @param jdbi to use.
+   * @return the dao.
+   */
+  @Provides
+  @Singleton
+  public TenantDao tenantDao(final Jdbi jdbi) {
+    return jdbi.onDemand(TenantDao.class);
   }
 }

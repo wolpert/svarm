@@ -17,6 +17,7 @@
 package org.svarm.node.manager;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.codeheadsystems.metrics.test.BaseMetricTest;
@@ -65,8 +66,10 @@ class TenantManagerTest extends BaseMetricTest {
   void create() {
     when(aesManager.randomKeyBase64Encoded()).thenReturn(KEY);
     when(aesManager.randomNonceBase64Encoded()).thenReturn(NONCE);
-    when(dao.create(tenantArgumentCaptor.capture())).thenReturn(tenant);
-    Assertions.assertThat(manager.create(TENANT_ID)).isEqualTo(tenant);
+    Assertions.assertThat(manager.create(TENANT_ID))
+        .isNotNull()
+        .hasFieldOrPropertyWithValue("ridTenant", TENANT_ID);
+    verify(dao).create(tenantArgumentCaptor.capture());
     assertThat(tenantArgumentCaptor.getValue())
         .hasFieldOrPropertyWithValue("ridTenant", TENANT_ID)
         .hasFieldOrPropertyWithValue("key", KEY)
@@ -81,8 +84,8 @@ class TenantManagerTest extends BaseMetricTest {
 
   @Test
   void delete() {
-    when(dao.delete(stringArgumentCaptor.capture())).thenReturn(true);
     manager.delete(TENANT_ID);
+    verify(dao).delete(stringArgumentCaptor.capture());
     assertThat(stringArgumentCaptor.getValue()).isEqualTo(TENANT_ID);
   }
 }
