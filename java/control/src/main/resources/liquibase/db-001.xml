@@ -61,9 +61,6 @@
             <column name="PORT" type="integer">
                 <constraints nullable="false"/>
             </column>
-            <column name="VERIFIED" type="boolean">
-                <constraints nullable="false"/>
-            </column>
             <column name="STATUS" type="varchar(256)">
                 <constraints nullable="false"/>
             </column>

@@ -34,7 +34,7 @@ public interface NodeDao extends Transactional {
    *
    * @param instance to use.
    */
-  @SqlUpdate("insert into NODES (uuid, create_date, update_date, host, port, verified, status) values (:uuid, :createDate, :updateDate, :host, :port, :verified, :status)")
+  @SqlUpdate("insert into NODES (uuid, create_date, update_date, host, port, status) values (:uuid, :createDate, :updateDate, :host, :port, :status)")
   void insert(@BindPojo final Node instance);
 
   /**
@@ -42,7 +42,7 @@ public interface NodeDao extends Transactional {
    *
    * @param instance to use.
    */
-  @SqlUpdate("update NODES set create_date = :createDate, update_date = :updateDate, host = :host, port = :port, verified = :verified, status = :status where uuid = :uuid")
+  @SqlUpdate("update NODES set create_date = :createDate, update_date = :updateDate, host = :host, port = :port, status = :status where uuid = :uuid")
   void update(@BindPojo final Node instance);
 
   /**

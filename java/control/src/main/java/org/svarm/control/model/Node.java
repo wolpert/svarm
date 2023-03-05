@@ -62,13 +62,6 @@ public interface Node {
   Integer port();
 
   /**
-   * If we verified the node.
-   *
-   * @return value.
-   */
-  Boolean verified();
-
-  /**
    * The status.
    *
    * @return status.

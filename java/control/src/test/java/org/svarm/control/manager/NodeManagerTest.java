@@ -50,7 +50,6 @@ class NodeManagerTest extends BaseMetricTest {
   private static final String TENANT = "Tenant";
   @Mock private NodeDao nodeDao;
   @Mock private KeyManager keyManager;
-  @Mock private NodeVerificationManager nodeVerificationManager;
   @Mock private Clock clock;
   @Mock private NodeMetaData nodeMetaData;
   @Mock private Node node;
@@ -62,7 +61,7 @@ class NodeManagerTest extends BaseMetricTest {
 
   @BeforeEach
   void setup() {
-    nodeManager = new NodeManager(nodeDao, keyManager, nodeVerificationManager, clock, metrics);
+    nodeManager = new NodeManager(nodeDao, keyManager, clock, metrics);
   }
 
   @Test
@@ -92,7 +91,6 @@ class NodeManagerTest extends BaseMetricTest {
   public void create() {
     when(nodeMetaData.host()).thenReturn(HOST);
     when(nodeMetaData.port()).thenReturn(PORT);
-    when(nodeVerificationManager.verify(UUID, nodeMetaData)).thenReturn(true);
     when(clock.instant()).thenReturn(Instant.now());
     final Node result = nodeManager.create(UUID, nodeMetaData);
     assertThat(result.status()).isEqualTo(NodeInfo.Status.DISABLED.name());
@@ -101,8 +99,7 @@ class NodeManagerTest extends BaseMetricTest {
         .isEqualTo(result)
         .hasFieldOrPropertyWithValue("host", HOST)
         .hasFieldOrPropertyWithValue("port", PORT)
-        .hasFieldOrPropertyWithValue("uuid", UUID)
-        .hasFieldOrPropertyWithValue("verified", true);
+        .hasFieldOrPropertyWithValue("uuid", UUID);
   }
 
   @Test
@@ -218,6 +215,6 @@ class NodeManagerTest extends BaseMetricTest {
   private Node generate(final String status) {
     return ImmutableNode.builder().uuid(UUID)
         .createDate(Instant.ofEpochMilli(System.currentTimeMillis()))
-        .verified(true).status(status).host(HOST).port(PORT).build();
+        .status(status).host(HOST).port(PORT).build();
   }
 }

@@ -40,7 +40,6 @@ public class NodeManager {
 
   private final NodeDao nodeDao;
   private final KeyManager keyManager;
-  private final NodeVerificationManager nodeVerificationManager;
   private final Clock clock;
   private final Metrics metrics;
 
@@ -49,21 +48,19 @@ public class NodeManager {
    *
    * @param nodeDao                 for node mgmt.
    * @param keyManager              for key mgmt.
-   * @param nodeVerificationManager for verification.
    * @param clock                   the clock.
    * @param metrics                 for metrics.
    */
   @Inject
   public NodeManager(final NodeDao nodeDao,
                      final KeyManager keyManager,
-                     final NodeVerificationManager nodeVerificationManager,
-                     final Clock clock, final Metrics metrics) {
-    this.nodeVerificationManager = nodeVerificationManager;
+                     final Clock clock,
+                     final Metrics metrics) {
     this.clock = clock;
     this.metrics = metrics;
-    LOGGER.info("NodeManager({},{},{})", nodeDao, keyManager, nodeVerificationManager);
     this.nodeDao = nodeDao;
     this.keyManager = keyManager;
+    LOGGER.info("NodeManager({},{},{})", nodeDao, keyManager, metrics);
   }
 
   /**
@@ -84,7 +81,6 @@ public class NodeManager {
           .uuid(uuid)
           .host(metaData.host())
           .port(metaData.port())
-          .verified(nodeVerificationManager.verify(uuid, metaData))
           .createDate(clock.instant())
           .status(NodeInfo.Status.DISABLED.name())
           .build();
