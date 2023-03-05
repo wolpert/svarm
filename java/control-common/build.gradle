@@ -17,6 +17,7 @@ configurations {
 
 dependencies {
     implementation project(":common")
+    api project(':dataStore-common')
     implementation libs.dropwizard4.auth
     implementation libs.dropwizard4.core
     implementation libs.dropwizard4.jackson

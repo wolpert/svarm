@@ -16,6 +16,7 @@
 
 package org.svarm.control.common.api;
 
+import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.PUT;
@@ -59,15 +60,18 @@ public interface ControlTenantResourceService {
   /**
    * Create the tenant.
    *
-   * @param tenantId that owns the table.
-   * @param resource the resource.
+   * @param tenantId         that owns the table.
+   * @param resource         the resource.
+   * @param resourceMetaData what is being created.
    * @return response.
    */
   @PUT
   @Path("/{resource}")
   @Produces(MediaType.APPLICATION_JSON)
+  @Consumes(MediaType.APPLICATION_JSON)
   TenantResourceInfo createResource(@PathParam("tenant") final String tenantId,
-                                    @PathParam("resource") final String resource);
+                                    @PathParam("resource") final String resource,
+                                    final ResourceMetaData resourceMetaData);
 
   /**
    * Delete the tenant table.

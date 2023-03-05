@@ -25,7 +25,10 @@ import java.io.IOException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
+import org.svarm.control.common.api.ImmutableTableMetaData;
+import org.svarm.control.common.api.TableMetaData;
 import org.svarm.control.common.api.TenantResourceInfo;
+import org.svarm.datastore.common.TableDefinition;
 
 public class TableTenantLifecycleTest {
   private static final Logger LOGGER = getLogger(TableTenantLifecycleTest.class);
@@ -33,6 +36,8 @@ public class TableTenantLifecycleTest {
   private static final String TABLE = "TableTenantLifecycleTest.table";
   private static final String TENANT = "TableTenantLifecycleTest.tenant";
   private static final String ENTRY = "newEntry";
+  private static final TableMetaData META_DATA = ImmutableTableMetaData.builder().tableDefinition(TableDefinition.V1SingleEntryEngine)
+      .build();
 
   @AfterEach
   void clearTraceUuid() {
@@ -43,7 +48,7 @@ public class TableTenantLifecycleTest {
   void createTable() throws InterruptedException, IOException {
     COMPONENT.traceUuidEngine().set("TableTenantLifecycleTest.createTable");
     final TenantResourceInfo info = COMPONENT.controlTenantResourceService()
-        .createResource(TENANT, TABLE);
+        .createResource(TENANT, TABLE, META_DATA);
     LOGGER.info("Create table {} ", info);
     COMPONENT.etcdAccessor().getAll("node", "").forEach(LOGGER::info);
     JsonNode data = COMPONENT.objectMapper().readValue("{\"a\":2}", JsonNode.class);

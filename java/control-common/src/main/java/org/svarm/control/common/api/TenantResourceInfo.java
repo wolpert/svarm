@@ -55,4 +55,12 @@ public interface TenantResourceInfo {
   @JsonProperty("ready")
   Boolean ready();
 
+  /**
+   * The table version.
+   *
+   * @return value.
+   */
+  @JsonProperty("tableVersion")
+  String tableVersion();
+
 }

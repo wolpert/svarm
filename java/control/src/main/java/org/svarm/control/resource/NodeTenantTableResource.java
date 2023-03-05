@@ -19,6 +19,7 @@ package org.svarm.control.resource;
 import com.codahale.metrics.annotation.ExceptionMetered;
 import com.codahale.metrics.annotation.ResponseMetered;
 import com.codahale.metrics.annotation.Timed;
+import jakarta.ws.rs.NotAcceptableException;
 import java.util.List;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -26,6 +27,8 @@ import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.svarm.control.common.api.ControlTenantResourceService;
+import org.svarm.control.common.api.ResourceMetaData;
+import org.svarm.control.common.api.TableMetaData;
 import org.svarm.control.common.api.TenantResourceInfo;
 import org.svarm.control.converter.TenantResourceInfoConverter;
 import org.svarm.control.manager.NodeRangeManager;
@@ -84,9 +87,16 @@ public class NodeTenantTableResource implements ControlTenantResourceService, Je
   @Timed
   @ExceptionMetered
   @ResponseMetered
-  public TenantResourceInfo createResource(final String tenantId, final String table) {
-    LOGGER.trace("createTenantTable({},{})", tenantId, table);
-    final List<NodeRange> nodeRanges = nodeRangeManager.createTenantResource(tenantId, table);
+  public TenantResourceInfo createResource(final String tenantId,
+                                           final String table,
+                                           final ResourceMetaData resourceMetaData) {
+    LOGGER.trace("createTenantTable({},{},{})", tenantId, table, resourceMetaData);
+    if (!(resourceMetaData instanceof TableMetaData)) {
+      throw new NotAcceptableException("Only tables suppoerted");
+    }
+    final TableMetaData tableMetaData = (TableMetaData) resourceMetaData;
+    final List<NodeRange> nodeRanges = nodeRangeManager
+        .createTenantResource(tenantId, table, tableMetaData.tableDefinition());
     return tenantResourceInfoConverter.from(nodeRanges);
   }
 

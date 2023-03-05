@@ -54,6 +54,7 @@ public class TenantResourceInfoConverter {
     return ImmutableTenantResourceInfo.builder()
         .tenantId(nodeRange.tenant())
         .resource(nodeRange.resource())
+        .tableVersion(nodeRange.tableVersion())
         .ready(nodeRanges.stream().allMatch(NodeRange::ready))
         .build();
   }

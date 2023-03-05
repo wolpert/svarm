@@ -40,6 +40,7 @@ import org.svarm.control.engine.NodeAvailabilityEngine;
 import org.svarm.control.engine.RingHashSplitEngine;
 import org.svarm.control.model.ImmutableNodeRange;
 import org.svarm.control.model.NodeRange;
+import org.svarm.datastore.common.TableDefinition;
 import org.svarm.server.exception.NotFoundException;
 
 /**
@@ -49,7 +50,6 @@ import org.svarm.server.exception.NotFoundException;
 public class NodeRangeManager {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(NodeRangeManager.class);
-  private static final String V_1_SINGLE_ENTRY_ENGINE = "V1SingleEntryEngine";
   private static final int DEFAULT_CLUSTER_SIZE = 2;
 
   private final NodeRangeDao nodeRangeDao;
@@ -67,7 +67,7 @@ public class NodeRangeManager {
    * @param metrics                 for timing.
    * @param nodeAvailabilityEngine  for finding nodes.
    * @param nodeConfigurationEngine for updating the configuration engine.
-   * @param ringHashSplitEngine for getting hash values.
+   * @param ringHashSplitEngine     for getting hash values.
    */
   @Inject
   public NodeRangeManager(final NodeRangeDao nodeRangeDao,
@@ -182,15 +182,17 @@ public class NodeRangeManager {
    * on the node side. It will not update the tenant side, meaning the proxies won't see them yet.
    * If they already exist, it will ensure the etcd is up-to-date.
    *
-   * @param tenant   the tenant.
-   * @param resource the resource.
+   * @param tenant          the tenant.
+   * @param resource        the resource.
+   * @param tableDefinition the table definition.
    * @return the list.
    */
   public List<NodeRange> createTenantResource(final String tenant,
-                                              final String resource) {
+                                              final String resource,
+                                              final TableDefinition tableDefinition) {
     LOGGER.info("createTenantResource({},{})", tenant, resource);
     return metrics.time("NodeRangeManager.resources", () -> {
-      final List<NodeRange> nodeRange = getOrCreateNodeRangeList(tenant, resource);
+      final List<NodeRange> nodeRange = getOrCreateNodeRangeList(tenant, resource, tableDefinition);
       updateEtcdConfig(tenant, resource, nodeRange); // self-heal, we update even if the list is old.
       LOGGER.info("Create for now resource, results: {},{},{}", tenant, resource, nodeRange);
       return nodeRange;
@@ -198,8 +200,8 @@ public class NodeRangeManager {
   }
 
   private List<NodeRange> getOrCreateNodeRangeList(final String tenant,
-                                                   final String resource) {
-
+                                                   final String resource,
+                                                   final TableDefinition tableDefinition) {
     final List<NodeRange> currentList = nodeRangeDao.nodeRanges(tenant, resource);
     if (currentList.size() > 0) {
       LOGGER.info("Create called on existing resource, using what we have: {},{},{}", tenant, resource, currentList);
@@ -208,7 +210,7 @@ public class NodeRangeManager {
     final List<Integer> hashes = ringHashSplitEngine.evenSplitHashes(DEFAULT_CLUSTER_SIZE);
     final List<NodeRange> nodeRange = nodeAvailabilityEngine.getAvailableNodes(DEFAULT_CLUSTER_SIZE)
         .stream().map(nodeUuid -> ImmutableNodeRange.builder()
-            .nodeUuid(nodeUuid).tenant(tenant).resource(resource).tableVersion(V_1_SINGLE_ENTRY_ENGINE)
+            .nodeUuid(nodeUuid).tenant(tenant).resource(resource).tableVersion(tableDefinition.name())
             .createDate(clock.instant()).status("INIT").ready(false)
             .hash(hashes.remove(0))
             .build())
