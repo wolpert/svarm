@@ -18,11 +18,18 @@ package org.svarm.endtoend;
 
 import static org.svarm.control.javaclient.module.ControlServiceModule.CONTROL_SERVICE_CONNECTION_URL;
 
+import com.codeheadsystems.metrics.Metrics;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dagger.Component;
 import dagger.Module;
 import dagger.Provides;
+import feign.FeignException;
 import io.etcd.jetcd.Client;
+import io.github.resilience4j.core.IntervalFunction;
+import io.github.resilience4j.micrometer.tagged.TaggedRetryMetrics;
+import io.github.resilience4j.retry.Retry;
+import io.github.resilience4j.retry.RetryConfig;
+import io.github.resilience4j.retry.RetryRegistry;
 import javax.inject.Named;
 import javax.inject.Singleton;
 import org.svarm.common.config.EtcdConfiguration;
@@ -63,6 +70,8 @@ public interface SvarmComponent {
 
   ObjectMapper objectMapper();
 
+  Retry retry();
+
   @Module
   class Configuration {
     @Provides
@@ -85,6 +94,21 @@ public interface SvarmComponent {
     @Named(ProxyServiceModule.PROXY_SERVICE_CONNECTION_URL)
     String proxyServiceConnectionUrl() {
       return "http://localhost:8180/";
+    }
+
+    @Provides
+    @Singleton
+    Retry retry(/* final Metrics metrics*/) {
+      final RetryConfig config = RetryConfig.custom()
+          .maxAttempts(3)
+          .retryExceptions(FeignException.FeignClientException.class)
+          .intervalFunction(IntervalFunction.ofExponentialBackoff(100, 2))
+          .failAfterMaxAttempts(true)
+          .build();
+      final RetryRegistry registry = RetryRegistry.of(config);
+//      TaggedRetryMetrics.ofRetryRegistry(registry)
+//          .bindTo(metrics.registry());
+      return registry.retry("DEFAULT");
     }
   }
 

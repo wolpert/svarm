@@ -21,7 +21,10 @@ import static org.slf4j.LoggerFactory.getLogger;
 import static org.svarm.endtoend.EnvironmentManager.COMPONENT;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import feign.FeignException;
+import io.github.resilience4j.retry.Retry;
 import java.io.IOException;
+import java.util.function.Supplier;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -47,8 +50,8 @@ public class TableTenantLifecycleTest {
   @Test
   void createTable() throws InterruptedException, IOException {
     COMPONENT.traceUuidEngine().set("TableTenantLifecycleTest.createTable");
-    final TenantResourceInfo info = COMPONENT.controlTenantResourceService()
-        .createResource(TENANT, TABLE, META_DATA);
+    final TenantResourceInfo info = Retry.decorateSupplier(COMPONENT.retry(), ()->COMPONENT.controlTenantResourceService()
+        .createResource(TENANT, TABLE, META_DATA)).get();
     LOGGER.info("Create table {} ", info);
     COMPONENT.etcdAccessor().getAll("node", "").forEach(LOGGER::info);
     JsonNode data = COMPONENT.objectMapper().readValue("{\"a\":2}", JsonNode.class);

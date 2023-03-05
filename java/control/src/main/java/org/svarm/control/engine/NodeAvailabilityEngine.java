@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.svarm.control.dao.NodeDao;
 import org.svarm.control.dao.NodeRangeDao;
+import org.svarm.control.exception.NotEnoughNodesException;
 
 /**
  * This engine job is to retrieve nodes that are available for work, based on least used process.
@@ -69,7 +70,7 @@ public class NodeAvailabilityEngine {
       final List<String> allNodes = new ArrayList<>(nodeDao.allEnabledNodes()); // make sure it's mutable.
       final Random random = new Random();
       if (allNodes.size() < count) {
-        throw new IllegalStateException("Not enough nodes. Available: " + allNodes.size());
+        throw new NotEnoughNodesException("Not enough nodes. Available: " + allNodes.size());
       }
       while (allNodes.size() > count) {
         allNodes.remove(random.nextInt(allNodes.size()));

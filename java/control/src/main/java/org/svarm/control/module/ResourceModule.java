@@ -21,6 +21,7 @@ import dagger.Module;
 import dagger.multibindings.IntoSet;
 import org.svarm.control.resource.NodeResource;
 import org.svarm.control.resource.NodeTenantTableResource;
+import org.svarm.control.resource.NotEnoughNodesExceptionMapper;
 import org.svarm.server.resource.JerseyResource;
 
 /**
@@ -48,5 +49,15 @@ public interface ResourceModule {
   @Binds
   @IntoSet
   JerseyResource nodeTenantTableResource(final NodeTenantTableResource resource);
+
+  /**
+   * The mapper resource.
+   *
+   * @param resource to bind.
+   * @return a jersey resource.
+   */
+  @Binds
+  @IntoSet
+  JerseyResource notEnoughNodesMapper(final NotEnoughNodesExceptionMapper resource);
 
 }
