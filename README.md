@@ -1,6 +1,8 @@
 # SVARM
 
-Multi-tenant key/value datastore. This is a love-letter to DynamoDB.
+Hyper-scaled control plane managing a multi-tenant key/value datastore.
+
+This is a love-letter to DynamoDB.
 
 ## Purpose
 
@@ -45,10 +47,10 @@ teams can simply provide the hardware, kubernetes instances or docker swarm and
 start using today on or off prem.
 
 "Our small lab was able to install svarm within a day and get up and running"
-says Professor Utonium at PPG Chem LLC. "Real-time data capture of our ionic
+says Professor Utonium at PPG Chem LLC. "Real-time data acquisition of our ionic
 capture array operating at 60khz from our instruments is now possible...
 resulting in a transfer data transfer rate of well over 25 Gbs. Good thing our
-fibre optic array is working on our single 42U rack!"
+fibre optic array with quantum gates is working on our single 42U rack!"
 
 Download your copy of Apache 2.0 licensed svarm today!
 
@@ -57,6 +59,12 @@ Download your copy of Apache 2.0 licensed svarm today!
 ### Is it done?
 
 No, not yet. But if you want to help, please do!
+
+### Is svarm really about a NoSQL data store?
+
+No. Svarm is intended to provide a generic control plane for any hyper-scaled
+system. I'm proving it out with a key-value data store. But I do like
+DynamoDB so why not redo it?
 
 ### Why build yet another key-value data store?
 
@@ -67,7 +75,8 @@ course, AWS hides that complexity with its oncall staff. So building a
 self-sustaining cluster where the operator only has to add nodes or instances to
 it seemed like a fun project.
 
-Also, I wanted to build something that could seriously scale.
+Also, I wanted to build something that could seriously scale. Something that
+companies can use in their own data center.
 
 ### Why Svarm?
 
@@ -76,3 +85,8 @@ scalable datastore... one that scales linearly. The data nodes themselves can
 grow and shrink as needed by the collective. 'Swarming' is how I pictur the
 nodes working together. Svarm is the Swedish word for 'swarm' and was available
 to register. So... there you go.
+
+### How can I help?
+
+I need folks who can write code, documentation, and build websites. This is
+all open-source and benefits everyone. Come join and be part of the experience.
