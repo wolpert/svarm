@@ -33,6 +33,7 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.svarm.common.config.engine.NodeConfigurationEngine;
+import org.svarm.control.converter.NodeRangeConverter;
 import org.svarm.control.dao.NodeRangeDao;
 import org.svarm.control.engine.NodeAvailabilityEngine;
 import org.svarm.control.engine.RingHashSplitEngine;
@@ -54,13 +55,15 @@ class NodeRangeManagerTest extends BaseMetricTest {
   @Mock private NodeConfigurationEngine nodeConfigurationEngine;
   @Mock private NodeRange nodeRange;
   @Mock private RingHashSplitEngine ringHashSplitEngine;
+  @Mock private NodeRangeConverter nodeRangeConverter;
   @Captor private ArgumentCaptor<NodeRange> nodeRangeArgumentCaptor;
 
   private NodeRangeManager nodeRangeManager;
 
   @BeforeEach
   void setup() {
-    nodeRangeManager = new NodeRangeManager(nodeRangeDao, clock, metrics, nodeAvailabilityEngine, nodeConfigurationEngine, ringHashSplitEngine);
+    nodeRangeManager = new NodeRangeManager(nodeRangeDao, clock, metrics, nodeAvailabilityEngine,
+        nodeConfigurationEngine, ringHashSplitEngine, nodeRangeConverter);
   }
 
   @Test
@@ -76,7 +79,7 @@ class NodeRangeManagerTest extends BaseMetricTest {
   }
 
   @Test
-  void setReady_found_ready_notAllRady() {
+  void setReady_found_ready_notAllReady() {
     mockIt(nodeRange, false);
     when(nodeRangeDao.read(UUID, TENANT, TABLE)).thenReturn(nodeRange);
     when(nodeRangeDao.nodeRanges(TENANT, TABLE)).thenReturn(List.of(nodeRange)); // with the false set.
@@ -89,7 +92,7 @@ class NodeRangeManagerTest extends BaseMetricTest {
   }
 
   @Test
-  void setReady_found_notReady_notAllRady() {
+  void setReady_found_notReady_notAllReady() {
     mockIt(nodeRange, false);
     when(nodeRangeDao.read(UUID, TENANT, TABLE)).thenReturn(nodeRange);
     when(nodeRangeDao.nodeRanges(TENANT, TABLE)).thenReturn(List.of(nodeRange)); // with the false set.

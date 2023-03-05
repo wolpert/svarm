@@ -43,6 +43,12 @@ public class EnvironmentManager implements TestExecutionListener {
     TestExecutionListener.super.testPlanExecutionStarted(testPlan);
     LOGGER.info("testPlanExecutionStarted({})", testPlan);
     COMPONENT = DaggerSvarmComponent.create();
+    LOGGER.info("Waiting 5 seconds for system to become stable.");
+    try {
+      Thread.sleep(5000);
+    } catch (InterruptedException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @Override

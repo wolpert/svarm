@@ -26,15 +26,11 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.svarm.common.config.api.ImmutableMetaData;
-import org.svarm.common.config.api.ImmutableNodeTenantResource;
-import org.svarm.common.config.api.ImmutableNodeTenantResourceRange;
-import org.svarm.common.config.api.ImmutableTenantResource;
 import org.svarm.common.config.api.ImmutableTenantResourceRange;
 import org.svarm.common.config.api.NodeTenantResourceRange;
-import org.svarm.common.config.api.TenantResource;
 import org.svarm.common.config.api.TenantResourceRange;
 import org.svarm.common.config.engine.NodeConfigurationEngine;
+import org.svarm.control.converter.NodeRangeConverter;
 import org.svarm.control.dao.NodeRangeDao;
 import org.svarm.control.engine.NodeAvailabilityEngine;
 import org.svarm.control.engine.RingHashSplitEngine;
@@ -58,6 +54,7 @@ public class NodeRangeManager {
   private final NodeAvailabilityEngine nodeAvailabilityEngine;
   private final NodeConfigurationEngine nodeConfigurationEngine;
   private final RingHashSplitEngine ringHashSplitEngine;
+  private final NodeRangeConverter nodeRangeConverter;
 
   /**
    * Constructor.
@@ -68,6 +65,7 @@ public class NodeRangeManager {
    * @param nodeAvailabilityEngine  for finding nodes.
    * @param nodeConfigurationEngine for updating the configuration engine.
    * @param ringHashSplitEngine     for getting hash values.
+   * @param nodeRangeConverter      for conversion.
    */
   @Inject
   public NodeRangeManager(final NodeRangeDao nodeRangeDao,
@@ -75,13 +73,15 @@ public class NodeRangeManager {
                           final Metrics metrics,
                           final NodeAvailabilityEngine nodeAvailabilityEngine,
                           final NodeConfigurationEngine nodeConfigurationEngine,
-                          final RingHashSplitEngine ringHashSplitEngine) {
+                          final RingHashSplitEngine ringHashSplitEngine,
+                          final NodeRangeConverter nodeRangeConverter) {
     this.clock = clock;
     this.metrics = metrics;
     this.nodeRangeDao = nodeRangeDao;
     this.nodeAvailabilityEngine = nodeAvailabilityEngine;
     this.nodeConfigurationEngine = nodeConfigurationEngine;
     this.ringHashSplitEngine = ringHashSplitEngine;
+    this.nodeRangeConverter = nodeRangeConverter;
     LOGGER.info("NodeRangeManager({},{},{},{},{})",
         nodeRangeDao, clock, metrics, nodeAvailabilityEngine, nodeConfigurationEngine);
   }
@@ -99,7 +99,8 @@ public class NodeRangeManager {
   }
 
   /**
-   * Sets the ready boolean for the node range.
+   * Sets the ready boolean for the node that is part of the cluster. If all nodes are ready, will make the cluster
+   * ready.
    *
    * @param nodeUuid to set.
    * @param tenant   to set.
@@ -157,7 +158,8 @@ public class NodeRangeManager {
   }
 
   /**
-   * Updates the configuration service (like etcd) with the list of node ranges from the tenant reesource namespace.
+   * Updates the configuration service (like etcd) with the list of node ranges from the tenant resource namespace.
+   * Used by the proxy.
    *
    * @param tenant   to get.
    * @param resource to get.
@@ -179,7 +181,7 @@ public class NodeRangeManager {
 
   /**
    * Return back created node ranges that are being used. This creates the database entries and the etcd entries
-   * on the node side. It will not update the tenant side, meaning the proxies won't see them yet.
+   * on the node side. It will not update the tenant/proxy side, meaning the proxies won't see them yet.
    * If they already exist, it will ensure the etcd is up-to-date.
    *
    * @param tenant          the tenant.
@@ -193,7 +195,9 @@ public class NodeRangeManager {
     LOGGER.info("createTenantResource({},{})", tenant, resource);
     return metrics.time("NodeRangeManager.resources", () -> {
       final List<NodeRange> nodeRange = getOrCreateNodeRangeList(tenant, resource, tableDefinition);
-      updateEtcdConfig(tenant, resource, nodeRange); // self-heal, we update even if the list is old.
+      final List<NodeTenantResourceRange> NodeTenantResourceRanges = nodeRangeConverter
+          .toNodeTenantResourceRanges(tenant, resource, nodeRange);
+      nodeConfigurationEngine.write(NodeTenantResourceRanges);
       LOGGER.info("Create for now resource, results: {},{},{}", tenant, resource, nodeRange);
       return nodeRange;
     });
@@ -217,19 +221,6 @@ public class NodeRangeManager {
         .collect(Collectors.toList());
     nodeRangeDao.useTransaction(t -> nodeRange.forEach(t::insert));
     return nodeRange;
-  }
-
-  private void updateEtcdConfig(final String tenant,
-                                final String resource,
-                                final List<NodeRange> nodeRange) {
-    final TenantResource tenantResource = ImmutableTenantResource.builder().tenant(tenant).resource(resource).build();
-    final List<NodeTenantResourceRange> resourceRanges = nodeRange.stream().map(nr -> ImmutableNodeTenantResourceRange.builder()
-            .nodeTenantResource(
-                ImmutableNodeTenantResource.builder().uuid(nr.nodeUuid()).tenantResource(tenantResource).build())
-            .range(ImmutableMetaData.builder().hash(nr.hash()).build())
-            .build())
-        .collect(Collectors.toList());
-    nodeConfigurationEngine.write(resourceRanges);
   }
 
 }
