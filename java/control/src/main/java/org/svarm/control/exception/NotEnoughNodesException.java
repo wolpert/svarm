@@ -3,7 +3,7 @@ package org.svarm.control.exception;
 /**
  * Thrown when there are not enough nodes.
  */
-public class NotEnoughNodesException extends RuntimeException{
+public class NotEnoughNodesException extends RuntimeException {
 
   /**
    * Main constructor.
