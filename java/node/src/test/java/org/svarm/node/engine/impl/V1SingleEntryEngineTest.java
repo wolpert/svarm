@@ -31,7 +31,7 @@ class V1SingleEntryEngineTest extends BaseSQLTest {
   @BeforeEach
   void setup() {
     jsonEngine = new JsonEngine(new ObjectMapperFactory().generate());
-    engine = new V1SingleEntryEngine(metrics, tenantTableDataSourceManager, jsonEngine);
+    engine = new V1SingleEntryEngine(metrics, tenantTableJdbiManager, jsonEngine);
   }
 
   @Test

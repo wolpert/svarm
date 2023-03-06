@@ -27,10 +27,12 @@ import java.util.Map;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.sql.DataSource;
+import org.jdbi.v3.core.Jdbi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.svarm.node.engine.DatabaseEngine;
 import org.svarm.node.engine.DatabaseInitializationEngine;
+import org.svarm.node.factory.JdbiFactory;
 import org.svarm.node.model.TenantTable;
 import org.svarm.node.utils.TagHelper;
 
@@ -38,13 +40,14 @@ import org.svarm.node.utils.TagHelper;
  * Provides datasources of type tenant. Responsible for generating and maintaining. This caches.
  */
 @Singleton
-public class TenantTableDataSourceManager {
-  private static final Logger LOGGER = LoggerFactory.getLogger(TenantTableDataSourceManager.class);
+public class TenantTableJdbiManager {
+  private static final Logger LOGGER = LoggerFactory.getLogger(TenantTableJdbiManager.class);
 
-  private final LoadingCache<TenantTable, DataSource> tenantDataSourceLoadingCache;
+  private final LoadingCache<TenantTable, Jdbi> jdbiLoadingCache;
   private final DatabaseEngine databaseEngine;
   private final DatabaseInitializationEngine databaseInitializationEngine;
   private final Metrics metrics;
+  private final JdbiFactory jdbiFactory;
 
   /**
    * Default constructor for the DSM.
@@ -52,19 +55,46 @@ public class TenantTableDataSourceManager {
    * @param databaseEngine               to get new data sources.
    * @param databaseInitializationEngine to initialize the database.
    * @param metrics                      to track.
+   * @param jdbiFactory                  to create jdbi connections.
    */
   @Inject
-  public TenantTableDataSourceManager(final DatabaseEngine databaseEngine,
-                                      final DatabaseInitializationEngine databaseInitializationEngine,
-                                      final Metrics metrics) {
-    LOGGER.info("TenantTableDataSourceManager({},{})", databaseEngine, databaseInitializationEngine);
+  public TenantTableJdbiManager(final DatabaseEngine databaseEngine,
+                                final DatabaseInitializationEngine databaseInitializationEngine,
+                                final Metrics metrics,
+                                final JdbiFactory jdbiFactory) {
+    LOGGER.info("TenantTableJdbiManager({},{},{})",
+        databaseEngine, databaseInitializationEngine, metrics, jdbiFactory);
     this.metrics = metrics;
     this.databaseEngine = databaseEngine;
     this.databaseInitializationEngine = databaseInitializationEngine;
-    this.tenantDataSourceLoadingCache = CacheBuilder.newBuilder()
+    this.jdbiFactory = jdbiFactory;
+    this.jdbiLoadingCache = CacheBuilder.newBuilder()
         .maximumSize(1000)
         .removalListener(this::onRemoval)
-        .build(CacheLoader.from(this::generate));
+        .build(CacheLoader.from(this::generateJdbi));
+  }
+
+
+  /**
+   * Returns the current map. Useful for health checks.
+   *
+   * @return map of the tenants.
+   */
+  public Map<TenantTable, Jdbi> allValues() {
+    return jdbiLoadingCache.asMap();
+  }
+
+  /**
+   * A method that retrieves the data source/jdbi instance. If it does not exist,
+   * it blows up.
+   *
+   * @param tenantTable to verify.
+   */
+  public void ensureDataStoreCreated(final TenantTable tenantTable) {
+    LOGGER.trace("ensureDataStoreCreated({})", tenantTable);
+    if (getJdbi(tenantTable) == null) {
+      throw new IllegalStateException("No such data source");
+    }
   }
 
   /**
@@ -73,19 +103,10 @@ public class TenantTableDataSourceManager {
    * @param tenantTable to get the source for.
    * @return the source.
    */
-  public DataSource getDataSource(final TenantTable tenantTable) {
+  public Jdbi getJdbi(final TenantTable tenantTable) {
     LOGGER.trace("getDataSource({})", tenantTable);
-    metrics.counter("TenantTableDataSourceManager.getDataSource", TagHelper.from(tenantTable)).increment();
-    return tenantDataSourceLoadingCache.getUnchecked(tenantTable);
-  }
-
-  /**
-   * Returns the current map. Useful for health checks.
-   *
-   * @return map of the tenants.
-   */
-  public Map<TenantTable, DataSource> allValues() {
-    return tenantDataSourceLoadingCache.asMap();
+    metrics.counter("TenantTableJdbiManager.getJdbi", TagHelper.from(tenantTable)).increment();
+    return jdbiLoadingCache.getUnchecked(tenantTable);
   }
 
   /**
@@ -95,13 +116,20 @@ public class TenantTableDataSourceManager {
    */
   public void evictTenant(final TenantTable tenantTable) {
     LOGGER.trace("evictTenant({})", tenantTable);
-    metrics.counter("TenantTableDataSourceManager.evictTenant", TagHelper.from(tenantTable)).increment();
-    tenantDataSourceLoadingCache.invalidate(tenantTable);
+    metrics.counter("TenantTableJdbiManager.evictTenant", TagHelper.from(tenantTable)).increment();
+    jdbiLoadingCache.invalidate(tenantTable);
   }
 
-  private void onRemoval(RemovalNotification<TenantTable, DataSource> notification) {
+  private void onRemoval(RemovalNotification<TenantTable, Jdbi> notification) {
     LOGGER.debug("onRemoval({},{})", notification.getKey(), notification.getCause());
-    metrics.counter("TenantTableDataSourceManager.onRemoval", TagHelper.from(notification.getKey())).increment();
+    metrics.counter("TenantTableJdbiManager.onRemoval", TagHelper.from(notification.getKey())).increment();
+    notification.getValue().withHandle(handle -> handle.execute("shutdown;"));
+  }
+
+
+  private Jdbi generateJdbi(final TenantTable tenantTable) {
+    final DataSource dataSource = generateDataSource(tenantTable);
+    return jdbiFactory.generate(dataSource);
   }
 
   /**
@@ -110,8 +138,8 @@ public class TenantTableDataSourceManager {
    * @param tenantTable the tenant table to use.
    * @return the data source.
    */
-  private DataSource generate(final TenantTable tenantTable) {
-    LOGGER.debug("dataSource({})", tenantTable);
+  private DataSource generateDataSource(final TenantTable tenantTable) {
+    LOGGER.debug("generateDataSource({})", tenantTable);
     final DataSource dataSource = databaseEngine.tenantDataSource(tenantTable);
     try {
       LOGGER.trace("Getting connection");
@@ -130,7 +158,7 @@ public class TenantTableDataSourceManager {
    */
   public void deleteEverything(final TenantTable tenantTable) {
     LOGGER.info("deleteEverything({})", tenantTable.identifier());
-    metrics.counter("TenantTableDataSourceManager.deleteEverything", TagHelper.from(tenantTable)).increment();
+    metrics.counter("TenantTableJdbiManager.deleteEverything", TagHelper.from(tenantTable)).increment();
     evictTenant(tenantTable);
     databaseEngine.deleteTenantDataStoreLocation(tenantTable);
   }

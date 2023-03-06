@@ -32,7 +32,6 @@ import org.svarm.datastore.common.TableDefinition;
 import org.svarm.node.api.TableMetaData;
 import org.svarm.node.api.TenantTableInfo;
 import org.svarm.node.converter.TenantTableInfoConverter;
-import org.svarm.node.engine.impl.V1SingleEntryEngine;
 import org.svarm.node.manager.TenantTableManager;
 import org.svarm.node.model.TenantTable;
 import org.svarm.node.model.TenantTableIdentifier;

@@ -21,6 +21,7 @@ import static org.mockito.Mockito.when;
 
 import com.codeheadsystems.metrics.test.BaseMetricTest;
 import javax.sql.DataSource;
+import org.jdbi.v3.core.Jdbi;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,6 +29,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.svarm.node.engine.DatabaseEngine;
 import org.svarm.node.engine.DatabaseInitializationEngine;
+import org.svarm.node.factory.JdbiFactory;
 import org.svarm.node.model.TenantTable;
 import org.svarm.node.model.TenantTableIdentifier;
 
@@ -38,7 +40,7 @@ import org.svarm.node.model.TenantTableIdentifier;
  * Then, we can make this a proper unit test.
  */
 @ExtendWith(MockitoExtension.class)
-class TenantTableDataSourceManagerTest extends BaseMetricTest {
+class TenantTableJdbiManagerTest extends BaseMetricTest {
 
   private static final String TENANT_ID = "tenantId";
   private static final String TABLE_NAME = "tableName";
@@ -47,22 +49,25 @@ class TenantTableDataSourceManagerTest extends BaseMetricTest {
   @Mock private DataSource dataSource;
   @Mock private DatabaseInitializationEngine databaseInitializationEngine;
   @Mock private DatabaseEngine databaseEngine;
+  @Mock private JdbiFactory jdbiFactory;
+  @Mock private Jdbi jdbi;
 
-  private TenantTableDataSourceManager tenantTableDataSourceManager;
+  private TenantTableJdbiManager tenantTableJdbiManager;
 
   @BeforeEach
   public void setup() {
-    tenantTableDataSourceManager = new TenantTableDataSourceManager(databaseEngine, databaseInitializationEngine, metrics);
+    tenantTableJdbiManager = new TenantTableJdbiManager(databaseEngine, databaseInitializationEngine, metrics, jdbiFactory);
   }
 
   @Test
   void loadTenant_realInitialization() {
     when(databaseEngine.tenantDataSource(tenantTable)).thenReturn(dataSource);
+    when(jdbiFactory.generate(dataSource)).thenReturn(jdbi);
     when(tenantTable.identifier()).thenReturn(identifier);
     when(identifier.tenantId()).thenReturn(TENANT_ID);
     when(identifier.tableName()).thenReturn(TABLE_NAME);
-    final DataSource dataSource = tenantTableDataSourceManager.getDataSource(tenantTable);
-    assertThat(dataSource).isEqualTo(dataSource);
+    final Jdbi result = tenantTableJdbiManager.getJdbi(tenantTable);
+    assertThat(result).isEqualTo(jdbi);
   }
 
 }

@@ -22,34 +22,34 @@ import java.sql.SQLException;
 import java.util.Map;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import javax.sql.DataSource;
+import org.jdbi.v3.core.Jdbi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.svarm.node.manager.TenantTableDataSourceManager;
+import org.svarm.node.manager.TenantTableJdbiManager;
 import org.svarm.node.model.TenantTable;
 
 /**
  * Verifies the datastore is healthy.
  */
 @Singleton
-public class TenantTablelDataSourceHealthCheck extends HealthCheck {
+public class TenantTablelJdbiHealthCheck extends HealthCheck {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(TenantTablelDataSourceHealthCheck.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(TenantTablelJdbiHealthCheck.class);
 
-  private final TenantTableDataSourceManager tenantTableDataSourceManager;
+  private final TenantTableJdbiManager tenantTableJdbiManager;
   private final Metrics metrics;
 
   /**
    * Default health check constructor.
    *
-   * @param tenantTableDataSourceManager to use.
-   * @param metrics                      to use.
+   * @param tenantTableJdbiManager to use.
+   * @param metrics                to use.
    */
   @Inject
-  public TenantTablelDataSourceHealthCheck(final TenantTableDataSourceManager tenantTableDataSourceManager,
-                                           final Metrics metrics) {
-    LOGGER.info("InternalDataSourceHealthCheck({})", tenantTableDataSourceManager);
-    this.tenantTableDataSourceManager = tenantTableDataSourceManager;
+  public TenantTablelJdbiHealthCheck(final TenantTableJdbiManager tenantTableJdbiManager,
+                                     final Metrics metrics) {
+    LOGGER.info("InternalDataSourceHealthCheck({})", tenantTableJdbiManager);
+    this.tenantTableJdbiManager = tenantTableJdbiManager;
     this.metrics = metrics;
   }
 
@@ -63,7 +63,7 @@ public class TenantTablelDataSourceHealthCheck extends HealthCheck {
   protected Result check() throws Exception {
     LOGGER.trace("check()");
     try {
-      final boolean isHealthy = tenantTableDataSourceManager.allValues().entrySet()
+      final boolean isHealthy = tenantTableJdbiManager.allValues().entrySet()
           .stream()
           .allMatch(this::check);
       if (isHealthy) {
@@ -76,11 +76,11 @@ public class TenantTablelDataSourceHealthCheck extends HealthCheck {
     }
   }
 
-  private boolean check(final Map.Entry<TenantTable, DataSource> tenantTableDataSourceEntry) {
+  private boolean check(final Map.Entry<TenantTable, Jdbi> tenantTableDataSourceEntry) {
     final TenantTable tenantTable = tenantTableDataSourceEntry.getKey();
-    final DataSource dataSource = tenantTableDataSourceEntry.getValue();
     try {
-      if (dataSource.getConnection().isValid(1)) {
+      if (tenantTableDataSourceEntry.getValue().withHandle(
+          handle -> handle.getConnection().isValid(1))) {
         return true;
       } else {
         LOGGER.warn("Invalid Tenant Table {}", tenantTable);

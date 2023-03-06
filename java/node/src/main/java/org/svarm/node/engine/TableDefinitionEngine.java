@@ -16,10 +16,7 @@
 
 package org.svarm.node.engine;
 
-import com.google.common.hash.HashFunction;
 import java.util.Optional;
-import java.util.function.Supplier;
-import org.svarm.datastore.common.TableDefinition;
 import org.svarm.node.api.EntryInfo;
 import org.svarm.node.model.TenantTable;
 

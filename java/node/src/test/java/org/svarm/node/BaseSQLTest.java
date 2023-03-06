@@ -30,7 +30,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.svarm.node.engine.DatabaseEngine;
 import org.svarm.node.engine.DatabaseInitializationEngine;
-import org.svarm.node.manager.TenantTableDataSourceManager;
+import org.svarm.node.factory.JdbiFactory;
+import org.svarm.node.manager.TenantTableJdbiManager;
 import org.svarm.node.model.TenantTable;
 import org.svarm.node.module.DataSourceModule;
 
@@ -39,19 +40,22 @@ public abstract class BaseSQLTest extends BaseMetricTest {
 
   private static final Logger log = LoggerFactory.getLogger(BaseSQLTest.class);
 
-  protected TenantTableDataSourceManager tenantTableDataSourceManager;
+  protected TenantTableJdbiManager tenantTableJdbiManager;
   protected DataSource internalDataSource;
   protected Jdbi internalJdbi;
+  protected JdbiFactory jdbiFactory;
   protected DatabaseEngine databaseEngine;
 
   @BeforeEach
   void setupSQLEngine() {
     final DatabaseInitializationEngine databaseInitializationEngine = new DatabaseInitializationEngine();
     databaseEngine = databaseEngine();
+    final MetricRegistry metricRegistry = new MetricRegistry();
+    jdbiFactory = new JdbiFactory(metricRegistry);
     final DataSourceModule dataSourceModule = new DataSourceModule();
     internalDataSource = dataSourceModule.internalDataSource(databaseEngine, databaseInitializationEngine);
-    internalJdbi = dataSourceModule.internalJdbi(internalDataSource, new MetricRegistry());
-    tenantTableDataSourceManager = new TenantTableDataSourceManager(databaseEngine, databaseInitializationEngine, metrics);
+    internalJdbi = dataSourceModule.internalJdbi(internalDataSource, jdbiFactory);
+    tenantTableJdbiManager = new TenantTableJdbiManager(databaseEngine, databaseInitializationEngine, metrics, jdbiFactory);
   }
 
   private DatabaseEngine databaseEngine() {

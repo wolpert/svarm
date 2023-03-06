@@ -50,7 +50,7 @@ health:
         initialDelay: 5s
         failureAttempts: 1
         successAttempts: 2
-    - name: TenantTablelDataSourceHealthCheck
+    - name: TenantTablelJdbiHealthCheck
       type: ready
       critical: true
       initialState: false

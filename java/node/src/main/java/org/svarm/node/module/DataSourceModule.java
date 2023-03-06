@@ -16,8 +16,6 @@
 
 package org.svarm.node.module;
 
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.jdbi3.InstrumentedSqlLogger;
 import dagger.Module;
 import dagger.Provides;
 import java.sql.Connection;
@@ -31,6 +29,7 @@ import org.svarm.node.dao.TenantDao;
 import org.svarm.node.dao.TenantTableDao;
 import org.svarm.node.engine.DatabaseEngine;
 import org.svarm.node.engine.DatabaseInitializationEngine;
+import org.svarm.node.factory.JdbiFactory;
 import org.svarm.node.model.Tenant;
 import org.svarm.node.model.TenantTable;
 import org.svarm.node.model.TenantTableIdentifier;
@@ -71,21 +70,20 @@ public class DataSourceModule {
   /**
    * The internal jdbi instance.
    *
-   * @param dataSource     to use.
-   * @param metricRegistry for metrics.
+   * @param dataSource  to use.
+   * @param jdbiFactory for jdbi.
    * @return a jdbi instance.
    */
   @Provides
   @Singleton
   public Jdbi internalJdbi(final DataSource dataSource,
-                           final MetricRegistry metricRegistry) {
-    final Jdbi jdbi = Jdbi.create(dataSource);
+                           final JdbiFactory jdbiFactory) {
+    final Jdbi jdbi = jdbiFactory.generate(dataSource);
     jdbi.installPlugin(new SqlObjectPlugin());
     jdbi.getConfig(JdbiImmutables.class)
         .registerImmutable(Tenant.class)
         .registerImmutable(TenantTable.class)
         .registerImmutable(TenantTableIdentifier.class);
-    jdbi.setSqlLogger(new InstrumentedSqlLogger(metricRegistry));
     return jdbi;
   }
 

@@ -54,7 +54,7 @@ class TenantTableManagerTest extends BaseMetricTest {
   @Mock private TableDefinitionEngine engine;
   @Mock private TenantTable tenantTable;
   @Mock private List<String> list;
-  @Mock private TenantTableDataSourceManager tenantTableDataSourceManager;
+  @Mock private TenantTableJdbiManager tenantTableJdbiManager;
   @Captor private ArgumentCaptor<TenantTable> tenantTableArgumentCaptor;
   @Captor private ArgumentCaptor<String> stringArgumentCaptor;
 
@@ -64,7 +64,7 @@ class TenantTableManagerTest extends BaseMetricTest {
   @BeforeEach
   void setup() {
     tableDefinitionEngineMap = Map.of(ENGINE, engine);
-    manager = new TenantTableManager(metrics, dao, aesManager, tableDefinitionEngineMap, tenantTableDataSourceManager, new ExceptionUtils());
+    manager = new TenantTableManager(metrics, dao, aesManager, tableDefinitionEngineMap, tenantTableJdbiManager, new ExceptionUtils());
   }
 
   @Test

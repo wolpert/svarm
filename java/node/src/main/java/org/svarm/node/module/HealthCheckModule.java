@@ -22,7 +22,7 @@ import dagger.Module;
 import dagger.multibindings.IntoSet;
 import org.svarm.node.healthchecks.BasicHealthCheck;
 import org.svarm.node.healthchecks.InternalDataSourceHealthCheck;
-import org.svarm.node.healthchecks.TenantTablelDataSourceHealthCheck;
+import org.svarm.node.healthchecks.TenantTablelJdbiHealthCheck;
 
 /**
  * All health checks should be referenced here.
@@ -58,5 +58,5 @@ public interface HealthCheckModule {
    */
   @Binds
   @IntoSet
-  HealthCheck tenantTablelDataSourceHealthCheck(final TenantTablelDataSourceHealthCheck healthCheck);
+  HealthCheck tenantTablelDataSourceHealthCheck(final TenantTablelJdbiHealthCheck healthCheck);
 }

@@ -19,26 +19,22 @@ package org.svarm.node.engine.impl;
 import com.codeheadsystems.metrics.Metrics;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.common.hash.HashFunction;
-import com.google.common.hash.Hashing;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Optional;
 import java.util.function.Supplier;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.result.ResultSetScanner;
 import org.jdbi.v3.core.statement.PreparedBatch;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.svarm.common.engine.JsonEngine;
-import org.svarm.datastore.common.TableDefinition;
 import org.svarm.node.api.EntryInfo;
 import org.svarm.node.api.ImmutableEntryInfo;
 import org.svarm.node.engine.TableDefinitionEngine;
-import org.svarm.node.manager.TenantTableDataSourceManager;
+import org.svarm.node.manager.TenantTableJdbiManager;
 import org.svarm.node.model.TenantTable;
 
 /**
@@ -51,7 +47,7 @@ public class V1SingleEntryEngine implements TableDefinitionEngine {
   private static final String INTEGER_TYPE = "INTEGER";
   private static final String STRING_TYPE = "STRING";
   private final Metrics metrics;
-  private final TenantTableDataSourceManager dataSourceManager;
+  private final TenantTableJdbiManager dataSourceManager;
   private final JsonEngine jsonEngine;
 
   /**
@@ -63,7 +59,7 @@ public class V1SingleEntryEngine implements TableDefinitionEngine {
    */
   @Inject
   public V1SingleEntryEngine(final Metrics metrics,
-                             final TenantTableDataSourceManager dataSourceManager,
+                             final TenantTableJdbiManager dataSourceManager,
                              final JsonEngine jsonEngine) {
     this.dataSourceManager = dataSourceManager;
     this.jsonEngine = jsonEngine;
@@ -82,7 +78,7 @@ public class V1SingleEntryEngine implements TableDefinitionEngine {
   public Optional<EntryInfo> read(final TenantTable tenantTable, final String entity) {
     LOGGER.trace("read({},{})", tenantTable, entity);
 
-    return Jdbi.create(dataSourceManager.getDataSource(tenantTable))
+    return dataSourceManager.getJdbi(tenantTable)
         .withHandle(handle ->
             handle.createQuery("select * from TENANT_DATA where ID = :id")
                 .bind("id", entity)
@@ -98,7 +94,7 @@ public class V1SingleEntryEngine implements TableDefinitionEngine {
   @Override
   public void write(final TenantTable tenantTable, final EntryInfo entryInfo) {
     LOGGER.trace("write({},{})", tenantTable, entryInfo);
-    Jdbi.create(dataSourceManager.getDataSource(tenantTable))
+    dataSourceManager.getJdbi(tenantTable)
         .withHandle(handle -> {
           PreparedBatch batch = handle.prepareBatch("insert into TENANT_DATA (ID,C_COL,HASH,C_DATA_TYPE,C_DATA,TIMESTAMP) values (:id, :col, :hash, :dataType, :data, :timestamp)");
 
@@ -141,7 +137,7 @@ public class V1SingleEntryEngine implements TableDefinitionEngine {
   public boolean delete(final TenantTable tenantTable, final String entity) {
     LOGGER.trace("delete({},{})", tenantTable, entity);
 
-    final int updateCount = Jdbi.create(dataSourceManager.getDataSource(tenantTable))
+    final int updateCount = dataSourceManager.getJdbi(tenantTable)
         .withHandle(handle -> handle.createUpdate("delete from TENANT_DATA where ID = :id")
             .bind("id", entity)
             .execute()
