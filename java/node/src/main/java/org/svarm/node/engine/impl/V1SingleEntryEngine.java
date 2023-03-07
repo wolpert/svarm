@@ -95,8 +95,10 @@ public class V1SingleEntryEngine implements TableDefinitionEngine {
   public void write(final TenantTable tenantTable, final EntryInfo entryInfo) {
     LOGGER.trace("write({},{})", tenantTable, entryInfo);
     dataSourceManager.getJdbi(tenantTable)
-        .withHandle(handle -> {
-          PreparedBatch batch = handle.prepareBatch("insert into TENANT_DATA (ID,C_COL,HASH,C_DATA_TYPE,C_DATA,TIMESTAMP) values (:id, :col, :hash, :dataType, :data, :timestamp)");
+        .useTransaction(handle -> {
+          PreparedBatch batch = handle.prepareBatch(
+              "insert into TENANT_DATA (ID,C_COL,HASH,C_DATA_TYPE,C_DATA,TIMESTAMP) "
+                  + "values (:id, :col, :hash, :dataType, :data, :timestamp)");
 
           entryInfo.data().fieldNames().forEachRemaining(col -> {
             JsonNode element = entryInfo.data().get(col);
@@ -121,8 +123,7 @@ public class V1SingleEntryEngine implements TableDefinitionEngine {
                 .bind("data", element.asText())
                 .add();
           });
-
-          return batch.execute();
+          batch.execute();
         });
   }
 

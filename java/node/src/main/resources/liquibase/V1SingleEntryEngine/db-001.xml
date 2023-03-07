@@ -45,6 +45,9 @@
         <createIndex tableName="TENANT_DATA" indexName="TENANT_DATA_HASH_IDX" unique="false">
             <column name="HASH"/>
         </createIndex>
+        <createIndex tableName="TENANT_DATA" indexName="TENANT_DATA_ID_IDX" unique="false">
+            <column name="ID"/>
+        </createIndex>
     </changeSet>
 
 </databaseChangeLog>
