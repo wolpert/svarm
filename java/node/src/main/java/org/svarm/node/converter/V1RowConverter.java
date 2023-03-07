@@ -53,10 +53,10 @@ public class V1RowConverter {
       builder.id(row.id());
       builder.locationHash(row.hash());
       builder.timestamp(row.timestamp());
-      switch (row.dataType()) {
-        case INTEGER_TYPE -> node.put(row.column(), Integer.valueOf(row.data()));
-        case STRING_TYPE -> node.put(row.column(), row.data());
-        default -> throw new IllegalArgumentException("Unknown type: " + row.dataType());
+      switch (row.cDataType()) {
+        case INTEGER_TYPE -> node.put(row.cCol(), Integer.valueOf(row.cData()));
+        case STRING_TYPE -> node.put(row.cCol(), row.cData());
+        default -> throw new IllegalArgumentException("Unknown type: " + row.cDataType());
       }
     });
     builder.data(node);
@@ -89,9 +89,9 @@ public class V1RowConverter {
           .id(id)
           .hash(locationHash)
           .timestamp(timestamp)
-          .column(col)
-          .dataType(dataType)
-          .data(element.asText())
+          .cCol(col)
+          .cDataType(dataType)
+          .cData(element.asText())
           .build());
     });
     return builder.build();

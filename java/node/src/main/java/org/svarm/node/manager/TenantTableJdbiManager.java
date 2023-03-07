@@ -28,12 +28,14 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.sql.DataSource;
 import org.jdbi.v3.core.Jdbi;
+import org.jdbi.v3.core.mapper.immutables.JdbiImmutables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.svarm.node.engine.DatabaseEngine;
 import org.svarm.node.engine.DatabaseInitializationEngine;
 import org.svarm.node.factory.JdbiFactory;
 import org.svarm.node.model.TenantTable;
+import org.svarm.node.model.V1Row;
 import org.svarm.node.utils.TagHelper;
 
 /**
@@ -129,7 +131,10 @@ public class TenantTableJdbiManager {
 
   private Jdbi generateJdbi(final TenantTable tenantTable) {
     final DataSource dataSource = generateDataSource(tenantTable);
-    return jdbiFactory.generate(dataSource);
+    final Jdbi jdbi = jdbiFactory.generate(dataSource);
+    jdbi.getConfig(JdbiImmutables.class)
+        .registerImmutable(V1Row.class);
+    return jdbi;
   }
 
   /**

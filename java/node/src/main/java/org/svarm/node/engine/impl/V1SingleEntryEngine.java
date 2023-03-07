@@ -17,25 +17,19 @@
 package org.svarm.node.engine.impl;
 
 import com.codeheadsystems.metrics.Metrics;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.util.List;
 import java.util.Optional;
-import java.util.function.Supplier;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.jdbi.v3.core.result.ResultSetScanner;
 import org.jdbi.v3.core.statement.PreparedBatch;
-import org.jdbi.v3.core.statement.StatementContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.svarm.common.engine.JsonEngine;
 import org.svarm.node.api.EntryInfo;
-import org.svarm.node.api.ImmutableEntryInfo;
+import org.svarm.node.converter.V1RowConverter;
 import org.svarm.node.engine.TableDefinitionEngine;
 import org.svarm.node.manager.TenantTableJdbiManager;
 import org.svarm.node.model.TenantTable;
+import org.svarm.node.model.V1Row;
 
 /**
  * First implementation of reading/writing the data for an entry.
@@ -48,23 +42,23 @@ public class V1SingleEntryEngine implements TableDefinitionEngine {
   private static final String STRING_TYPE = "STRING";
   private final Metrics metrics;
   private final TenantTableJdbiManager dataSourceManager;
-  private final JsonEngine jsonEngine;
+  private final V1RowConverter converter;
 
   /**
    * Default constructor.
    *
    * @param metrics           for analytics.
    * @param dataSourceManager for retrieving data sources of tenant dbs
-   * @param jsonEngine        for managing json.
+   * @param converter         for conversion.
    */
   @Inject
   public V1SingleEntryEngine(final Metrics metrics,
                              final TenantTableJdbiManager dataSourceManager,
-                             final JsonEngine jsonEngine) {
+                             final V1RowConverter converter) {
     this.dataSourceManager = dataSourceManager;
-    this.jsonEngine = jsonEngine;
     this.metrics = metrics;
-    LOGGER.info("V1SingleEntryEngine({},{})", metrics, dataSourceManager);
+    this.converter = converter;
+    LOGGER.info("V1SingleEntryEngine({},{},{})", metrics, dataSourceManager, converter);
   }
 
   /**
@@ -78,11 +72,17 @@ public class V1SingleEntryEngine implements TableDefinitionEngine {
   public Optional<EntryInfo> read(final TenantTable tenantTable, final String entity) {
     LOGGER.trace("read({},{})", tenantTable, entity);
 
-    return dataSourceManager.getJdbi(tenantTable)
+    final List<V1Row> rows = dataSourceManager.getJdbi(tenantTable)
         .withHandle(handle ->
             handle.createQuery("select * from TENANT_DATA where ID = :id")
                 .bind("id", entity)
-                .scanResultSet(new EntryInfoResultSetScanner()));
+                .mapTo(V1Row.class)
+                .list());
+    if (rows.size() == 0) {
+      return Optional.empty();
+    } else {
+      return Optional.of(converter.toEntryInfo(rows));
+    }
   }
 
   /**
@@ -98,31 +98,8 @@ public class V1SingleEntryEngine implements TableDefinitionEngine {
         .useTransaction(handle -> {
           PreparedBatch batch = handle.prepareBatch(
               "insert into TENANT_DATA (ID,C_COL,HASH,C_DATA_TYPE,C_DATA,TIMESTAMP) "
-                  + "values (:id, :col, :hash, :dataType, :data, :timestamp)");
-
-          entryInfo.data().fieldNames().forEachRemaining(col -> {
-            JsonNode element = entryInfo.data().get(col);
-
-            String dataType;
-
-            if (element.isNumber()) {
-              dataType = INTEGER_TYPE;
-            } else if (element.isTextual()) {
-              dataType = STRING_TYPE;
-            } else {
-              throw new IllegalArgumentException("Unknown type: " + element.getNodeType());
-            }
-
-            batch
-                .bind("id", entryInfo.id())
-                .bind("hash", entryInfo.locationHash())
-                .bind("timestamp", entryInfo.timestamp())
-
-                .bind("col", col)
-                .bind("dataType", dataType)
-                .bind("data", element.asText())
-                .add();
-          });
+                  + "values (:id, :cCol, :hash, :cDataType, :cData, :timestamp)");
+          converter.toV1Rows(entryInfo).forEach(row -> batch.bindPojo(row).add());
           batch.execute();
         });
   }
@@ -150,48 +127,4 @@ public class V1SingleEntryEngine implements TableDefinitionEngine {
     return result;
   }
 
-  private class EntryInfoResultSetScanner implements ResultSetScanner<Optional<EntryInfo>> {
-    @Override
-    public Optional<EntryInfo> scanResultSet(final Supplier<ResultSet> resultSetSupplier, final StatementContext ctx) throws SQLException {
-      ResultSet rs = resultSetSupplier.get();
-
-      int rows = 0;
-      final ObjectNode node = jsonEngine.createObjectNode();
-      long timestamp = 0;
-      int hash = 0;
-      String entity = null;
-
-      while (rs.next()) {
-        rows++;
-
-        if (rs.isFirst()) {
-          hash = rs.getInt("HASH");
-          entity = rs.getString("ID");
-        }
-
-        timestamp = Math.max(timestamp, rs.getLong("TIMESTAMP"));
-
-        final String col = rs.getString("C_COL");
-        final String type = rs.getString("C_DATA_TYPE");
-        final String data = rs.getString("C_DATA");
-
-        switch (type) {
-          case INTEGER_TYPE -> node.put(col, Integer.valueOf(data));
-          case STRING_TYPE -> node.put(col, data);
-          default -> throw new IllegalArgumentException("Unknown type: " + type);
-        }
-      }
-
-      if (rows > 0) {
-        return Optional.of(ImmutableEntryInfo.builder()
-            .data(node)
-            .timestamp(timestamp)
-            .locationHash(hash)
-            .id(entity)
-            .build());
-      } else {
-        return Optional.empty();
-      }
-    }
-  }
 }

@@ -8,6 +8,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.sql.DataSource;
 import org.jdbi.v3.core.Jdbi;
+import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.slf4j.Logger;
 
 /**
@@ -40,6 +41,7 @@ public class JdbiFactory {
   public Jdbi generate(final DataSource dataSource) {
     LOGGER.trace("generate({})", dataSource);
     final Jdbi jdbi = Jdbi.create(dataSource);
+    jdbi.installPlugin(new SqlObjectPlugin());
     jdbi.setSqlLogger(new InstrumentedSqlLogger(metricRegistry));
     return jdbi;
   }

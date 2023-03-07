@@ -11,6 +11,7 @@ import org.svarm.datastore.common.TableDefinition;
 import org.svarm.node.BaseSQLTest;
 import org.svarm.node.api.EntryInfo;
 import org.svarm.node.api.ImmutableEntryInfo;
+import org.svarm.node.converter.V1RowConverter;
 import org.svarm.node.model.ImmutableTenantTable;
 import org.svarm.node.model.ImmutableTenantTableIdentifier;
 import org.svarm.node.model.TenantTable;
@@ -26,12 +27,14 @@ class V1SingleEntryEngineTest extends BaseSQLTest {
       .identifier(TENANT_TABLE_IDENTIFIER).tableVersion(TableDefinition.V1SingleEntryEngine.name()).enabled(true).estimatedQuantity(1)
       .key("KEY").nonce("NONCE").build();
   private JsonEngine jsonEngine;
+  private V1RowConverter converter;
   private V1SingleEntryEngine engine;
 
   @BeforeEach
   void setup() {
     jsonEngine = new JsonEngine(new ObjectMapperFactory().generate());
-    engine = new V1SingleEntryEngine(metrics, tenantTableJdbiManager, jsonEngine);
+    converter = new V1RowConverter(jsonEngine);
+    engine = new V1SingleEntryEngine(metrics, tenantTableJdbiManager, converter);
   }
 
   @Test

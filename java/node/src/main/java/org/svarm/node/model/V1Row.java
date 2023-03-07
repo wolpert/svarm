@@ -20,7 +20,7 @@ public interface V1Row {
    *
    * @return the value.
    */
-  String column();
+  String cCol();
 
   /**
    * The hash of the row.
@@ -41,13 +41,13 @@ public interface V1Row {
    *
    * @return the value.
    */
-  String dataType();
+  String cDataType();
 
   /**
    * The data of the row.
    *
    * @return the value.
    */
-  String data();
+  String cData();
 
 }

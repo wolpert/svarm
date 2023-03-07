@@ -22,6 +22,7 @@ import static org.mockito.Mockito.when;
 import com.codeheadsystems.metrics.test.BaseMetricTest;
 import javax.sql.DataSource;
 import org.jdbi.v3.core.Jdbi;
+import org.jdbi.v3.core.mapper.immutables.JdbiImmutables;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -51,6 +52,7 @@ class TenantTableJdbiManagerTest extends BaseMetricTest {
   @Mock private DatabaseEngine databaseEngine;
   @Mock private JdbiFactory jdbiFactory;
   @Mock private Jdbi jdbi;
+  @Mock private JdbiImmutables jdbiImmutables;
 
   private TenantTableJdbiManager tenantTableJdbiManager;
 
@@ -63,6 +65,7 @@ class TenantTableJdbiManagerTest extends BaseMetricTest {
   void loadTenant_realInitialization() {
     when(databaseEngine.tenantDataSource(tenantTable)).thenReturn(dataSource);
     when(jdbiFactory.generate(dataSource)).thenReturn(jdbi);
+    when(jdbi.getConfig(JdbiImmutables.class)).thenReturn(jdbiImmutables);
     when(tenantTable.identifier()).thenReturn(identifier);
     when(identifier.tenantId()).thenReturn(TENANT_ID);
     when(identifier.tableName()).thenReturn(TABLE_NAME);
