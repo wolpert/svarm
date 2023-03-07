@@ -16,7 +16,8 @@ re-distribute the workload as needed. Designed from the ground up to allow for
 multi-tenant usages, and minimal maintenance. Security is built in from the
 start.
 
-It would be great if svarm was API compatible with DynamoDB.
+It would be great if svarm was API compatible with DynamoDB, but that is only
+aspirational.
 
 # System Components
 
@@ -47,12 +48,9 @@ network isolation of the control and reporting servers for proper security.
 
 Proxy handles authentication of the client, finding the correct node to talk to,
 and making the requests to the data nodes. Since replication requires multiple
-data notes, the proxy may be talking to multiple data nodes at once. Those
+data notes, the proxy will be talking to multiple data nodes at once. Those
 requests may be async or sync, depending on the requirements from the downstream
 client.
-
-(Note that the proxy does not work async itself, rather forward to the data
-nodes to process the request in an async fashion.)
 
 ## Data Node
 
@@ -64,21 +62,22 @@ to this node. For security reasons, these requests require the node to talk
 directly to the other nodes and does not go through the proxies. It can manage
 this transfer in an async fashion. Data nodes are self-preserving and thus
 maintains their own system limits. They can reject work if its resources are
-full, informing the control plane to redistribute the workload.
+full, informing the control plane to redistribute the workload. Ideally, nodes
+monitor their rate of change and when the rate is such that the system resources
+will be depleted, notifies the control plane of the doom.
 
 Functionally, the data nodes can operate independently of all other components.
 But when a data node is added to a control node, it becomes available for a
 greater part of the system. Each data node can respond to the core API
-requirements. There will be multiple table models available, including ones that
-provide the same or similar features as DynamoDB allowing for high-cardinality
-workloads.
+requirements. There will be multiple table models available, each designed to
+operate with high-cardinality workloads.
 
 V1 tables look like this:
 
 - ID: Indexed, first part of the primary composite key. This is the unique
   tenantResource
 - C_COL:  Indexed, second part of the primary composite key.
-- HASH: The hash value of the RID_ID for mgmt.
+- HASH: The hash value of the ID for mgmt.
 - C_DATA_TYPE: Enum, either String or Integer.
 - C_DATA: Nullable String.
 
@@ -86,7 +85,7 @@ Each data node has a table to describe tables it controls. Example columns
 
 - RID_TENANT: Indexed, first part of the primary composite key
 - TABLE_NAME: Index, second part of the primary composite key
-- HASH_START: String hash tenantResource if there is a min hash key allowed.
+- HASH: String hash of what keys it is intended to store.
 - QUANTITY_EST: Estimate number of entries in the table.
 - TABLE_VERSION: The version of table this requires.
 
@@ -95,6 +94,9 @@ object is broken down into multiple rows in the relational table. Each table for
 each Tenant uses a unique database connection. These individual database
 instances assist with liquibase patching as well as individual encryption keys
 per database instance.
+
+Data can be added, updated or removed from the node by key if needed. So there
+is no need to get all datasets that make up the entry.
 
 ### UUIDs and Keys
 
@@ -109,8 +111,8 @@ Every component in the cluster has their own 256 bit AES key. This includes:
 - Tenant per node.
 
 These are used at various points for encryption. All encryption is AES/GCM/SIV.
-When we use the word 'key', the keys are identified by the UUID by are the 256b
-keys.
+Keys are identified by their UUID and all are 256 bits in length. The nonce are
+stored on the service that does the encryption.
 
 ### Hashing
 
@@ -121,8 +123,8 @@ the lookup strategy, and the 32bit variant is enough of a namespace for us.
 
 ### Node Data storage encryption
 
-When a node is started up, a 32bit key is created and store locally that is
-specific to the node. When a node connects to the control plane, a second 32bit
+When a node is started up, a 256bit key is created and store locally that is
+specific to the node. When a node connects to the control plane, a second 256bit
 key is retrieved from the control plane which is unique to that node in the
 control plane. These two keys are XOR together and provides the AES key for the
 node internal configuration database. If a node is removed from the control
@@ -139,12 +141,13 @@ following keys:
 This ensures that compromising one component of the network does not let a
 intruder decrypt all the data. Or more specifically, access to one node does not
 give details on keys for the other nodes. This reduces the blast radius of a
-node takeover event.
+node takeover event. If nothing else, it ensures the hard drives taken from a
+decommissioned node is secured.
 
 ### Physical tables
 
-Initially, the node implementation is a separate datasource instance per Tenant
-table. The reasons to do this includes:
+The node implementation is a separate datasource instance per Tenant table. The
+reasons to do this includes:
 
 1. Easy cleanup by file deletion.
 2. Liquibase can be used without having to worry about different table names.
@@ -153,7 +156,9 @@ table. The reasons to do this includes:
 
 I have a feeling this will need to change in the future, but I'd like to get to
 that point. Is this tech debt? Not necessarily. This seems like a good way to
-use HSQLDB at this point. Folks with a better idea are welcome to comment.
+use HSQLDB at this point. Folks with a better idea are welcome to comment. In
+the case of using MySQL, we can encrypt at the 'tablespace' layer. For
+PostgreSQL, the data partition will need to be encrypted at the OS layer.
 
 ## Control
 
@@ -168,12 +173,13 @@ configuration for the nodes and proxies exists in etcd.
 ### Node Management
 
 Control will use a consistent hashing approach to map entry ids to the nodes
-themselves. The familiar 'ring-space' will be used, which entry ids and node
-ids are hashed to be place on a ring based on the hash range. Data replication
-is done by sub-dividing the hashed value into the ring so its equally divided
-out.
+themselves. The familiar 'ring-space' will be used, which entry ids and node ids
+are hashed to be place on a ring based on the hash range. Data replication is
+done by sub-dividing the hashed value into the ring so its equally divided out.
 
-Assuming a ring-space size is equal to 10 for this.
+Unlike a traditional approach, the control plane will place nodes on the ring
+manually based on usage requirements. Given enough data, hot-spots will happen
+so this provides a type of self-healing.
 
 ### etcd
 
@@ -181,7 +187,7 @@ Assuming a ring-space size is equal to 10 for this.
 
 The control plane writes to etcd what data ranges for tenant resources each node
 should own. The nodes and proxies only read from the etcd data set. Those nodes
-and proxies that read from etcd will set up watches to look for data changes.
+and proxies that read from etcd will set up watchers to look for data changes.
 
 Nodes themselves communicate status events directly with the control plane.
 Proxies are fairly divorced from the control plane, and like the nodes, only
@@ -190,10 +196,11 @@ access patterns to the configuration layer from the edge.
 
 When a new tenant resource needs to be made, the control plane will assign nodes
 to the tenant resource via the etcd structure. Nodes will have watch ranges on
-the etcd structure based on their id. When each node is ready, it will contact
-the control plane directly that its ready. When all nodes are ready, the control
-plane will set the range for the tenant resource so proxies can find the nodes
-that handle the data based on the hash.
+the etcd structure based on their id. When each node assigned to a resource is
+ready, it will contact the control plane directly that its ready. When all nodes
+for a resource are ready, the control plane will update etcd with the range for
+the tenant resource so proxies can find the nodes that handle the data based on
+the hash.
 
 When a node range needs to be split, combined or shuffled, the control plane
 will do the following (simplified):
@@ -214,8 +221,8 @@ documented later.
 
 etcd is the standard with k8s at this point, and has much of the same
 functionality as zookeeper but more modern and flexible. Nothing is wrong with
-zookeeper, but etcd is standard on k8s installation and there by default. For
-execution environments that are not using k8s, etcd is an easy install.
+zookeeper, but since etcd is standard on k8s installation and there by default.
+For execution environments that are not using k8s, etcd is an easy install.
 
 #### Data Objects
 
@@ -224,10 +231,10 @@ path-style namespace for this. Here are the following structures:
 Note, the main line consists of the namespace and the id of the thing being
 named.
 
-| Namespace/Key                    | Value                                  | Purpose                                                                                                 |
-|----------------------------------|----------------------------------------|---------------------------------------------------------------------------------------------------------|
-| node/{uuid}/id/{tenant}/{tenantResource} | {"hash":32767}                         | Metadata of a table, defined by the controller . Node read this data                              |
-| tenant/{tenant}/{tenantResource} | {"node":"{uuid}", "hash":32767, "uri":"{uri}"} | Look up for a tenantResource metaData. Used by proxies to find nodes, and by nodes when transferring data. |
+| Namespace/Key                            | Value                                          | Purpose                                                                                                    |
+|------------------------------------------|------------------------------------------------|------------------------------------------------------------------------------------------------------------|
+| node/{uuid}/id/{tenant}/{tenantResource} | {"hash":32767}                                 | Metadata of a table, defined by the controller . Node read this data                                       |
+| tenant/{tenant}/{tenantResource}         | {"node":"{uuid}", "hash":32767, "uri":"{uri}"} | Look up for a tenantResource metaData. Used by proxies to find nodes, and by nodes when transferring data. |
 
 ## Reporting
 
@@ -242,9 +249,9 @@ But at this point in the project, the first goal is to provide the data funnel.
 
 ## Resource ID
 
-Resource IDs identify structure within svarm and related properties. This
-format is a variation of what is found within Amazon's ARN. It represents the
-unique tenantResource of any `resource` within this system.
+Resource IDs identify structure within svarm and related properties. This format
+is a variation of what is found within Amazon's ARN. It represents the unique
+tenantResource of any `resource` within this system.
 
 General format is:
 
