@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.svarm.node.engine.impl;
+package org.svarm.node.engine.impl.v1singleentry;
 
 import com.codeheadsystems.metrics.Metrics;
 import java.util.List;
@@ -25,11 +25,9 @@ import org.jdbi.v3.core.statement.PreparedBatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.svarm.node.api.EntryInfo;
-import org.svarm.node.converter.V1RowConverter;
 import org.svarm.node.engine.TableDefinitionEngine;
 import org.svarm.node.manager.TenantTableJdbiManager;
 import org.svarm.node.model.TenantTable;
-import org.svarm.node.model.V1Row;
 
 /**
  * First implementation of reading/writing the data for an entry.
@@ -71,7 +69,6 @@ public class V1SingleEntryEngine implements TableDefinitionEngine {
   @Override
   public Optional<EntryInfo> read(final TenantTable tenantTable, final String entity) {
     LOGGER.trace("read({},{})", tenantTable, entity);
-
     final List<V1Row> rows = dataSourceManager.getJdbi(tenantTable)
         .withHandle(handle ->
             handle.createQuery("select * from TENANT_DATA where ID = :id")

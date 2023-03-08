@@ -21,7 +21,7 @@ import dagger.Module;
 import dagger.multibindings.IntoMap;
 import org.svarm.datastore.common.TableDefinition;
 import org.svarm.node.engine.TableDefinitionEngine;
-import org.svarm.node.engine.impl.V1SingleEntryEngine;
+import org.svarm.node.engine.impl.v1singleentry.V1SingleEntryEngine;
 
 /**
  * Binder for table definition engines.

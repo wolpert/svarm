@@ -1,4 +1,4 @@
-package org.svarm.node.dao;
+package org.svarm.node.engine.impl.v1singleentry;
 
 import org.jdbi.v3.sqlobject.transaction.Transaction;
 

@@ -1,4 +1,4 @@
-package org.svarm.node.model;
+package org.svarm.node.engine.impl.v1singleentry;
 
 import org.immutables.value.Value;
 

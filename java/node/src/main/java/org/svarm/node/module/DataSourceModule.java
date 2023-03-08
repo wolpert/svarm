@@ -79,6 +79,7 @@ public class DataSourceModule {
   public Jdbi internalJdbi(final DataSource dataSource,
                            final JdbiFactory jdbiFactory) {
     final Jdbi jdbi = jdbiFactory.generate(dataSource);
+    jdbi.installPlugin(new SqlObjectPlugin());
     jdbi.getConfig(JdbiImmutables.class)
         .registerImmutable(Tenant.class)
         .registerImmutable(TenantTable.class)

@@ -41,7 +41,6 @@ public class JdbiFactory {
   public Jdbi generate(final DataSource dataSource) {
     LOGGER.trace("generate({})", dataSource);
     final Jdbi jdbi = Jdbi.create(dataSource);
-    jdbi.installPlugin(new SqlObjectPlugin());
     jdbi.setSqlLogger(new InstrumentedSqlLogger(metricRegistry));
     return jdbi;
   }

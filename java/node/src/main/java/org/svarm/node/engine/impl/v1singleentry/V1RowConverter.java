@@ -1,4 +1,4 @@
-package org.svarm.node.converter;
+package org.svarm.node.engine.impl.v1singleentry;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -12,8 +12,6 @@ import org.slf4j.Logger;
 import org.svarm.common.engine.JsonEngine;
 import org.svarm.node.api.EntryInfo;
 import org.svarm.node.api.ImmutableEntryInfo;
-import org.svarm.node.model.ImmutableV1Row;
-import org.svarm.node.model.V1Row;
 
 /**
  * Converts between rows and json.

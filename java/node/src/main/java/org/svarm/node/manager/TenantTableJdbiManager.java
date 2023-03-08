@@ -33,9 +33,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.svarm.node.engine.DatabaseEngine;
 import org.svarm.node.engine.DatabaseInitializationEngine;
+import org.svarm.node.engine.impl.v1singleentry.V1Row;
 import org.svarm.node.factory.JdbiFactory;
 import org.svarm.node.model.TenantTable;
-import org.svarm.node.model.V1Row;
 import org.svarm.node.utils.TagHelper;
 
 /**

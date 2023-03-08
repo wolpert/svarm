@@ -1,4 +1,4 @@
-package org.svarm.node.engine.impl;
+package org.svarm.node.engine.impl.v1singleentry;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -11,7 +11,8 @@ import org.svarm.datastore.common.TableDefinition;
 import org.svarm.node.BaseSQLTest;
 import org.svarm.node.api.EntryInfo;
 import org.svarm.node.api.ImmutableEntryInfo;
-import org.svarm.node.converter.V1RowConverter;
+import org.svarm.node.engine.impl.v1singleentry.V1RowConverter;
+import org.svarm.node.engine.impl.v1singleentry.V1SingleEntryEngine;
 import org.svarm.node.model.ImmutableTenantTable;
 import org.svarm.node.model.ImmutableTenantTableIdentifier;
 import org.svarm.node.model.TenantTable;
@@ -39,7 +40,10 @@ class V1SingleEntryEngineTest extends BaseSQLTest {
 
   @Test
   void readWrite() {
-    final ObjectNode objectNode = jsonEngine.createObjectNode().put("something", "else");
+    final ObjectNode objectNode = jsonEngine.createObjectNode()
+        .put("something", "else")
+        .put("number", 5)
+        .put("other", "thing");
     final EntryInfo info = ImmutableEntryInfo.builder().id("ID").locationHash(2).timestamp(System.currentTimeMillis())
         .data(objectNode).build();
     engine.write(TENANT_TABLE, info);
