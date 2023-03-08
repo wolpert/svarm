@@ -101,6 +101,16 @@ public class V1SingleEntryEngine implements TableDefinitionEngine {
         });
   }
 
+  List<String> keys(final TenantTable tenantTable, final String entity) {
+    LOGGER.trace("keys({},{})", tenantTable, entity);
+    return dataSourceManager.getJdbi(tenantTable).withHandle(handle ->
+        handle.createQuery("select C_COL from TENANT_DATA where :id = id")
+            .bind("id", entity)
+            .mapTo(String.class)
+            .list()
+    );
+  }
+
   /**
    * Delete the entity from the table, returning the JsonNode.
    *

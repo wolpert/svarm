@@ -11,8 +11,6 @@ import org.svarm.datastore.common.TableDefinition;
 import org.svarm.node.BaseSQLTest;
 import org.svarm.node.api.EntryInfo;
 import org.svarm.node.api.ImmutableEntryInfo;
-import org.svarm.node.engine.impl.v1singleentry.V1RowConverter;
-import org.svarm.node.engine.impl.v1singleentry.V1SingleEntryEngine;
 import org.svarm.node.model.ImmutableTenantTable;
 import org.svarm.node.model.ImmutableTenantTableIdentifier;
 import org.svarm.node.model.TenantTable;
@@ -50,6 +48,9 @@ class V1SingleEntryEngineTest extends BaseSQLTest {
     assertThat(engine.read(TENANT_TABLE, info.id()))
         .isNotEmpty()
         .contains(info);
+    assertThat(engine.keys(TENANT_TABLE, info.id()))
+        .hasSize(3)
+        .contains("something", "number", "other");
   }
 
 }
