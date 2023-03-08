@@ -30,7 +30,6 @@ dependencies {
     implementation libs.dropwizard4.core
     implementation libs.dropwizard4.jackson
     implementation libs.dropwizard4.metrics.graphite
-    implementation libs.micrometer.core
     implementation libs.metrics.core
 
     implementation libs.openfeign.core
@@ -43,6 +42,13 @@ dependencies {
 
     implementation libs.retrofit
     implementation libs.retrofit2.converter.jackson
+
+    api libs.micrometer.core
+    api libs.resilience4j.micrometer
+    api libs.resilience4j.retry
+    api libs.resilience4j.feign
+    api libs.resilience4j.ratelimiter
+    api libs.resilience4j.circuitbreaker
 
     testImplementation libs.dropwizard4.testing
 

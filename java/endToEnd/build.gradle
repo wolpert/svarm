@@ -71,13 +71,6 @@ dependencies {
     implementation libs.logback.classic
     implementation libs.logback.core
     implementation libs.logback.access
-
-    testImplementation libs.micrometer.core
-    testImplementation libs.resilience4j.micrometer
-    testImplementation libs.resilience4j.retry
-    testImplementation libs.resilience4j.feign
-    testImplementation libs.resilience4j.ratelimiter
-    testImplementation libs.resilience4j.circuitbreaker
 }
 
 if (project.hasProperty("e2e")) {
