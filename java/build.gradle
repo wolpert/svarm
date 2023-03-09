@@ -24,7 +24,7 @@ buildscript {
 
 ext {
     codeheadTestVersion = '1.0.6-SNAPSHOT'
-    codeheadMetricsVersion = '1.0.2-SNAPSHOT'
+    codeheadMetricsVersion = '1.0.3-SNAPSHOT'
     statemachineVersion = '1.0.1-SNAPSHOT'
     gamelibVersion = '1.0.3-SNAPSHOT'
 }

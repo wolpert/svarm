@@ -186,7 +186,6 @@ public class DropWizardModule {
    */
   @Provides
   @Singleton
-  @Named("Meter Registry")
   public MeterRegistry meterRegistry() {
     return meterRegistry;
   }

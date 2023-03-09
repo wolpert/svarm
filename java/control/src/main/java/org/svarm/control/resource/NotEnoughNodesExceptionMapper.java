@@ -50,11 +50,13 @@ public class NotEnoughNodesExceptionMapper implements JerseyResource, ExceptionM
    * Convert the exception to a response.
    *
    * @param exception the exception to map to a response.
-   * @return the 404 response.
+   * @return the 500 response.
    */
   @Override
   public Response toResponse(final NotEnoughNodesException exception) {
     exceptions.mark();
-    return Response.status(Response.Status.EXPECTATION_FAILED).build();
+    return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+        .entity("Not enough nodes for new table")
+        .build();
   }
 }
