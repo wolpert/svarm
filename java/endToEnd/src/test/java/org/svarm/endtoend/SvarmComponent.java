@@ -28,6 +28,8 @@ import io.github.resilience4j.core.IntervalFunction;
 import io.github.resilience4j.retry.Retry;
 import io.github.resilience4j.retry.RetryConfig;
 import io.github.resilience4j.retry.RetryRegistry;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import javax.inject.Named;
 import javax.inject.Singleton;
 import org.svarm.common.config.EtcdConfiguration;
@@ -68,8 +70,6 @@ public interface SvarmComponent {
 
   ObjectMapper objectMapper();
 
-  Retry retry();
-
   @Module
   class Configuration {
     @Provides
@@ -94,19 +94,15 @@ public interface SvarmComponent {
       return "http://localhost:8180/";
     }
 
+    /**
+     * Default registery.
+     *
+     * @return the value.
+     */
     @Provides
     @Singleton
-    Retry retry(/* final Metrics metrics*/) {
-      final RetryConfig config = RetryConfig.custom()
-          .maxAttempts(3)
-          .retryExceptions(FeignException.FeignClientException.class)
-          .intervalFunction(IntervalFunction.ofExponentialBackoff(100, 2))
-          .failAfterMaxAttempts(true)
-          .build();
-      final RetryRegistry registry = RetryRegistry.of(config);
-//      TaggedRetryMetrics.ofRetryRegistry(registry)
-//          .bindTo(metrics.registry());
-      return registry.retry("DEFAULT");
+    MeterRegistry meterRegistry() {
+      return new SimpleMeterRegistry();
     }
   }
 

@@ -19,10 +19,12 @@ package org.svarm.control.javaclient.module;
 import dagger.BindsOptionalOf;
 import dagger.Module;
 import dagger.Provides;
-import feign.Feign;
+import io.github.resilience4j.feign.FeignDecorators;
+import io.github.resilience4j.retry.Retry;
 import java.util.Optional;
 import javax.inject.Named;
 import javax.inject.Singleton;
+import org.svarm.common.javaclient.FeignBuilderInstrumentator;
 import org.svarm.control.common.api.ControlNodeService;
 import org.svarm.control.common.api.ControlTenantResourceService;
 
@@ -71,33 +73,49 @@ public class ControlServiceModule {
   }
 
   /**
-   * Get a usable control service.
+   * The decorators.
    *
-   * @param builder feign builder to use.
-   * @param url     the url of the control service.
-   * @return a control service.
+   * @param retry to use.
+   * @return the decorators.
    */
   @Provides
   @Singleton
-  public ControlNodeService nodeService(
-      final Feign.Builder builder,
-      @Named(INTERNAL_CONTROL_SERVICE_CONNECTION_URL) final String url) {
-    return builder.target(ControlNodeService.class, url);
+  public FeignDecorators decorators(@Named("DEFAULT") final Retry retry) {
+    return FeignDecorators.builder().withRetry(retry).build();
   }
 
   /**
    * Get a usable control service.
    *
-   * @param builder feign builder to use.
-   * @param url     the url of the control service.
+   * @param decorators     to decorate.
+   * @param instrumentator to get the feign builder.
+   * @param url            the url of the control service.
+   * @return a control service.
+   */
+  @Provides
+  @Singleton
+  public ControlNodeService nodeService(
+      final FeignDecorators decorators,
+      final FeignBuilderInstrumentator instrumentator,
+      @Named(INTERNAL_CONTROL_SERVICE_CONNECTION_URL) final String url) {
+    return instrumentator.generate(decorators).target(ControlNodeService.class, url);
+  }
+
+  /**
+   * Get a usable control service.
+   *
+   * @param decorators     to decorate.
+   * @param instrumentator to get the feign builder.
+   * @param url            the url of the control service.
    * @return a control service.
    */
   @Provides
   @Singleton
   public ControlTenantResourceService controlTenantResourceService(
-      final Feign.Builder builder,
+      final FeignDecorators decorators,
+      final FeignBuilderInstrumentator instrumentator,
       @Named(INTERNAL_CONTROL_SERVICE_CONNECTION_URL) final String url) {
-    return builder.target(ControlTenantResourceService.class, url);
+    return instrumentator.generate(decorators).target(ControlTenantResourceService.class, url);
   }
 
   /**

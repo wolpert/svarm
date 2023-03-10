@@ -50,8 +50,7 @@ public class TableTenantLifecycleTest {
   @Test
   void createTable() throws InterruptedException, IOException {
     COMPONENT.traceUuidEngine().set("TableTenantLifecycleTest.createTable");
-    final TenantResourceInfo info = Retry.decorateSupplier(COMPONENT.retry(), ()->COMPONENT.controlTenantResourceService()
-        .createResource(TENANT, TABLE, META_DATA)).get();
+    final TenantResourceInfo info = COMPONENT.controlTenantResourceService().createResource(TENANT, TABLE, META_DATA);
     LOGGER.info("Create table {} ", info);
     COMPONENT.etcdAccessor().getAll("node", "").forEach(LOGGER::info);
     JsonNode data = COMPONENT.objectMapper().readValue("{\"a\":2}", JsonNode.class);

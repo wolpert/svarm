@@ -17,6 +17,10 @@
 package org.svarm.control.javaclient;
 
 import dagger.Component;
+import dagger.Module;
+import dagger.Provides;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import javax.inject.Singleton;
 import org.svarm.common.javaclient.JavaClientModule;
 import org.svarm.common.module.CommonModule;
@@ -31,6 +35,7 @@ import org.svarm.control.javaclient.module.ControlServiceModule;
     CommonModule.class,
     ControlServiceModule.class,
     JavaClientModule.class,
+    ControlServiceComponent.Misc.class
 })
 @Singleton
 public interface ControlServiceComponent {
@@ -60,5 +65,24 @@ public interface ControlServiceComponent {
    * @return the service.
    */
   ControlTenantResourceService controlTenantResourceService();
+
+  /**
+   * Stuff we need.
+   */
+  @Module
+  class Misc {
+
+    /**
+     * Default registery.
+     *
+     * @return the value.
+     */
+    @Provides
+    @Singleton
+    MeterRegistry meterRegistry() {
+      return new SimpleMeterRegistry();
+    }
+
+  }
 
 }
