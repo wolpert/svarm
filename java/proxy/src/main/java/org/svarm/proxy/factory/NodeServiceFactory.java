@@ -19,9 +19,14 @@ package org.svarm.proxy.factory;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import feign.Feign;
+import io.github.resilience4j.feign.FeignDecorators;
+import io.github.resilience4j.feign.Resilience4jFeign;
+import io.github.resilience4j.retry.Retry;
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.inject.Singleton;
 import org.slf4j.Logger;
+import org.svarm.common.javaclient.FeignBuilderInstrumentator;
 import org.svarm.node.api.NodeTenantTableEntryService;
 
 /**
@@ -33,17 +38,25 @@ public class NodeServiceFactory {
   private static final Logger LOGGER = getLogger(NodeServiceFactory.class);
 
   private final Feign.Builder builder;
+  private final FeignBuilderInstrumentator instrumentator;
+  private final FeignDecorators decorators;
 
 
   /**
    * Constructor.
    *
-   * @param builder for the feign client.
+   * @param builder        for the feign client.
+   * @param instrumentator to instrument.
+   * @param retry          default retry policy.
    */
   @Inject
-  public NodeServiceFactory(final Feign.Builder builder) {
+  public NodeServiceFactory(final Feign.Builder builder,
+                            final FeignBuilderInstrumentator instrumentator,
+                            @Named("DEFAULT") final Retry retry) {
     this.builder = builder;
-    LOGGER.info("NodeServiceFactory()");
+    this.instrumentator = instrumentator;
+    this.decorators = FeignDecorators.builder().withRetry(retry).build();
+    LOGGER.info("NodeServiceFactory({},{},{})", builder, instrumentator, decorators);
   }
 
   /**
@@ -55,6 +68,8 @@ public class NodeServiceFactory {
   public NodeTenantTableEntryService nodeService(final String uri) {
     LOGGER.info("nodeService({})", uri);
     final String url = String.format("http://%s", uri);
+    final Feign.Builder builder = Resilience4jFeign.builder(decorators);
+    instrumentator.instrument(builder);
     return builder.target(NodeTenantTableEntryService.class, url);
   }
 

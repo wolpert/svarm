@@ -21,14 +21,16 @@ import dagger.BindsOptionalOf;
 import dagger.Module;
 import dagger.Provides;
 import feign.Feign;
-import feign.jackson.JacksonDecoder;
-import feign.jackson.JacksonEncoder;
-import feign.jaxrs.JAXRSContract;
-import feign.jaxrs.JakartaContract;
-import feign.micrometer.MicrometerCapability;
-import feign.slf4j.Slf4jLogger;
+import feign.FeignException;
+import io.github.resilience4j.core.IntervalFunction;
+import io.github.resilience4j.micrometer.tagged.TaggedRetryMetrics;
+import io.github.resilience4j.retry.Retry;
+import io.github.resilience4j.retry.RetryConfig;
+import io.github.resilience4j.retry.RetryRegistry;
 import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import java.util.Optional;
+import javax.inject.Named;
 import javax.inject.Singleton;
 import org.svarm.common.javaclient.interceptor.TraceInterceptor;
 
@@ -39,28 +41,59 @@ import org.svarm.common.javaclient.interceptor.TraceInterceptor;
 public class JavaClientModule {
 
   /**
+   * Generates a default feign builder.
+   *
+   * @param objectMapper     to use.
+   * @param meterRegistry    if defined.
+   * @param traceInterceptor the trace interceptor.
+   * @return the instrumentor.
+   */
+  @Provides
+  @Singleton
+  public FeignBuilderInstrumentator feignBuilderInstrumentator(
+      final ObjectMapper objectMapper,
+      final Optional<MeterRegistry> meterRegistry,
+      final TraceInterceptor traceInterceptor) {
+    return new FeignBuilderInstrumentator(objectMapper,
+        meterRegistry.orElseGet(SimpleMeterRegistry::new),
+        traceInterceptor);
+  }
+
+  /**
    * Returns a default builder.
    *
-   * @param objectMapper     needed for encoding/decoding.
-   * @param meterRegistry    for the meter.
-   * @param traceInterceptor for dealing with traces.
+   * @param instrumentator for instrumentation.
    * @return a feign builder.
    */
   @Provides
   @Singleton
-  public Feign.Builder builder(final ObjectMapper objectMapper,
-                               final Optional<MeterRegistry> meterRegistry,
-                               final TraceInterceptor traceInterceptor) {
-    final MicrometerCapability micrometerCapability = meterRegistry
-        .map(MicrometerCapability::new)
-        .orElse(new MicrometerCapability());
-    return Feign.builder()
-        .requestInterceptor(traceInterceptor)
-        .logger(new Slf4jLogger())
-        .contract(new JakartaContract())
-        .addCapability(micrometerCapability)
-        .decoder(new JacksonDecoder(objectMapper))
-        .encoder(new JacksonEncoder(objectMapper));
+  public Feign.Builder builder(final FeignBuilderInstrumentator instrumentator) {
+    final Feign.Builder builder = Feign.builder();
+    instrumentator.instrument(builder);
+    return builder;
+  }
+
+
+  /**
+   * The default retry policy.
+   *
+   * @param meterRegistry meter registry.
+   * @return the retry.
+   */
+  @Provides
+  @Singleton
+  @Named("DEFAULT")
+  public Retry retry(final MeterRegistry meterRegistry) {
+    final RetryConfig config = RetryConfig.custom()
+        .maxAttempts(3)
+        .retryExceptions(FeignException.FeignClientException.class)
+        .intervalFunction(IntervalFunction.ofExponentialBackoff(100, 2))
+        .failAfterMaxAttempts(true)
+        .build();
+    final RetryRegistry registry = RetryRegistry.of(config);
+    TaggedRetryMetrics.ofRetryRegistry(registry)
+        .bindTo(meterRegistry);
+    return registry.retry("DEFAULT");
   }
 
   @Module

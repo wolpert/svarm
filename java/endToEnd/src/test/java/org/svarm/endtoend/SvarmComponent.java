@@ -18,7 +18,6 @@ package org.svarm.endtoend;
 
 import static org.svarm.control.javaclient.module.ControlServiceModule.CONTROL_SERVICE_CONNECTION_URL;
 
-import com.codeheadsystems.metrics.Metrics;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dagger.Component;
 import dagger.Module;
@@ -26,7 +25,6 @@ import dagger.Provides;
 import feign.FeignException;
 import io.etcd.jetcd.Client;
 import io.github.resilience4j.core.IntervalFunction;
-import io.github.resilience4j.micrometer.tagged.TaggedRetryMetrics;
 import io.github.resilience4j.retry.Retry;
 import io.github.resilience4j.retry.RetryConfig;
 import io.github.resilience4j.retry.RetryRegistry;
@@ -38,7 +36,7 @@ import org.svarm.common.config.accessor.EtcdAccessor;
 import org.svarm.common.config.module.EtcdModule;
 import org.svarm.common.engine.TraceUuidEngine;
 import org.svarm.common.javaclient.JavaClientModule;
-import org.svarm.common.module.JsonModule;
+import org.svarm.common.module.CommonModule;
 import org.svarm.control.common.api.ControlNodeService;
 import org.svarm.control.common.api.ControlTenantResourceService;
 import org.svarm.control.javaclient.module.ControlServiceModule;
@@ -49,7 +47,7 @@ import org.svarm.proxy.javaclient.module.ProxyServiceModule;
     SvarmComponent.Configuration.class,
     EtcdModule.class,
     JavaClientModule.class,
-    JsonModule.class,
+    CommonModule.class,
     ControlServiceModule.class,
     ProxyServiceModule.class
 })

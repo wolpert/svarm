@@ -37,7 +37,7 @@ import javax.inject.Named;
 import javax.inject.Singleton;
 import org.svarm.common.config.EtcdConfiguration;
 import org.svarm.common.engine.TraceUuidEngine;
-import org.svarm.common.module.JsonModule;
+import org.svarm.common.module.CommonModule;
 import org.svarm.server.ServerConfiguration;
 import org.svarm.server.resource.JerseyResource;
 import org.svarm.server.resource.MetricTagsResource;
@@ -48,7 +48,7 @@ import org.svarm.server.resource.TraceUuidResource;
  * Contains expected modules for dropwizard.
  */
 @Module(includes = {
-    JsonModule.class,
+    CommonModule.class,
     DropWizardModule.Binder.class
 })
 public class DropWizardModule {

@@ -9,6 +9,8 @@ import feign.jackson.JacksonEncoder;
 import feign.jaxrs.JakartaContract;
 import feign.micrometer.MicrometerCapability;
 import feign.slf4j.Slf4jLogger;
+import io.github.resilience4j.feign.FeignDecorators;
+import io.github.resilience4j.feign.Resilience4jFeign;
 import io.micrometer.core.instrument.MeterRegistry;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -53,7 +55,7 @@ public class FeignBuilderInstrumentator {
   public Feign.Builder instrument(final Feign.Builder builder) {
     LOGGER.trace("instrument({})", builder);
     final MicrometerCapability micrometerCapability = new MicrometerCapability(meterRegistry);
-    return Feign.builder()
+    return builder
         .requestInterceptor(traceInterceptor)
         .logger(new Slf4jLogger())
         .contract(new JakartaContract())
@@ -62,4 +64,15 @@ public class FeignBuilderInstrumentator {
         .encoder(new JacksonEncoder(objectMapper));
   }
 
+  /**
+   * Generates a builder with the decorator.
+   *
+   * @param decorators to decorate.
+   * @return the builder.
+   */
+  public Feign.Builder generate(final FeignDecorators decorators) {
+    final Feign.Builder builder = Resilience4jFeign.builder(decorators);
+    instrument(builder);
+    return builder;
+  }
 }

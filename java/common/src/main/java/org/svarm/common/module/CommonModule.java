@@ -19,6 +19,7 @@ package org.svarm.common.module;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dagger.Module;
 import dagger.Provides;
+import java.time.Clock;
 import javax.inject.Singleton;
 import org.svarm.common.factory.ObjectMapperFactory;
 
@@ -26,7 +27,7 @@ import org.svarm.common.factory.ObjectMapperFactory;
  * Provides modules needed for JSON support.
  */
 @Module
-public class JsonModule {
+public class CommonModule {
 
   /**
    * Setups the object mapper for the dagger instance.
@@ -40,4 +41,14 @@ public class JsonModule {
     return factory.generate();
   }
 
+  /**
+   * The clock to use.
+   *
+   * @return clock.
+   */
+  @Provides
+  @Singleton
+  public Clock clock() {
+    return Clock.systemUTC();
+  }
 }

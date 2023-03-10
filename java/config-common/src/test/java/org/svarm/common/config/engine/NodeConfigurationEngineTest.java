@@ -45,7 +45,7 @@ import org.svarm.common.config.api.TenantResource;
 import org.svarm.common.config.api.TenantResourceRange;
 import org.svarm.common.config.module.EtcdConfigurationModule;
 import org.svarm.common.config.module.EtcdModule;
-import org.svarm.common.module.JsonModule;
+import org.svarm.common.module.CommonModule;
 
 @Tag("integ")
 class NodeConfigurationEngineTest {
@@ -135,7 +135,7 @@ class NodeConfigurationEngineTest {
         .contains(resource2, resource3);
   }
 
-  @Component(modules = {EtcdModule.class, EtcdConfigurationModule.class, JsonModule.class})
+  @Component(modules = {EtcdModule.class, EtcdConfigurationModule.class, CommonModule.class})
   @Singleton
   public interface EngineComponent {
     NodeConfigurationEngine engine();

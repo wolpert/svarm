@@ -30,17 +30,6 @@ import javax.inject.Singleton;
 public class UtilitiesModule {
 
   /**
-   * The clock we use is the system clock.
-   *
-   * @return the clock.
-   */
-  @Provides
-  @Singleton
-  public Clock clock() {
-    return Clock.systemUTC();
-  }
-
-  /**
    * Generator.
    *
    * @return the generator.

@@ -19,7 +19,7 @@ package org.svarm.node.javaclient;
 import dagger.Component;
 import javax.inject.Singleton;
 import org.svarm.common.javaclient.JavaClientModule;
-import org.svarm.common.module.JsonModule;
+import org.svarm.common.module.CommonModule;
 import org.svarm.node.api.NodeTenantService;
 import org.svarm.node.api.NodeTenantTableEntryService;
 import org.svarm.node.api.NodeTenantTableService;
@@ -30,7 +30,7 @@ import org.svarm.node.javaclient.module.NodeServiceModule;
  */
 @Component(modules = {
     JavaClientModule.class,
-    JsonModule.class,
+    CommonModule.class,
     NodeServiceModule.class
 })
 @Singleton

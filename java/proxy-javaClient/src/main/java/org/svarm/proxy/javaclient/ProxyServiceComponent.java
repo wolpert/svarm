@@ -19,7 +19,7 @@ package org.svarm.proxy.javaclient;
 import dagger.Component;
 import javax.inject.Singleton;
 import org.svarm.common.javaclient.JavaClientModule;
-import org.svarm.common.module.JsonModule;
+import org.svarm.common.module.CommonModule;
 import org.svarm.proxy.common.api.ProxyService;
 import org.svarm.proxy.javaclient.module.ProxyServiceModule;
 
@@ -28,7 +28,7 @@ import org.svarm.proxy.javaclient.module.ProxyServiceModule;
  */
 @Component(modules = {
     JavaClientModule.class,
-    JsonModule.class,
+    CommonModule.class,
     ProxyServiceModule.class
 })
 @Singleton

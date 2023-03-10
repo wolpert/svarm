@@ -19,7 +19,7 @@ package org.svarm.control.javaclient;
 import dagger.Component;
 import javax.inject.Singleton;
 import org.svarm.common.javaclient.JavaClientModule;
-import org.svarm.common.module.JsonModule;
+import org.svarm.common.module.CommonModule;
 import org.svarm.control.common.api.ControlNodeService;
 import org.svarm.control.common.api.ControlTenantResourceService;
 import org.svarm.control.javaclient.module.ControlServiceModule;
@@ -28,9 +28,9 @@ import org.svarm.control.javaclient.module.ControlServiceModule;
  * Creates a NodeService java client.
  */
 @Component(modules = {
+    CommonModule.class,
+    ControlServiceModule.class,
     JavaClientModule.class,
-    JsonModule.class,
-    ControlServiceModule.class
 })
 @Singleton
 public interface ControlServiceComponent {

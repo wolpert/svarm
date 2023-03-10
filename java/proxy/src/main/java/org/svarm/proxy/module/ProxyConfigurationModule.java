@@ -18,7 +18,6 @@ package org.svarm.proxy.module;
 
 import dagger.Module;
 import dagger.Provides;
-import java.time.Clock;
 import javax.inject.Singleton;
 import org.svarm.proxy.ProxyConfiguration;
 import org.svarm.server.ServerConfiguration;
@@ -39,17 +38,6 @@ public class ProxyConfigurationModule {
   @Singleton
   public ProxyConfiguration configuration(final ServerConfiguration configuration) {
     return (ProxyConfiguration) configuration;
-  }
-
-  /**
-   * The clock to use.
-   *
-   * @return clock.
-   */
-  @Provides
-  @Singleton
-  public Clock clock() {
-    return Clock.systemUTC();
   }
 
 }
