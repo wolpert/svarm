@@ -18,7 +18,11 @@ package org.svarm.node.engine.impl.v1singleentry;
 
 import com.codeheadsystems.metrics.Metrics;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.jdbi.v3.core.statement.PreparedBatch;
@@ -27,6 +31,8 @@ import org.slf4j.LoggerFactory;
 import org.svarm.node.api.EntryInfo;
 import org.svarm.node.engine.TableDefinitionEngine;
 import org.svarm.node.manager.TenantTableJdbiManager;
+import org.svarm.node.model.DataStoreActions;
+import org.svarm.node.model.ImmutableDataStoreActions;
 import org.svarm.node.model.TenantTable;
 
 /**
@@ -36,8 +42,14 @@ import org.svarm.node.model.TenantTable;
 public class V1SingleEntryEngine implements TableDefinitionEngine {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(V1SingleEntryEngine.class);
-  private static final String INTEGER_TYPE = "INTEGER";
-  private static final String STRING_TYPE = "STRING";
+  private static final String READ_ROWS = "select * from TENANT_DATA where ID = :id";
+  private static final String INSERT_ROW = "insert into TENANT_DATA (ID,C_COL,HASH,C_DATA_TYPE,C_DATA,TIMESTAMP) "
+      + "values (:id, :cCol, :hash, :cDataType, :cData, :timestamp)";
+  private static final String UPDATE_ROW = "update TENANT_DATA set C_DATA_TYPE = :cDataType, C_DATA = :cData, "
+      + "TIMESTAMP = :timestamp where ID = :id and C_COL = :cCol";
+  private static final String READ_COLUMNS = "select C_COL from TENANT_DATA where :id = id";
+  private static final String DELETE_ALL_ROWS_FOR_ENTRY = "delete from TENANT_DATA where ID = :id";
+  private static final String DELETE_ONE_ROW_FOR_ENTRY = "delete from TENANT_DATA where ID = :id and C_COL = :cCol";
   private final Metrics metrics;
   private final TenantTableJdbiManager dataSourceManager;
   private final V1RowConverter converter;
@@ -71,7 +83,7 @@ public class V1SingleEntryEngine implements TableDefinitionEngine {
     LOGGER.trace("read({},{})", tenantTable, entity);
     final List<V1Row> rows = dataSourceManager.getJdbi(tenantTable)
         .withHandle(handle ->
-            handle.createQuery("select * from TENANT_DATA where ID = :id")
+            handle.createQuery(READ_ROWS)
                 .bind("id", entity)
                 .mapTo(V1Row.class)
                 .list());
@@ -91,20 +103,51 @@ public class V1SingleEntryEngine implements TableDefinitionEngine {
   @Override
   public void write(final TenantTable tenantTable, final EntryInfo entryInfo) {
     LOGGER.trace("write({},{})", tenantTable, entryInfo);
+    final Map<String, V1Row> v1Rows = converter.toV1Rows(entryInfo).stream()
+        .collect(Collectors.toMap(V1Row::cCol, Function.identity()));
+    final List<String> existingKeys = keys(tenantTable, entryInfo.id());
+    final DataStoreActions<V1Row, String> actions = generate(v1Rows, existingKeys);
     dataSourceManager.getJdbi(tenantTable)
         .useTransaction(handle -> {
-          PreparedBatch batch = handle.prepareBatch(
-              "insert into TENANT_DATA (ID,C_COL,HASH,C_DATA_TYPE,C_DATA,TIMESTAMP) "
-                  + "values (:id, :cCol, :hash, :cDataType, :cData, :timestamp)");
-          converter.toV1Rows(entryInfo).forEach(row -> batch.bindPojo(row).add());
-          batch.execute();
+          if (!actions.insert().isEmpty()) {
+            final PreparedBatch insertBatch = handle.prepareBatch(INSERT_ROW);
+            actions.insert().forEach(row -> insertBatch.bindPojo(row).add());
+            insertBatch.execute();
+          }
+          if (!actions.update().isEmpty()) {
+            final PreparedBatch updateBatch = handle.prepareBatch(UPDATE_ROW);
+            actions.update().forEach(row -> updateBatch.bindPojo(row).add());
+            updateBatch.execute();
+          }
+          if (!actions.delete().isEmpty()) {
+            final PreparedBatch deleteBatch = handle.prepareBatch(DELETE_ONE_ROW_FOR_ENTRY);
+            actions.delete().forEach(row -> deleteBatch
+                .bind("id", entryInfo.id())
+                .bind("cCol", row)
+                .add());
+            deleteBatch.execute();
+          }
         });
+  }
+
+  DataStoreActions<V1Row, String> generate(final Map<String, V1Row> v1map, List<String> existingKeys) {
+    final ImmutableDataStoreActions.Builder<V1Row, String> builder = ImmutableDataStoreActions.builder();
+    v1map.entrySet().forEach(es -> {
+      if (existingKeys.contains(es.getKey())) {
+        builder.addUpdate(es.getValue());
+      } else {
+        builder.addInsert(es.getValue());
+      }
+    });
+    final Set<String> incomingKeys = v1map.keySet();
+    builder.addAllDelete(existingKeys.stream().filter(s -> !incomingKeys.contains(s)).toList());
+    return builder.build();
   }
 
   List<String> keys(final TenantTable tenantTable, final String entity) {
     LOGGER.trace("keys({},{})", tenantTable, entity);
     return dataSourceManager.getJdbi(tenantTable).withHandle(handle ->
-        handle.createQuery("select C_COL from TENANT_DATA where :id = id")
+        handle.createQuery(READ_COLUMNS)
             .bind("id", entity)
             .mapTo(String.class)
             .list()
@@ -123,7 +166,7 @@ public class V1SingleEntryEngine implements TableDefinitionEngine {
     LOGGER.trace("delete({},{})", tenantTable, entity);
 
     final int updateCount = dataSourceManager.getJdbi(tenantTable)
-        .withHandle(handle -> handle.createUpdate("delete from TENANT_DATA where ID = :id")
+        .withHandle(handle -> handle.createUpdate(DELETE_ALL_ROWS_FOR_ENTRY)
             .bind("id", entity)
             .execute()
         );
@@ -133,5 +176,6 @@ public class V1SingleEntryEngine implements TableDefinitionEngine {
     LOGGER.trace("deleted: {}:{}:{}", tenantTable, entity, result);
     return result;
   }
+
 
 }

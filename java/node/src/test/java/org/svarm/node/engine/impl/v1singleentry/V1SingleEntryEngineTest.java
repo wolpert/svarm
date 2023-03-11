@@ -51,6 +51,21 @@ class V1SingleEntryEngineTest extends BaseSQLTest {
     assertThat(engine.keys(TENANT_TABLE, info.id()))
         .hasSize(3)
         .contains("something", "number", "other");
+    final ObjectNode objectNodeUpdated = objectNode.deepCopy();
+    objectNodeUpdated.remove("other");
+    objectNodeUpdated.put("number", "seven");
+    objectNodeUpdated.put("ANewField", "doesIt work?");
+    final EntryInfo infoUpdated = ImmutableEntryInfo.copyOf(info).withData(objectNodeUpdated);
+    engine.write(TENANT_TABLE, infoUpdated);
+    assertThat(engine.read(TENANT_TABLE, info.id()))
+        .isNotEmpty()
+        .contains(infoUpdated);
+    assertThat(engine.keys(TENANT_TABLE, info.id()))
+        .hasSize(3)
+        .contains("something", "number", "ANewField");
+    engine.delete(TENANT_TABLE, info.id());
+    assertThat(engine.read(TENANT_TABLE, info.id()))
+        .isEmpty();
   }
 
 }
