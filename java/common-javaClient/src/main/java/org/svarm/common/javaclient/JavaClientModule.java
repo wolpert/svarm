@@ -16,7 +16,6 @@
 
 package org.svarm.common.javaclient;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import dagger.BindsOptionalOf;
 import dagger.Module;
 import dagger.Provides;
@@ -28,51 +27,14 @@ import io.github.resilience4j.retry.Retry;
 import io.github.resilience4j.retry.RetryConfig;
 import io.github.resilience4j.retry.RetryRegistry;
 import io.micrometer.core.instrument.MeterRegistry;
-import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
-import java.util.Optional;
 import javax.inject.Named;
 import javax.inject.Singleton;
-import org.svarm.common.javaclient.interceptor.TraceInterceptor;
 
 /**
  * Module for the java client.
  */
 @Module(includes = {JavaClientModule.Binder.class})
 public class JavaClientModule {
-
-  /**
-   * Generates a default feign builder.
-   *
-   * @param objectMapper     to use.
-   * @param meterRegistry    if defined.
-   * @param traceInterceptor the trace interceptor.
-   * @return the instrumentor.
-   */
-  @Provides
-  @Singleton
-  public FeignBuilderInstrumentator feignBuilderInstrumentator(
-      final ObjectMapper objectMapper,
-      final Optional<MeterRegistry> meterRegistry,
-      final TraceInterceptor traceInterceptor) {
-    return new FeignBuilderInstrumentator(objectMapper,
-        meterRegistry.orElseGet(SimpleMeterRegistry::new),
-        traceInterceptor);
-  }
-
-  /**
-   * Returns a default builder.
-   *
-   * @param instrumentator for instrumentation.
-   * @return a feign builder.
-   */
-  @Provides
-  @Singleton
-  public Feign.Builder builder(final FeignBuilderInstrumentator instrumentator) {
-    final Feign.Builder builder = Feign.builder();
-    instrumentator.instrument(builder);
-    return builder;
-  }
-
 
   /**
    * The default retry policy.

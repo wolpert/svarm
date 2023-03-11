@@ -23,6 +23,7 @@ import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import javax.inject.Singleton;
 import org.svarm.common.javaclient.JavaClientModule;
+import org.svarm.common.javaclient.StandaloneMeterRegistry;
 import org.svarm.common.module.CommonModule;
 import org.svarm.control.common.api.ControlNodeService;
 import org.svarm.control.common.api.ControlTenantResourceService;
@@ -35,7 +36,7 @@ import org.svarm.control.javaclient.module.ControlServiceModule;
     CommonModule.class,
     ControlServiceModule.class,
     JavaClientModule.class,
-    ControlServiceComponent.Misc.class
+    StandaloneMeterRegistry.class
 })
 @Singleton
 public interface ControlServiceComponent {
@@ -66,23 +67,5 @@ public interface ControlServiceComponent {
    */
   ControlTenantResourceService controlTenantResourceService();
 
-  /**
-   * Stuff we need.
-   */
-  @Module
-  class Misc {
-
-    /**
-     * Default registery.
-     *
-     * @return the value.
-     */
-    @Provides
-    @Singleton
-    MeterRegistry meterRegistry() {
-      return new SimpleMeterRegistry();
-    }
-
-  }
 
 }

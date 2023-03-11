@@ -19,6 +19,7 @@ package org.svarm.node.javaclient;
 import dagger.Component;
 import javax.inject.Singleton;
 import org.svarm.common.javaclient.JavaClientModule;
+import org.svarm.common.javaclient.StandaloneMeterRegistry;
 import org.svarm.common.module.CommonModule;
 import org.svarm.node.api.NodeTenantService;
 import org.svarm.node.api.NodeTenantTableEntryService;
@@ -31,7 +32,8 @@ import org.svarm.node.javaclient.module.NodeServiceModule;
 @Component(modules = {
     JavaClientModule.class,
     CommonModule.class,
-    NodeServiceModule.class
+    NodeServiceModule.class,
+    StandaloneMeterRegistry.class
 })
 @Singleton
 public interface NodeServiceComponent {

@@ -15,7 +15,6 @@ import io.micrometer.core.instrument.MeterRegistry;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.slf4j.Logger;
-import org.svarm.common.javaclient.interceptor.TraceInterceptor;
 
 /**
  * Instruments the feign builder provided.
@@ -25,25 +24,31 @@ public class FeignBuilderInstrumentator {
 
   private static final Logger LOGGER = getLogger(FeignBuilderInstrumentator.class);
 
-  private final ObjectMapper objectMapper;
-  private final MeterRegistry meterRegistry;
   private final TraceInterceptor traceInterceptor;
+  private final Slf4jLogger slf4jLogger;
+  private final MicrometerCapability micrometerCapability;
+  private final JakartaContract jakartaContract;
+  private final JacksonDecoder jacksonDecoder;
+  private final JacksonEncoder jacksonEncoder;
 
   /**
    * Constructor.
    *
-   * @param meterRegistry    for metrics.
-   * @param objectMapper     for the mapper.
    * @param traceInterceptor for tracing.
+   * @param meterRegistry    for metrics.
+   * @param objectMapper     for json.
    */
   @Inject
-  public FeignBuilderInstrumentator(final ObjectMapper objectMapper,
+  public FeignBuilderInstrumentator(final TraceInterceptor traceInterceptor,
                                     final MeterRegistry meterRegistry,
-                                    final TraceInterceptor traceInterceptor) {
-    this.objectMapper = objectMapper;
-    this.meterRegistry = meterRegistry;
+                                    final ObjectMapper objectMapper) {
+    this.slf4jLogger = new Slf4jLogger();
+    this.micrometerCapability = new MicrometerCapability(meterRegistry);
+    this.jakartaContract = new JakartaContract();
+    this.jacksonDecoder = new JacksonDecoder(objectMapper);
+    this.jacksonEncoder = new JacksonEncoder(objectMapper);
     this.traceInterceptor = traceInterceptor;
-    LOGGER.info("FeignBuilderInstrumentator({},{},{})", objectMapper, meterRegistry, traceInterceptor);
+    LOGGER.info("FeignBuilderInstrumentator({},{},{})", traceInterceptor, meterRegistry, objectMapper);
   }
 
   /**
@@ -54,14 +59,13 @@ public class FeignBuilderInstrumentator {
    */
   public Feign.Builder instrument(final Feign.Builder builder) {
     LOGGER.trace("instrument({})", builder);
-    final MicrometerCapability micrometerCapability = new MicrometerCapability(meterRegistry);
     return builder
         .requestInterceptor(traceInterceptor)
-        .logger(new Slf4jLogger())
-        .contract(new JakartaContract())
+        .logger(slf4jLogger)
+        .contract(jakartaContract)
         .addCapability(micrometerCapability)
-        .decoder(new JacksonDecoder(objectMapper))
-        .encoder(new JacksonEncoder(objectMapper));
+        .decoder(jacksonDecoder)
+        .encoder(jacksonEncoder);
   }
 
   /**

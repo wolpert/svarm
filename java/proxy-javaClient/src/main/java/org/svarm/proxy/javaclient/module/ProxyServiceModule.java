@@ -19,10 +19,12 @@ package org.svarm.proxy.javaclient.module;
 import dagger.BindsOptionalOf;
 import dagger.Module;
 import dagger.Provides;
-import feign.Feign;
+import io.github.resilience4j.feign.FeignDecorators;
+import io.github.resilience4j.retry.Retry;
 import java.util.Optional;
 import javax.inject.Named;
 import javax.inject.Singleton;
+import org.svarm.common.javaclient.FeignBuilderInstrumentator;
 import org.svarm.proxy.common.api.ProxyService;
 
 /**
@@ -72,16 +74,19 @@ public class ProxyServiceModule {
   /**
    * Get a usable proxy service.
    *
-   * @param builder feign builder to use.
-   * @param url     the url of the proxy service.
+   * @param instrumentator feign builder to use.
+   * @param retry          default retry policy.
+   * @param url            the url of the proxy service.
    * @return a proxy service.
    */
   @Provides
   @Singleton
   public ProxyService proxyService(
-      final Feign.Builder builder,
+      final FeignBuilderInstrumentator instrumentator,
+      @Named("DEFAULT") final Retry retry,
       @Named(INTERNAL_PROXY_SERVICE_CONNECTION_URL) final String url) {
-    return builder.target(ProxyService.class, url);
+    final FeignDecorators feignDecorators = FeignDecorators.builder().withRetry(retry).build();
+    return instrumentator.generate(feignDecorators).target(ProxyService.class, url);
   }
 
   /**

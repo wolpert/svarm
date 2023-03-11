@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.svarm.common.javaclient.interceptor;
+package org.svarm.common.javaclient;
 
 import feign.RequestInterceptor;
 import feign.RequestTemplate;

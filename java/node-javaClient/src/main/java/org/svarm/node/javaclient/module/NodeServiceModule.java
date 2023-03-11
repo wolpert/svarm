@@ -20,9 +20,12 @@ import dagger.BindsOptionalOf;
 import dagger.Module;
 import dagger.Provides;
 import feign.Feign;
+import io.github.resilience4j.feign.FeignDecorators;
+import io.github.resilience4j.retry.Retry;
 import java.util.Optional;
 import javax.inject.Named;
 import javax.inject.Singleton;
+import org.svarm.common.javaclient.FeignBuilderInstrumentator;
 import org.svarm.node.api.NodeTenantService;
 import org.svarm.node.api.NodeTenantTableEntryService;
 import org.svarm.node.api.NodeTenantTableService;
@@ -38,6 +41,7 @@ public class NodeServiceModule {
    */
   public static final String NODE_SERVICE_CONNECTION_URL = "NODE_SERVICE_CONNECTION_URL";
   private static final String INTERNAL_NODE_SERVICE_CONNECTION_URL = "INTERNAL_NODE_SERVICE_CONNECTION_URL";
+  private static final String NODE_FEIGN_BUILDER = "NODE_FEIGN_BUILDER";
   private final String connectionUrl;
 
   /**
@@ -71,6 +75,22 @@ public class NodeServiceModule {
   }
 
   /**
+   * The builder for the node services.
+   *
+   * @param instrumentator to instrument.
+   * @param retry          the default retry policy.
+   * @return a builder.
+   */
+  @Provides
+  @Singleton
+  @Named(NODE_FEIGN_BUILDER)
+  public Feign.Builder feignBuilder(final FeignBuilderInstrumentator instrumentator,
+                                    @Named("DEFAULT") final Retry retry) {
+    final FeignDecorators feignDecorators = FeignDecorators.builder().withRetry(retry).build();
+    return instrumentator.generate(feignDecorators);
+  }
+
+  /**
    * Get a usable node service.
    *
    * @param builder feign builder to use.
@@ -80,8 +100,8 @@ public class NodeServiceModule {
   @Provides
   @Singleton
   public NodeTenantService nodeTenantService(
-      final Feign.Builder builder,
-      final @Named(INTERNAL_NODE_SERVICE_CONNECTION_URL) String url) {
+      @Named(NODE_FEIGN_BUILDER) final Feign.Builder builder,
+      @Named(INTERNAL_NODE_SERVICE_CONNECTION_URL) final String url) {
     return builder.target(NodeTenantService.class, url);
   }
 
@@ -95,8 +115,8 @@ public class NodeServiceModule {
   @Provides
   @Singleton
   public NodeTenantTableService nodeTenantTableService(
-      final Feign.Builder builder,
-      final @Named(INTERNAL_NODE_SERVICE_CONNECTION_URL) String url) {
+      @Named(NODE_FEIGN_BUILDER) final Feign.Builder builder,
+      @Named(INTERNAL_NODE_SERVICE_CONNECTION_URL) final String url) {
     return builder.target(NodeTenantTableService.class, url);
   }
 
@@ -110,8 +130,8 @@ public class NodeServiceModule {
   @Provides
   @Singleton
   public NodeTenantTableEntryService nodeTenantTableEntryService(
-      final Feign.Builder builder,
-      final @Named(INTERNAL_NODE_SERVICE_CONNECTION_URL) String url) {
+      @Named(NODE_FEIGN_BUILDER) final Feign.Builder builder,
+      @Named(INTERNAL_NODE_SERVICE_CONNECTION_URL) final String url) {
     return builder.target(NodeTenantTableEntryService.class, url);
   }
 
