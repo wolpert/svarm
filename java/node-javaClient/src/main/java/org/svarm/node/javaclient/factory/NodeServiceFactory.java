@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.svarm.proxy.factory;
+package org.svarm.node.javaclient.factory;
 
 import static org.slf4j.LoggerFactory.getLogger;
 

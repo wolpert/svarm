@@ -27,7 +27,7 @@ import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.svarm.common.config.api.NodeRange;
 import org.svarm.node.api.NodeTenantTableEntryService;
-import org.svarm.proxy.factory.NodeServiceFactory;
+import org.svarm.node.javaclient.factory.NodeServiceFactory;
 
 /**
  * Provides a caching accessor to the node.

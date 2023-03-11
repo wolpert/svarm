@@ -26,7 +26,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.svarm.common.config.api.NodeRange;
 import org.svarm.node.api.NodeTenantTableEntryService;
-import org.svarm.proxy.factory.NodeServiceFactory;
+import org.svarm.node.javaclient.factory.NodeServiceFactory;
 
 @ExtendWith(MockitoExtension.class)
 class NodeTenantTableEntryServiceEngineTest {
