@@ -84,7 +84,6 @@ if (project.hasProperty("e2e")) {
         commandLine "docker", "compose", "up", "--wait"
         dependsOn logDir, preTestComposeDown,
                 ':control:test', ':node:test', ':proxy:test',
-                //':control:integ', ':node:integ',
                 ':control:installDist', ':node:installDist', ':proxy:installDist'
     }
     task finalComposeDown(type: Exec) {

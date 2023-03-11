@@ -53,7 +53,7 @@ public class TableTenantLifecycleTest {
     final TenantResourceInfo info = COMPONENT.controlTenantResourceService().createResource(TENANT, TABLE, META_DATA);
     LOGGER.info("Create table {} ", info);
     COMPONENT.etcdAccessor().getAll("node", "").forEach(LOGGER::info);
-    JsonNode data = COMPONENT.objectMapper().readValue("{\"a\":2}", JsonNode.class);
+    final JsonNode data = COMPONENT.objectMapper().readValue("{\"a\":2,\"something\":\"else\"}", JsonNode.class);
     boolean ready = false;
     for (int i = 0; i < 20; i++) {
       ready = COMPONENT.controlTenantResourceService().readResource(TENANT, TABLE).get().ready();
