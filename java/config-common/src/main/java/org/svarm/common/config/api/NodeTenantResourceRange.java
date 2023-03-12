@@ -20,10 +20,11 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import java.util.Optional;
 import org.immutables.value.Value;
 
 /**
- * MetaData provided for this tenant resource on the node.
+ * MetaData provided for this tenant resource on the node. This is read from the NODE service to figure out what to do.
  */
 @Value.Immutable
 @JsonSerialize(as = ImmutableNodeTenantResourceRange.class)
@@ -47,5 +48,28 @@ public interface NodeTenantResourceRange {
   @JsonProperty("range")
   MetaData range();
 
+  /**
+   * What actions are available. If empty, we just create the device.
+   *
+   * @return actions.
+   */
+  @JsonProperty("action")
+  Optional<String> action();
+
+  /**
+   * Types of actions. We do not include the enum in the json directly.
+   */
+  enum Action {
+
+    /**
+     * The entity needs to be deleted.
+     */
+    DELETE,
+
+    /**
+     * The entity needs to be rebalanced.
+     */
+    REBALANCE;
+  }
 
 }

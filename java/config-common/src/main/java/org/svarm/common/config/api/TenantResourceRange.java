@@ -24,7 +24,7 @@ import java.util.Map;
 import org.immutables.value.Value;
 
 /**
- * Identifies the tenant with it's resource.
+ * Identifies the tenant with it's resource. This is used by the proxy to find nodes in the cluster.
  */
 @Value.Immutable
 @JsonSerialize(as = ImmutableTenantResourceRange.class)

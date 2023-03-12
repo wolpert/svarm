@@ -77,23 +77,34 @@ public class ControlPlaneWatcherManager implements Managed {
   void handle(final Event event) {
     LOGGER.trace("handle({})", event);
     switch (event.type()) {
-      case PUT -> handleNewTable(event.key(), event.value()
+      case PUT -> handlePutEvent(event.key(), event.value()
           .orElseThrow(() -> new IllegalArgumentException("No value for event " + event)));
+      // TODO: Metric failure on throw pls.
       case DELETE -> LOGGER.warn("We cannot handle delete yet! " + event);
       default -> LOGGER.error("We never even heard of this one." + event);
     }
   }
 
-  private void handleNewTable(final String key, final String value) {
-    LOGGER.info("handleNewTable({},{})", key, value);
+  private void handlePutEvent(final String key, final String value) {
+    LOGGER.trace("handlePutEvent({},{})", key, value);
     final NodeTenantResourceRange range = nodeTenantResourceRangeConverter.fromKeyValue(key, value);
+    if (range.action().isEmpty()) {
+      handleNewTable(range);
+    } else {
+      // TODO: Metric failure pls.
+      LOGGER.warn("Not configured to handle other actions: {} : {}", range.action(), range);
+    }
+  }
+
+  private void handleNewTable(final NodeTenantResourceRange range) {
+    LOGGER.info("handleNewTable({})", range);
     final TenantResource tenantResource = range.nodeTenantResource().tenantResource();
     final TenantTableIdentifier identifier = ImmutableTenantTableIdentifier.builder()
         .tenantId(tenantResource.tenant()).tableName(tenantResource.resource()).build();
     // TODO: Get this table definition from the request!
     final TenantTable tenantTable = tenantTableManager.create(identifier, TableDefinition.V1SingleEntryEngine);
     controlPlaneManager.enable(identifier);
-    LOGGER.info("handleNewTable({},{}) : {}", key, value, tenantTable);
+    LOGGER.info("handleNewTable({}) : {}", range, tenantTable);
   }
 
   @Override
