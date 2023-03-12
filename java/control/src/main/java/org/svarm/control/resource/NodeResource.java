@@ -129,6 +129,20 @@ public class NodeResource implements JerseyResource, ControlNodeService {
   @Timed
   @ExceptionMetered
   @ResponseMetered
+  public NodeInfo delete(final String nodeUuid,
+                          final String tenant,
+                          final String resource) {
+    LOGGER.trace("delete({},{},{})", nodeUuid, tenant, resource);
+    final Node node = nodeManager.read(nodeUuid)
+        .orElseThrow(() -> new NotFoundException("No such node"));
+    nodeRangeManager.finalizeDelete(nodeUuid, tenant, resource);
+    return nodeInfoConverter.from(node);
+  }
+
+  @Override
+  @Timed
+  @ExceptionMetered
+  @ResponseMetered
   public NodeInfo status(final String nodeUuid) {
     LOGGER.trace("status({})", nodeUuid);
     final Node node = nodeManager.read(nodeUuid)

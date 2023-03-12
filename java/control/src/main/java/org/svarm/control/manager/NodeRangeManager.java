@@ -24,6 +24,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.svarm.common.config.api.ImmutableTenantResourceRange;
@@ -124,6 +125,17 @@ public class NodeRangeManager {
       }
       return updated;
     });
+  }
+
+  /**
+   * Finalize the delete of a tenant resource from the cluster.
+   *
+   * @param nodeUuid that has the deletion.
+   * @param tenant   the owns the resource.
+   * @param resource to delete from the nodeuuid cluster.
+   */
+  public void finalizeDelete(final String nodeUuid, final String tenant, final String resource) {
+    throw new NotImplementedException();
   }
 
   /**

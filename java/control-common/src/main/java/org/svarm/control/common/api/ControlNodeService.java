@@ -86,7 +86,7 @@ public interface ControlNodeService {
   /**
    * Disable a given node resource.
    *
-   * @param nodeUuid to disable.
+   * @param nodeUuid who owns the request.
    * @param tenant   to disable.
    * @param resource to disable.
    * @return a node info object.
@@ -98,6 +98,22 @@ public interface ControlNodeService {
   NodeInfo disable(@PathParam("node") final String nodeUuid,
                    @PathParam("tenant") final String tenant,
                    @PathParam("resource") final String resource);
+
+  /**
+   * Delete finalized for a given node resource.
+   *
+   * @param nodeUuid who owns the request.
+   * @param tenant   to delete.
+   * @param resource to delete.
+   * @return a node info object.
+   */
+  @PUT
+  @Path("delete/{tenant}/{resource}")
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON)
+  NodeInfo delete(@PathParam("node") final String nodeUuid,
+                  @PathParam("tenant") final String tenant,
+                  @PathParam("resource") final String resource);
 
   /**
    * Disables a given node into the swarm.
