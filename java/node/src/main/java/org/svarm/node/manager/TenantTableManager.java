@@ -152,7 +152,6 @@ public class TenantTableManager {
 
   /**
    * Deletes the table. This will destroy the table as well.
-   * TODO: delete the actual table.
    *
    * @param identifier to delete.
    * @return boolean if deleted or not.

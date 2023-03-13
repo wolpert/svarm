@@ -44,4 +44,12 @@ public interface ControlPlaneManager {
    * @param identifier to enable.
    */
   void enable(TenantTableIdentifier identifier);
+
+  /**
+   * Lets the control plane node we are deleted.
+   *
+   * @param identifier that was deleted.
+   */
+  void delete(TenantTableIdentifier identifier);
+
 }

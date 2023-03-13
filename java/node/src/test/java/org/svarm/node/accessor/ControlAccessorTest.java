@@ -33,6 +33,8 @@ import org.svarm.control.common.api.ControlNodeService;
 import org.svarm.control.common.api.KeyInfo;
 import org.svarm.control.common.api.NodeInfo;
 import org.svarm.control.common.api.NodeMetaData;
+import org.svarm.node.model.ImmutableTenantTableIdentifier;
+import org.svarm.node.model.TenantTableIdentifier;
 
 @ExtendWith(MockitoExtension.class)
 class ControlAccessorTest extends BaseMetricTest {
@@ -43,6 +45,7 @@ class ControlAccessorTest extends BaseMetricTest {
   private static final int PORT = 90;
   private static final String KEY = "KEY";
   private static final String TENANT = "tenant";
+  private static final String TABLE = "table";
   @Mock private ControlNodeService controlNodeService;
   @Mock private NodeInfo nodeInfo;
   @Mock private KeyInfo keyInfo;
@@ -71,6 +74,16 @@ class ControlAccessorTest extends BaseMetricTest {
 
     assertThat(accessor.status(UUID))
         .contains(STATUS);
+  }
+
+  @Test
+  void delete() {
+    final TenantTableIdentifier identifier = ImmutableTenantTableIdentifier.builder()
+        .tenantId(TENANT).tableName(TABLE).build();
+    accessor.delete(UUID, identifier);
+    verify(controlNodeService)
+        .delete(stringArgumentCaptor.capture(), stringArgumentCaptor.capture(), stringArgumentCaptor.capture());
+    assertThat(stringArgumentCaptor.getAllValues()).contains(UUID, TENANT, TABLE);
   }
 
   @Test

@@ -80,4 +80,9 @@ public class FakeControlPlaneManager implements ControlPlaneManager {
   public void enable(final TenantTableIdentifier identifier) {
     // Nothing to do.
   }
+
+  @Override
+  public void delete(final TenantTableIdentifier identifier) {
+    // Nothing to do.
+  }
 }

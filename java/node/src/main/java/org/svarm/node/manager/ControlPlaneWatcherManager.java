@@ -17,6 +17,8 @@
 package org.svarm.node.manager;
 
 import static org.slf4j.LoggerFactory.getLogger;
+import static org.svarm.common.config.api.NodeTenantResourceRange.ACTION_DELETE;
+import static org.svarm.common.config.api.NodeTenantResourceRange.ACTION_REBALANCE;
 
 import com.google.common.annotations.VisibleForTesting;
 import io.dropwizard.lifecycle.Managed;
@@ -88,12 +90,27 @@ public class ControlPlaneWatcherManager implements Managed {
   private void handlePutEvent(final String key, final String value) {
     LOGGER.trace("handlePutEvent({},{})", key, value);
     final NodeTenantResourceRange range = nodeTenantResourceRangeConverter.fromKeyValue(key, value);
-    if (range.action().isEmpty()) {
-      handleNewTable(range);
+    range.action().ifPresentOrElse(action -> {
+      switch (action) {
+        case (ACTION_DELETE) -> handleDelete(range);
+        case (ACTION_REBALANCE) -> LOGGER.warn("REBALACING not implemented."); // TODO: Implement.
+        default -> LOGGER.warn("Not configured to handle other actions: {} : {}", action, range);
+        // TODO: Metric failure pls.
+      }
+    }, () -> handleNewTable(range));
+  }
+
+  private void handleDelete(final NodeTenantResourceRange range) {
+    LOGGER.info("handleDelete({})", range);
+    final TenantResource tenantResource = range.nodeTenantResource().tenantResource();
+    final TenantTableIdentifier identifier = ImmutableTenantTableIdentifier.builder()
+        .tenantId(tenantResource.tenant()).tableName(tenantResource.resource()).build();
+    if (tenantTableManager.delete(identifier)) {
+      LOGGER.info("Deleted: {}", identifier);
     } else {
-      // TODO: Metric failure pls.
-      LOGGER.warn("Not configured to handle other actions: {} : {}", range.action(), range);
+      LOGGER.info("Not found to delete: {}", identifier);
     }
+    controlPlaneManager.delete(identifier); // self healing
   }
 
   private void handleNewTable(final NodeTenantResourceRange range) {

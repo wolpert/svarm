@@ -48,8 +48,8 @@ public class NodeRangeConverter {
     return nodeRange.stream().map(nr -> {
       final Optional<String> action;
       switch (nr.status()) {
-        case NodeRange.STATUS_DELETING -> action = Optional.of(NodeTenantResourceRange.Action.DELETE.name());
-        case NodeRange.STATUS_REBALANCING -> action = Optional.of(NodeTenantResourceRange.Action.REBALANCE.name());
+        case NodeRange.STATUS_DELETING -> action = Optional.of(NodeTenantResourceRange.ACTION_DELETE);
+        case NodeRange.STATUS_REBALANCING -> action = Optional.of(NodeTenantResourceRange.ACTION_REBALANCE);
         default -> action = Optional.empty();
       }
       return ImmutableNodeTenantResourceRange.builder()

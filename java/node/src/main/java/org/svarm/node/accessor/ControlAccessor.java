@@ -91,6 +91,22 @@ public class ControlAccessor {
   }
 
   /**
+   * Tells the control plane the table is deleted.
+   *
+   * @param nodeUuid   from us.
+   * @param identifier the table.
+   */
+  public void delete(final String nodeUuid,
+                     final TenantTableIdentifier identifier) {
+    LOGGER.trace("delete({},{})", nodeUuid, identifier);
+    metrics.time("ControlAccessor.delete", () -> {
+      final NodeInfo info = controlNodeService.delete(nodeUuid, identifier.tenantId(), identifier.tableName());
+      LOGGER.trace("result:{}", info);
+      return null;
+    });
+  }
+
+  /**
    * Enables the tenant table.
    *
    * @param uuid       from us.
@@ -99,7 +115,7 @@ public class ControlAccessor {
   public void enable(final String uuid,
                      final TenantTableIdentifier identifier) {
     LOGGER.trace("enable({},{})", uuid, identifier);
-    metrics.time("ControlAccessor.disable", () -> {
+    metrics.time("ControlAccessor.enable", () -> {
       final NodeInfo info = controlNodeService.enable(uuid, identifier.tenantId(), identifier.tableName());
       LOGGER.trace("result:{}", info);
       return null;
@@ -162,5 +178,4 @@ public class ControlAccessor {
     return metrics.time("ControlAccessor.keyForNode",
         () -> controlNodeService.nodeKey(uuid, resourceId).key());
   }
-
 }

@@ -104,6 +104,16 @@ public class RealControlPlaneManager implements ControlPlaneManager {
   }
 
   @Override
+  public void delete(final TenantTableIdentifier identifier) {
+    LOGGER.trace("delete({})", identifier);
+    metrics.time("RealControlPlaneManager.deleteTableTenant",
+        () -> {
+          controlAccessor.delete(nodeUuid, identifier);
+          return null;
+        });
+  }
+
+  @Override
   public void enable(final TenantTableIdentifier identifier) {
     LOGGER.trace("enable({})", identifier);
     metrics.time("RealControlPlaneManager.enableTableTenant",

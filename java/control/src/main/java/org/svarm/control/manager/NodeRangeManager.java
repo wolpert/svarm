@@ -116,6 +116,10 @@ public class NodeRangeManager {
     return metrics.time("NodeRangeManager.resources", () -> {
       final NodeRange nodeRange = getNodeRange(nodeUuid, tenant, resource)
           .orElseThrow(() -> new NotFoundException("No resource for node"));
+      if (nodeRange.ready().equals(ready)) {
+        LOGGER.trace("Ready already set: {}:{}", ready, nodeRange);
+        return nodeRange;
+      }
       final NodeRange updated = ImmutableNodeRange.copyOf(nodeRange).withReady(ready);
       nodeRangeDao.update(updated);
       final boolean allReady = getNodeRange(tenant, resource).stream().allMatch(NodeRange::ready);

@@ -33,6 +33,15 @@ import org.immutables.value.Value;
 public interface NodeTenantResourceRange {
 
   /**
+   * The entity needs to be deleted.
+   */
+  String ACTION_DELETE = "delete";
+  /**
+   * The entity needs to be rebalanced.
+   */
+  String ACTION_REBALANCE = "rebalance";
+
+  /**
    * The node tenant resource.
    *
    * @return value.
@@ -55,21 +64,5 @@ public interface NodeTenantResourceRange {
    */
   @JsonProperty("action")
   Optional<String> action();
-
-  /**
-   * Types of actions. We do not include the enum in the json directly.
-   */
-  enum Action {
-
-    /**
-     * The entity needs to be deleted.
-     */
-    DELETE,
-
-    /**
-     * The entity needs to be rebalanced.
-     */
-    REBALANCE;
-  }
 
 }
