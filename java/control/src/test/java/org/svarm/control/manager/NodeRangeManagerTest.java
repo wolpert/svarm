@@ -18,6 +18,7 @@ package org.svarm.control.manager;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -70,6 +71,29 @@ class NodeRangeManagerTest extends BaseMetricTest {
   void resources() {
     when(nodeRangeDao.resources(TENANT)).thenReturn(list);
     assertThat(nodeRangeManager.resources(TENANT)).isEqualTo(list);
+  }
+
+  @Test
+  void finalizeDelete() {
+    when(nodeRange.status()).thenReturn(NodeRange.STATUS_DELETING);
+    when(nodeRangeDao.read(UUID, TENANT, TABLE)).thenReturn(nodeRange);
+    nodeRangeManager.finalizeDelete(UUID, TENANT, TABLE);
+    verify(nodeRangeDao).delete(UUID, TENANT, TABLE);
+  }
+
+  @Test
+  void finalizeDelete_wrongStatus() {
+    when(nodeRange.status()).thenReturn(NodeRange.STATUS_INIT);
+    when(nodeRangeDao.read(UUID, TENANT, TABLE)).thenReturn(nodeRange);
+    nodeRangeManager.finalizeDelete(UUID, TENANT, TABLE);
+    verify(nodeRangeDao, never()).delete(UUID, TENANT, TABLE);
+  }
+
+  @Test
+  void finalizeDelete_notFound() {
+    when(nodeRangeDao.read(UUID, TENANT, TABLE)).thenReturn(null);
+    nodeRangeManager.finalizeDelete(UUID, TENANT, TABLE);
+    verify(nodeRangeDao, never()).delete(UUID, TENANT, TABLE);
   }
 
   @Test
