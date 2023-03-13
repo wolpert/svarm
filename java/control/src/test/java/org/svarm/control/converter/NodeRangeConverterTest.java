@@ -46,6 +46,7 @@ class NodeRangeConverterTest {
   private void mockIt(final NodeRange nodeRange, final boolean ready) {
     when(nodeRange.nodeUuid()).thenReturn(UUID);
     when(nodeRange.hash()).thenReturn(Integer.MIN_VALUE);
+    when(nodeRange.status()).thenReturn(NodeRange.STATUS_INIT);
   }
 
 }

@@ -3,6 +3,7 @@ package org.svarm.control.converter;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -44,12 +45,20 @@ public class NodeRangeConverter {
                                                                   final List<NodeRange> nodeRange) {
     LOGGER.trace("toNodeTenantResourceRanges({},{},{})", tenant, resource, nodeRange);
     final TenantResource tenantResource = ImmutableTenantResource.builder().tenant(tenant).resource(resource).build();
-    return nodeRange.stream().map(nr -> ImmutableNodeTenantResourceRange.builder()
-            .nodeTenantResource(
-                ImmutableNodeTenantResource.builder().uuid(nr.nodeUuid()).tenantResource(tenantResource).build())
-            .range(ImmutableMetaData.builder().hash(nr.hash()).build())
-            .build())
-        .collect(Collectors.toList());
+    return nodeRange.stream().map(nr -> {
+      final Optional<String> action;
+      switch (nr.status()) {
+        case NodeRange.STATUS_DELETING -> action = Optional.of(NodeTenantResourceRange.Action.DELETE.name());
+        case NodeRange.STATUS_REBALANCING -> action = Optional.of(NodeTenantResourceRange.Action.REBALANCE.name());
+        default -> action = Optional.empty();
+      }
+      return ImmutableNodeTenantResourceRange.builder()
+          .nodeTenantResource(
+              ImmutableNodeTenantResource.builder().uuid(nr.nodeUuid()).tenantResource(tenantResource).build())
+          .action(action)
+          .range(ImmutableMetaData.builder().hash(nr.hash()).build())
+          .build();
+    }).collect(Collectors.toList());
   }
 
 }

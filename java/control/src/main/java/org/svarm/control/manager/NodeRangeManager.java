@@ -135,7 +135,7 @@ public class NodeRangeManager {
    * @param resource to delete from the nodeuuid cluster.
    */
   public void finalizeDelete(final String nodeUuid, final String tenant, final String resource) {
-    throw new NotImplementedException();
+    throw new NotImplementedException(); // TODO: Remove the node uuid from the resource.
   }
 
   /**
@@ -227,7 +227,7 @@ public class NodeRangeManager {
     final List<NodeRange> nodeRange = nodeAvailabilityEngine.getAvailableNodes(DEFAULT_CLUSTER_SIZE)
         .stream().map(nodeUuid -> ImmutableNodeRange.builder()
             .nodeUuid(nodeUuid).tenant(tenant).resource(resource).tableVersion(tableDefinition.name())
-            .createDate(clock.instant()).status("INIT").ready(false)
+            .createDate(clock.instant()).status(NodeRange.STATUS_INIT).ready(false)
             .hash(hashes.remove(0))
             .build())
         .collect(Collectors.toList());

@@ -28,6 +28,23 @@ import org.immutables.value.Value;
 public interface NodeRange {
 
   /**
+   * Node resource is initializing.
+   */
+  String STATUS_INIT = "init";
+  /**
+   * Node resource is running.
+   */
+  String STATUS_STABLE = "stable";
+  /**
+   * Node resource is rebalaceing.
+   */
+  String STATUS_REBALANCING = "rebalaceing";
+  /**
+   * Node resource is being deleted.
+   */
+  String STATUS_DELETING = "deleting";
+
+  /**
    * Accessor for uuid.
    *
    * @return the value.
@@ -98,5 +115,6 @@ public interface NodeRange {
    */
   @JsonProperty("hash")
   Integer hash();
+
 
 }

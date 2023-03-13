@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.svarm.control.common.api.ControlTenantResourceService;
@@ -106,6 +107,6 @@ public class NodeTenantTableResource implements ControlTenantResourceService, Je
   @ResponseMetered
   public void deleteResource(final String tenantId, final String table) {
     LOGGER.trace("deleteTenantTable({},{})", tenantId, table);
-
+    throw new NotImplementedException(); // TODO: Remove the node uuid from the resource.
   }
 }
