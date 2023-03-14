@@ -132,6 +132,7 @@ public class NodeRangeManager {
 
   /**
    * Finalize the delete of a tenant resource from the cluster.
+   * TODO: Delete the data from etcd!!!
    *
    * @param nodeUuid that has the deletion.
    * @param tenant   the owns the resource.
@@ -142,14 +143,15 @@ public class NodeRangeManager {
                              final String resource) {
     LOGGER.trace("finalizeDelete({},{},{})", nodeUuid, tenant, resource);
     getNodeRange(nodeUuid, tenant, resource)
-        .ifPresent(nodeRange -> {
+        .ifPresentOrElse(nodeRange -> {
           if (nodeRange.status().equals(NodeRange.STATUS_DELETING)) {
             LOGGER.info("Deleting: {}", nodeRange);
             nodeRangeDao.delete(nodeUuid, tenant, resource);
+            nodeConfigurationEngine.deleteNodeTenantResourceRange(nodeUuid, tenant, resource);
           } else {
             LOGGER.warn("Not in deleting state, ignoring! {}", nodeRange);
           }
-        });
+        }, () -> nodeConfigurationEngine.deleteNodeTenantResourceRange(nodeUuid, tenant, resource)); // healing
   }
 
   /**

@@ -45,20 +45,30 @@ public class NodeRangeConverter {
                                                                   final List<NodeRange> nodeRange) {
     LOGGER.trace("toNodeTenantResourceRanges({},{},{})", tenant, resource, nodeRange);
     final TenantResource tenantResource = ImmutableTenantResource.builder().tenant(tenant).resource(resource).build();
-    return nodeRange.stream().map(nr -> {
-      final Optional<String> action;
-      switch (nr.status()) {
-        case NodeRange.STATUS_DELETING -> action = Optional.of(NodeTenantResourceRange.ACTION_DELETE);
-        case NodeRange.STATUS_REBALANCING -> action = Optional.of(NodeTenantResourceRange.ACTION_REBALANCE);
-        default -> action = Optional.empty();
-      }
-      return ImmutableNodeTenantResourceRange.builder()
-          .nodeTenantResource(
-              ImmutableNodeTenantResource.builder().uuid(nr.nodeUuid()).tenantResource(tenantResource).build())
-          .action(action)
-          .range(ImmutableMetaData.builder().hash(nr.hash()).build())
-          .build();
-    }).collect(Collectors.toList());
+    return nodeRange.stream().map(nr -> toNodeTenantResourceRanges(tenantResource, nr)).collect(Collectors.toList());
+  }
+
+  /**
+   * Converter for a single node tenant resource range.
+   *
+   * @param tenantResource to convert.
+   * @param nr             the node range.
+   * @return the result.
+   */
+  public NodeTenantResourceRange toNodeTenantResourceRanges(final TenantResource tenantResource,
+                                                            final NodeRange nr) {
+    final Optional<String> action;
+    switch (nr.status()) {
+      case NodeRange.STATUS_DELETING -> action = Optional.of(NodeTenantResourceRange.ACTION_DELETE);
+      case NodeRange.STATUS_REBALANCING -> action = Optional.of(NodeTenantResourceRange.ACTION_REBALANCE);
+      default -> action = Optional.empty();
+    }
+    return ImmutableNodeTenantResourceRange.builder()
+        .nodeTenantResource(
+            ImmutableNodeTenantResource.builder().uuid(nr.nodeUuid()).tenantResource(tenantResource).build())
+        .action(action)
+        .range(ImmutableMetaData.builder().hash(nr.hash()).build())
+        .build();
   }
 
 }
