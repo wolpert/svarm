@@ -92,10 +92,9 @@ public class NodeTenantTableResource implements ControlTenantResourceService, Je
                                            final String table,
                                            final ResourceMetaData resourceMetaData) {
     LOGGER.trace("createTenantTable({},{},{})", tenantId, table, resourceMetaData);
-    if (!(resourceMetaData instanceof TableMetaData)) {
+    if (!(resourceMetaData instanceof final TableMetaData tableMetaData)) {
       throw new NotAcceptableException("Only tables suppoerted");
     }
-    final TableMetaData tableMetaData = (TableMetaData) resourceMetaData;
     final List<NodeRange> nodeRanges = nodeRangeManager
         .createTenantResource(tenantId, table, tableMetaData.tableDefinition());
     return tenantResourceInfoConverter.from(nodeRanges);
@@ -106,7 +105,7 @@ public class NodeTenantTableResource implements ControlTenantResourceService, Je
   @ExceptionMetered
   @ResponseMetered
   public void deleteResource(final String tenantId, final String table) {
-    LOGGER.trace("deleteTenantTable({},{})", tenantId, table);
-    throw new NotImplementedException(); // TODO: Remove the node uuid from the resource.
+    LOGGER.trace("deleteResource({},{})", tenantId, table);
+    nodeRangeManager.deleteTenantResource(tenantId, table);
   }
 }

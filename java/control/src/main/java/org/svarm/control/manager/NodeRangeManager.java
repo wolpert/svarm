@@ -26,6 +26,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.svarm.common.config.api.ImmutableTenantResource;
 import org.svarm.common.config.api.ImmutableTenantResourceRange;
 import org.svarm.common.config.api.NodeTenantResourceRange;
 import org.svarm.common.config.api.TenantResourceRange;
@@ -132,7 +133,6 @@ public class NodeRangeManager {
 
   /**
    * Finalize the delete of a tenant resource from the cluster.
-   * TODO: Delete the data from etcd!!!
    *
    * @param nodeUuid that has the deletion.
    * @param tenant   the owns the resource.
@@ -251,4 +251,20 @@ public class NodeRangeManager {
     return nodeRange;
   }
 
+  /**
+   * Deletes the tenant resource.
+   *
+   * @param tenantId who owns the resource.
+   * @param resource the resource to delete.
+   */
+  public void deleteTenantResource(final String tenantId,
+                                   final String resource) {
+    final List<NodeRange> nodeRange = nodeRangeDao.nodeRanges(tenantId, resource);
+    nodeRangeDao.useTransaction(t ->
+        nodeRange.forEach(nr ->
+            nodeRangeDao.update(ImmutableNodeRange.copyOf(nr).withStatus(NodeRange.STATUS_DELETING))));
+    nodeConfigurationEngine
+        .readTenantResourceRange(ImmutableTenantResource.builder().tenant(tenantId).resource(resource).build())
+        .ifPresent(nodeConfigurationEngine::delete);
+  }
 }
