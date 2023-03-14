@@ -20,6 +20,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import com.codeheadsystems.metrics.Metrics;
 import com.fasterxml.jackson.databind.JsonNode;
+import feign.FeignException;
 import java.time.Clock;
 import java.util.Map;
 import java.util.Optional;
@@ -91,14 +92,18 @@ public class TableEntryManager {
     // TODO: Verify if a fan out makes sense, considering this could be a high-hit call.
     // TODO: This is bad below... it finds the first result and returns. We should have quorum reads.
     for (NodeRange nodeRange : rangeHashMap.keySet()) {
-      final Optional<EntryInfo> result =
-          nodeTenantTableEntryServiceEngine.get(nodeRange)
-              .readTenantTableEntry(
-                  tenantResource.tenant(),
-                  tenantResource.resource(),
-                  entry);
-      if (result.isPresent()) {
-        return result;
+      try {
+        final Optional<EntryInfo> result =
+            nodeTenantTableEntryServiceEngine.get(nodeRange)
+                .readTenantTableEntry(
+                    tenantResource.tenant(),
+                    tenantResource.resource(),
+                    entry);
+        if (result.isPresent()) {
+          return result;
+        }
+      } catch (FeignException.NotFound e) {
+        LOGGER.trace("Not found for {}", nodeRange);
       }
     }
     return Optional.empty();

@@ -17,12 +17,12 @@
 package org.svarm.endtoend.simple;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.svarm.endtoend.EnvironmentManager.COMPONENT;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import feign.FeignException;
-import io.github.resilience4j.retry.Retry;
 import java.io.IOException;
 import java.util.function.Supplier;
 import org.junit.jupiter.api.AfterEach;
@@ -48,28 +48,38 @@ public class TableTenantLifecycleTest {
   }
 
   @Test
-  void createTable() throws InterruptedException, IOException {
+  void createTable() throws IOException {
     COMPONENT.traceUuidEngine().set("TableTenantLifecycleTest.createTable");
     final TenantResourceInfo info = COMPONENT.controlTenantResourceService().createResource(TENANT, TABLE, META_DATA);
     LOGGER.info("Create table {} ", info);
     COMPONENT.etcdAccessor().getAll("node", "").forEach(LOGGER::info);
     final JsonNode data = COMPONENT.objectMapper().readValue("{\"a\":2,\"something\":\"else\"}", JsonNode.class);
-    boolean ready = false;
-    for (int i = 0; i < 20; i++) {
-      ready = COMPONENT.controlTenantResourceService().readResource(TENANT, TABLE).get().ready();
-      if (ready) {
-        LOGGER.info("Ready in iteration " + i);
-        break;
-      } else {
-        LOGGER.info("Failed ready in iteration " + i);
-        Thread.sleep(200);
-      }
-    }
+    boolean ready = retry(20, () -> COMPONENT.controlTenantResourceService().readResource(TENANT, TABLE).get().ready());
     assertThat(ready).isTrue();
     COMPONENT.proxyService().createTenantTableEntry(TENANT, TABLE, ENTRY, data);
     final JsonNode result = COMPONENT.proxyService().readTenantTableEntry(TENANT, TABLE, ENTRY).get();
     assertThat(result).isEqualTo(data);
     COMPONENT.proxyService().deleteTenantTableEntry(TENANT, TABLE, ENTRY);
+    assertThatExceptionOfType(FeignException.NotFound.class)
+        .isThrownBy(() -> COMPONENT.proxyService().readTenantTableEntry(TENANT, TABLE, ENTRY));
+  }
+
+  boolean retry(final int times,
+                final Supplier<Boolean> thingToRetry) {
+    for (int i = 0; i < times; i++) {
+      if (thingToRetry.get()) {
+        LOGGER.info("Ready in iteration " + i);
+        return true;
+      } else {
+        LOGGER.info("Failed ready in iteration " + i);
+        try {
+          Thread.sleep(200);
+        } catch (InterruptedException e) {
+          throw new RuntimeException(e);
+        }
+      }
+    }
+    return false;
   }
 
 }
