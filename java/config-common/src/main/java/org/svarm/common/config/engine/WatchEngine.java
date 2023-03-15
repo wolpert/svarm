@@ -23,7 +23,9 @@ import com.google.common.annotations.VisibleForTesting;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedInject;
 import io.etcd.jetcd.Watch;
+import io.etcd.jetcd.watch.WatchEvent;
 import io.etcd.jetcd.watch.WatchResponse;
+import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -132,35 +134,35 @@ public class WatchEngine {
       watchResponse.getEvents().forEach(e -> {
         metrics.registry().counter("WatchEngine.watchResponse.event",
             "tag", tag, "type", e.getEventType().name()).increment();
-        try {
-          switch (e.getEventType()) {
-            case PUT:
-              queue.put(ImmutableEvent.builder()
-                  .key(e.getKeyValue().getKey().toString())
-                  .value(e.getKeyValue().getValue().toString())
-                  .type(Event.Type.PUT)
-                  .build());
-              executorService.submit(this::handleEvent);
-              break;
-            case DELETE:
-              queue.put(ImmutableEvent.builder()
-                  .key(e.getKeyValue().getKey().toString())
-                  .value(e.getKeyValue().getValue().toString())
-                  .type(Event.Type.DELETE)
-                  .build());
-              executorService.submit(this::handleEvent);
-              break;
-            default:
-              LOGGER.warn("{}: Unknown event: {}", tag, e);
+        final Optional<Event.Type> eventType = getEventType(e);
+        eventType.ifPresent(type -> {
+          try {
+            queue.put(ImmutableEvent.builder()
+                .key(e.getKeyValue().getKey().toString())
+                .value(e.getKeyValue().getValue().toString())
+                .type(type)
+                .build());
+            executorService.execute(this::handleEvent);
+          } catch (InterruptedException ex) {
+            LOGGER.error("{}: Unable to put event {}", tag, e, ex);
           }
-        } catch (InterruptedException ex) {
-          LOGGER.error("{}: Unable to put event {}", tag, e, ex);
-        }
+        });
       });
       return null;
     });
   }
 
+  private Optional<Event.Type> getEventType(final WatchEvent e) {
+    switch (e.getEventType()) {
+      case PUT:
+        return Optional.of(Event.Type.PUT);
+      case DELETE:
+        return Optional.of(Event.Type.DELETE);
+      default:
+        LOGGER.warn("{}: Unknown event: {}", tag, e);
+        return Optional.empty();
+    }
+  }
 
   @VisibleForTesting
   void error(final Throwable throwable) {

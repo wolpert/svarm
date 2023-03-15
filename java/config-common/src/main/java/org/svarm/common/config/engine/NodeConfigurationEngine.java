@@ -130,6 +130,17 @@ public class NodeConfigurationEngine {
   }
 
   /**
+   * Delete the resource.
+   *
+   * @param resourceRange resource.
+   */
+  public void delete(final TenantResourceRange resourceRange) {
+    LOGGER.trace("delete({})", resourceRange);
+    final String key = String.format("%s/%s", resourceRange.tenant(), resourceRange.resource());
+    accessor.delete(TENANT_NAMESPACE, key);
+  }
+
+  /**
    * Delete of the node tenant resource for the node itself.
    *
    * @param uuid     of the node.
@@ -142,17 +153,6 @@ public class NodeConfigurationEngine {
     LOGGER.trace("deleteNodeTenantResourceRange({},{},{})", uuid, tenant, resource);
     final String key = String.format("%s/id/%s/%s", uuid, tenant, resource);
     accessor.delete(NODE_NAMESPACE, key);
-  }
-
-  /**
-   * Delete the resource.
-   *
-   * @param resourceRange resource.
-   */
-  public void delete(final TenantResourceRange resourceRange) {
-    LOGGER.trace("delete({})", resourceRange);
-    final String key = String.format("%s/%s", resourceRange.tenant(), resourceRange.resource());
-    accessor.delete(TENANT_NAMESPACE, key);
   }
 
   /**
