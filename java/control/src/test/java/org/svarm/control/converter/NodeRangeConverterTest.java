@@ -38,7 +38,7 @@ class NodeRangeConverterTest {
         .hasFieldOrPropertyWithValue("tenant", TENANT)
         .hasFieldOrPropertyWithValue("resource", TABLE);
     assertThat(nodeTenantResourceRange)
-        .extracting("range")
+        .extracting("metaData")
         .hasFieldOrPropertyWithValue("hash", Integer.MIN_VALUE);
   }
 

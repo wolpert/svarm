@@ -62,6 +62,17 @@ public class TableTenantLifecycleTest {
     COMPONENT.proxyService().deleteTenantTableEntry(TENANT, TABLE, ENTRY);
     assertThatExceptionOfType(FeignException.NotFound.class)
         .isThrownBy(() -> COMPONENT.proxyService().readTenantTableEntry(TENANT, TABLE, ENTRY));
+    COMPONENT.controlTenantResourceService().deleteResource(TENANT, TABLE);
+    final boolean deleted = retry(20, () -> {
+      try {
+        return COMPONENT.controlTenantResourceService().readResource(TENANT, TABLE).isEmpty();
+      } catch (FeignException.NotFound e) {
+        return true;
+      }
+    });
+    assertThat(deleted)
+        .as("Asserting that the table was deleted")
+        .isTrue();
   }
 
   boolean retry(final int times,

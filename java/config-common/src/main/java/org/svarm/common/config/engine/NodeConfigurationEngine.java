@@ -85,7 +85,7 @@ public class NodeConfigurationEngine {
     final TenantResource tenantResource = nodeTenantResource.tenantResource();
     final String key = String.format("%s/id/%s/%s",
         nodeTenantResource.uuid(), tenantResource.tenant(), tenantResource.resource());
-    final String value = jsonEngine.writeValue(resourceRange.range());
+    final String value = jsonEngine.writeValue(resourceRange.metaData());
     LOGGER.trace("put {} {}", key, value);
     accessor.put(NODE_NAMESPACE, key, value);
   }
@@ -101,7 +101,7 @@ public class NodeConfigurationEngine {
       final NodeTenantResource nodeTenantResource = resourceRange.nodeTenantResource();
       final TenantResource tenantResource = nodeTenantResource.tenantResource();
       return String.format("%s/id/%s/%s", nodeTenantResource.uuid(), tenantResource.tenant(), tenantResource.resource());
-    }, resourceRange -> jsonEngine.writeValue(resourceRange.range())));
+    }, resourceRange -> jsonEngine.writeValue(resourceRange.metaData())));
     accessor.putAll(NODE_NAMESPACE, resourceMap);
   }
 

@@ -17,8 +17,8 @@
 package org.svarm.node.manager;
 
 import static org.slf4j.LoggerFactory.getLogger;
-import static org.svarm.common.config.api.NodeTenantResourceRange.ACTION_DELETE;
-import static org.svarm.common.config.api.NodeTenantResourceRange.ACTION_REBALANCE;
+import static org.svarm.common.config.api.MetaData.ACTION_DELETE;
+import static org.svarm.common.config.api.MetaData.ACTION_REBALANCE;
 
 import com.google.common.annotations.VisibleForTesting;
 import io.dropwizard.lifecycle.Managed;
@@ -90,7 +90,7 @@ public class ControlPlaneWatcherManager implements Managed {
   private void handlePutEvent(final String key, final String value) {
     LOGGER.trace("handlePutEvent({},{})", key, value);
     final NodeTenantResourceRange range = nodeTenantResourceRangeConverter.fromKeyValue(key, value);
-    range.action().ifPresentOrElse(action -> {
+    range.metaData().action().ifPresentOrElse(action -> {
       switch (action) {
         case (ACTION_DELETE) -> handleDelete(range);
         case (ACTION_REBALANCE) -> LOGGER.warn("REBALACING not implemented."); // TODO: Implement.

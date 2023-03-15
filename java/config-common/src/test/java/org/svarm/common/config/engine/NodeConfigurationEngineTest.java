@@ -65,7 +65,7 @@ class NodeConfigurationEngineTest {
     return ImmutableNodeTenantResourceRange.builder()
         .nodeTenantResource(ImmutableNodeTenantResource.builder().uuid(node)
             .tenantResource(ImmutableTenantResource.builder().tenant(uuid()).resource(uuid()).build()).build())
-        .range(ImmutableMetaData.builder().hash(random.nextInt()).build())
+        .metaData(ImmutableMetaData.builder().hash(random.nextInt()).build())
         .build();
   }
 

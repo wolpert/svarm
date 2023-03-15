@@ -26,8 +26,11 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.svarm.common.config.api.ImmutableMetaData;
+import org.svarm.common.config.api.ImmutableNodeTenantResourceRange;
 import org.svarm.common.config.api.ImmutableTenantResource;
 import org.svarm.common.config.api.ImmutableTenantResourceRange;
+import org.svarm.common.config.api.MetaData;
 import org.svarm.common.config.api.NodeTenantResourceRange;
 import org.svarm.common.config.api.TenantResourceRange;
 import org.svarm.common.config.engine.NodeConfigurationEngine;
@@ -223,9 +226,9 @@ public class NodeRangeManager {
     LOGGER.info("createTenantResource({},{})", tenant, resource);
     return metrics.time("NodeRangeManager.resources", () -> {
       final List<NodeRange> nodeRange = getOrCreateNodeRangeList(tenant, resource, tableDefinition);
-      final List<NodeTenantResourceRange> NodeTenantResourceRanges = nodeRangeConverter
+      final List<NodeTenantResourceRange> nodeTenantResourceRanges = nodeRangeConverter
           .toNodeTenantResourceRanges(tenant, resource, nodeRange);
-      nodeConfigurationEngine.write(NodeTenantResourceRanges);
+      nodeConfigurationEngine.write(nodeTenantResourceRanges);
       LOGGER.info("Create for now resource, results: {},{},{}", tenant, resource, nodeRange);
       return nodeRange;
     });
@@ -263,6 +266,12 @@ public class NodeRangeManager {
     nodeRangeDao.useTransaction(t ->
         nodeRange.forEach(nr ->
             nodeRangeDao.update(ImmutableNodeRange.copyOf(nr).withStatus(NodeRange.STATUS_DELETING))));
+    final List<NodeTenantResourceRange> nodeTenantResourceRanges = nodeRangeConverter
+        .toNodeTenantResourceRanges(tenantId, resource, nodeRange).stream().map(range -> {
+          final MetaData updatedMetaData = ImmutableMetaData.copyOf(range.metaData()).withAction(MetaData.ACTION_DELETE);
+          return ImmutableNodeTenantResourceRange.copyOf(range).withMetaData(updatedMetaData);
+        }).collect(Collectors.toList());
+    nodeConfigurationEngine.write(nodeTenantResourceRanges);
     nodeConfigurationEngine
         .readTenantResourceRange(ImmutableTenantResource.builder().tenant(tenantId).resource(resource).build())
         .ifPresent(nodeConfigurationEngine::delete);

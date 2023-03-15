@@ -133,7 +133,7 @@ public class TenantTableManager {
       tenantTableJdbiManager.ensureDataStoreCreated(tenantTable);
       return tenantTable;
     } catch (RuntimeException re) {
-      LOGGER.error("Unable to create data source for {}, destroying", tenantTable);
+      LOGGER.error("Unable to create data source for {}, destroying", tenantTable, re);
       dao.delete(identifier.tenantId(), identifier.tableName());
       throw re;
     }

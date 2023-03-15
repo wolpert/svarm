@@ -5,11 +5,10 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.svarm.common.config.api.NodeTenantResourceRange.ACTION_DELETE;
+import static org.svarm.common.config.api.MetaData.ACTION_DELETE;
 
 import java.util.Optional;
 import java.util.function.Consumer;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,6 +16,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.svarm.common.config.api.MetaData;
 import org.svarm.common.config.api.NodeTenantResource;
 import org.svarm.common.config.api.NodeTenantResourceRange;
 import org.svarm.common.config.api.TenantResource;
@@ -51,6 +51,7 @@ class ControlPlaneWatcherManagerTest {
 
   @Mock private TenantResource tenantResource;
   @Mock private NodeTenantResourceRange nodeTenantResourceRange;
+  @Mock private MetaData metaData;
   @Mock private NodeTenantResource nodeTenantResource;
   @Mock private TenantTable tenantTable;
 
@@ -72,6 +73,7 @@ class ControlPlaneWatcherManagerTest {
     when(nodeTenantResourceRangeConverter.fromKeyValue(KEY, VALUE)).thenReturn(nodeTenantResourceRange);
     // no action.
     when(nodeTenantResourceRange.nodeTenantResource()).thenReturn(nodeTenantResource);
+    when(nodeTenantResourceRange.metaData()).thenReturn(metaData);
     when(nodeTenantResource.tenantResource()).thenReturn(tenantResource);
     when(tenantResource.tenant()).thenReturn(TENANT);
     when(tenantResource.resource()).thenReturn(TABLE);
@@ -87,7 +89,8 @@ class ControlPlaneWatcherManagerTest {
     when(event.key()).thenReturn(KEY);
     when(event.value()).thenReturn(Optional.of(VALUE));
     when(nodeTenantResourceRangeConverter.fromKeyValue(KEY, VALUE)).thenReturn(nodeTenantResourceRange);
-    when(nodeTenantResourceRange.action()).thenReturn(Optional.of(ACTION_DELETE));
+    when(nodeTenantResourceRange.metaData()).thenReturn(metaData);
+    when(metaData.action()).thenReturn(Optional.of(ACTION_DELETE));
     when(nodeTenantResourceRange.nodeTenantResource()).thenReturn(nodeTenantResource);
     when(nodeTenantResource.tenantResource()).thenReturn(tenantResource);
     when(tenantResource.tenant()).thenReturn(TENANT);
@@ -104,7 +107,8 @@ class ControlPlaneWatcherManagerTest {
     when(event.key()).thenReturn(KEY);
     when(event.value()).thenReturn(Optional.of(VALUE));
     when(nodeTenantResourceRangeConverter.fromKeyValue(KEY, VALUE)).thenReturn(nodeTenantResourceRange);
-    when(nodeTenantResourceRange.action()).thenReturn(Optional.of(ACTION_DELETE));
+    when(nodeTenantResourceRange.metaData()).thenReturn(metaData);
+    when(metaData.action()).thenReturn(Optional.of(ACTION_DELETE));
     when(nodeTenantResourceRange.nodeTenantResource()).thenReturn(nodeTenantResource);
     when(nodeTenantResource.tenantResource()).thenReturn(tenantResource);
     when(tenantResource.tenant()).thenReturn(TENANT);

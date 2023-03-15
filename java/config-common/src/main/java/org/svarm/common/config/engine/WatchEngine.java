@@ -73,7 +73,6 @@ public class WatchEngine {
     LOGGER.info("WatchEngine({},{},{})", namespace, key, eventConsumer);
     executorService = Executors.newSingleThreadExecutor();
     queue = new LinkedBlockingQueue<>();
-    executorService.submit(this::handleEvent);
     closed = new AtomicBoolean(false);
     watcher = accessor.watch(
         namespace,
@@ -141,6 +140,7 @@ public class WatchEngine {
                   .value(e.getKeyValue().getValue().toString())
                   .type(Event.Type.PUT)
                   .build());
+              executorService.submit(this::handleEvent);
               break;
             case DELETE:
               queue.put(ImmutableEvent.builder()
@@ -148,6 +148,7 @@ public class WatchEngine {
                   .value(e.getKeyValue().getValue().toString())
                   .type(Event.Type.DELETE)
                   .build());
+              executorService.submit(this::handleEvent);
               break;
             default:
               LOGGER.warn("{}: Unknown event: {}", tag, e);

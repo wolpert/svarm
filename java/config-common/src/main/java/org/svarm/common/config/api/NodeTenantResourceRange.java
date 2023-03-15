@@ -20,7 +20,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import java.util.Optional;
 import org.immutables.value.Value;
 
 /**
@@ -31,15 +30,6 @@ import org.immutables.value.Value;
 @JsonDeserialize(builder = ImmutableNodeTenantResourceRange.Builder.class)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public interface NodeTenantResourceRange {
-
-  /**
-   * The entity needs to be deleted.
-   */
-  String ACTION_DELETE = "delete";
-  /**
-   * The entity needs to be rebalanced.
-   */
-  String ACTION_REBALANCE = "rebalance";
 
   /**
    * The node tenant resource.
@@ -54,15 +44,7 @@ public interface NodeTenantResourceRange {
    *
    * @return value.
    */
-  @JsonProperty("range")
-  MetaData range();
-
-  /**
-   * What actions are available. If empty, we just create the device.
-   *
-   * @return actions.
-   */
-  @JsonProperty("action")
-  Optional<String> action();
+  @JsonProperty("metaData")
+  MetaData metaData();
 
 }

@@ -87,7 +87,7 @@ public class NodeTenantResourceRangeConverter {
         .uuid(tokens[1])
         .build();
     return ImmutableNodeTenantResourceRange.builder()
-        .range(metaData)
+        .metaData(metaData)
         .nodeTenantResource(nodeTenantResource)
         .build();
   }

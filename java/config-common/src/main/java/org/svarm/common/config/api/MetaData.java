@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import java.util.Optional;
 import org.immutables.value.Value;
 
 /**
@@ -32,11 +33,28 @@ import org.immutables.value.Value;
 public interface MetaData {
 
   /**
+   * The entity needs to be deleted.
+   */
+  String ACTION_DELETE = "delete";
+  /**
+   * The entity needs to be rebalanced.
+   */
+  String ACTION_REBALANCE = "rebalance";
+
+  /**
    * The low value of the hash range, inclusive.
    *
    * @return value.
    */
   @JsonProperty("hash")
   Integer hash();
+
+  /**
+   * What actions are available. If empty, we just create the device.
+   *
+   * @return actions.
+   */
+  @JsonProperty("action")
+  Optional<String> action();
 
 }

@@ -12,6 +12,7 @@ import org.svarm.common.config.api.ImmutableMetaData;
 import org.svarm.common.config.api.ImmutableNodeTenantResource;
 import org.svarm.common.config.api.ImmutableNodeTenantResourceRange;
 import org.svarm.common.config.api.ImmutableTenantResource;
+import org.svarm.common.config.api.MetaData;
 import org.svarm.common.config.api.NodeTenantResourceRange;
 import org.svarm.common.config.api.TenantResource;
 import org.svarm.control.model.NodeRange;
@@ -59,15 +60,14 @@ public class NodeRangeConverter {
                                                             final NodeRange nr) {
     final Optional<String> action;
     switch (nr.status()) {
-      case NodeRange.STATUS_DELETING -> action = Optional.of(NodeTenantResourceRange.ACTION_DELETE);
-      case NodeRange.STATUS_REBALANCING -> action = Optional.of(NodeTenantResourceRange.ACTION_REBALANCE);
+      case NodeRange.STATUS_DELETING -> action = Optional.of(MetaData.ACTION_DELETE);
+      case NodeRange.STATUS_REBALANCING -> action = Optional.of(MetaData.ACTION_REBALANCE);
       default -> action = Optional.empty();
     }
     return ImmutableNodeTenantResourceRange.builder()
         .nodeTenantResource(
             ImmutableNodeTenantResource.builder().uuid(nr.nodeUuid()).tenantResource(tenantResource).build())
-        .action(action)
-        .range(ImmutableMetaData.builder().hash(nr.hash()).build())
+        .metaData(ImmutableMetaData.builder().hash(nr.hash()).action(action).build())
         .build();
   }
 
