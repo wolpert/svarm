@@ -22,7 +22,9 @@ import io.dropwizard.core.Application;
 import io.dropwizard.core.setup.Environment;
 import io.dropwizard.jersey.setup.JerseyEnvironment;
 import io.dropwizard.lifecycle.Managed;
+import java.security.Security;
 import java.util.UUID;
+import org.conscrypt.OpenSSLProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.svarm.common.engine.TraceUuidEngine;
@@ -34,6 +36,10 @@ import org.svarm.server.module.DropWizardModule;
  */
 public abstract class Server<T extends ServerConfiguration> extends Application<T> {
   private static final Logger LOGGER = LoggerFactory.getLogger(Server.class);
+
+  static {
+    Security.insertProviderAt(new OpenSSLProvider(), 1);
+  }
 
   /**
    * Default constructor.

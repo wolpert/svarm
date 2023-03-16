@@ -18,6 +18,7 @@ configurations {
 dependencies {
     api project(":config-common")
     implementation project(":common")
+    api libs.conscrypt.openjdk.uber
 
     implementation libs.dropwizard4.auth
     implementation libs.dropwizard4.core
