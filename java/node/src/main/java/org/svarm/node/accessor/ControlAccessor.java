@@ -85,7 +85,7 @@ public class ControlAccessor {
     LOGGER.trace("enable({})", uuid);
     metrics.time("ControlAccessor.enable", () -> {
       final NodeInfo info = controlNodeService.enable(uuid);
-      LOGGER.trace("result:{}", info);
+      LOGGER.trace("enable result:{}", info);
       return null;
     });
   }
@@ -101,7 +101,7 @@ public class ControlAccessor {
     LOGGER.trace("enable({},{})", uuid, identifier);
     metrics.time("ControlAccessor.enable", () -> {
       final NodeInfo info = controlNodeService.enable(uuid, identifier.tenantId(), identifier.tableName());
-      LOGGER.trace("result:{}", info);
+      LOGGER.info("enable result:{},{}", identifier, info);
       return null;
     });
   }
@@ -149,7 +149,7 @@ public class ControlAccessor {
       final NodeMetaData metaData = ImmutableNodeMetaData.builder()
           .host(host).port(port).build();
       final NodeInfo info = controlNodeService.register(uuid, metaData);
-      LOGGER.trace("result:{}", info);
+      LOGGER.info("register result:{}", info);
       return null;
     });
   }

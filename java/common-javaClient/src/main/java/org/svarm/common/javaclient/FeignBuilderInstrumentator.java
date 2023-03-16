@@ -4,6 +4,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import feign.Feign;
+import feign.http2client.Http2Client;
 import feign.jackson.JacksonDecoder;
 import feign.jackson.JacksonEncoder;
 import feign.jaxrs.JakartaContract;
@@ -30,6 +31,7 @@ public class FeignBuilderInstrumentator {
   private final JakartaContract jakartaContract;
   private final JacksonDecoder jacksonDecoder;
   private final JacksonEncoder jacksonEncoder;
+  private final Http2Client http2Client;
 
   /**
    * Constructor.
@@ -47,6 +49,7 @@ public class FeignBuilderInstrumentator {
     this.jakartaContract = new JakartaContract();
     this.jacksonDecoder = new JacksonDecoder(objectMapper);
     this.jacksonEncoder = new JacksonEncoder(objectMapper);
+    this.http2Client = new Http2Client();
     this.traceInterceptor = traceInterceptor;
     LOGGER.info("FeignBuilderInstrumentator({},{},{})", traceInterceptor, meterRegistry, objectMapper);
   }
@@ -62,6 +65,7 @@ public class FeignBuilderInstrumentator {
     return builder
         .requestInterceptor(traceInterceptor)
         .logger(slf4jLogger)
+        .client(http2Client)
         .contract(jakartaContract)
         .addCapability(micrometerCapability)
         .decoder(jacksonDecoder)
