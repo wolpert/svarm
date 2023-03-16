@@ -42,8 +42,6 @@ public class WatchEngine {
 
   private static final Logger LOGGER = getLogger(WatchEngine.class);
 
-  private final String namespace;
-  private final String key;
   private final Consumer<Event> eventConsumer;
   private final Metrics metrics;
   private final Watch.Watcher watcher;
@@ -69,8 +67,6 @@ public class WatchEngine {
                      @Assisted final Consumer<Event> eventConsumer) {
     this.metrics = metrics;
     this.tag = namespace + "/" + key;
-    this.namespace = namespace;
-    this.key = key;
     this.eventConsumer = eventConsumer;
     LOGGER.info("WatchEngine({},{},{})", namespace, key, eventConsumer);
     executorService = Executors.newSingleThreadExecutor();
@@ -82,16 +78,10 @@ public class WatchEngine {
         Watch.listener(this::watchResponse, this::error, this::complete));
   }
 
-  private void handleEvent() {
-    LOGGER.trace("{}:handleEvent()", tag);
+  private void handleEvent(final Event event) {
+    LOGGER.trace("{}:handleEvent(): {}", tag, event);
     metrics.time("WatchEngine.handleEvent", () -> {
-      try {
-        final Event event = queue.take();
-        LOGGER.trace("{}:handleEvent(): {}", tag, event);
-        eventConsumer.accept(event);
-      } catch (InterruptedException e) {
-        LOGGER.warn("{}:handleEvent() : Interrupted", tag);
-      }
+      eventConsumer.accept(event);
       return null;
     });
   }
@@ -135,17 +125,15 @@ public class WatchEngine {
         metrics.registry().counter("WatchEngine.watchResponse.event",
             "tag", tag, "type", e.getEventType().name()).increment();
         final Optional<Event.Type> eventType = getEventType(e);
-        eventType.ifPresent(type -> {
-          try {
-            queue.put(ImmutableEvent.builder()
-                .key(e.getKeyValue().getKey().toString())
-                .value(e.getKeyValue().getValue().toString())
-                .type(type)
-                .build());
-            executorService.execute(this::handleEvent);
-          } catch (InterruptedException ex) {
-            LOGGER.error("{}: Unable to put event {}", tag, e, ex);
-          }
+        eventType.ifPresentOrElse(type -> {
+          LOGGER.info("Scheduling event: {}", e);
+          executorService.execute(() -> handleEvent(ImmutableEvent.builder()
+              .key(e.getKeyValue().getKey().toString())
+              .value(e.getKeyValue().getValue().toString())
+              .type(type)
+              .build()));
+        }, () -> {
+          LOGGER.error("Unknown type of event: {}", e);
         });
       });
       return null;
