@@ -39,8 +39,9 @@ dependencies {
 
     // from the BOM of dropwizard... need to pull this fro the dropwizard4-dependencies bom at some point
     // api(platform(libs.dropwizard4.dependencies))
+    // api 'org.eclipse.jetty:jetty-alpn-conscrypt-server'
+    // We want the result of the above to be this, but it's not working
     api 'org.eclipse.jetty:jetty-alpn-conscrypt-server:11.0.13'
-    //api 'org.eclipse.jetty:jetty-alpn-conscrypt-server'
 
 }
 

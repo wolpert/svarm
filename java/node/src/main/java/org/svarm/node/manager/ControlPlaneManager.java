@@ -24,6 +24,13 @@ import org.svarm.node.model.TenantTableIdentifier;
 public interface ControlPlaneManager {
 
   /**
+   * Ensures we are registered to the control plane.
+   *
+   * @return boolean if we are.
+   */
+  boolean verifyRegistration();
+
+  /**
    * Returns the key base64 encoded for this node.
    *
    * @return the key.

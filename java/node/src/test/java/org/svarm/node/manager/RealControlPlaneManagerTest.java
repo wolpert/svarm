@@ -83,7 +83,7 @@ class RealControlPlaneManagerTest extends BaseMetricTest {
 
   @Test
   void keyForNode_registered() {
-    when(controlAccessor.status(UUID)).thenReturn(Optional.empty()).thenReturn(Optional.of(NodeInfo.Status.DISABLED.name())).thenReturn(Optional.of(NodeInfo.Status.ENABLED.name()));
+    when(controlAccessor.status(UUID)).thenReturn(Optional.empty()).thenReturn(Optional.of(NodeInfo.Status.ENABLED.name())).thenReturn(Optional.of(NodeInfo.Status.ENABLED.name()));
     when(controlAccessor.keyForNode(UUID)).thenReturn(KEY);
     assertThat(manager.keyForNode()).isEqualTo(KEY);
     verify(controlAccessor).enable(stringArgumentCaptor.capture());

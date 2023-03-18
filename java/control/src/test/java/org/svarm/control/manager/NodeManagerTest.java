@@ -81,10 +81,9 @@ class NodeManagerTest extends BaseMetricTest {
 
   @Test
   public void create_found() {
-    when(node.status()).thenReturn(STATUS);
     when(nodeDao.read(UUID)).thenReturn(node);
-    assertThatExceptionOfType(IllegalArgumentException.class)
-        .isThrownBy(() -> nodeManager.create(UUID, nodeMetaData));
+    final Node result = nodeManager.create(UUID, nodeMetaData);
+    assertThat(result).isEqualTo(node);
   }
 
   @Test

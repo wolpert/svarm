@@ -85,12 +85,27 @@ public class RealControlPlaneManager implements ControlPlaneManager {
   }
 
   @Override
+  public boolean verifyRegistration() {
+    final Optional<String> currentStatus = controlAccessor.status(nodeUuid);
+    if (currentStatus.isPresent()) {
+      if (NodeInfo.Status.ENABLED.name().equals(currentStatus.get())) {
+        return true;
+      } // we are enabled. If it was not enabled, we will force enablement below.
+    } else { // not present, better register.
+      controlAccessor.register(nodeUuid, host, port);
+    }
+    controlAccessor.enable(nodeUuid);
+    final String newStatus = controlAccessor.status(nodeUuid)
+        .orElseThrow(() -> new IllegalStateException("Unable to get status"));
+    return (NodeInfo.Status.ENABLED.name().equals(newStatus));
+  }
+
+  @Override
   public String keyForNode() {
     LOGGER.trace("keyForNode()");
     return metrics.time("RealControlPlaneManager.keyForNode", () -> {
-      final String status = getStatus();
-      if (!NodeInfo.Status.ENABLED.equals(status)) {
-        controlAccessor.enable(nodeUuid);
+      if (!verifyRegistration()) {
+        throw new IllegalStateException("Unable to verify registration");
       }
       return controlAccessor.keyForNode(nodeUuid);
     });
@@ -121,15 +136,5 @@ public class RealControlPlaneManager implements ControlPlaneManager {
           controlAccessor.enable(nodeUuid, identifier);
           return null;
         });
-  }
-
-  private String getStatus() {
-    LOGGER.trace("getStatus()");
-    final Optional<String> status = controlAccessor.status(nodeUuid);
-    if (status.isPresent()) {
-      return status.get();
-    }
-    controlAccessor.register(nodeUuid, host, port);
-    return controlAccessor.status(nodeUuid).orElseThrow(() -> new IllegalStateException("Unable to register"));
   }
 }

@@ -55,6 +55,11 @@ public class FakeControlPlaneManager implements ControlPlaneManager {
     LOGGER.warn("FAKE KEY: {}", key);
   }
 
+  @Override
+  public boolean verifyRegistration() {
+    return true;
+  }
+
   /**
    * Fake keyForNode.
    *

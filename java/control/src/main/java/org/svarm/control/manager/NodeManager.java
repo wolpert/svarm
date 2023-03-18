@@ -46,10 +46,10 @@ public class NodeManager {
   /**
    * Constructor.
    *
-   * @param nodeDao                 for node mgmt.
-   * @param keyManager              for key mgmt.
-   * @param clock                   the clock.
-   * @param metrics                 for metrics.
+   * @param nodeDao    for node mgmt.
+   * @param keyManager for key mgmt.
+   * @param clock      the clock.
+   * @param metrics    for metrics.
    */
   @Inject
   public NodeManager(final NodeDao nodeDao,
@@ -73,9 +73,9 @@ public class NodeManager {
   public Node create(final String uuid, final NodeMetaData metaData) {
     LOGGER.trace("create({}{})", uuid, metaData);
     return metrics.time("NodeManager.create", () -> {
-      final Optional<String> currentStatus = status(uuid);
-      if (currentStatus.isPresent()) {
-        throw new IllegalArgumentException("Node already exists:" + uuid);
+      final Node currentNode = nodeDao.read(uuid);
+      if (currentNode != null) {
+        return currentNode; // idempotent
       }
       final Node node = ImmutableNode.builder()
           .uuid(uuid)
@@ -154,7 +154,7 @@ public class NodeManager {
    * @return the resulting node.
    */
   public Node disable(final String uuid) {
-    LOGGER.trace("enable({})", uuid);
+    LOGGER.trace("disable({})", uuid);
     return metrics.time("NodeManager.disable", () -> {
       final Node currentNode = nodeDao.read(uuid);
       if (currentNode == null) {
@@ -191,12 +191,13 @@ public class NodeManager {
     return metrics.time("NodeManager.read", () -> {
       final Node node = nodeDao.read(uuid);
       if (node == null) {
-        LOGGER.trace("Not found: {}", uuid);
+        LOGGER.trace("read({}): Not found", uuid);
         return Optional.empty();
       } else if (NodeInfo.Status.BANNED.name().equals(node.status())) {
-        LOGGER.warn("Banned: {}", uuid);
+        LOGGER.warn("read({}): Banned", uuid);
         return Optional.empty();
       } else {
+        LOGGER.trace("found({}): {}", uuid, node);
         return Optional.of(node);
       }
     });
@@ -210,14 +211,14 @@ public class NodeManager {
    * @return the status.
    */
   public Optional<String> status(final String uuid) {
-    LOGGER.trace("status({}): ", uuid);
+    LOGGER.trace("status({})", uuid);
     return metrics.time("NodeManager.status", () -> {
       final Node node = nodeDao.read(uuid);
       if (node == null) {
         LOGGER.trace("status({}): null", uuid);
         return Optional.empty();
       } else {
-        LOGGER.trace("status({}): {}}", uuid, node.status());
+        LOGGER.trace("status({}): {}:{}", uuid, node.status(), node);
         return Optional.of(node.status());
       }
     });
