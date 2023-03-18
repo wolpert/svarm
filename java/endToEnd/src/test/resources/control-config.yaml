@@ -3,6 +3,7 @@ logging:
   loggers:
     com.codeheadsystems: DEBUG
     org.svarm: TRACE
+    org.jdbi: TRACE
     com.mchange.v2.c3p0: WARN
     org.eclipse.jetty.server.HttpChannel: ERROR
   appenders:

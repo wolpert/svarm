@@ -71,10 +71,11 @@ public class NodeManager {
    * @return status of the node.
    */
   public Node create(final String uuid, final NodeMetaData metaData) {
-    LOGGER.trace("create({}{})", uuid, metaData);
+    LOGGER.trace("create({},{})", uuid, metaData);
     return metrics.time("NodeManager.create", () -> {
       final Node currentNode = nodeDao.read(uuid);
       if (currentNode != null) {
+        LOGGER.debug("create({}): Node already created: {}", uuid, currentNode);
         return currentNode; // idempotent
       }
       final Node node = ImmutableNode.builder()
@@ -85,6 +86,7 @@ public class NodeManager {
           .status(NodeInfo.Status.DISABLED.name())
           .build();
       nodeDao.insert(node);
+      LOGGER.debug("create({}): Node created: {}", uuid, node);
       return node;
     });
   }
@@ -100,7 +102,7 @@ public class NodeManager {
     return metrics.time("NodeMetrics.key.uuid", () -> status(uuid)
         .filter(this::enabled)
         .map(s -> keyManager.getNodeKey(uuid))
-        .orElseThrow(() -> new IllegalArgumentException("Node not found or not enabled:" + uuid)));
+        .orElseThrow(() -> new IllegalArgumentException("NodeKey: Node not found or not enabled:" + uuid)));
   }
 
   /**
@@ -115,7 +117,7 @@ public class NodeManager {
     return metrics.time("NodeMetrics.key.tenant", () -> status(uuid)
         .filter(this::enabled)
         .map(s -> keyManager.getNodeKey(uuid, "tenant:" + tenant))
-        .orElseThrow(() -> new IllegalArgumentException("Node not found or not enabled:" + uuid)));
+        .orElseThrow(() -> new IllegalArgumentException("NodeTenantKey: Node not found or not enabled:" + uuid)));
   }
 
   /**
@@ -129,19 +131,20 @@ public class NodeManager {
     return metrics.time("NodeManager.enable", () -> {
       final Node currentNode = nodeDao.read(uuid);
       if (currentNode == null) {
-        LOGGER.warn("Node not found: {}", uuid);
+        LOGGER.warn("enable({}): Node not found", uuid);
         throw new IllegalArgumentException("No such node");
       } else if (NodeInfo.Status.BANNED.name().equals(currentNode.status())) {
-        LOGGER.warn("Baned node: {}", uuid);
+        LOGGER.warn("enable({}): Baned node: {}", uuid, currentNode);
         throw new IllegalArgumentException("Banned node:" + uuid);
       } else if (!NodeInfo.Status.ENABLED.name().equals(currentNode.status())) {
-        LOGGER.trace("Enabling: {}", uuid);
+        LOGGER.debug("enable({}): Enabling: {}", uuid, currentNode);
         final Node newNode = ImmutableNode.copyOf(currentNode).withStatus(NodeInfo.Status.ENABLED.name())
             .withUpdateDate(clock.instant());
         nodeDao.update(newNode);
+        LOGGER.debug("enable({}): returning: {}", uuid, newNode);
         return newNode;
       } else {
-        LOGGER.trace("Already enabled: {}", uuid);
+        LOGGER.debug("enable({}): Already enabled: {}", uuid, currentNode);
         return currentNode;
       }
     });
@@ -158,19 +161,20 @@ public class NodeManager {
     return metrics.time("NodeManager.disable", () -> {
       final Node currentNode = nodeDao.read(uuid);
       if (currentNode == null) {
-        LOGGER.warn("Node not found: {}", uuid);
+        LOGGER.warn("disable({}): Node not found", uuid);
         throw new IllegalArgumentException("No such node");
       } else if (NodeInfo.Status.BANNED.name().equals(currentNode.status())) {
-        LOGGER.warn("Baned node: {}", uuid);
+        LOGGER.warn("disable({}): Baned node: {}", uuid, currentNode);
         throw new IllegalArgumentException("Banned node:" + uuid);
       } else if (!NodeInfo.Status.DISABLED.name().equals(currentNode.status())) {
-        LOGGER.trace("Disabling: {}", uuid);
+        LOGGER.debug("disable({}): Disabling: {}", uuid, currentNode);
         final Node newNode = ImmutableNode.copyOf(currentNode).withStatus(NodeInfo.Status.DISABLED.name())
             .withUpdateDate(clock.instant());
         nodeDao.update(newNode);
+        LOGGER.debug("disable({}): results: {}", uuid, newNode);
         return newNode;
       } else {
-        LOGGER.trace("Already disabled: {}", uuid);
+        LOGGER.debug("disable({}): Already disabled: {}", uuid, currentNode);
         return currentNode;
       }
     });
@@ -191,13 +195,13 @@ public class NodeManager {
     return metrics.time("NodeManager.read", () -> {
       final Node node = nodeDao.read(uuid);
       if (node == null) {
-        LOGGER.trace("read({}): Not found", uuid);
+        LOGGER.debug("read({}): Not found", uuid);
         return Optional.empty();
       } else if (NodeInfo.Status.BANNED.name().equals(node.status())) {
-        LOGGER.warn("read({}): Banned", uuid);
+        LOGGER.warn("read({}): BannedL {}", uuid, node);
         return Optional.empty();
       } else {
-        LOGGER.trace("found({}): {}", uuid, node);
+        LOGGER.debug("read({}): found: {}", uuid, node);
         return Optional.of(node);
       }
     });
@@ -215,10 +219,10 @@ public class NodeManager {
     return metrics.time("NodeManager.status", () -> {
       final Node node = nodeDao.read(uuid);
       if (node == null) {
-        LOGGER.trace("status({}): null", uuid);
+        LOGGER.debug("status({}): null", uuid);
         return Optional.empty();
       } else {
-        LOGGER.trace("status({}): {}:{}", uuid, node.status(), node);
+        LOGGER.debug("status({}): {}:{}", uuid, node.status(), node);
         return Optional.of(node.status());
       }
     });

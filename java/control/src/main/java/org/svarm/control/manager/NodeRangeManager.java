@@ -116,12 +116,12 @@ public class NodeRangeManager {
                             final String tenant,
                             final String resource,
                             final boolean ready) {
-    LOGGER.trace("setReady({},{},{},{})", nodeUuid, tenant, ready, ready);
+    LOGGER.info("setReady({},{},{},{})", nodeUuid, tenant, ready, ready);
     return metrics.time("NodeRangeManager.resources", () -> {
       final NodeRange nodeRange = getNodeRange(nodeUuid, tenant, resource)
           .orElseThrow(() -> new NotFoundException("No resource for node"));
       if (nodeRange.ready().equals(ready)) {
-        LOGGER.trace("Ready already set: {}:{}", ready, nodeRange);
+        LOGGER.info("Ready already set: {}:{}", ready, nodeRange);
         return nodeRange;
       }
       final NodeRange updated = ImmutableNodeRange.copyOf(nodeRange).withReady(ready);
@@ -144,7 +144,7 @@ public class NodeRangeManager {
   public void finalizeDelete(final String nodeUuid,
                              final String tenant,
                              final String resource) {
-    LOGGER.trace("finalizeDelete({},{},{})", nodeUuid, tenant, resource);
+    LOGGER.info("finalizeDelete({},{},{})", nodeUuid, tenant, resource);
     getNodeRange(nodeUuid, tenant, resource)
         .ifPresentOrElse(nodeRange -> {
           if (nodeRange.status().equals(NodeRange.STATUS_DELETING)) {
@@ -197,7 +197,7 @@ public class NodeRangeManager {
    */
   public void updateTenantResourceConfiguration(final String tenant,
                                                 final String resource) {
-    LOGGER.trace("updateConfiguration({},{})", tenant, resource);
+    LOGGER.info("updateConfiguration({},{})", tenant, resource);
     metrics.time("NodeRangeManager.updateConfiguration", () -> {
       final List<org.svarm.common.config.api.NodeRange> nodeRanges =
           nodeRangeDao.apiNodeRanges(tenant, resource);
@@ -262,6 +262,7 @@ public class NodeRangeManager {
    */
   public void deleteTenantResource(final String tenantId,
                                    final String resource) {
+    LOGGER.info("deleteTenantResource({},{})", tenantId, resource);
     final List<NodeRange> nodeRange = nodeRangeDao.nodeRanges(tenantId, resource);
     nodeRangeDao.useTransaction(t ->
         nodeRange.forEach(nr ->

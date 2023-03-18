@@ -50,9 +50,8 @@ public class DatabaseModule {
                    final ControlConfiguration configuration,
                    final Environment environment,
                    final MetricRegistry metricRegistry) {
-    final Jdbi result = factory.generate(configuration, environment);
-    result.setSqlLogger(new InstrumentedSqlLogger(metricRegistry));
-    return result;
+    return factory.generate(configuration, environment)
+        .setSqlLogger(new InstrumentedSqlLogger(metricRegistry));
   }
 
   /**
