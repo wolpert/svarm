@@ -50,7 +50,7 @@ public class ControlPlaneWatcherManager implements Managed {
   private final TenantTableManager tenantTableManager;
   private final NodeTenantResourceRangeConverter nodeTenantResourceRangeConverter;
   private final ControlPlaneManager controlPlaneManager;
-  private WatchEngine engine;
+  private volatile WatchEngine engine;
 
   /**
    * Constructor.
@@ -129,6 +129,7 @@ public class ControlPlaneWatcherManager implements Managed {
     if (engine == null) {
       LOGGER.info("start()");
       engine = watchEngineFactory.watchEngine("node", uuid, this::handle);
+      // TODO: after we start watching, read what we have and handle those entries one by one.
     } else {
       LOGGER.warn("start(): already have an engine");
     }

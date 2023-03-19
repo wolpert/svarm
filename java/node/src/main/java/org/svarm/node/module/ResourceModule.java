@@ -20,6 +20,7 @@ import dagger.Binds;
 import dagger.Module;
 import dagger.multibindings.IntoSet;
 import io.dropwizard.lifecycle.Managed;
+import org.svarm.node.manager.ControlPlaneManager;
 import org.svarm.node.manager.ControlPlaneWatcherManager;
 import org.svarm.node.resource.TenantResource;
 import org.svarm.node.resource.TenantTableEntryResource;
@@ -63,7 +64,7 @@ public interface ResourceModule {
   JerseyResource tenantTableEntryResource(TenantTableEntryResource resource);
 
   /**
-   * Managed resource: control plane.
+   * Managed resource: control plane watcher.
    *
    * @param resource control plane watcher.
    * @return managed.
@@ -71,5 +72,15 @@ public interface ResourceModule {
   @Binds
   @IntoSet
   Managed controlPlaneWatcherManager(ControlPlaneWatcherManager resource);
+
+  /**
+   * Managed resource: control plane.
+   *
+   * @param resource control plane.
+   * @return managed.
+   */
+  @Binds
+  @IntoSet
+  Managed controlPlaneManager(ControlPlaneManager resource);
 
 }

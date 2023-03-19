@@ -30,6 +30,8 @@ import liquibase.database.DatabaseFactory;
 import liquibase.database.jvm.JdbcConnection;
 import liquibase.exception.LiquibaseException;
 import liquibase.resource.ClassLoaderResourceAccessor;
+import org.jdbi.v3.cache.caffeine.CaffeineCachePlugin;
+import org.jdbi.v3.cache.noop.NoopCachePlugin;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.mapper.immutables.JdbiImmutables;
@@ -94,7 +96,8 @@ public class ControlJdbiFactory {
         .registerImmutable(Node.class)
         .registerImmutable(NodeRange.class)
         .registerImmutable(org.svarm.common.config.api.NodeRange.class);
-    jdbi.installPlugin(new SqlObjectPlugin());
+    jdbi.installPlugin(new SqlObjectPlugin())
+        .installPlugin(new CaffeineCachePlugin());
     if (Boolean.TRUE.equals(runLiquibase)) {
       jdbi.useHandle(this::runLiquibase);
     } else {

@@ -16,12 +16,13 @@
 
 package org.svarm.node.manager;
 
+import io.dropwizard.lifecycle.Managed;
 import org.svarm.node.model.TenantTableIdentifier;
 
 /**
  * Provides methods to talk to the control plane.
  */
-public interface ControlPlaneManager {
+public interface ControlPlaneManager extends Managed {
 
   /**
    * Ensures we are registered to the control plane.

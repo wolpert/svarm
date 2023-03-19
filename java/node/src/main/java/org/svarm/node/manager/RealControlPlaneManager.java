@@ -137,4 +137,10 @@ public class RealControlPlaneManager implements ControlPlaneManager {
           return null;
         });
   }
+
+  @Override
+  public void start() throws Exception {
+    LOGGER.trace("start()");
+    controlAccessor.register(nodeUuid, host, port);
+  }
 }

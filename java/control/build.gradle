@@ -33,6 +33,8 @@ dependencies {
     implementation libs.jdbi.jackson2
     implementation libs.jdbi.postgres
     implementation libs.jdbi.sqlobject
+    implementation libs.jdbi.noopcache
+    implementation libs.jdbi.caffeine
 
     // etcd
     implementation libs.jetcd.core
