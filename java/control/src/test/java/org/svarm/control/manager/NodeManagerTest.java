@@ -39,6 +39,7 @@ import org.svarm.control.dao.NodeDao;
 import org.svarm.control.model.ImmutableNode;
 import org.svarm.control.model.Key;
 import org.svarm.control.model.Node;
+import org.svarm.server.exception.NotFoundException;
 
 @ExtendWith(MockitoExtension.class)
 class NodeManagerTest extends BaseMetricTest {
@@ -113,13 +114,13 @@ class NodeManagerTest extends BaseMetricTest {
   public void key_node_disabled() {
     when(node.status()).thenReturn(NodeInfo.Status.DISABLED.name());
     when(nodeDao.read(UUID)).thenReturn(node);
-    assertThatExceptionOfType(IllegalArgumentException.class)
+    assertThatExceptionOfType(NotFoundException.class)
         .isThrownBy(() -> nodeManager.key(UUID));
   }
 
   @Test
   public void key_node_notFound() {
-    assertThatExceptionOfType(IllegalArgumentException.class)
+    assertThatExceptionOfType(NotFoundException.class)
         .isThrownBy(() -> nodeManager.key(UUID));
   }
 
@@ -135,13 +136,13 @@ class NodeManagerTest extends BaseMetricTest {
   public void key_nodeTenant_disabled() {
     when(node.status()).thenReturn(NodeInfo.Status.DISABLED.name());
     when(nodeDao.read(UUID)).thenReturn(node);
-    assertThatExceptionOfType(IllegalArgumentException.class)
+    assertThatExceptionOfType(NotFoundException.class)
         .isThrownBy(() -> nodeManager.key(UUID, TENANT));
   }
 
   @Test
   public void key_nodeTenant_notFound() {
-    assertThatExceptionOfType(IllegalArgumentException.class)
+    assertThatExceptionOfType(NotFoundException.class)
         .isThrownBy(() -> nodeManager.key(UUID, TENANT));
   }
 
@@ -174,7 +175,7 @@ class NodeManagerTest extends BaseMetricTest {
 
   @Test
   public void enable_notFound() {
-    assertThatExceptionOfType(IllegalArgumentException.class)
+    assertThatExceptionOfType(NotFoundException.class)
         .isThrownBy(() -> nodeManager.enable(UUID));
   }
 
@@ -207,7 +208,7 @@ class NodeManagerTest extends BaseMetricTest {
 
   @Test
   public void disable_notFound() {
-    assertThatExceptionOfType(IllegalArgumentException.class)
+    assertThatExceptionOfType(NotFoundException.class)
         .isThrownBy(() -> nodeManager.disable(UUID));
   }
 

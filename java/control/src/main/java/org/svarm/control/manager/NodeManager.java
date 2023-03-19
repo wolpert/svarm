@@ -29,6 +29,7 @@ import org.svarm.control.dao.NodeDao;
 import org.svarm.control.model.ImmutableNode;
 import org.svarm.control.model.Key;
 import org.svarm.control.model.Node;
+import org.svarm.server.exception.NotFoundException;
 
 /**
  * Manages the nodes in the swarm.
@@ -102,7 +103,7 @@ public class NodeManager {
     return metrics.time("NodeMetrics.key.uuid", () -> status(uuid)
         .filter(this::enabled)
         .map(s -> keyManager.getNodeKey(uuid))
-        .orElseThrow(() -> new IllegalArgumentException("NodeKey: Node not found or not enabled:" + uuid)));
+        .orElseThrow(() -> new NotFoundException("NodeKey: Node not found or not enabled:" + uuid)));
   }
 
   /**
@@ -117,7 +118,7 @@ public class NodeManager {
     return metrics.time("NodeMetrics.key.tenant", () -> status(uuid)
         .filter(this::enabled)
         .map(s -> keyManager.getNodeKey(uuid, "tenant:" + tenant))
-        .orElseThrow(() -> new IllegalArgumentException("NodeTenantKey: Node not found or not enabled:" + uuid)));
+        .orElseThrow(() -> new NotFoundException("NodeTenantKey: Node not found or not enabled:" + uuid)));
   }
 
   /**
@@ -132,7 +133,7 @@ public class NodeManager {
       final Node currentNode = nodeDao.read(uuid);
       if (currentNode == null) {
         LOGGER.warn("enable({}): Node not found", uuid);
-        throw new IllegalArgumentException("No such node");
+        throw new NotFoundException("No such node");
       } else if (NodeInfo.Status.BANNED.name().equals(currentNode.status())) {
         LOGGER.warn("enable({}): Baned node: {}", uuid, currentNode);
         throw new IllegalArgumentException("Banned node:" + uuid);
@@ -163,7 +164,7 @@ public class NodeManager {
       final Node currentNode = nodeDao.read(uuid);
       if (currentNode == null) {
         LOGGER.warn("disable({}): Node not found", uuid);
-        throw new IllegalArgumentException("No such node");
+        throw new NotFoundException("No such node");
       } else if (NodeInfo.Status.BANNED.name().equals(currentNode.status())) {
         LOGGER.warn("disable({}): Baned node: {}", uuid, currentNode);
         throw new IllegalArgumentException("Banned node:" + uuid);
@@ -196,7 +197,7 @@ public class NodeManager {
     return metrics.time("NodeManager.read", () -> {
       final Node node = nodeDao.read(uuid);
       if (node == null) {
-        LOGGER.debug("read({}): Not found", uuid);
+        LOGGER.error("read({}): Not found", uuid);
         return Optional.empty();
       } else if (NodeInfo.Status.BANNED.name().equals(node.status())) {
         LOGGER.warn("read({}): BannedL {}", uuid, node);
@@ -217,16 +218,7 @@ public class NodeManager {
    */
   public Optional<String> status(final String uuid) {
     LOGGER.trace("status({})", uuid);
-    return metrics.time("NodeManager.status", () -> {
-      final Node node = nodeDao.read(uuid);
-      if (node == null) {
-        LOGGER.debug("status({}): null", uuid);
-        return Optional.empty();
-      } else {
-        LOGGER.debug("status({}): {}:{}", uuid, node.status(), node);
-        return Optional.of(node.status());
-      }
-    });
+    return read(uuid).map(Node::status);
   }
 
 }
