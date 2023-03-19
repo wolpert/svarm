@@ -150,6 +150,7 @@ public class NodeRangeManager {
           if (nodeRange.status().equals(NodeRange.STATUS_DELETING)) {
             LOGGER.info("Deleting: {}", nodeRange);
             nodeRangeDao.delete(nodeUuid, tenant, resource);
+            nodeRangeDao.commit();
             nodeConfigurationEngine.deleteNodeTenantResourceRange(nodeUuid, tenant, resource);
           } else {
             LOGGER.warn("Not in deleting state, ignoring! {}", nodeRange);
@@ -250,7 +251,10 @@ public class NodeRangeManager {
             .hash(hashes.remove(0))
             .build())
         .collect(Collectors.toList());
-    nodeRangeDao.useTransaction(t -> nodeRange.forEach(t::insert));
+    nodeRangeDao.useTransaction(t -> {
+      nodeRange.forEach(t::insert);
+      t.commit();
+    });
     return nodeRange;
   }
 

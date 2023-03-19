@@ -31,7 +31,6 @@ import liquibase.database.jvm.JdbcConnection;
 import liquibase.exception.LiquibaseException;
 import liquibase.resource.ClassLoaderResourceAccessor;
 import org.jdbi.v3.cache.caffeine.CaffeineCachePlugin;
-import org.jdbi.v3.cache.noop.NoopCachePlugin;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.mapper.immutables.JdbiImmutables;

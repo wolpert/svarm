@@ -22,9 +22,6 @@ database:
   user: control
   password: control
   url: jdbc:postgresql://database:5432/control?sslmode=disable
-#  initialSize: 1
-#  minSize: 1
-#  maxSize: 1
 
 etcdConfiguration:
   target: ip:///etcd:2379

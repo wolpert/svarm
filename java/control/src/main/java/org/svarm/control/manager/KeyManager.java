@@ -95,6 +95,7 @@ public class KeyManager {
           .createDate(clock.instant())
           .build();
       keyDao.insert(generatedKey);
+      keyDao.commit();
       return generatedKey;
     } else {
       LOGGER.trace("returning old key: {}", id);

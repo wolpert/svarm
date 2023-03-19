@@ -126,6 +126,7 @@ public class V1SingleEntryEngine implements TableDefinitionEngine {
                 .bind("cCol", row)
                 .add());
             deleteBatch.execute();
+            handle.commit();
           }
         });
   }
