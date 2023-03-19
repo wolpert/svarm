@@ -138,7 +138,8 @@ public class NodeManager {
         throw new IllegalArgumentException("Banned node:" + uuid);
       } else if (!NodeInfo.Status.ENABLED.name().equals(currentNode.status())) {
         LOGGER.debug("enable({}): Enabling: {}", uuid, currentNode);
-        final Node newNode = ImmutableNode.copyOf(currentNode).withStatus(NodeInfo.Status.ENABLED.name())
+        final Node newNode = ImmutableNode.copyOf(currentNode)
+            .withStatus(NodeInfo.Status.ENABLED.name())
             .withUpdateDate(clock.instant());
         nodeDao.update(newNode);
         LOGGER.debug("enable({}): returning: {}", uuid, newNode);

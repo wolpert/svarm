@@ -23,6 +23,7 @@ import dagger.Provides;
 import io.dropwizard.core.setup.Environment;
 import javax.inject.Singleton;
 import org.jdbi.v3.core.Jdbi;
+import org.jdbi.v3.core.statement.Slf4JSqlLogger;
 import org.svarm.control.ControlConfiguration;
 import org.svarm.control.dao.KeyDao;
 import org.svarm.control.dao.NodeDao;
@@ -51,7 +52,8 @@ public class DatabaseModule {
                    final Environment environment,
                    final MetricRegistry metricRegistry) {
     return factory.generate(configuration, environment)
-        .setSqlLogger(new InstrumentedSqlLogger(metricRegistry));
+        .setSqlLogger(new InstrumentedSqlLogger(metricRegistry))
+        .setSqlLogger(new Slf4JSqlLogger());
   }
 
   /**

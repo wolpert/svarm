@@ -19,7 +19,6 @@ package org.svarm.common.javaclient;
 import dagger.BindsOptionalOf;
 import dagger.Module;
 import dagger.Provides;
-import feign.Feign;
 import feign.FeignException;
 import io.github.resilience4j.core.IntervalFunction;
 import io.github.resilience4j.micrometer.tagged.TaggedRetryMetrics;
@@ -48,7 +47,7 @@ public class JavaClientModule {
   public Retry retry(final MeterRegistry meterRegistry) {
     final RetryConfig config = RetryConfig.custom()
         .maxAttempts(3)
-        .retryExceptions(FeignException.FeignClientException.class)
+        .retryExceptions(FeignException.FeignServerException.class)
         .intervalFunction(IntervalFunction.ofExponentialBackoff(100, 2))
         .failAfterMaxAttempts(true)
         .build();
