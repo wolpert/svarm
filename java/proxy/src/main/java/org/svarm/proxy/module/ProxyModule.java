@@ -16,8 +16,13 @@
 
 package org.svarm.proxy.module;
 
+import static org.svarm.common.config.module.EtcdModule.WATCH_ENGINE_EXECUTOR;
+
 import dagger.Module;
 import dagger.Provides;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import javax.inject.Named;
 import javax.inject.Singleton;
 import org.svarm.proxy.ProxyConfiguration;
 import org.svarm.server.ServerConfiguration;
@@ -26,7 +31,7 @@ import org.svarm.server.ServerConfiguration;
  * For setting up the configuration for the service.
  */
 @Module
-public class ProxyConfigurationModule {
+public class ProxyModule {
 
   /**
    * Converts the configuration to a proxy configuration.
@@ -38,6 +43,19 @@ public class ProxyConfigurationModule {
   @Singleton
   public ProxyConfiguration configuration(final ServerConfiguration configuration) {
     return (ProxyConfiguration) configuration;
+  }
+
+  /**
+   * Gets an executor service for the watch engine.
+   *
+   * @param proxyConfiguration to get the count from.
+   * @return the service.
+   */
+  @Provides
+  @Singleton
+  @Named(WATCH_ENGINE_EXECUTOR)
+  public ExecutorService executorService(final ProxyConfiguration proxyConfiguration) {
+    return Executors.newFixedThreadPool(proxyConfiguration.getWatchEngineThreads());
   }
 
 }

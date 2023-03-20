@@ -24,6 +24,7 @@ import org.svarm.server.ServerConfiguration;
 public class ProxyConfiguration extends ServerConfiguration {
 
   private int replicationFactor = 3;
+  private int watchEngineThreads = 5;
 
   /**
    * Getter.
@@ -41,5 +42,23 @@ public class ProxyConfiguration extends ServerConfiguration {
    */
   public void setReplicationFactor(final int replicationFactor) {
     this.replicationFactor = replicationFactor;
+  }
+
+  /**
+   * Getter.
+   *
+   * @return value.
+   */
+  public int getWatchEngineThreads() {
+    return watchEngineThreads;
+  }
+
+  /**
+   * Setter.
+   *
+   * @param watchEngineThreads to set.
+   */
+  public void setWatchEngineThreads(final int watchEngineThreads) {
+    this.watchEngineThreads = watchEngineThreads;
   }
 }

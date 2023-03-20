@@ -29,6 +29,8 @@ import io.etcd.jetcd.Watch;
 import io.etcd.jetcd.watch.WatchEvent;
 import io.etcd.jetcd.watch.WatchResponse;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -60,11 +62,12 @@ class WatchEngineTest extends BaseMetricTest {
   @Captor private ArgumentCaptor<Watch.Listener> listenerArgumentCaptor;
 
   private WatchEngine watchEngine;
+  private ExecutorService executorService = Executors.newSingleThreadExecutor();
 
   @BeforeEach
   void setupEngine() {
     when(accessor.watch(eq(NAMESPACE), eq(KEY), listenerArgumentCaptor.capture())).thenReturn(watcher);
-    watchEngine = new WatchEngine(accessor, metrics, NAMESPACE, KEY, eventConsumer);
+    watchEngine = new WatchEngine(accessor, metrics, executorService, NAMESPACE, KEY, eventConsumer);
   }
 
   @AfterEach
@@ -91,7 +94,6 @@ class WatchEngineTest extends BaseMetricTest {
     when(watchEvent.getEventType()).thenReturn(WatchEvent.EventType.PUT);
     when(watchResponse.getEvents()).thenReturn(List.of(watchEvent));
     watchEngine.watchResponse(watchResponse);
-    retry(5, () -> assertThat(watchEngine.queueSize()).isEqualTo(0));
     Thread.sleep(200);
     verify(eventConsumer).accept(eventArgumentCaptor.capture());
     assertThat(eventArgumentCaptor.getValue())
@@ -109,7 +111,6 @@ class WatchEngineTest extends BaseMetricTest {
     when(watchEvent.getEventType()).thenReturn(WatchEvent.EventType.DELETE);
     when(watchResponse.getEvents()).thenReturn(List.of(watchEvent));
     watchEngine.watchResponse(watchResponse);
-    retry(5, () -> assertThat(watchEngine.queueSize()).isEqualTo(0));
     Thread.sleep(200);
     verify(eventConsumer).accept(eventArgumentCaptor.capture());
     assertThat(eventArgumentCaptor.getValue())
@@ -124,31 +125,7 @@ class WatchEngineTest extends BaseMetricTest {
     when(watchEvent.getEventType()).thenReturn(WatchEvent.EventType.UNRECOGNIZED);
     when(watchResponse.getEvents()).thenReturn(List.of(watchEvent));
     watchEngine.watchResponse(watchResponse);
-    retry(5, () -> assertThat(watchEngine.queueSize()).isEqualTo(0));
     verifyNoInteractions(eventConsumer);
-  }
-
-  private void retry(final int times, final Runnable runnable) {
-    AssertionError error = null;
-    for (int attempt = 0; attempt < times; attempt++) {
-      try {
-        runnable.run();
-        return;
-      } catch (AssertionError ae) {
-        error = ae;
-        System.out.println("Failed, attempt " + attempt);
-        try {
-          Thread.sleep(200);
-        } catch (InterruptedException e) {
-          throw new RuntimeException(e);
-        }
-      }
-    }
-    if (error != null) {
-      throw error;
-    } else {
-      throw new IllegalStateException("Should have caught an error");
-    }
   }
 
 }

@@ -17,6 +17,7 @@
 package org.svarm.common.config.engine;
 
 import static org.slf4j.LoggerFactory.getLogger;
+import static org.svarm.common.config.module.EtcdModule.INTERNAL_WATCH_ENGINE_EXECUTOR;
 
 import com.codeheadsystems.metrics.Metrics;
 import com.google.common.annotations.VisibleForTesting;
@@ -27,10 +28,9 @@ import io.etcd.jetcd.watch.WatchEvent;
 import io.etcd.jetcd.watch.WatchResponse;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
+import javax.inject.Named;
 import org.slf4j.Logger;
 import org.svarm.common.config.accessor.EtcdAccessor;
 import org.svarm.common.config.factory.WatchEngineFactory;
@@ -47,21 +47,22 @@ public class WatchEngine {
   private final Watch.Watcher watcher;
   private final String tag;
   private final ExecutorService executorService;
-  private final LinkedBlockingQueue<Event> queue;
   private final AtomicBoolean closed;
 
   /**
    * Constructor.
    *
-   * @param accessor      for talking to etcd.
-   * @param namespace     the namespace.
-   * @param key           the key.
-   * @param eventConsumer who will get the events.
-   * @param metrics       to track what's going on.
+   * @param accessor        for talking to etcd.
+   * @param namespace       the namespace.
+   * @param executorService for thread execution.
+   * @param key             the key.
+   * @param eventConsumer   who will get the events.
+   * @param metrics         to track what's going on.
    */
   @AssistedInject
   public WatchEngine(final EtcdAccessor accessor,
                      final Metrics metrics,
+                     @Named(INTERNAL_WATCH_ENGINE_EXECUTOR) final ExecutorService executorService,
                      @Assisted(WatchEngineFactory.NAMESPACE) final String namespace,
                      @Assisted(WatchEngineFactory.KEY) final String key,
                      @Assisted final Consumer<Event> eventConsumer) {
@@ -69,8 +70,7 @@ public class WatchEngine {
     this.tag = namespace + "/" + key;
     this.eventConsumer = eventConsumer;
     LOGGER.info("WatchEngine({},{},{})", namespace, key, eventConsumer);
-    executorService = Executors.newSingleThreadExecutor();
-    queue = new LinkedBlockingQueue<>();
+    this.executorService = executorService;
     closed = new AtomicBoolean(false);
     watcher = accessor.watch(
         namespace,
@@ -98,7 +98,7 @@ public class WatchEngine {
     metrics.time("WatchEngine.close", () -> {
       watcher.close();
       executorService.shutdown();
-      LOGGER.info("{}: Shutdown started, queue size: {}", tag, queue.size());
+      LOGGER.info("{}: Shutdown started", tag);
       return null;
     });
   }
@@ -110,11 +110,6 @@ public class WatchEngine {
    */
   public boolean isClosed() {
     return closed.get();
-  }
-
-  @VisibleForTesting
-  int queueSize() {
-    return queue.size();
   }
 
   @VisibleForTesting
@@ -161,9 +156,8 @@ public class WatchEngine {
 
   @VisibleForTesting
   void complete() {
-    LOGGER.info("{}: Shutdown complete, queue size: {}", tag, queue.size());
+    LOGGER.info("{}: Shutdown complete", tag);
     metrics.registry().counter("WatchEngine.complete", "tag", tag).increment();
-    queue.clear();
   }
 
 }

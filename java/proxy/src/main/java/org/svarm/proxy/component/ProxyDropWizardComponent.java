@@ -20,7 +20,7 @@ import dagger.Component;
 import javax.inject.Singleton;
 import org.svarm.common.config.module.EtcdModule;
 import org.svarm.common.javaclient.JavaClientModule;
-import org.svarm.proxy.module.ProxyConfigurationModule;
+import org.svarm.proxy.module.ProxyModule;
 import org.svarm.proxy.module.ResourceModule;
 import org.svarm.server.component.DropWizardComponent;
 import org.svarm.server.module.DropWizardModule;
@@ -32,7 +32,7 @@ import org.svarm.server.module.DropWizardModule;
     DropWizardModule.class,
     EtcdModule.class,
     JavaClientModule.class,
-    ProxyConfigurationModule.class,
+    ProxyModule.class,
     ResourceModule.class
 })
 @Singleton

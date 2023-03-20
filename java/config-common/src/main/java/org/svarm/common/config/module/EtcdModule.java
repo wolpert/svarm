@@ -25,6 +25,8 @@ import dagger.multibindings.IntoSet;
 import io.etcd.jetcd.Client;
 import java.net.URI;
 import java.util.Optional;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import javax.inject.Named;
 import javax.inject.Singleton;
 import org.svarm.common.config.EtcdConfiguration;
@@ -47,6 +49,16 @@ public class EtcdModule {
   public static final String INTERNAL_ETCD_ACCESSOR_PREAMBLE = "INTERNAL_ETCD_ACCESSOR_PREAMBLE";
 
   /**
+   * Provide an executor service named here if you want to customize it.
+   */
+  public static final String WATCH_ENGINE_EXECUTOR = "WATCH_ENGINE_EXECUTOR";
+
+  /**
+   * Internal named executor service for the watch engine.
+   */
+  public static final String INTERNAL_WATCH_ENGINE_EXECUTOR = "INTERNAL_WATCH_ENGINE_EXECUTOR";
+
+  /**
    * Provide the preamble for the accessor.
    *
    * @param preamble if we have a custom one.
@@ -57,6 +69,19 @@ public class EtcdModule {
   @Named(INTERNAL_ETCD_ACCESSOR_PREAMBLE)
   public String etcdPreamble(@Named(ETCD_ACCESSOR_PREAMBLE) final Optional<String> preamble) {
     return preamble.orElse("svarm");
+  }
+
+  /**
+   * Provides the executor service.
+   *
+   * @param executorService if one is preconfigured.
+   * @return the one to use.
+   */
+  @Provides
+  @Singleton
+  @Named(INTERNAL_WATCH_ENGINE_EXECUTOR)
+  public ExecutorService executorService(@Named(WATCH_ENGINE_EXECUTOR) final Optional<ExecutorService> executorService) {
+    return executorService.orElseGet(Executors::newSingleThreadExecutor);
   }
 
   /**
@@ -99,6 +124,15 @@ public class EtcdModule {
     @BindsOptionalOf
     @Named(ETCD_ACCESSOR_PREAMBLE)
     String etcdPreamble();
+
+    /**
+     * Optional ability for a client to set.
+     *
+     * @return executor service.
+     */
+    @BindsOptionalOf
+    @Named(WATCH_ENGINE_EXECUTOR)
+    ExecutorService executorService();
   }
 
 }

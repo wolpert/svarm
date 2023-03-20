@@ -16,10 +16,13 @@
 
 package org.svarm.node.module;
 
+import static org.svarm.common.config.module.EtcdModule.WATCH_ENGINE_EXECUTOR;
 import static org.svarm.control.javaclient.module.ControlServiceModule.CONTROL_SERVICE_CONNECTION_URL;
 
 import dagger.Module;
 import dagger.Provides;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import javax.inject.Named;
 import javax.inject.Singleton;
 import org.svarm.node.NodeConfiguration;
@@ -70,6 +73,19 @@ public class NodeConfigurationModule {
   @Named(CONTROL_SERVICE_CONNECTION_URL)
   public String controlServiceConnectionUrl(final NodeConfiguration nodeConfiguration) {
     return nodeConfiguration.getControlPlaneUrl();
+  }
+
+  /**
+   * Gets an executor service for the watch engine.
+   *
+   * @param nodeConfiguration to get the count from.
+   * @return the service.
+   */
+  @Provides
+  @Singleton
+  @Named(WATCH_ENGINE_EXECUTOR)
+  public ExecutorService executorService(final NodeConfiguration nodeConfiguration) {
+    return Executors.newFixedThreadPool(nodeConfiguration.getWatchEngineThreads());
   }
 
 

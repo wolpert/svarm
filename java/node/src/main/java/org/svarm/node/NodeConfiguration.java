@@ -29,6 +29,7 @@ public class NodeConfiguration extends ServerConfiguration {
   private boolean runDatabaseInMemory = false;
   private String nodeHost;
   private Integer nodePort = 8080;
+  private int watchEngineThreads = 5;
 
   /**
    * Gets the host that proxies can use to contact this node. Defaults to localhost.
@@ -138,5 +139,23 @@ public class NodeConfiguration extends ServerConfiguration {
    */
   public void setDisableControlPlane(final boolean disableControlPlane) {
     this.disableControlPlane = disableControlPlane;
+  }
+
+  /**
+   * Getter.
+   *
+   * @return value.
+   */
+  public int getWatchEngineThreads() {
+    return watchEngineThreads;
+  }
+
+  /**
+   * Setter.
+   *
+   * @param watchEngineThreads to set.
+   */
+  public void setWatchEngineThreads(final int watchEngineThreads) {
+    this.watchEngineThreads = watchEngineThreads;
   }
 }
