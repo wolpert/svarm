@@ -80,7 +80,7 @@ public class KeyManager {
 
   /**
    * Returns the key from the database.
-   * TODO: ensure this idempotent regardless of threads.
+   * TODO: ensure this idempotent regardless of threads or instances.
    *
    * @param id to lookup.
    * @return the key.
@@ -95,7 +95,6 @@ public class KeyManager {
           .createDate(clock.instant())
           .build();
       keyDao.insert(generatedKey);
-      keyDao.commit();
       return generatedKey;
     } else {
       LOGGER.trace("returning old key: {}", id);

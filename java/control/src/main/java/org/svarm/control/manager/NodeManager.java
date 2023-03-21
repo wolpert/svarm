@@ -87,7 +87,6 @@ public class NodeManager {
           .status(NodeInfo.Status.DISABLED.name())
           .build();
       nodeDao.insert(node);
-      nodeDao.commit();
       LOGGER.debug("create({}): Node created: {}", uuid, node);
       return node;
     });
@@ -144,7 +143,6 @@ public class NodeManager {
             .withStatus(NodeInfo.Status.ENABLED.name())
             .withUpdateDate(clock.instant());
         nodeDao.update(newNode);
-        nodeDao.commit();
         LOGGER.debug("enable({}): returning: {}", uuid, newNode);
         return newNode;
       } else {
@@ -175,7 +173,6 @@ public class NodeManager {
         final Node newNode = ImmutableNode.copyOf(currentNode).withStatus(NodeInfo.Status.DISABLED.name())
             .withUpdateDate(clock.instant());
         nodeDao.update(newNode);
-        nodeDao.commit();
         LOGGER.debug("disable({}): results: {}", uuid, newNode);
         return newNode;
       } else {

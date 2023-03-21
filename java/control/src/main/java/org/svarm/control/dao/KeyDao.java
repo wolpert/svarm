@@ -26,7 +26,7 @@ import org.svarm.control.model.Key;
 /**
  * DAO for the Key.
  */
-public interface KeyDao extends Transactional {
+public interface KeyDao {
 
   /**
    * Inserts a key by the values.

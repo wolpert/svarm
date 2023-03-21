@@ -27,7 +27,7 @@ import org.svarm.control.model.Node;
 /**
  * DAO for the Node.
  */
-public interface NodeDao extends Transactional {
+public interface NodeDao {
 
   /**
    * Inserts a Node by the values.

@@ -126,6 +126,7 @@ public class NodeRangeManager {
       }
       final NodeRange updated = ImmutableNodeRange.copyOf(nodeRange).withReady(ready);
       nodeRangeDao.update(updated);
+      nodeRangeDao.commit();
       final boolean allReady = getNodeRange(tenant, resource).stream().allMatch(NodeRange::ready);
       if (allReady) {
         updateTenantResourceConfiguration(tenant, resource);
@@ -268,9 +269,11 @@ public class NodeRangeManager {
                                    final String resource) {
     LOGGER.info("deleteTenantResource({},{})", tenantId, resource);
     final List<NodeRange> nodeRange = nodeRangeDao.nodeRanges(tenantId, resource);
-    nodeRangeDao.useTransaction(t ->
-        nodeRange.forEach(nr ->
-            nodeRangeDao.update(ImmutableNodeRange.copyOf(nr).withStatus(NodeRange.STATUS_DELETING))));
+    nodeRangeDao.useTransaction(t -> {
+      nodeRange.forEach(nr ->
+          nodeRangeDao.update(ImmutableNodeRange.copyOf(nr).withStatus(NodeRange.STATUS_DELETING)));
+      t.commit();
+    });
     final List<NodeTenantResourceRange> nodeTenantResourceRanges = nodeRangeConverter
         .toNodeTenantResourceRanges(tenantId, resource, nodeRange).stream().map(range -> {
           final MetaData updatedMetaData = ImmutableMetaData.copyOf(range.metaData()).withAction(MetaData.ACTION_DELETE);
