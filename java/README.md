@@ -7,7 +7,7 @@ Notes about the Java code.
 Requires
 
 * JDK17
-* Gradle (Tested with 7.6)
+* Gradle (Tested with 8.0)
 * Docker for endToEnd tests
 
 ```shell
@@ -95,12 +95,17 @@ rm -rf /tmp/dataNodeConfig.json /tmp/nodeInternalDb
 
 There have been issues with plugins like checkstyle if the gradle version is
 mismatched. Officially the version in the gradle-wrapper.properties is the
-version we should build with. 7.6 as of last checked.
+version we should build with. 8.0.2 as of last checked.
 
 ## Package layout.
 
 Layout is based on the Managed Model format updated for Dropwizard/Dagger
-friendliness. Flat hierarchy. Packages are as follows;
+friendliness. Flat hierarchy. 
+
+[![Manager Model Picture](docs/ManagerModel.png)](https://viewer.diagrams.net/?tags=%7B%7D&highlight=0000ff&edit=_blank&layers=1&nav=1&title=Manager%20Model.drawio#R5VrbcpswEP0aP7YDyPjy6FuT6aTTTtyZNn1TYA1qZOTKcmz36yuMwCAR23Fi8NA8ZKSVWKFzVrurxS00mm9uOF6EX5gPtOVY%2FqaFxi3H6Vo9%2BT8WbBNBx0KJIODET0T2XjAlf0EJLSVdER%2BWhYmCMSrIoij0WBSBJwoyzDlbF6fNGC2uusABGIKph6kp%2FUF8ESbSnmvt5bdAgjBd2bbUyBynk5VgGWKfrXMiNGmhEWdMJK35ZgQ0xi7FJXnu0wuj2YtxiMQpD%2FRm979%2FfKbO7cPwD4QY%2BUMPfVBanjFdqQ2rlxXbFAHOVpEPsRKrhYbrkAiYLrAXj64l5VIWijmVPVs2Z4TSEaOM755FPobezJPypeDsCXIjHa8HjzM5Ym4jfSfgAjY5kdrWDbA5CL6VU9So47jJI9uMhKS%2F3jOGLDUnzLPVUROxspIg070HUjYUluW4fn%2F6%2BvT08%2Bb27rM94cv27YdfU1yKa4fKZYc%2BeZbNIG5%2BwZE0H56OyIVygyXzJ1FAIkgHHrk%2BVVfwFiLfgRaErCItyKSlZ5msXIwUxyBFuauagZJesghU3wQqk%2BWRci9mvl0DFPClX1RdxkXIAhZhOtlLh0XY9nPuGFsosH6DEFvl5PFKsBOhXLIV9%2BDA%2B6qYIjAPQByYp3xAvJeDxHCgWJDnYgx4d5SRYY8Dz4PlUvpI59N48LV2w2zbx09wFvAqOcKuAdmYrSMZXQDPTcc4Bf5MJDx14%2Bi614Zj38DxHtQpqxssp30crDJneLlY7tbhDGFDxM9c%2ByFW9dFVvfFGad51tqpzvgNND%2FpRD9q%2FKg%2BavnbOjkeUxLuv24rtE6y4W6kVmynp%2BHv9IcbAqSz3cavMfTqvCjHXkUG2O9eWQbbNg8mi3YZ4%2FWg5x9Equ5i0L3Y2zUzwetBy9OSlBK0yT3YxtJwTihYQ%2BYO4%2BiN7EYvgRFCORrXclg%2F5pJODn1rhGyNxyHrJJ%2FY0JJNorh5ychUfTQ9yDutJgr2hZ0dKtuk38GTet5vFk17gOJcn%2FZpVNU%2Bm92kWT7q%2FP5enjlsvT2ZMbRZPut%2Frn8mTrkfPqS%2FNk1mkaBZPelw5lyddT9U8mZl%2B03jqf%2Bx034kqQ1XVbHUbzlbbiiG2sj%2F7XYg7rLVqDntN59C%2BCIcHtVbNoVk6bhaHepZ3Lmu6nop5QuYtebBYUOJJbFhkFrLu8Lak2CBgI4r0Fb%2FkK3rzn%2F2VCFMSRLLrSZqlYjSMKw5ydTpQA3Pi%2B7tSeVkJo1jkeNFkXvExWmMjTRFzNtUusSnHetl83vbtz7wc38OfFSzFf0eN3XevixrzPnyoAtxwdlxU28Ep%2FcWSeW4epEOOV8p7N%2BsxxgGr9RpJjKPV%2FLP4l2Mmo%2BGN1Mju%2FodqSYTa%2F9oPTf4B)
+
+
+Packages are as follows;
 
 * **api**: Classes used for communications with upstream clients that call the
   service.
