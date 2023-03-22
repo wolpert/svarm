@@ -94,6 +94,34 @@ auto-configure themselves. The control plane is notified when the nodes are
 ready directly via an API call. Once the initial cluster is complete, data can
 then be added as needed.
 
+# Cluster Management
+
+## Tenants
+
+## Node Expansion
+
+### Overview of steps
+
+### Sequence of events
+
+### Data migration details
+
+## Controlled Node Contraction
+
+### Overview of steps
+
+### Sequence of events
+
+### Data migration details
+
+## Uncontrolled Node Contraction (recovery)
+
+### Overview of steps
+
+### Sequence of events
+
+### Data migration details
+
 # Appendix
 
 ## Glossary
@@ -114,6 +142,8 @@ then be added as needed.
 
 ## FAQ
 
+### Why is svarm considered 'hyper-scaled'?
+
 ### What is the effective limits in svarm?
 
 [Talk about limits per table]
@@ -132,6 +162,20 @@ then be added as needed.
 
 ### What is the expected maintenance of svarm?
 
-## Future work
+Ideally, adding and removing available nodes to the system should
+be the largest set of work needed. Planning on availability zone 
+expansion and other data center tasks is the resource management 
+that is needed.
 
-* Move key management to it's own project. (See Violet Keys)
+However, right now a sufficiently scaled system could involve multiple
+etcd or configuration subsystems which suggests the need for a drone
+module that helps configured multiple control planes. Ideally this
+would still limit the needs of active management. Considering the
+scale available for one control plan is millions of nodes and tens of millions
+of databases, we likely can approach that problem later.
+
+### Does the key work belong in svarm?
+
+No, not really. It belongs in the violet keys / terrapin projects. Or
+even use an existing security system / protocol. Keys in svarm was a
+stop-gap solution that does need a better long-term plan.
