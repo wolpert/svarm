@@ -34,6 +34,11 @@ import org.svarm.server.ServerConfiguration;
 public class ProxyModule {
 
   /**
+   * Identifier for the node service executor.
+   */
+  public static final String NODE_SERVICE_EXECUTOR = "Node service executor";
+
+  /**
    * Converts the configuration to a proxy configuration.
    *
    * @param configuration from dropwizard.
@@ -56,6 +61,19 @@ public class ProxyModule {
   @Named(WATCH_ENGINE_EXECUTOR)
   public ExecutorService executorService(final ProxyConfiguration proxyConfiguration) {
     return Executors.newFixedThreadPool(proxyConfiguration.getWatchEngineThreads());
+  }
+
+  /**
+   * Gets an executor service for the node service engine.
+   *
+   * @param proxyConfiguration to get the count from.
+   * @return the service.
+   */
+  @Provides
+  @Singleton
+  @Named(NODE_SERVICE_EXECUTOR)
+  public ExecutorService nodeServiceExecutor(final ProxyConfiguration proxyConfiguration) {
+    return Executors.newFixedThreadPool(proxyConfiguration.getNodeServiceThreads());
   }
 
 }

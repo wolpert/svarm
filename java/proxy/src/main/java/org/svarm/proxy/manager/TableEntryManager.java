@@ -17,6 +17,7 @@
 package org.svarm.proxy.manager;
 
 import static org.slf4j.LoggerFactory.getLogger;
+import static org.svarm.proxy.module.ProxyModule.NODE_SERVICE_EXECUTOR;
 
 import com.codeheadsystems.metrics.Metrics;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -24,8 +25,10 @@ import feign.FeignException;
 import java.time.Clock;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.svarm.common.config.api.NodeRange;
@@ -52,6 +55,7 @@ public class TableEntryManager {
   private final RingEngine ringEngine;
   private final Clock clock;
   private final Metrics metrics;
+  private final ExecutorService nodeServiceExecutor;
 
 
   /**
@@ -62,18 +66,21 @@ public class TableEntryManager {
    * @param ringEngine                        to hash the data.
    * @param clock                             for timestamps.
    * @param metrics                           for processing.
+   * @param nodeServiceExecutor               for making requests.
    */
   @Inject
   public TableEntryManager(final NodeTenantTableEntryServiceEngine nodeTenantTableEntryServiceEngine,
                            final CachingTenantResourceRangeEngine cachingTenantResourceRangeEngine,
                            final RingEngine ringEngine,
                            final Clock clock,
-                           final Metrics metrics) {
+                           final Metrics metrics,
+                           @Named(NODE_SERVICE_EXECUTOR) ExecutorService nodeServiceExecutor) {
     this.nodeTenantTableEntryServiceEngine = nodeTenantTableEntryServiceEngine;
     this.cachingTenantResourceRangeEngine = cachingTenantResourceRangeEngine;
     this.ringEngine = ringEngine;
     this.clock = clock;
     this.metrics = metrics;
+    this.nodeServiceExecutor = nodeServiceExecutor;
     LOGGER.info("TableEntryManager()");
   }
 
@@ -87,7 +94,6 @@ public class TableEntryManager {
   public Optional<EntryInfo> getTenantTableEntry(final TenantResource tenantResource,
                                                  final String entry) {
     LOGGER.trace("getTenantTableEntry({},{})", tenantResource, entry);
-    // get the node lists from etcd.
     final Map<NodeRange, Integer> rangeHashMap = nodeRangeToHash(tenantResource, entry);
     // TODO: Verify if a fan out makes sense, considering this could be a high-hit call.
     // TODO: This is bad below... it finds the first result and returns. We should have quorum reads.
@@ -119,7 +125,6 @@ public class TableEntryManager {
   public void putTenantTableEntry(final TenantResource tenantResource,
                                   final String entry,
                                   final JsonNode data) {
-
     LOGGER.trace("putTenantTableEntry({},{},{})", tenantResource, entry, data);
     // get the node lists from etcd.
     final Map<NodeRange, Integer> rangeHashMap = nodeRangeToHash(tenantResource, entry);
@@ -146,7 +151,6 @@ public class TableEntryManager {
    */
   public void deleteTenantTableEntry(final TenantResource tenantResource,
                                      final String entry) {
-
     LOGGER.trace("deleteTenantTableEntry({},{})", tenantResource, entry);
     // get the node lists from etcd.
     final Map<NodeRange, Integer> rangeHashMap = nodeRangeToHash(tenantResource, entry);

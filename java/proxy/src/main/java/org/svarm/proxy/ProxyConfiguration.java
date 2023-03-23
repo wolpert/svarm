@@ -25,6 +25,7 @@ public class ProxyConfiguration extends ServerConfiguration {
 
   private int replicationFactor = 3;
   private int watchEngineThreads = 5;
+  private int nodeServiceThreads = 20;
 
   /**
    * Getter.
@@ -60,5 +61,23 @@ public class ProxyConfiguration extends ServerConfiguration {
    */
   public void setWatchEngineThreads(final int watchEngineThreads) {
     this.watchEngineThreads = watchEngineThreads;
+  }
+
+  /**
+   * Getter.
+   *
+   * @return value.
+   */
+  public int getNodeServiceThreads() {
+    return nodeServiceThreads;
+  }
+
+  /**
+   * Setter.
+   *
+   * @param nodeServiceThreads the value.
+   */
+  public void setNodeServiceThreads(final int nodeServiceThreads) {
+    this.nodeServiceThreads = nodeServiceThreads;
   }
 }

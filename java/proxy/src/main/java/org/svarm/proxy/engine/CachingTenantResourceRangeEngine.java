@@ -67,7 +67,7 @@ public class CachingTenantResourceRangeEngine {
 
   private CacheHolder generate(final TenantResource tenantResource) {
     final TenantResourceRange range = nodeConfigurationEngine.readTenantResourceRange(tenantResource)
-        .orElseThrow(() -> new NotFoundException());
+        .orElseThrow(NotFoundException::new);
     final WatchEngine watchEngine = watchEngineFactory.watchEngine(
         NodeConfigurationEngine.TENANT_NAMESPACE,
         nodeConfigurationEngine.getTenantResourceKey(tenantResource),
