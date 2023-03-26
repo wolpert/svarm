@@ -28,6 +28,7 @@ import org.slf4j.Logger;
 import org.svarm.common.config.api.NodeRange;
 import org.svarm.node.api.NodeTenantTableEntryService;
 import org.svarm.node.javaclient.factory.NodeServiceFactory;
+import org.svarm.proxy.ProxyConfiguration;
 
 /**
  * Provides a caching accessor to the node.
@@ -43,11 +44,13 @@ public class NodeTenantTableEntryServiceEngine {
    * Constructor.
    *
    * @param nodeServiceFactory for getting node instances.
+   * @param configuration      the proxy configuration.
    */
   @Inject
-  public NodeTenantTableEntryServiceEngine(final NodeServiceFactory nodeServiceFactory) {
+  public NodeTenantTableEntryServiceEngine(final NodeServiceFactory nodeServiceFactory,
+                                           final ProxyConfiguration configuration) {
     cache = CacheBuilder.newBuilder()
-        .maximumSize(100) // TODO: make this a configuration
+        .maximumSize(configuration.getNodeTenantServiceCacheSize())
         .removalListener(this::onRemoval)
         .build(CacheLoader.from(nodeServiceFactory::nodeService));
     LOGGER.info("NodeTenantTableEntryServiceEngine()");

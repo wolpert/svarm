@@ -26,6 +26,8 @@ public class ProxyConfiguration extends ServerConfiguration {
   private int replicationFactor = 3;
   private int watchEngineThreads = 5;
   private int nodeServiceThreads = 20;
+  private int tenantResourceRangeCacheSize = 100;
+  private int nodeTenantServiceCacheSize = 100;
 
   /**
    * Getter.
@@ -79,5 +81,41 @@ public class ProxyConfiguration extends ServerConfiguration {
    */
   public void setNodeServiceThreads(final int nodeServiceThreads) {
     this.nodeServiceThreads = nodeServiceThreads;
+  }
+
+  /**
+   * Getter.
+   *
+   * @return value.
+   */
+  public int getTenantResourceRangeCacheSize() {
+    return tenantResourceRangeCacheSize;
+  }
+
+  /**
+   * Setter.
+   *
+   * @param tenantResourceRangeCacheSize the value.
+   */
+  public void setTenantResourceRangeCacheSize(final int tenantResourceRangeCacheSize) {
+    this.tenantResourceRangeCacheSize = tenantResourceRangeCacheSize;
+  }
+
+  /**
+   * Getter.
+   *
+   * @return value.
+   */
+  public int getNodeTenantServiceCacheSize() {
+    return nodeTenantServiceCacheSize;
+  }
+
+  /**
+   * Setter.
+   *
+   * @param nodeTenantServiceCacheSize the value.
+   */
+  public void setNodeTenantServiceCacheSize(final int nodeTenantServiceCacheSize) {
+    this.nodeTenantServiceCacheSize = nodeTenantServiceCacheSize;
   }
 }

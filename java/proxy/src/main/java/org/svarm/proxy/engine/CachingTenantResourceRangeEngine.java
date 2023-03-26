@@ -33,6 +33,7 @@ import org.svarm.common.config.api.TenantResourceRange;
 import org.svarm.common.config.engine.NodeConfigurationEngine;
 import org.svarm.common.config.engine.WatchEngine;
 import org.svarm.common.config.factory.WatchEngineFactory;
+import org.svarm.proxy.ProxyConfiguration;
 import org.svarm.server.exception.NotFoundException;
 
 /**
@@ -52,14 +53,16 @@ public class CachingTenantResourceRangeEngine {
    *
    * @param nodeConfigurationEngine to get the configuration.
    * @param watchEngineFactory      to watch for changes.
+   * @param proxyConfiguration      for configuration.
    */
   @Inject
   public CachingTenantResourceRangeEngine(final NodeConfigurationEngine nodeConfigurationEngine,
-                                          final WatchEngineFactory watchEngineFactory) {
+                                          final WatchEngineFactory watchEngineFactory,
+                                          final ProxyConfiguration proxyConfiguration) {
     this.nodeConfigurationEngine = nodeConfigurationEngine;
     this.watchEngineFactory = watchEngineFactory;
     this.cache = CacheBuilder.newBuilder()
-        .maximumSize(100) // TODO: make this a configuration
+        .maximumSize(proxyConfiguration.getTenantResourceRangeCacheSize())
         .removalListener(this::onRemoval)
         .build(CacheLoader.from(this::generate));
     LOGGER.info("CachingTenantResourceRangeEngine()");
