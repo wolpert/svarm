@@ -96,7 +96,29 @@ then be added as needed.
 
 # Cluster Management
 
+This section involves the discussion on how the control plane manages a given
+cluster.
+
 ## Tenants
+
+* Cluster of resources are treated like state machines.
+* The control plane represents the state machine of any given cluster.
+* The control plane reacts to state change.
+* The configuration service (etc,zookeeper) represent what the cluster should be
+  doing.
+
+## Guidelines
+
+### State machine
+
+The cluster itself is simplified. It starts in the initialization state and
+spends most of it's life either stable or rebalancing. Resources are freed up
+either from a controlled or uncontrolled shutdown due to failure.
+
+![](http://www.plantuml.com/plantuml/dpng/TL71QeKm4BpdAt8kl1_eeJnfAVIglPKUrisg2p6HP6snNzyLQJ1WR-xEpCwCkMU19ElipSV3fxqb7YUvFTctmCAUVq0u1bDDzj5s2o3Pnlk8ruIMSbmJqd47_ZcaFfr0xqaLpt5UF0cPicaGQH4EevK4my3u1vMGBvGbnKqfUwPf5HU_WwcsxuVKEiwxrjLeYPa8unUbxGmN6_qnnLh7bdhm450vvlIjMAbJxI-QLFXrdLVWFUwTWjF7-GK0)
+
+The nodes have the exact same structure. The difference is when a node
+is rebalancing
 
 ## Node Expansion
 
@@ -162,20 +184,19 @@ then be added as needed.
 
 ### What is the expected maintenance of svarm?
 
-Ideally, adding and removing available nodes to the system should
-be the largest set of work needed. Planning on availability zone 
-expansion and other data center tasks is the resource management 
-that is needed.
+Ideally, adding and removing available nodes to the system should be the largest
+set of work needed. Planning on availability zone expansion and other data
+center tasks is the resource management that is needed.
 
-However, right now a sufficiently scaled system could involve multiple
-etcd or configuration subsystems which suggests the need for a drone
-module that helps configured multiple control planes. Ideally this
-would still limit the needs of active management. Considering the
-scale available for one control plan is millions of nodes and tens of millions
-of databases, we likely can approach that problem later.
+However, right now a sufficiently scaled system could involve multiple etcd or
+configuration subsystems which suggests the need for a drone module that helps
+configured multiple control planes. Ideally this would still limit the needs of
+active management. Considering the scale available for one control plan is
+millions of nodes and tens of millions of databases, we likely can approach that
+problem later.
 
 ### Does the key work belong in svarm?
 
-No, not really. It belongs in the violet keys / terrapin projects. Or
-even use an existing security system / protocol. Keys in svarm was a
-stop-gap solution that does need a better long-term plan.
+No, not really. It belongs in the violet keys / terrapin projects. Or even use
+an existing security system / protocol. Keys in svarm was a stop-gap solution
+that does need a better long-term plan.
