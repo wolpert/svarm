@@ -17,11 +17,8 @@
 package org.svarm.server;
 
 import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.health.HealthCheck;
 import io.dropwizard.core.Application;
 import io.dropwizard.core.setup.Environment;
-import io.dropwizard.jersey.setup.JerseyEnvironment;
-import io.dropwizard.lifecycle.Managed;
 import java.security.Security;
 import java.util.UUID;
 import org.conscrypt.OpenSSLProvider;
@@ -74,22 +71,9 @@ public abstract class Server<T extends ServerConfiguration> extends Application<
     final DropWizardModule module = new DropWizardModule(
         engine, metricRegistry, environment, configuration, getClass().getSimpleName());
     final DropWizardComponent component = dropWizardComponent(module);
-    final JerseyEnvironment jerseyEnvironment = environment.jersey();
-    LOGGER.info("\n---\n--- Registering Managed Objects ---\n---");
-    for (Managed managed : component.managedObjects()) {
-      LOGGER.info("Registering managed object: {}", managed.getClass().getSimpleName());
-      environment.lifecycle().manage(managed);
-    }
-    LOGGER.info("\n---\n--- Registering Resources ---\n---");
-    for (Object resource : component.resources()) {
-      LOGGER.info("Registering resource: {}", resource.getClass().getSimpleName());
-      jerseyEnvironment.register(resource);
-    }
-    LOGGER.info("\n---\n--- Registering Health Checks ---\n---");
-    for (HealthCheck healthCheck : component.healthChecks()) {
-      LOGGER.info("Registering healthCheck: {}", healthCheck.getClass().getSimpleName());
-      environment.healthChecks().register(healthCheck.getClass().getSimpleName(), healthCheck);
-    }
+    component.managedInitializer().initialize();
+    component.healthCheckInitializer().initialize();
+    component.jerseyResourceInitializer().initialize();
     engine.clear();
     LOGGER.info("\n---\n--- Server Setup Complete ---\n---");
   }

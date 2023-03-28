@@ -19,6 +19,9 @@ package org.svarm.server.component;
 import com.codahale.metrics.health.HealthCheck;
 import io.dropwizard.lifecycle.Managed;
 import java.util.Set;
+import org.svarm.server.initializer.HealthCheckInitializer;
+import org.svarm.server.initializer.JerseyResourceInitializer;
+import org.svarm.server.initializer.ManagedObjectInitializer;
 import org.svarm.server.resource.JerseyResource;
 
 /**
@@ -27,24 +30,24 @@ import org.svarm.server.resource.JerseyResource;
 public interface DropWizardComponent {
 
   /**
-   * Returns the resources for the application.
+   * Returns the resources initializer for the application.
    *
-   * @return resources.
+   * @return initializer.
    */
-  Set<JerseyResource> resources();
+  JerseyResourceInitializer jerseyResourceInitializer();
 
   /**
-   * Returns the health check for the application.
+   * Returns the health check initializer for the application.
    *
-   * @return the health checks.
+   * @return the health checks initializer.
    */
-  Set<HealthCheck> healthChecks();
+  HealthCheckInitializer healthCheckInitializer();
 
   /**
-   * Objects that need their lifecycle managed.
+   * Initializer for pbjects that need their lifecycle managed.
    *
-   * @return set of objects.
+   * @return initializer.
    */
-  Set<Managed> managedObjects();
+  ManagedObjectInitializer managedInitializer();
 
 }
