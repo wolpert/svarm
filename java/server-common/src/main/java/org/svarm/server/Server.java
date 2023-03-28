@@ -67,9 +67,7 @@ public abstract class Server<T extends ServerConfiguration> extends Application<
     LOGGER.info("\n---\n--- Server Setup Starting ---\n---");
     final TraceUuidEngine engine = new TraceUuidEngine();
     engine.set(getName() + ":init:" + UUID.randomUUID());
-    final MetricRegistry metricRegistry = environment.metrics();
-    final DropWizardModule module = new DropWizardModule(
-        engine, metricRegistry, environment, configuration, getClass().getSimpleName());
+    final DropWizardModule module = new DropWizardModule(engine, environment, configuration, getName());
     final DropWizardComponent component = dropWizardComponent(module);
     component.managedInitializer().initialize();
     component.healthCheckInitializer().initialize();

@@ -72,18 +72,16 @@ public class DropWizardModule {
    * Constructor.
    *
    * @param engine          to use.
-   * @param metricRegistry  for metrics.
    * @param environment     for the environment.
    * @param configuration   the configuration.
    * @param applicationName so everyone can know what the app name is.
    */
   public DropWizardModule(final TraceUuidEngine engine,
-                          final MetricRegistry metricRegistry,
                           final Environment environment,
                           final ServerConfiguration configuration,
                           final String applicationName) {
     this.engine = engine;
-    this.metricRegistry = metricRegistry;
+    this.metricRegistry = environment.metrics();
     this.meterRegistry = new DropwizardMetricsHelper().instrument(metricRegistry);
     this.environment = environment;
     this.configuration = configuration;
