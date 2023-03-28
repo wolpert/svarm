@@ -39,6 +39,10 @@ import org.svarm.common.config.EtcdConfiguration;
 import org.svarm.common.engine.TraceUuidEngine;
 import org.svarm.common.module.CommonModule;
 import org.svarm.server.ServerConfiguration;
+import org.svarm.server.initializer.HealthCheckInitializer;
+import org.svarm.server.initializer.Initializer;
+import org.svarm.server.initializer.JerseyResourceInitializer;
+import org.svarm.server.initializer.ManagedObjectInitializer;
 import org.svarm.server.resource.JerseyResource;
 import org.svarm.server.resource.MetricTagsResource;
 import org.svarm.server.resource.NotFoundExceptionMapper;
@@ -241,6 +245,36 @@ public class DropWizardModule {
      */
     @Multibinds
     Set<Managed> managedObjects();
+
+    /**
+     * Initializer provider.
+     *
+     * @param initializer the specific initializer.
+     * @return the generic initializer.
+     */
+    @Binds
+    @IntoSet
+    Initializer healthCheckInitializer(HealthCheckInitializer initializer);
+
+    /**
+     * Initializer provider.
+     *
+     * @param initializer the specific initializer.
+     * @return the generic initializer.
+     */
+    @Binds
+    @IntoSet
+    Initializer managedObjectInitializer(ManagedObjectInitializer initializer);
+
+    /**
+     * Initializer provider.
+     *
+     * @param initializer the specific initializer.
+     * @return the generic initializer.
+     */
+    @Binds
+    @IntoSet
+    Initializer jerseyResourceInitializer(JerseyResourceInitializer initializer);
 
     /**
      * TraceUuidResource resource.
