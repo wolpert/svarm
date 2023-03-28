@@ -18,25 +18,21 @@ public class ManagedObjectInitializer implements Initializer {
   private static final Logger LOGGER = getLogger(ManagedObjectInitializer.class);
 
   private final Set<Managed> managedSet;
-  private final Environment environment;
 
   /**
    * Constructor.
    *
    * @param managedSet  to initialize.
-   * @param environment from dropwizard.
    */
   @Inject
-  public ManagedObjectInitializer(final Set<Managed> managedSet,
-                                  final Environment environment) {
+  public ManagedObjectInitializer(final Set<Managed> managedSet) {
     LOGGER.trace("ManagedObjectInitializer({})", managedSet);
-    this.environment = environment;
     this.managedSet = managedSet;
   }
 
 
   @Override
-  public void initialize() {
+  public void initialize(final Environment environment) {
     LOGGER.info("\n---\n--- Registering Managed Objects ---\n---");
     for (Managed managed : managedSet) {
       LOGGER.info("Registering managed object: {}", managed.getClass().getSimpleName());

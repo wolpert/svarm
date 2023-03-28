@@ -18,25 +18,21 @@ public class JerseyResourceInitializer implements Initializer {
   private static final Logger LOGGER = getLogger(JerseyResourceInitializer.class);
 
   private final Set<JerseyResource> jerseyResources;
-  private final Environment environment;
 
   /**
    * Constructor.
    *
    * @param jerseyResources to initialize.
-   * @param environment     from dropwizard.
    */
   @Inject
-  public JerseyResourceInitializer(final Set<JerseyResource> jerseyResources,
-                                   final Environment environment) {
+  public JerseyResourceInitializer(final Set<JerseyResource> jerseyResources) {
     LOGGER.trace("JerseyResourceInitializer({})", jerseyResources);
-    this.environment = environment;
     this.jerseyResources = jerseyResources;
   }
 
 
   @Override
-  public void initialize() {
+  public void initialize(final Environment environment) {
     LOGGER.info("\n---\n--- Registering Resources ---\n---");
     for (Object resource : jerseyResources) {
       LOGGER.info("Registering resource: {}", resource.getClass().getSimpleName());

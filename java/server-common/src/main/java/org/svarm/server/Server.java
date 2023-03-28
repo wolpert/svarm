@@ -69,9 +69,9 @@ public abstract class Server<T extends ServerConfiguration> extends Application<
     engine.set(getName() + ":init:" + UUID.randomUUID());
     final DropWizardModule module = new DropWizardModule(engine, environment, configuration, getName());
     final DropWizardComponent component = dropWizardComponent(module);
-    component.managedInitializer().initialize();
-    component.healthCheckInitializer().initialize();
-    component.jerseyResourceInitializer().initialize();
+    component.managedInitializer().initialize(environment);
+    component.healthCheckInitializer().initialize(environment);
+    component.jerseyResourceInitializer().initialize(environment);
     engine.clear();
     LOGGER.info("\n---\n--- Server Setup Complete ---\n---");
   }

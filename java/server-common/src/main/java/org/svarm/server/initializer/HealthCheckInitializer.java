@@ -18,25 +18,21 @@ public class HealthCheckInitializer implements Initializer {
   private static final Logger LOGGER = getLogger(HealthCheckInitializer.class);
 
   private final Set<HealthCheck> healthChecks;
-  private final Environment environment;
 
   /**
    * Constructor.
    *
    * @param healthChecks to initialize.
-   * @param environment  from dropwizard.
    */
   @Inject
-  public HealthCheckInitializer(final Set<HealthCheck> healthChecks,
-                                final Environment environment) {
+  public HealthCheckInitializer(final Set<HealthCheck> healthChecks) {
     LOGGER.trace("HealthCheckInitializer({})", healthChecks);
-    this.environment = environment;
     this.healthChecks = healthChecks;
   }
 
 
   @Override
-  public void initialize() {
+  public void initialize(final Environment environment) {
     LOGGER.info("\n---\n--- Registering Health Checks ---\n---");
     for (HealthCheck healthCheck : healthChecks) {
       LOGGER.info("Registering healthCheck: {}", healthCheck.getClass().getSimpleName());
