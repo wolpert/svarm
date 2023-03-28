@@ -80,7 +80,7 @@ public class ControlJdbiFactory {
    * @param environment   the dropwizard environment.
    * @return jdbi.
    */
-  public Jdbi generate(final ControlConfiguration configuration, Environment environment) {
+  public Jdbi generate(final ControlConfiguration configuration, final Environment environment) {
     LOGGER.info("generate({},{})", configuration, environment);
     final JdbiFactory dbiFactory = new JdbiFactory();
     final Jdbi jdbi = dbiFactory.build(environment, configuration.getDataSourceFactory(), "database");

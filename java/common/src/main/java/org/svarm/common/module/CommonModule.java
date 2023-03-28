@@ -17,28 +17,38 @@
 package org.svarm.common.module;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import dagger.BindsOptionalOf;
 import dagger.Module;
 import dagger.Provides;
 import java.time.Clock;
+import java.util.Optional;
+import javax.inject.Named;
 import javax.inject.Singleton;
 import org.svarm.common.factory.ObjectMapperFactory;
 
 /**
  * Provides modules needed for JSON support.
  */
-@Module
+@Module(includes = CommonModule.Binder.class)
 public class CommonModule {
+
+  /**
+   * Identifier for the server object mapper.
+   */
+  public static final String SERVER_OBJECT_MAPPER = "SERVER OBJECT MAPPER";
 
   /**
    * Setups the object mapper for the dagger instance.
    *
-   * @param factory that will generate the object mapper.
+   * @param factory            that will generate the object mapper.
+   * @param serverObjectMapper server object mapper.
    * @return the object mapper.
    */
   @Provides
   @Singleton
-  public ObjectMapper objectMapper(final ObjectMapperFactory factory) {
-    return factory.generate();
+  public ObjectMapper objectMapper(final ObjectMapperFactory factory,
+                                   @Named(SERVER_OBJECT_MAPPER) Optional<ObjectMapper> serverObjectMapper) {
+    return serverObjectMapper.orElseGet(factory::generate);
   }
 
   /**
@@ -51,4 +61,19 @@ public class CommonModule {
   public Clock clock() {
     return Clock.systemUTC();
   }
+
+  @Module
+  interface Binder {
+
+    /**
+     * Declare this if you want to use instead of the factory.
+     *
+     * @return object mapper from the server.
+     */
+    @BindsOptionalOf
+    @Named(SERVER_OBJECT_MAPPER)
+    ObjectMapper serverObjectMapper();
+
+  }
+
 }

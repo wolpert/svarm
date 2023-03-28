@@ -17,6 +17,7 @@
 package org.svarm.server;
 
 import io.dropwizard.core.Application;
+import io.dropwizard.core.setup.Bootstrap;
 import io.dropwizard.core.setup.Environment;
 import java.security.Security;
 import java.util.UUID;
@@ -66,7 +67,7 @@ public abstract class Server<T extends ServerConfiguration> extends Application<
     LOGGER.info("\n---\n--- Server Setup Starting ---\n---");
     final TraceUuidEngine engine = new TraceUuidEngine();
     engine.set(getName() + ":init:" + UUID.randomUUID());
-    final DropWizardModule module = new DropWizardModule(engine, environment, configuration, getName());
+    final DropWizardModule module = new DropWizardModule(engine, environment, configuration);
     final DropWizardComponent component = dropWizardComponent(module);
     component.initializers().forEach(i -> i.initialize(environment));
     engine.clear();

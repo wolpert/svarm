@@ -16,9 +16,12 @@
 
 package org.svarm.server.module;
 
+import static org.svarm.common.module.CommonModule.SERVER_OBJECT_MAPPER;
+
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.health.HealthCheck;
 import com.codeheadsystems.metrics.helper.DropwizardMetricsHelper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import dagger.Binds;
 import dagger.Module;
 import dagger.Provides;
@@ -75,21 +78,19 @@ public class DropWizardModule {
   /**
    * Constructor.
    *
-   * @param engine          to use.
-   * @param environment     for the environment.
-   * @param configuration   the configuration.
-   * @param applicationName so everyone can know what the app name is.
+   * @param engine        to use.
+   * @param environment   for the environment.
+   * @param configuration the configuration.
    */
   public DropWizardModule(final TraceUuidEngine engine,
                           final Environment environment,
-                          final ServerConfiguration configuration,
-                          final String applicationName) {
+                          final ServerConfiguration configuration) {
     this.engine = engine;
     this.metricRegistry = environment.metrics();
     this.meterRegistry = new DropwizardMetricsHelper().instrument(metricRegistry);
     this.environment = environment;
     this.configuration = configuration;
-    this.applicationName = applicationName;
+    this.applicationName = environment.getName();
   }
 
   private static String getHost() {
@@ -98,6 +99,19 @@ public class DropWizardModule {
     } catch (UnknownHostException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  /**
+   * Overrides the factory object mapper with the server one.
+   *
+   * @param environment from dropwizard.
+   * @return the object mapper.
+   */
+  @Provides
+  @Singleton
+  @Named(SERVER_OBJECT_MAPPER)
+  public ObjectMapper serverObjectMapper(final Environment environment) {
+    return environment.getObjectMapper();
   }
 
   /**
