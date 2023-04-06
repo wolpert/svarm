@@ -164,14 +164,21 @@ public class TableEntryManager {
     LOGGER.trace("deleteTenantTableEntry({},{})", tenantResource, entry);
     // get the node lists from etcd.
     final Map<NodeRange, Integer> rangeHashMap = nodeRangeToHash(tenantResource, entry);
-    // TODO: Verify if a fan out makes sense, considering this could be a high-hit call.
-    for (NodeRange nodeRange : rangeHashMap.keySet()) {
-      nodeTenantTableEntryServiceEngine.get(nodeRange)
-          .deleteTenantTableEntry(
-              tenantResource.tenant(),
-              tenantResource.resource(),
-              entry);
-    }
+    rangeHashMap.keySet().stream()
+        .map(nodeTenantTableEntryServiceEngine::get)
+        .map((node) -> (Runnable) () -> node.deleteTenantTableEntry(
+            tenantResource.tenant(),
+            tenantResource.resource(),
+            entry))
+        .map(nodeServiceExecutor::submit)
+        .forEach(future -> {
+          try {
+            future.get();
+          } catch (InterruptedException | ExecutionException e) {
+            LOGGER.error("Unable to delete value for node.", e);
+            throw new RuntimeException(e);
+          }
+        });
   }
 
   private Map<NodeRange, Integer> nodeRangeToHash(final TenantResource tenantResource,
