@@ -25,6 +25,7 @@ import feign.FeignException;
 import java.time.Clock;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
@@ -129,18 +130,27 @@ public class TableEntryManager {
     // get the node lists from etcd.
     final Map<NodeRange, Integer> rangeHashMap = nodeRangeToHash(tenantResource, entry);
     final Long timestamp = clock.millis();
-    // TODO: Verify if a fan out makes sense, considering this could be a high-hit call.
-    for (Map.Entry<NodeRange, Integer> tuple : rangeHashMap.entrySet()) {
-      LOGGER.trace("Processing {}", tuple);
-      final EntryInfo entryInfo = ImmutableEntryInfo.builder().id(entry).data(data).locationHash(tuple.getValue())
-          .timestamp(timestamp).build();
-      nodeTenantTableEntryServiceEngine.get(tuple.getKey())
-          .createTenantTableEntry(
-              tenantResource.tenant(),
-              tenantResource.resource(),
-              entry,
-              entryInfo);
-    }
+
+    rangeHashMap.entrySet().stream()
+        .map(tuple -> (Runnable) () -> {
+          final EntryInfo entryInfo = ImmutableEntryInfo.builder().id(entry).data(data).locationHash(tuple.getValue())
+              .timestamp(timestamp).build();
+          nodeTenantTableEntryServiceEngine.get(tuple.getKey())
+              .createTenantTableEntry(
+                  tenantResource.tenant(),
+                  tenantResource.resource(),
+                  entry,
+                  entryInfo);
+        })
+        .map(nodeServiceExecutor::submit)
+        .forEach(future -> {
+          try {
+            future.get();
+          } catch (InterruptedException | ExecutionException e) {
+            LOGGER.error("Unable to save value to node.", e);
+            throw new RuntimeException(e);
+          }
+        });
   }
 
   /**
