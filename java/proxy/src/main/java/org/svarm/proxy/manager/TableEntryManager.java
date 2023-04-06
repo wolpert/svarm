@@ -99,19 +99,23 @@ public class TableEntryManager {
     // TODO: Verify if a fan out makes sense, considering this could be a high-hit call.
     // TODO: This is bad below... it finds the first result and returns. We should have quorum reads.
     for (NodeRange nodeRange : rangeHashMap.keySet()) {
-      try {
-        final Optional<EntryInfo> result =
-            nodeTenantTableEntryServiceEngine.get(nodeRange)
-                .readTenantTableEntry(
-                    tenantResource.tenant(),
-                    tenantResource.resource(),
-                    entry);
-        if (result.isPresent()) {
-          return result;
-        }
-      } catch (FeignException.NotFound e) {
-        LOGGER.trace("Not found for {}", nodeRange);
+      Optional<EntryInfo> result = getEntryFromNode(tenantResource, entry, nodeRange);
+      if (result.isPresent()) {
+        return result;
       }
+    }
+    return Optional.empty();
+  }
+
+  private Optional<EntryInfo> getEntryFromNode(final TenantResource tenantResource, final String entry, final NodeRange nodeRange) {
+    try {
+      return nodeTenantTableEntryServiceEngine.get(nodeRange)
+          .readTenantTableEntry(
+              tenantResource.tenant(),
+              tenantResource.resource(),
+              entry);
+    } catch (FeignException.NotFound e) {
+      LOGGER.trace("Not found for {}", nodeRange);
     }
     return Optional.empty();
   }
