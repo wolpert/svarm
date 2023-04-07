@@ -10,22 +10,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.svarm.common.engine.RingEngine;
 import org.svarm.node.api.EntryInfo;
-import org.svarm.proxy.engine.CachingTenantResourceRangeEngine;
+import org.svarm.proxy.engine.NodeRangeResolverEngine;
 import org.svarm.proxy.engine.NodeTenantTableEntryServiceEngine;
 
 @ExtendWith(MockitoExtension.class)
 class TableEntryManagerTest {
   @Mock private NodeTenantTableEntryServiceEngine nodeTenantTableEntryServiceEngine;
-  @Mock private CachingTenantResourceRangeEngine cachingTenantResourceRangeEngine;
-  @Mock private RingEngine ringEngine;
+  @Mock private NodeRangeResolverEngine nodeRangeResolverEngine;
   @Mock private Clock clock;
   @Mock private Metrics metrics;
   @Mock private ExecutorService nodeServiceExecutor;
