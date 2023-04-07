@@ -157,14 +157,7 @@ public class TableEntryManager {
                   entryInfo);
         })
         .map(nodeServiceExecutor::submit)
-        .forEach(future -> {
-          try {
-            future.get();
-          } catch (InterruptedException | ExecutionException e) {
-            LOGGER.error("Unable to save value to node.", e);
-            throw new RuntimeException(e);
-          }
-        });
+        .forEach(this::get); // let the future complete before we return.
   }
 
   /**
@@ -185,14 +178,7 @@ public class TableEntryManager {
             tenantResource.resource(),
             entry))
         .map(nodeServiceExecutor::submit)
-        .forEach(future -> {
-          try {
-            future.get();
-          } catch (InterruptedException | ExecutionException e) {
-            LOGGER.error("Unable to delete value for node.", e);
-            throw new RuntimeException(e);
-          }
-        });
+        .forEach(this::get); // let the future complete before we return.
   }
 
   private Map<NodeRange, Integer> nodeRangeToHash(final TenantResource tenantResource,
