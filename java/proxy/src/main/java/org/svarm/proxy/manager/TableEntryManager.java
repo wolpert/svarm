@@ -21,8 +21,10 @@ import static org.svarm.proxy.module.ProxyModule.NODE_SERVICE_EXECUTOR;
 
 import com.codeheadsystems.metrics.Metrics;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.google.common.annotations.VisibleForTesting;
 import feign.FeignException;
 import java.time.Clock;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.Callable;
@@ -77,7 +79,7 @@ public class TableEntryManager {
                            final RingEngine ringEngine,
                            final Clock clock,
                            final Metrics metrics,
-                           @Named(NODE_SERVICE_EXECUTOR) ExecutorService nodeServiceExecutor) {
+                           final @Named(NODE_SERVICE_EXECUTOR) ExecutorService nodeServiceExecutor) {
     this.nodeTenantTableEntryServiceEngine = nodeTenantTableEntryServiceEngine;
     this.cachingTenantResourceRangeEngine = cachingTenantResourceRangeEngine;
     this.ringEngine = ringEngine;
@@ -99,13 +101,28 @@ public class TableEntryManager {
     LOGGER.trace("getTenantTableEntry({},{})", tenantResource, entry);
     final Map<NodeRange, Integer> rangeHashMap = nodeRangeToHash(tenantResource, entry);
 
-    return rangeHashMap.keySet().stream()
+    final Map<JsonNode, List<EntryInfo>> map = rangeHashMap.keySet().stream()
         .map(nodeRange -> (Callable<Optional<EntryInfo>>) () -> getEntryFromNode(tenantResource, entry, nodeRange))
         .map(nodeServiceExecutor::submit)
         .map(this::get)
         .filter(Optional::isPresent)
         .map(Optional::get)
-        .findFirst();
+        .collect(Collectors.groupingBy(EntryInfo::data));
+    if (map.isEmpty()) {
+      return Optional.empty();
+    } else {
+      return map.entrySet().stream()
+          .sorted(this::largestListFirst)
+          .map(Map.Entry::getValue)
+          .map(list -> list.get(0))
+          .findFirst();
+    }
+  }
+
+  @VisibleForTesting
+  int largestListFirst(final Map.Entry<JsonNode, List<EntryInfo>> entry1,
+                       final Map.Entry<JsonNode, List<EntryInfo>> entry2) {
+    return entry2.getValue().size() - entry1.getValue().size();
   }
 
   private <T> T get(final Future<T> future) {
