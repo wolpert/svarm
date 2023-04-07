@@ -25,8 +25,10 @@ import feign.FeignException;
 import java.time.Clock;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -96,15 +98,23 @@ public class TableEntryManager {
                                                  final String entry) {
     LOGGER.trace("getTenantTableEntry({},{})", tenantResource, entry);
     final Map<NodeRange, Integer> rangeHashMap = nodeRangeToHash(tenantResource, entry);
-    // TODO: Verify if a fan out makes sense, considering this could be a high-hit call.
-    // TODO: This is bad below... it finds the first result and returns. We should have quorum reads.
-    for (NodeRange nodeRange : rangeHashMap.keySet()) {
-      Optional<EntryInfo> result = getEntryFromNode(tenantResource, entry, nodeRange);
-      if (result.isPresent()) {
-        return result;
-      }
+
+    return rangeHashMap.keySet().stream()
+        .map(nodeRange -> (Callable<Optional<EntryInfo>>) () -> getEntryFromNode(tenantResource, entry, nodeRange))
+        .map(nodeServiceExecutor::submit)
+        .map(this::get)
+        .filter(Optional::isPresent)
+        .map(Optional::get)
+        .findFirst();
+  }
+
+  private <T> T get(final Future<T> future) {
+    try {
+      return future.get();
+    } catch (InterruptedException | ExecutionException e) {
+      LOGGER.error("Unable to get value", e);
+      throw new IllegalStateException("Unable to get value", e);
     }
-    return Optional.empty();
   }
 
   private Optional<EntryInfo> getEntryFromNode(final TenantResource tenantResource, final String entry, final NodeRange nodeRange) {
