@@ -40,8 +40,8 @@ import org.svarm.common.config.api.NodeRange;
 import org.svarm.common.config.api.TenantResource;
 import org.svarm.node.api.EntryInfo;
 import org.svarm.node.api.ImmutableEntryInfo;
+import org.svarm.proxy.engine.CachingNodeTenantTableEntryServiceEngine;
 import org.svarm.proxy.engine.NodeRangeResolverEngine;
-import org.svarm.proxy.engine.NodeTenantTableEntryServiceEngine;
 
 /**
  * Handles the requests to the various nodes for a single entry.
@@ -51,7 +51,7 @@ public class TableEntryManager {
 
   private static final Logger LOGGER = getLogger(TableEntryManager.class);
   private static final int DEFAULT_REPLICATION_FACTOR = 3;
-  private final NodeTenantTableEntryServiceEngine nodeTenantTableEntryServiceEngine;
+  private final CachingNodeTenantTableEntryServiceEngine cachingNodeTenantTableEntryServiceEngine;
   private final Clock clock;
   private final Metrics metrics;
   private final ExecutorService nodeServiceExecutor;
@@ -61,19 +61,19 @@ public class TableEntryManager {
   /**
    * Constructor.
    *
-   * @param nodeTenantTableEntryServiceEngine to get the node connections.
+   * @param cachingNodeTenantTableEntryServiceEngine to get the node connections.
    * @param clock                             for timestamps.
    * @param metrics                           for processing.
    * @param nodeServiceExecutor               for making requests.
    * @param nodeRangeResolverEngine           to get the node ranges.
    */
   @Inject
-  public TableEntryManager(final NodeTenantTableEntryServiceEngine nodeTenantTableEntryServiceEngine,
+  public TableEntryManager(final CachingNodeTenantTableEntryServiceEngine cachingNodeTenantTableEntryServiceEngine,
                            final Clock clock,
                            final Metrics metrics,
                            final @Named(NODE_SERVICE_EXECUTOR) ExecutorService nodeServiceExecutor,
                            final NodeRangeResolverEngine nodeRangeResolverEngine) {
-    this.nodeTenantTableEntryServiceEngine = nodeTenantTableEntryServiceEngine;
+    this.cachingNodeTenantTableEntryServiceEngine = cachingNodeTenantTableEntryServiceEngine;
     this.clock = clock;
     this.metrics = metrics;
     this.nodeServiceExecutor = nodeServiceExecutor;
@@ -128,7 +128,7 @@ public class TableEntryManager {
 
   private Optional<EntryInfo> getEntryFromNode(final TenantResource tenantResource, final String entry, final NodeRange nodeRange) {
     try {
-      return nodeTenantTableEntryServiceEngine.get(nodeRange)
+      return cachingNodeTenantTableEntryServiceEngine.get(nodeRange)
           .readTenantTableEntry(
               tenantResource.tenant(),
               tenantResource.resource(),
@@ -156,9 +156,10 @@ public class TableEntryManager {
 
     rangeHashMap.entrySet().stream()
         .map(tuple -> (Runnable) () -> {
-          final EntryInfo entryInfo = ImmutableEntryInfo.builder().id(entry).data(data).locationHash(tuple.getValue())
-              .timestamp(timestamp).build();
-          nodeTenantTableEntryServiceEngine.get(tuple.getKey())
+          final EntryInfo entryInfo = ImmutableEntryInfo.builder()
+              .id(entry).data(data).locationHash(tuple.getValue()).timestamp(timestamp)
+              .build();
+          cachingNodeTenantTableEntryServiceEngine.get(tuple.getKey())
               .createTenantTableEntry(
                   tenantResource.tenant(),
                   tenantResource.resource(),
@@ -181,7 +182,7 @@ public class TableEntryManager {
     // get the node lists from etcd.
     final Map<NodeRange, Integer> rangeHashMap = nodeRangeResolverEngine.nodeRangeToHash(tenantResource, entry);
     rangeHashMap.keySet().stream()
-        .map(nodeTenantTableEntryServiceEngine::get)
+        .map(cachingNodeTenantTableEntryServiceEngine::get)
         .map((node) -> (Runnable) () -> node.deleteTenantTableEntry(
             tenantResource.tenant(),
             tenantResource.resource(),

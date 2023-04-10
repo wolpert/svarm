@@ -16,12 +16,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.svarm.node.api.EntryInfo;
+import org.svarm.proxy.engine.CachingNodeTenantTableEntryServiceEngine;
 import org.svarm.proxy.engine.NodeRangeResolverEngine;
-import org.svarm.proxy.engine.NodeTenantTableEntryServiceEngine;
 
 @ExtendWith(MockitoExtension.class)
 class TableEntryManagerTest {
-  @Mock private NodeTenantTableEntryServiceEngine nodeTenantTableEntryServiceEngine;
+  @Mock private CachingNodeTenantTableEntryServiceEngine cachingNodeTenantTableEntryServiceEngine;
   @Mock private NodeRangeResolverEngine nodeRangeResolverEngine;
   @Mock private Clock clock;
   @Mock private Metrics metrics;

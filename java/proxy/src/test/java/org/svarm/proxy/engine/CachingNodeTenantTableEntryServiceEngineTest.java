@@ -30,7 +30,7 @@ import org.svarm.node.javaclient.factory.NodeServiceFactory;
 import org.svarm.proxy.ProxyConfiguration;
 
 @ExtendWith(MockitoExtension.class)
-class NodeTenantTableEntryServiceEngineTest {
+class CachingNodeTenantTableEntryServiceEngineTest {
 
   private static final String URL = "url";
 
@@ -39,7 +39,7 @@ class NodeTenantTableEntryServiceEngineTest {
   @Mock private NodeTenantTableEntryService service;
   @Mock private ProxyConfiguration proxyConfiguration;
 
-  @InjectMocks private NodeTenantTableEntryServiceEngine engine;
+  @InjectMocks private CachingNodeTenantTableEntryServiceEngine engine;
 
   @Test
   void get() {

@@ -34,9 +34,9 @@ import org.svarm.proxy.ProxyConfiguration;
  * Provides a caching accessor to the node.
  */
 @Singleton
-public class NodeTenantTableEntryServiceEngine {
+public class CachingNodeTenantTableEntryServiceEngine {
 
-  private static final Logger LOGGER = getLogger(NodeTenantTableEntryServiceEngine.class);
+  private static final Logger LOGGER = getLogger(CachingNodeTenantTableEntryServiceEngine.class);
 
   private final LoadingCache<String, NodeTenantTableEntryService> cache;
 
@@ -47,13 +47,13 @@ public class NodeTenantTableEntryServiceEngine {
    * @param configuration      the proxy configuration.
    */
   @Inject
-  public NodeTenantTableEntryServiceEngine(final NodeServiceFactory nodeServiceFactory,
-                                           final ProxyConfiguration configuration) {
+  public CachingNodeTenantTableEntryServiceEngine(final NodeServiceFactory nodeServiceFactory,
+                                                  final ProxyConfiguration configuration) {
     cache = CacheBuilder.newBuilder()
         .maximumSize(configuration.getNodeTenantServiceCacheSize())
         .removalListener(this::onRemoval)
         .build(CacheLoader.from(nodeServiceFactory::nodeService));
-    LOGGER.info("NodeTenantTableEntryServiceEngine()");
+    LOGGER.info("CachingNodeTenantTableEntryServiceEngine()");
   }
 
   private void onRemoval(final RemovalNotification<String, NodeTenantTableEntryService> removalNotification) {
