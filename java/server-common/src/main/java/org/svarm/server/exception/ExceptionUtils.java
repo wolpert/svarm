@@ -44,8 +44,8 @@ public class ExceptionUtils {
    * Wraps the execution exception checking for it to really be 'not found'. Results is returns an
    * optional empty if not found.
    *
-   * @param supplier that gets the value from the cache.
    * @param <T>      the type.
+   * @param supplier that gets the value from the cache.
    * @return and optional of the type if it was found.
    */
   public <T> Optional<T> loadingCacheExecutionExceptionWrapper(final SupplierWithException<T> supplier) {

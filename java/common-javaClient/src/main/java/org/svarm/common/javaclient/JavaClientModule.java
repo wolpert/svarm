@@ -57,9 +57,17 @@ public class JavaClientModule {
     return registry.retry("DEFAULT");
   }
 
+  /**
+   * The interface Binder.
+   */
   @Module
   interface Binder {
 
+    /**
+     * Meter registry meter registry.
+     *
+     * @return the meter registry
+     */
     @BindsOptionalOf
     MeterRegistry meterRegistry();
 

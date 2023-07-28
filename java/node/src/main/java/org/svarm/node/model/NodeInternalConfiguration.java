@@ -34,7 +34,7 @@ public interface NodeInternalConfiguration {
   /**
    * Our internal UUID, created on first run.
    *
-   * @return uuid.
+   * @return uuid. string
    */
   @JsonProperty("uuid")
   String uuid();

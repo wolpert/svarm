@@ -38,14 +38,14 @@ public interface TenantTableIdentifier {
   /**
    * Identifier of the tenant.
    *
-   * @return value.
+   * @return value. string
    */
   String tenantId();
 
   /**
    * Name of the table.
    *
-   * @return value.
+   * @return value. string
    */
   String tableName();
 

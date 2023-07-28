@@ -187,7 +187,7 @@ public class DropWizardModule {
   /**
    * Add the metric registry to dagger context.
    *
-   * @return registry.
+   * @return registry. metric registry
    */
   @Provides
   @Singleton
@@ -198,7 +198,7 @@ public class DropWizardModule {
   /**
    * The instrumented meter registry.
    *
-   * @return registry.
+   * @return registry. meter registry
    */
   @Provides
   @Singleton
@@ -209,7 +209,7 @@ public class DropWizardModule {
   /**
    * The instrumented meter registry.
    *
-   * @return registry.
+   * @return registry. tags
    */
   @Provides
   @Singleton
@@ -239,7 +239,7 @@ public class DropWizardModule {
     /**
      * Returns the resources for the application.
      *
-     * @return resources.
+     * @return resources. set
      */
     @Multibinds
     Set<JerseyResource> resources();
@@ -294,7 +294,7 @@ public class DropWizardModule {
      * TraceUuidResource resource.
      *
      * @param resource resource.
-     * @return JerseyResource.
+     * @return JerseyResource. jersey resource
      */
     @Binds
     @IntoSet
@@ -304,7 +304,7 @@ public class DropWizardModule {
      * Not found exception mapper.
      *
      * @param resource resource.
-     * @return JerseyResource.
+     * @return JerseyResource. jersey resource
      */
     @Binds
     @IntoSet
@@ -314,7 +314,7 @@ public class DropWizardModule {
      * Metrics tag resource.
      *
      * @param resource resource.
-     * @return JerseyResource.
+     * @return JerseyResource. jersey resource
      */
     @Binds
     @IntoSet

@@ -34,7 +34,7 @@ public interface KeyInfo {
   /**
    * The the key.
    *
-   * @return value.
+   * @return value. string
    */
   @JsonProperty("key")
   String key();

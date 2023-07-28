@@ -119,7 +119,7 @@ public class EtcdModule {
     /**
      * Optional Preamble for the etcd configuration..
      *
-     * @return value.
+     * @return value. string
      */
     @BindsOptionalOf
     @Named(ETCD_ACCESSOR_PREAMBLE)

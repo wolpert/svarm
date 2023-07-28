@@ -44,7 +44,7 @@ public class TenantInfoConverter {
    * Creates a tenant info from a tenant.
    *
    * @param tenant to read from.
-   * @return result.
+   * @return result. tenant info
    */
   public TenantInfo from(final Tenant tenant) {
     LOGGER.trace("from({})", tenant);

@@ -34,7 +34,7 @@ public class NodeConfiguration extends ServerConfiguration {
   /**
    * Gets the host that proxies can use to contact this node. Defaults to localhost.
    *
-   * @return value.
+   * @return value. node host
    */
   public String getNodeHost() {
     return nodeHost;
@@ -52,7 +52,7 @@ public class NodeConfiguration extends ServerConfiguration {
   /**
    * Gets the port that proxies can use to contact this node. Defaults to 8080.
    *
-   * @return value.
+   * @return value. node port
    */
   public Integer getNodePort() {
     return nodePort;
@@ -89,7 +89,7 @@ public class NodeConfiguration extends ServerConfiguration {
   /**
    * Getter for database directory.
    *
-   * @return directory.
+   * @return directory. database directory
    */
   public String getDatabaseDirectory() {
     return databaseDirectory;
@@ -107,7 +107,7 @@ public class NodeConfiguration extends ServerConfiguration {
   /**
    * Getter for the control plane url.
    *
-   * @return url.
+   * @return url. control plane url
    */
   public String getControlPlaneUrl() {
     return controlPlaneUrl;
@@ -125,7 +125,7 @@ public class NodeConfiguration extends ServerConfiguration {
   /**
    * Returns if we have disables the control plane.
    *
-   * @return value.
+   * @return value. boolean
    */
   public boolean isDisableControlPlane() {
     return disableControlPlane;
@@ -144,7 +144,7 @@ public class NodeConfiguration extends ServerConfiguration {
   /**
    * Getter.
    *
-   * @return value.
+   * @return value. watch engine threads
    */
   public int getWatchEngineThreads() {
     return watchEngineThreads;

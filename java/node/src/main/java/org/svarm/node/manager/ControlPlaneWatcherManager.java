@@ -75,6 +75,11 @@ public class ControlPlaneWatcherManager implements Managed {
     LOGGER.info("ControlPlaneWatcherManager({},{})", factory, tenantTableManager);
   }
 
+  /**
+   * Handle.
+   *
+   * @param event the event
+   */
   @VisibleForTesting
   void handle(final Event event) {
     LOGGER.trace("handle({})", event);

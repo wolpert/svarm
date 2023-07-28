@@ -128,7 +128,7 @@ is rebalancing
 
 ### Data migration details
 
-## Controlled Node Contraction
+## Un/controlled Node Contraction
 
 ### Overview of steps
 
@@ -136,7 +136,7 @@ is rebalancing
 
 ### Data migration details
 
-## Uncontrolled Node Contraction (recovery)
+## Uncontrolled Node Contraction (discovery)
 
 ### Overview of steps
 

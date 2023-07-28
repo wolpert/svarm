@@ -29,42 +29,42 @@ public interface Node {
   /**
    * Self-identifier for the node.
    *
-   * @return value.
+   * @return value. string
    */
   String uuid();
 
   /**
    * Create date for the registration for the node.
    *
-   * @return value.
+   * @return value. instant
    */
   Instant createDate();
 
   /**
    * Update for this entry about the node.
    *
-   * @return value.
+   * @return value. optional
    */
   Optional<Instant> updateDate();
 
   /**
    * Host to access the node.
    *
-   * @return value.
+   * @return value. string
    */
   String host();
 
   /**
    * Port of the node.
    *
-   * @return value.
+   * @return value. integer
    */
   Integer port();
 
   /**
    * The status.
    *
-   * @return status.
+   * @return status. string
    */
   String status();
 

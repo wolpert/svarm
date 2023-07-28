@@ -5,6 +5,9 @@ import org.immutables.value.Value;
 
 /**
  * Represent data store actions that can be taken.
+ *
+ * @param <ADD>    the type parameter
+ * @param <DELETE> the type parameter
  */
 @Value.Immutable
 public interface DataStoreActions<ADD, DELETE> {

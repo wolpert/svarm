@@ -37,7 +37,7 @@ public interface ControlTenantResourceService {
    * Lists the tables for the tenant we have.
    *
    * @param tenantId the tenant to search for.
-   * @return response.
+   * @return response. list
    */
   @GET
   @Path("/")
@@ -49,7 +49,7 @@ public interface ControlTenantResourceService {
    *
    * @param tenantId that owns the resource.
    * @param resource the resource.
-   * @return response.
+   * @return response. optional
    */
   @GET
   @Path("/{resource}")
@@ -63,7 +63,7 @@ public interface ControlTenantResourceService {
    * @param tenantId         that owns the table.
    * @param resource         the resource.
    * @param resourceMetaData what is being created.
-   * @return response.
+   * @return response. tenant resource info
    */
   @PUT
   @Path("/{resource}")

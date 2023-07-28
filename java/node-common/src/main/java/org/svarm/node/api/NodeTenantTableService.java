@@ -37,7 +37,7 @@ public interface NodeTenantTableService {
    * Lists the tables for the tenant we have.
    *
    * @param tenantId the tenant to search for.
-   * @return response.
+   * @return response. list
    */
   @GET
   @Path("/")
@@ -49,7 +49,7 @@ public interface NodeTenantTableService {
    *
    * @param tenantId that owns the table.
    * @param table    the table.
-   * @return response.
+   * @return response. optional
    */
   @GET
   @Path("/{table}")
@@ -63,7 +63,7 @@ public interface NodeTenantTableService {
    * @param tenantId      that owns the table.
    * @param table         the table.
    * @param tableMetaData for the table.
-   * @return response.
+   * @return response. tenant table info
    */
   @PUT
   @Path("/{table}")

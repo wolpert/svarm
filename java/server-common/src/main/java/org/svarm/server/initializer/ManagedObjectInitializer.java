@@ -22,7 +22,7 @@ public class ManagedObjectInitializer implements Initializer {
   /**
    * Constructor.
    *
-   * @param managedSet  to initialize.
+   * @param managedSet to initialize.
    */
   @Inject
   public ManagedObjectInitializer(final Set<Managed> managedSet) {

@@ -34,7 +34,7 @@ public interface TenantInfo {
   /**
    * ID of the tenant.
    *
-   * @return String.
+   * @return String. string
    */
   @JsonProperty("id")
   String id();

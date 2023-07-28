@@ -34,7 +34,7 @@ public interface NodeInfo {
   /**
    * The UUID of the node.
    *
-   * @return value.
+   * @return value. string
    */
   @JsonProperty("uuid")
   String uuid();
@@ -43,7 +43,7 @@ public interface NodeInfo {
   /**
    * The Status of the node.
    *
-   * @return value.
+   * @return value. string
    */
   @JsonProperty("status")
   String status();

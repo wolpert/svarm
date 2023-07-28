@@ -35,7 +35,7 @@ public interface NodeTenantService {
   /**
    * Lists the tenants we have.
    *
-   * @return response.
+   * @return response. list
    */
   @GET
   @Path("/")
@@ -46,7 +46,7 @@ public interface NodeTenantService {
    * Gets the tenant.
    *
    * @param tenantId to get.
-   * @return response.
+   * @return response. optional
    */
   @GET
   @Path("/{tenant}")
@@ -57,7 +57,7 @@ public interface NodeTenantService {
    * Create the tenant.
    *
    * @param tenantId to create.
-   * @return response.
+   * @return response. tenant info
    */
   @PUT
   @Path("/{tenant}")

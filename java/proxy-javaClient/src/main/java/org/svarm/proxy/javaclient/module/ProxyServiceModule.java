@@ -98,7 +98,7 @@ public class ProxyServiceModule {
     /**
      * Optional connection url declared by the clients.
      *
-     * @return value.
+     * @return value. string
      */
     @BindsOptionalOf
     @Named(PROXY_SERVICE_CONNECTION_URL)

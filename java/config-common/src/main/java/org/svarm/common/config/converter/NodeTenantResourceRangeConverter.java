@@ -58,7 +58,7 @@ public class NodeTenantResourceRangeConverter {
    * Converter for the map you get from etcd to the list of node tenant resource ranges.
    *
    * @param configurationMap map.
-   * @return list.
+   * @return list. list
    */
   public List<NodeTenantResourceRange> from(final Map<String, String> configurationMap) {
     LOGGER.trace("from({})", configurationMap);

@@ -34,7 +34,7 @@ public interface NodeTenantResource {
   /**
    * uuid of the node.
    *
-   * @return uuid.
+   * @return uuid. string
    */
   @JsonProperty("uuid")
   String uuid();
@@ -42,7 +42,7 @@ public interface NodeTenantResource {
   /**
    * Tenant resource.
    *
-   * @return value.
+   * @return value. tenant resource
    */
   @JsonProperty("tenantResource")
   TenantResource tenantResource();

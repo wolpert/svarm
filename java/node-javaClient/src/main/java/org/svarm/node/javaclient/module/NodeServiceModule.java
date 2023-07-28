@@ -144,7 +144,7 @@ public class NodeServiceModule {
     /**
      * Optional connection url declared by the clients.
      *
-     * @return value.
+     * @return value. string
      */
     @BindsOptionalOf
     @Named(NODE_SERVICE_CONNECTION_URL)

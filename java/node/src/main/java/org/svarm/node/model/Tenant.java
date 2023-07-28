@@ -27,14 +27,14 @@ public interface Tenant {
   /**
    * Id of the tenant. This is global.
    *
-   * @return value.
+   * @return value. string
    */
   String ridTenant();
 
   /**
    * Uuid of the tenant. This is local to us.
    *
-   * @return value.
+   * @return value. string
    */
   @Value.Auxiliary
   String uuid();
@@ -42,7 +42,7 @@ public interface Tenant {
   /**
    * Key of the tenant. This is our local key, not the key from the control plane.
    *
-   * @return value.
+   * @return value. string
    */
   @Value.Auxiliary
   String key();
@@ -50,7 +50,7 @@ public interface Tenant {
   /**
    * Nonce of the tenant database. This is our local key.
    *
-   * @return value.
+   * @return value. string
    */
   @Value.Auxiliary
   String nonce();

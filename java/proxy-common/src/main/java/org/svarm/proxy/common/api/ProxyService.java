@@ -41,7 +41,7 @@ public interface ProxyService {
    * @param tenantId that owns the table.
    * @param table    the table.
    * @param entry    the entry.
-   * @return response.
+   * @return response. optional
    */
   @GET
   @Path("/{entry}")

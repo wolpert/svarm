@@ -29,7 +29,7 @@ public class ServerConfiguration extends Configuration {
   /**
    * Getter for the etcd configuration.
    *
-   * @return value.
+   * @return value. etcd configuration
    */
   public EtcdConfiguration getEtcdConfiguration() {
     return etcdConfiguration;
@@ -47,7 +47,7 @@ public class ServerConfiguration extends Configuration {
   /**
    * The stage of deployment.
    *
-   * @return value.
+   * @return value. stage
    */
   public String getStage() {
     return stage;

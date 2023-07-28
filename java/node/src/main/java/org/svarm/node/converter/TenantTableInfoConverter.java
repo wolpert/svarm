@@ -44,7 +44,7 @@ public class TenantTableInfoConverter {
    * Creates a tenant table info from a tenant table identifier.
    *
    * @param identifier to read from.
-   * @return result.
+   * @return result. tenant table info
    */
   public TenantTableInfo from(final TenantTableIdentifier identifier) {
     LOGGER.trace("from({})", identifier);

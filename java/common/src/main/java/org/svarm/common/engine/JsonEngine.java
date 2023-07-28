@@ -60,9 +60,9 @@ public class JsonEngine {
   /**
    * Wrapper so no one has to catch the JSON processing exception. Safe logging, only logs the class, not the json.
    *
+   * @param <T>   the type.
    * @param json  to convert.
    * @param clazz to convert.
-   * @param <T>   the type.
    * @return an instance of the type.
    */
   public <T> T readValue(final String json, final Class<T> clazz) {
@@ -78,9 +78,9 @@ public class JsonEngine {
   /**
    * Wrapper so no one has to catch the JSON processing exception. Safe logging, only logs the class, not the json.
    *
+   * @param <T>           the type.
    * @param json          to convert.
    * @param typeReference to convert.
-   * @param <T>           the type.
    * @return an instance of the type.
    */
   public <T> T readValue(final String json, final TypeReference<T> typeReference) {
@@ -96,9 +96,9 @@ public class JsonEngine {
   /**
    * Reads the file and returns an object based on the class.
    *
+   * @param <T>           the type of object.
    * @param configureFile to read.
    * @param clazz         we are converting to.
-   * @param <T>           the type of object.
    * @return an instance of the clazz.
    */
   public <T> T readValue(final File configureFile,
@@ -115,9 +115,9 @@ public class JsonEngine {
   /**
    * Writes the value to the file in question.
    *
+   * @param <T>               type of object we are wriing.
    * @param configurationFile to write to.
    * @param object            we want to write into JSON.
-   * @param <T>               type of object we are wriing.
    */
   public <T> void writeValue(final File configurationFile,
                              final T object) {
@@ -133,9 +133,9 @@ public class JsonEngine {
   /**
    * Writes the value to json.
    *
-   * @param object the value to read
    * @param <T>    the type of object it is.
-   * @return json.
+   * @param object the value to read
+   * @return json. string
    */
   public <T> String writeValue(final T object) {
     LOGGER.debug("writeValue(json,{})", object.getClass());

@@ -31,21 +31,21 @@ public interface TenantTableEntry {
   /**
    * The id of the row/entry.
    *
-   * @return String.
+   * @return String. string
    */
   String id();
 
   /**
    * The name of the row column.
    *
-   * @return String.
+   * @return String. string
    */
   String column();
 
   /**
    * The hash value for the entry. (Based on the id). This is indexed too.
    *
-   * @return String.
+   * @return String. string
    */
   @Value.Auxiliary
   String hash();
@@ -53,7 +53,7 @@ public interface TenantTableEntry {
   /**
    * The type of data. Only Integer and String supported.
    *
-   * @return String.
+   * @return String. string
    */
   @Value.Auxiliary
   String dataType();
@@ -61,7 +61,7 @@ public interface TenantTableEntry {
   /**
    * The data itself.
    *
-   * @return String.
+   * @return String. string
    */
   @Value.Auxiliary
   String data();

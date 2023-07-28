@@ -78,7 +78,7 @@ public class ControlJdbiFactory {
    *
    * @param configuration with the details.
    * @param environment   the dropwizard environment.
-   * @return jdbi.
+   * @return jdbi. jdbi
    */
   public Jdbi generate(final ControlConfiguration configuration, final Environment environment) {
     LOGGER.info("generate({},{})", configuration, environment);

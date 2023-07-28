@@ -35,7 +35,7 @@ public interface TenantResourceRange {
   /**
    * The tenant.
    *
-   * @return value.
+   * @return value. string
    */
   @JsonProperty("tenant")
   String tenant();
@@ -43,7 +43,7 @@ public interface TenantResourceRange {
   /**
    * The resource.
    *
-   * @return value.
+   * @return value. string
    */
   @JsonProperty("resource")
   String resource();
@@ -52,7 +52,7 @@ public interface TenantResourceRange {
    * Map where the key is the 'low' value for the range, and the value is
    * the set of nodes that should have that data.
    *
-   * @return value.
+   * @return value. map
    */
   @JsonProperty("hashToNodeRange")
   Map<Integer, NodeRange> hashToNodeRange();

@@ -62,10 +62,10 @@ public class TableEntryManager {
    * Constructor.
    *
    * @param cachingNodeTenantTableEntryServiceEngine to get the node connections.
-   * @param clock                             for timestamps.
-   * @param metrics                           for processing.
-   * @param nodeServiceExecutor               for making requests.
-   * @param nodeRangeResolverEngine           to get the node ranges.
+   * @param clock                                    for timestamps.
+   * @param metrics                                  for processing.
+   * @param nodeServiceExecutor                      for making requests.
+   * @param nodeRangeResolverEngine                  to get the node ranges.
    */
   @Inject
   public TableEntryManager(final CachingNodeTenantTableEntryServiceEngine cachingNodeTenantTableEntryServiceEngine,
@@ -111,6 +111,13 @@ public class TableEntryManager {
     }
   }
 
+  /**
+   * Largest list first int.
+   *
+   * @param entry1 the entry 1
+   * @param entry2 the entry 2
+   * @return the int
+   */
   @VisibleForTesting
   int largestListFirst(final Map.Entry<JsonNode, List<EntryInfo>> entry1,
                        final Map.Entry<JsonNode, List<EntryInfo>> entry2) {

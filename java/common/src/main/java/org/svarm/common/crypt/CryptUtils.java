@@ -71,7 +71,7 @@ public class CryptUtils {
    * Encodes the bytes to base64 encoding.
    *
    * @param bytes to encode.
-   * @return base64.
+   * @return base64. string
    */
   public String toBase64(final byte[] bytes) {
     return Base64.getEncoder().encodeToString(bytes);

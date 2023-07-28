@@ -34,7 +34,7 @@ public interface NodeRange {
   /**
    * The uuid.
    *
-   * @return value.
+   * @return value. string
    */
   @JsonProperty("uuid")
   String uuid();
@@ -42,7 +42,7 @@ public interface NodeRange {
   /**
    * The url.
    *
-   * @return value.
+   * @return value. string
    */
   @JsonProperty("uri")
   String uri();
@@ -50,7 +50,7 @@ public interface NodeRange {
   /**
    * The low value of the hash range, inclusive.
    *
-   * @return value.
+   * @return value. integer
    */
   @JsonProperty("hash")
   Integer hash();

@@ -30,6 +30,8 @@ import org.svarm.server.module.DropWizardModule;
 
 /**
  * This is our application itself. Very little here is node specific.
+ *
+ * @param <T> the type parameter
  */
 public abstract class Server<T extends ServerConfiguration> extends Application<T> {
   private static final Logger LOGGER = LoggerFactory.getLogger(Server.class);

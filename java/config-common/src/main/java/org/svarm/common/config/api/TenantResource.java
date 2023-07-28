@@ -34,7 +34,7 @@ public interface TenantResource {
   /**
    * The tenant.
    *
-   * @return value.
+   * @return value. string
    */
   @JsonProperty("tenant")
   String tenant();
@@ -42,7 +42,7 @@ public interface TenantResource {
   /**
    * The resource.
    *
-   * @return value.
+   * @return value. string
    */
   @JsonProperty("resource")
   String resource();

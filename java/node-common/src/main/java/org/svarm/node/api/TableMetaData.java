@@ -17,14 +17,14 @@ public interface TableMetaData {
   /**
    * What is the replication factor for the table.
    *
-   * @return value.
+   * @return value. integer
    */
   Integer replicationFactor();
 
   /**
    * Table type.
    *
-   * @return value.
+   * @return value. string
    */
   String type();
 

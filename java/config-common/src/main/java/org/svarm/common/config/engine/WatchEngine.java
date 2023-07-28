@@ -53,11 +53,11 @@ public class WatchEngine {
    * Constructor.
    *
    * @param accessor        for talking to etcd.
-   * @param namespace       the namespace.
+   * @param metrics         to track what's going on.
    * @param executorService for thread execution.
+   * @param namespace       the namespace.
    * @param key             the key.
    * @param eventConsumer   who will get the events.
-   * @param metrics         to track what's going on.
    */
   @AssistedInject
   public WatchEngine(final EtcdAccessor accessor,
@@ -112,6 +112,11 @@ public class WatchEngine {
     return closed.get();
   }
 
+  /**
+   * Watch response.
+   *
+   * @param watchResponse the watch response
+   */
   @VisibleForTesting
   void watchResponse(final WatchResponse watchResponse) {
     LOGGER.trace("{}:watchResponse({})", tag, watchResponse);
@@ -147,6 +152,11 @@ public class WatchEngine {
     }
   }
 
+  /**
+   * Error.
+   *
+   * @param throwable the throwable
+   */
   @VisibleForTesting
   void error(final Throwable throwable) {
     LOGGER.error("{}:error({})", tag, throwable.getMessage(), throwable);
@@ -154,6 +164,9 @@ public class WatchEngine {
   }
 
 
+  /**
+   * Complete.
+   */
   @VisibleForTesting
   void complete() {
     LOGGER.info("{}: Shutdown complete", tag);

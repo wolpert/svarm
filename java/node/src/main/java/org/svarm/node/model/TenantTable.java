@@ -29,14 +29,14 @@ public interface TenantTable {
   /**
    * The identifier for this tenant table.
    *
-   * @return identifier.
+   * @return identifier. tenant table identifier
    */
   TenantTableIdentifier identifier();
 
   /**
    * The starting hash. Can be null in which it starts at the beginning.
    *
-   * @return value.
+   * @return value. optional
    */
   @Value.Auxiliary
   Optional<String> hash();
@@ -44,7 +44,7 @@ public interface TenantTable {
   /**
    * Number of rows in the table, estimated.
    *
-   * @return value.
+   * @return value. integer
    */
   @Value.Auxiliary
   Integer estimatedQuantity();
@@ -52,7 +52,7 @@ public interface TenantTable {
   /**
    * Identifier if the table is enabled for use. If false, can only be managed.
    *
-   * @return value.
+   * @return value. boolean
    */
   @Value.Auxiliary
   boolean enabled();
@@ -60,7 +60,7 @@ public interface TenantTable {
   /**
    * The version of table this requires.
    *
-   * @return value.
+   * @return value. string
    */
   @Value.Auxiliary
   String tableVersion();
@@ -68,7 +68,7 @@ public interface TenantTable {
   /**
    * Key of the tenant. This is our local key, not the key from the control plane.
    *
-   * @return value.
+   * @return value. string
    */
   @Value.Auxiliary
   String key();
@@ -76,7 +76,7 @@ public interface TenantTable {
   /**
    * Nonce of the tenant database. This is our local key.
    *
-   * @return value.
+   * @return value. string
    */
   @Value.Auxiliary
   String nonce();

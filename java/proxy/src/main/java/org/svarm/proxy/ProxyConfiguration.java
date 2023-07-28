@@ -32,7 +32,7 @@ public class ProxyConfiguration extends ServerConfiguration {
   /**
    * Getter.
    *
-   * @return value.
+   * @return value. replication factor
    */
   public int getReplicationFactor() {
     return replicationFactor;
@@ -50,7 +50,7 @@ public class ProxyConfiguration extends ServerConfiguration {
   /**
    * Getter.
    *
-   * @return value.
+   * @return value. watch engine threads
    */
   public int getWatchEngineThreads() {
     return watchEngineThreads;
@@ -68,7 +68,7 @@ public class ProxyConfiguration extends ServerConfiguration {
   /**
    * Getter.
    *
-   * @return value.
+   * @return value. node service threads
    */
   public int getNodeServiceThreads() {
     return nodeServiceThreads;
@@ -86,7 +86,7 @@ public class ProxyConfiguration extends ServerConfiguration {
   /**
    * Getter.
    *
-   * @return value.
+   * @return value. tenant resource range cache size
    */
   public int getTenantResourceRangeCacheSize() {
     return tenantResourceRangeCacheSize;
@@ -104,7 +104,7 @@ public class ProxyConfiguration extends ServerConfiguration {
   /**
    * Getter.
    *
-   * @return value.
+   * @return value. node tenant service cache size
    */
   public int getNodeTenantServiceCacheSize() {
     return nodeTenantServiceCacheSize;

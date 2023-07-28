@@ -37,7 +37,7 @@ public interface ResourceModule {
    * Tenant resource.
    *
    * @param resource resource
-   * @return JerseyResource.
+   * @return JerseyResource. jersey resource
    */
   @Binds
   @IntoSet
@@ -47,7 +47,7 @@ public interface ResourceModule {
    * Tenant table resource.
    *
    * @param resource resource
-   * @return JerseyResource.
+   * @return JerseyResource. jersey resource
    */
   @Binds
   @IntoSet
@@ -57,7 +57,7 @@ public interface ResourceModule {
    * Tenant table entry resource.
    *
    * @param resource resource
-   * @return JerseyResource.
+   * @return JerseyResource. jersey resource
    */
   @Binds
   @IntoSet
@@ -67,7 +67,7 @@ public interface ResourceModule {
    * Managed resource: control plane watcher.
    *
    * @param resource control plane watcher.
-   * @return managed.
+   * @return managed. managed
    */
   @Binds
   @IntoSet
@@ -77,7 +77,7 @@ public interface ResourceModule {
    * Managed resource: control plane.
    *
    * @param resource control plane.
-   * @return managed.
+   * @return managed. managed
    */
   @Binds
   @IntoSet

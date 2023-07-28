@@ -54,7 +54,7 @@ public class CommonModule {
   /**
    * The clock to use.
    *
-   * @return clock.
+   * @return clock. clock
    */
   @Provides
   @Singleton
@@ -62,6 +62,9 @@ public class CommonModule {
     return Clock.systemUTC();
   }
 
+  /**
+   * The interface Binder.
+   */
   @Module
   interface Binder {
 

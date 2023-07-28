@@ -131,6 +131,13 @@ public class V1SingleEntryEngine implements TableDefinitionEngine {
         });
   }
 
+  /**
+   * Generate data store actions.
+   *
+   * @param v1map        the v 1 map
+   * @param existingKeys the existing keys
+   * @return the data store actions
+   */
   DataStoreActions<V1Row, String> generate(final Map<String, V1Row> v1map, List<String> existingKeys) {
     final ImmutableDataStoreActions.Builder<V1Row, String> builder = ImmutableDataStoreActions.builder();
     v1map.entrySet().forEach(es -> {
@@ -145,6 +152,13 @@ public class V1SingleEntryEngine implements TableDefinitionEngine {
     return builder.build();
   }
 
+  /**
+   * Keys list.
+   *
+   * @param tenantTable the tenant table
+   * @param entity      the entity
+   * @return the list
+   */
   List<String> keys(final TenantTable tenantTable, final String entity) {
     LOGGER.trace("keys({},{})", tenantTable, entity);
     return dataSourceManager.getJdbi(tenantTable).withHandle(handle ->

@@ -16,7 +16,7 @@ public interface ResourceMetaData {
   /**
    * The type of object.
    *
-   * @return value.
+   * @return value. string
    */
   @JsonProperty("type")
   String type();

@@ -37,7 +37,7 @@ public class ControlPlaneModule {
    * @param fakeControlPlaneManager fake.
    * @param realControlPlaneManager real.
    * @param nodeConfiguration       for returning the one we want.
-   * @return fake.
+   * @return fake. control plane manager
    */
   @Provides
   @Singleton

@@ -44,7 +44,7 @@ public interface MetaData {
   /**
    * The low value of the hash range, inclusive.
    *
-   * @return value.
+   * @return value. integer
    */
   @JsonProperty("hash")
   Integer hash();
@@ -52,7 +52,7 @@ public interface MetaData {
   /**
    * What actions are available. If empty, we just create the device.
    *
-   * @return actions.
+   * @return actions. optional
    */
   @JsonProperty("action")
   Optional<String> action();

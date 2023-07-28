@@ -34,7 +34,7 @@ public interface TenantResourceAccess {
   /**
    * The tenant resource.
    *
-   * @return value.
+   * @return value. tenant resource
    */
   @JsonProperty("tenantResource")
   TenantResource tenantResource();
@@ -42,7 +42,7 @@ public interface TenantResourceAccess {
   /**
    * The uuid.
    *
-   * @return value.
+   * @return value. string
    */
   @JsonProperty("uuid")
   String uuid();
@@ -50,7 +50,7 @@ public interface TenantResourceAccess {
   /**
    * The url.
    *
-   * @return value.
+   * @return value. string
    */
   @JsonProperty("uri")
   String uri();
@@ -58,7 +58,7 @@ public interface TenantResourceAccess {
   /**
    * The range.
    *
-   * @return value.
+   * @return value. meta data
    */
   @JsonProperty("range")
   MetaData range();

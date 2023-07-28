@@ -35,7 +35,7 @@ public interface EntryInfo {
   /**
    * id of the entry.
    *
-   * @return value
+   * @return value string
    */
   @JsonProperty("id")
   String id();
@@ -43,7 +43,7 @@ public interface EntryInfo {
   /**
    * locationHash of the entry in the node.
    *
-   * @return value
+   * @return value integer
    */
   @JsonProperty("locationHash")
   Integer locationHash();
@@ -51,7 +51,7 @@ public interface EntryInfo {
   /**
    * timestamp of the entry.
    *
-   * @return value
+   * @return value long
    */
   @JsonProperty("timestamp")
   Long timestamp();
@@ -59,7 +59,7 @@ public interface EntryInfo {
   /**
    * data of the entry.
    *
-   * @return value
+   * @return value json node
    */
   @JsonProperty("data")
   JsonNode data();

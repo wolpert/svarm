@@ -34,7 +34,7 @@ public interface TenantResourceInfo {
   /**
    * The tenantId.
    *
-   * @return value.
+   * @return value. string
    */
   @JsonProperty("tenantId")
   String tenantId();
@@ -42,7 +42,7 @@ public interface TenantResourceInfo {
   /**
    * The resource.
    *
-   * @return value.
+   * @return value. string
    */
   @JsonProperty("resource")
   String resource();
@@ -50,7 +50,7 @@ public interface TenantResourceInfo {
   /**
    * The ready.
    *
-   * @return value.
+   * @return value. boolean
    */
   @JsonProperty("ready")
   Boolean ready();
@@ -58,7 +58,7 @@ public interface TenantResourceInfo {
   /**
    * The table version.
    *
-   * @return value.
+   * @return value. string
    */
   @JsonProperty("tableVersion")
   String tableVersion();

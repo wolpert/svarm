@@ -34,7 +34,7 @@ public interface NodeTenantResourceRange {
   /**
    * The node tenant resource.
    *
-   * @return value.
+   * @return value. node tenant resource
    */
   @JsonProperty("nodeTenantResource")
   NodeTenantResource nodeTenantResource();
@@ -42,7 +42,7 @@ public interface NodeTenantResourceRange {
   /**
    * The range.
    *
-   * @return value.
+   * @return value. meta data
    */
   @JsonProperty("metaData")
   MetaData metaData();

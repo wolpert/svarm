@@ -39,11 +39,11 @@ public class DatabaseModule {
   /**
    * The JDBI handler.
    *
-   * @param environment    of dropwizard.
-   * @param configuration  of the app.
    * @param factory        factory to setup.
+   * @param configuration  of the app.
+   * @param environment    of dropwizard.
    * @param metricRegistry for metrics.
-   * @return dbi.
+   * @return dbi. jdbi
    */
   @Provides
   @Singleton

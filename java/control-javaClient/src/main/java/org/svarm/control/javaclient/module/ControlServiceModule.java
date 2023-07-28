@@ -127,7 +127,7 @@ public class ControlServiceModule {
     /**
      * Optional connection url declared by the clients.
      *
-     * @return value.
+     * @return value. string
      */
     @BindsOptionalOf
     @Named(CONTROL_SERVICE_CONNECTION_URL)
