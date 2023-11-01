@@ -72,9 +72,12 @@ dependencies {
 
 }
 
+application {
+    mainClass.set("org.svarm.node.Node")
+}
+
 run {
     args 'server', configPath + 'config.yaml'
-    mainClassName = "org.svarm.node.Node"
 }
 
 task dockerImage(type: Exec) {

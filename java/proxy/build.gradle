@@ -60,9 +60,12 @@ dependencies {
 
 }
 
+application {
+    mainClass.set("org.svarm.proxy.Proxy")
+}
+
 run {
     args 'server', configPath + 'config.yaml'
-    mainClassName = "org.svarm.proxy.Proxy"
 }
 
 task dockerImage(type: Exec) {

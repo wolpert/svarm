@@ -62,9 +62,12 @@ dependencies {
     testImplementation libs.openfeign.core
 }
 
+application {
+    mainClass.set("org.svarm.control.Control")
+}
+
 run {
     args 'server', configPath + 'config.yaml'
-    mainClassName = "org.svarm.control.Control"
 }
 
 task dockerImage(type: Exec) {
