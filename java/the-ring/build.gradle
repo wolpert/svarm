@@ -1,0 +1,27 @@
+/*
+ * Copyright (c) 2020-2023. CodeHead Systems. All rights reserved
+ * Ned Wolpert <ned.wolpert@codeheadsystems.com>
+ */
+
+ext {
+    appName = "the-ring"
+}
+
+configurations {
+    jar.archiveBaseName = "${appName}"
+}
+
+base {
+    archivesName = "${appName}"
+    version = "${version}"
+}
+
+//jacocoTestReport.finalizedBy jacocoTestCoverageVerification
+
+dependencies {
+    // Logging stuff... need all these for logback changes
+    implementation libs.logback.classic
+    implementation libs.logback.core
+    implementation libs.logback.access
+}
+

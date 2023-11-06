@@ -53,7 +53,7 @@ public class RingEngine {
     this.hashingEngine = hashingEngine;
     replicationBaseCache = CacheBuilder.newBuilder().maximumSize(100)
         .build(CacheLoader.from(this::getReplicationBases));
-    LOGGER.info("RingEngine({},{})", hashingEngine);
+    LOGGER.info("RingEngine({})", hashingEngine);
   }
 
   /**
