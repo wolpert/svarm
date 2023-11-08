@@ -21,20 +21,13 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
 		http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
-    <!--
-    - RID_TENANT: Indexed, first part of the primary composite key
-    - UUID: The tenants UUID specific to this node.
-    - KEY: The tenant Key specific to this node. (32 bytes as base64 encoded string)
-    - NONCE: The tenant Nonce specific to this node (12 bytes as base64 encoded string).
-    -->
-
     <changeSet id="2023-11-07-01" author="wolpert">
         <createTable tableName="QUEUE">
-            <column name="UUID" type="varchar(36)">
+            <column name="TIMESTAMP" type="bigint">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="TIMESTAMP" type="bigint">
-                <constraints nullable="false"/>
+            <column name="UUID" type="varchar(36)">
+                <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="MESSAGE_TYPE" type="varchar(256)">
                 <constraints primaryKey="false" nullable="false"/>
@@ -45,36 +38,16 @@
             <column name="HASH" type="varchar(256)">
                 <constraints primaryKey="false" nullable="false"/>
             </column>
-
-        </createTable>
-    </changeSet>
-
-    <changeSet id="2023-01-01-001" author="wolpert">
-        <createTable tableName="NODE_TENANT_TABLES">
-            <column name="RID_TENANT" type="varchar(256)">
-                <constraints primaryKey="true" nullable="false"/>
-            </column>
-            <column name="TABLE_NAME" type="varchar(256)">
-                <constraints primaryKey="true" nullable="false"/>
-            </column>
-            <column name="HASH" type="varchar(256)">
-                <constraints primaryKey="false" nullable="true"/>
-            </column>
-            <column name="QUANTITY_EST" type="bigint">
-                <constraints primaryKey="false" nullable="true"/>
-            </column>
-            <column name="ENABLED" type="boolean">
+            <column name="STATE" type="varchar(32)">
                 <constraints primaryKey="false" nullable="false"/>
             </column>
-            <column name="TABLE_VERSION" type="varchar(256)">
-                <constraints primaryKey="false" nullable="false"/>
-            </column>
-            <column name="KEY" type="varchar(256)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="NONCE" type="varchar(256)">
-                <constraints nullable="false"/>
-            </column>
         </createTable>
+        <createIndex tableName="QUEUE" indexName="QUEUE_HASH_IDX" unique="true">
+            <column name="HASH"/>
+        </createIndex>
+        <createIndex tableName="QUEUE" indexName="QUEUE_STATE_IDX" unique="false">
+            <column name="STATE"/>
+        </createIndex>
     </changeSet>
+
 </databaseChangeLog>

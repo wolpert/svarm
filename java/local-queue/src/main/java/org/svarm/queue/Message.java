@@ -38,4 +38,11 @@ public interface Message {
    */
   String payload();
 
+  /**
+   * Hash string for deduping.
+   *
+   * @return the string
+   */
+  String hash();
+
 }

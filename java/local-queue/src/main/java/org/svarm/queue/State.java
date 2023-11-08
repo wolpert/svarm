@@ -3,7 +3,7 @@ package org.svarm.queue;
 /**
  * The enum Queue state.
  */
-public enum QueueState {
+public enum State {
 
   /**
    * Pending queue state. Used for adding requests to the queue.
