@@ -13,7 +13,8 @@ public interface Queue {
    * @param messageType the message type
    * @param consumer    the consumer
    */
-  void register(final String messageType, final Consumer<Message> consumer);
+  void register(final String messageType,
+                final Consumer<Message> consumer);
 
   /**
    * Enqueue message.
@@ -22,7 +23,8 @@ public interface Queue {
    * @param payload     the payload
    * @return the message
    */
-  Message enqueue(final String messageType, final String payload);
+  Message enqueue(final String messageType,
+                  final String payload);
 
   /**
    * Gets state.

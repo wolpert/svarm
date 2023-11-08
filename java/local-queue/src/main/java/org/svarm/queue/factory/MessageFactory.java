@@ -5,6 +5,8 @@ import com.google.common.hash.HashFunction;
 import java.time.Clock;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.svarm.queue.ImmutableMessage;
 import org.svarm.queue.Message;
 
@@ -14,6 +16,7 @@ import org.svarm.queue.Message;
 @Singleton
 public class MessageFactory {
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(MessageFactory.class);
   private final Clock clock;
   private final HashFunction hashFunction;
 
@@ -28,6 +31,7 @@ public class MessageFactory {
                         final HashFunction hashFunction) {
     this.clock = clock;
     this.hashFunction = hashFunction;
+    LOGGER.info("MessageFactory({},{})", clock, hashFunction);
   }
 
   /**
@@ -37,7 +41,9 @@ public class MessageFactory {
    * @param payload     the payload
    * @return the message
    */
-  public Message createMessage(final String messageType, final String payload) {
+  public Message createMessage(final String messageType,
+                               final String payload) {
+    LOGGER.trace("createMessage({},{})", messageType, payload);
     return ImmutableMessage.builder()
         .uuid(java.util.UUID.randomUUID())
         .timestamp(clock.instant())
