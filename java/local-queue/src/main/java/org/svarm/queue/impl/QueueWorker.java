@@ -1,4 +1,4 @@
-package org.svarm.queue;
+package org.svarm.queue.impl;
 
 /**
  * The type Queue worker.

@@ -1,7 +1,7 @@
 package org.svarm.queue.factory;
 
 import com.google.common.base.Charsets;
-import com.google.common.hash.Hashing;
+import com.google.common.hash.HashFunction;
 import java.time.Clock;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -15,15 +15,19 @@ import org.svarm.queue.Message;
 public class MessageFactory {
 
   private final Clock clock;
+  private final HashFunction hashFunction;
 
   /**
    * Instantiates a new Message factory.
    *
-   * @param clock the clock
+   * @param clock        the clock
+   * @param hashFunction the hash function
    */
   @Inject
-  public MessageFactory(final Clock clock) {
+  public MessageFactory(final Clock clock,
+                        final HashFunction hashFunction) {
     this.clock = clock;
+    this.hashFunction = hashFunction;
   }
 
   /**
@@ -39,7 +43,7 @@ public class MessageFactory {
         .timestamp(clock.instant())
         .messageType(messageType)
         .payload(payload)
-        .hash(Hashing.murmur3_32_fixed().hashString(payload, Charsets.UTF_8).toString())
+        .hash(hashFunction.hashString(payload, Charsets.UTF_8).toString())
         .build();
   }
 

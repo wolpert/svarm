@@ -19,6 +19,7 @@ base {
 //jacocoTestReport.finalizedBy jacocoTestCoverageVerification
 
 dependencies {
+    implementation libs.guava // for hashing
     // SQL
     implementation libs.liquibase.core
     implementation libs.jdbi.core
