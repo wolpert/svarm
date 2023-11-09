@@ -15,14 +15,14 @@ public interface Message {
    *
    * @return the uuid
    */
-  UUID uuid();
+  String uuid();
 
   /**
    * Created instant.
    *
    * @return the instant
    */
-  Instant timestamp();
+  long timestamp();
 
   /**
    * Message type string.

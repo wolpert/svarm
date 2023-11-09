@@ -34,5 +34,6 @@ dependencies {
 testing {
     dependencies {
         implementation libs.hsqldb
+        implementation libs.c3p0
     }
 }

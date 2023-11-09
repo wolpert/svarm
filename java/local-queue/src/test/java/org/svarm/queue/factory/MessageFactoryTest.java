@@ -31,7 +31,7 @@ class MessageFactoryTest {
     Message message = messageFactory.createMessage("type", "payload");
     assertThat(message).isNotNull();
     assertThat(message.uuid()).isNotNull();
-    assertThat(message.timestamp()).isEqualTo(java.time.Instant.EPOCH);
+    assertThat(message.timestamp()).isEqualTo(java.time.Instant.EPOCH.toEpochMilli());
     assertThat(message.messageType()).isEqualTo("type");
     assertThat(message.payload()).isEqualTo("payload");
   }
