@@ -1,5 +1,6 @@
 package org.svarm.queue.dao;
 
+import java.util.List;
 import java.util.Optional;
 import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.customizer.BindPojo;
@@ -31,6 +32,31 @@ public interface MessageDao {
    * @return the optional
    */
   @SqlQuery("select * from QUEUE where UUID = :uuid")
-  Optional<Message> read_by_uuid(@Bind("uuid") final String uuid);
+  Optional<Message> readByUuid(@Bind("uuid") final String uuid);
 
+  /**
+   * For state list.
+   *
+   * @param state the state
+   * @return the list
+   */
+  @SqlQuery("select * from QUEUE where STATE = :state order by TIMESTAMP asc")
+  List<Message> forState(@Bind("state") final State state);
+
+  /**
+   * Update state.
+   *
+   * @param message the message
+   * @param state   the state
+   */
+  @SqlUpdate("update QUEUE set STATE = :state where UUID = :uuid")
+  void updateState(@BindPojo final Message message, @Bind("state") final State state);
+
+  /**
+   * Delete.
+   *
+   * @param message the message
+   */
+  @SqlUpdate("delete from QUEUE where UUID = :uuid")
+  void delete(@BindPojo final Message message);
 }
