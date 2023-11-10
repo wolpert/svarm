@@ -13,6 +13,7 @@ import org.svarm.queue.QueueConfiguration;
 import org.svarm.queue.State;
 import org.svarm.queue.dao.MessageDao;
 import org.svarm.queue.factory.MessageFactory;
+import org.svarm.queue.factory.QueueConfigurationFactory;
 
 /**
  * The type Queue.
@@ -21,7 +22,6 @@ import org.svarm.queue.factory.MessageFactory;
 public class QueueImpl implements Queue {
   private static final Logger LOGGER = LoggerFactory.getLogger(QueueImpl.class);
 
-  private final QueueRegister queueRegister;
   private final MessageDao messageDao;
   private final MessageFactory messageFactory;
   private final QueueConfiguration queueConfiguration;
@@ -29,30 +29,23 @@ public class QueueImpl implements Queue {
   /**
    * Instantiates a new Queue.
    *
-   * @param queueRegister      the queue register
-   * @param messageDao         the message dao
-   * @param messageFactory     the message factory
-   * @param queueConfiguration the queue configuration
+   * @param messageDao                the message dao
+   * @param messageFactory            the message factory
+   * @param queueConfigurationFactory the queue configuration factory
    */
   @Inject
-  public QueueImpl(final QueueRegister queueRegister,
-                   final MessageDao messageDao,
+  public QueueImpl(final MessageDao messageDao,
                    final MessageFactory messageFactory,
-                   final QueueConfiguration queueConfiguration) {
-    this.queueRegister = queueRegister;
+                   final QueueConfigurationFactory queueConfigurationFactory) {
     this.messageDao = messageDao;
     this.messageFactory = messageFactory;
-    this.queueConfiguration = queueConfiguration;
-    LOGGER.info("QueueImpl({}, {},{},{})", queueConfiguration, queueRegister, messageDao, messageFactory);
+    this.queueConfiguration = queueConfigurationFactory.queueConfiguration();
+    LOGGER.info("QueueImpl({}, {},{})", queueConfiguration, messageDao, messageFactory);
   }
 
   @Override
   public Optional<Message> enqueue(final String messageType, final String payload) {
     LOGGER.trace("enqueue({},{})", messageType, payload);
-    if (queueRegister.getConsumer(messageType).isEmpty()) {
-      LOGGER.warn("No consumer registered for message type: {}", messageType);
-      return Optional.empty();
-    }
     final Message message = messageFactory.createMessage(messageType, payload);
     try {
       messageDao.store(message, State.PENDING);

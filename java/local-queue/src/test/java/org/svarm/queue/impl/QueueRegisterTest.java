@@ -2,19 +2,19 @@ package org.svarm.queue.impl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.function.Consumer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.svarm.queue.Message;
+import org.svarm.queue.MessageConsumer;
 
 @ExtendWith(MockitoExtension.class)
 class QueueRegisterTest {
 
   private static final String TYPE = "type";
-  @Mock private Consumer<Message> consumer;
+  @Mock private MessageConsumer consumer;
   @Mock private Message message;
   @InjectMocks private QueueRegister queueRegister;
 

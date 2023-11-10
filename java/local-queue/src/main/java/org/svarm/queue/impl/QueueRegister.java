@@ -4,12 +4,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Consumer;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.svarm.queue.Message;
+import org.svarm.queue.MessageConsumer;
 
 /**
  * The type Queue register.
@@ -18,15 +17,21 @@ import org.svarm.queue.Message;
 public class QueueRegister {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(QueueRegister.class);
-  private final Map<String, Consumer<Message>> consumerMap;
+  private final Map<String, MessageConsumer> consumerMap;
 
   /**
    * Instantiates a new Queue register.
+   *
+   * @param map the map
    */
   @Inject
-  public QueueRegister() {
+  public QueueRegister(final Map<String, MessageConsumer> map) {
     LOGGER.info("QueueRegister()");
-    consumerMap = new HashMap<>();
+    if (map == null) {
+      consumerMap = new HashMap<>();
+    } else {
+      consumerMap = new HashMap<>(map);
+    }
   }
 
   /**
@@ -35,7 +40,8 @@ public class QueueRegister {
    * @param messageType the message type
    * @param consumer    the consumer
    */
-  public void register(final String messageType, final Consumer<Message> consumer) {
+  public void register(final String messageType,
+                       final MessageConsumer consumer) {
     LOGGER.trace("register({},{})", messageType, consumer);
     consumerMap.put(messageType, consumer);
   }
@@ -56,7 +62,7 @@ public class QueueRegister {
    * @param messageType the message type
    * @return the consumer
    */
-  public Optional<Consumer<Message>> getConsumer(final String messageType) {
+  public Optional<MessageConsumer> getConsumer(final String messageType) {
     LOGGER.trace("getConsumer({})", messageType);
     return Optional.ofNullable(consumerMap.get(messageType));
   }

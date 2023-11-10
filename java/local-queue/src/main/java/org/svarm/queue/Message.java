@@ -1,7 +1,5 @@
 package org.svarm.queue;
 
-import java.time.Instant;
-import java.util.UUID;
 import org.immutables.value.Value;
 
 /**

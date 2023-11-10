@@ -16,8 +16,8 @@ import org.svarm.queue.Message;
 @ExtendWith(MockitoExtension.class)
 class MessageFactoryTest {
 
-  @Mock private Clock clock;
   private final HashFunction hashFunction = Hashing.murmur3_32_fixed();
+  @Mock private Clock clock;
   private MessageFactory messageFactory;
 
   @BeforeEach

@@ -20,6 +20,7 @@ base {
 
 dependencies {
     implementation libs.guava // for hashing
+    implementation libs.dropwizard4.core
     // SQL
     implementation libs.liquibase.core
     implementation libs.jdbi.core
