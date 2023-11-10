@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.Optional;
 import org.jdbi.v3.core.statement.UnableToExecuteStatementException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -20,6 +21,7 @@ import org.svarm.queue.QueueConfiguration;
 import org.svarm.queue.State;
 import org.svarm.queue.dao.MessageDao;
 import org.svarm.queue.factory.MessageFactory;
+import org.svarm.queue.factory.QueueConfigurationFactory;
 
 @ExtendWith(MockitoExtension.class)
 class QueueImplTest {
@@ -38,8 +40,12 @@ class QueueImplTest {
   @Mock private UnableToExecuteStatementException unableToExecuteStatementException;
   @Mock private SQLIntegrityConstraintViolationException sqlIntegrityConstraintViolationException;
 
-  @InjectMocks private QueueImpl queue;
+  private QueueImpl queue;
 
+  @BeforeEach
+  public void setup() {
+    queue = new QueueImpl(messageDao, messageFactory, new QueueConfigurationFactory(Optional.of(queueConfiguration)));
+  }
 
   @Test
   void enqueue() {

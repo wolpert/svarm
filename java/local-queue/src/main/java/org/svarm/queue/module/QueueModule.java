@@ -4,6 +4,7 @@ import dagger.Binds;
 import dagger.BindsOptionalOf;
 import dagger.Module;
 import dagger.Provides;
+import dagger.multibindings.IntoSet;
 import dagger.multibindings.Multibinds;
 import io.dropwizard.lifecycle.Managed;
 import java.util.Map;
@@ -58,7 +59,7 @@ public class QueueModule {
      * @param queueProcessor the queue processor
      * @return the managed
      */
-    @Provides
+    @IntoSet
     @Binds
     Managed managed(final QueueProcessor queueProcessor);
 
