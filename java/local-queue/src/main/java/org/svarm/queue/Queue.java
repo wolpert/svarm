@@ -1,6 +1,6 @@
 package org.svarm.queue;
 
-import java.util.function.Consumer;
+import java.util.Optional;
 
 /**
  * The interface Queue.
@@ -8,31 +8,22 @@ import java.util.function.Consumer;
 public interface Queue {
 
   /**
-   * Register.
-   *
-   * @param messageType the message type
-   * @param consumer    the consumer
-   */
-  void register(final String messageType,
-                final Consumer<Message> consumer);
-
-  /**
    * Enqueue message.
    *
    * @param messageType the message type
    * @param payload     the payload
-   * @return the message
+   * @return the message if it could be enqueued.
    */
-  Message enqueue(final String messageType,
-                  final String payload);
+  Optional<Message> enqueue(final String messageType,
+                            final String payload);
 
   /**
    * Gets state.
    *
    * @param message the message
-   * @return the state
+   * @return the state if it is found.
    */
-  State getState(final Message message);
+  Optional<State> getState(final Message message);
 
   /**
    * Clear all.

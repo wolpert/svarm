@@ -35,6 +35,24 @@ public interface MessageDao {
   Optional<Message> readByUuid(@Bind("uuid") final String uuid);
 
   /**
+   * Read by hash optional.
+   *
+   * @param hash the hash
+   * @return the optional
+   */
+  @SqlQuery("select * from QUEUE where HASH = :hash")
+  Optional<Message> readByHash(@Bind("hash") final String hash);
+
+  /**
+   * State of optional.
+   *
+   * @param message the message
+   * @return the optional
+   */
+  @SqlQuery("select STATE from QUEUE where UUID = :uuid")
+  Optional<State> stateOf(@BindPojo final Message message);
+
+  /**
    * For state list.
    *
    * @param state the state
@@ -42,6 +60,7 @@ public interface MessageDao {
    */
   @SqlQuery("select * from QUEUE where STATE = :state order by TIMESTAMP asc")
   List<Message> forState(@Bind("state") final State state);
+
 
   /**
    * Update state.

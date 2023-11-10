@@ -27,7 +27,6 @@ import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.svarm.queue.ImmutableMessage;
 import org.svarm.queue.Message;
 import org.svarm.queue.State;
 import org.svarm.queue.factory.MessageFactory;
@@ -63,11 +62,22 @@ class MessageDaoTest {
   }
 
   @Test
+  void testHashLookup() {
+    final Message message = messageFactory.createMessage("type", "payload");
+    messageDao.store(message, State.ACTIVATE);
+    assertThat(messageDao.readByHash(message.hash()))
+        .isNotEmpty()
+        .contains(message);
+  }
+
+  @Test
   void testUpdateState() {
     final Message message = messageFactory.createMessage("type", "payload");
     messageDao.store(message, State.ACTIVATE);
     assertThat(messageDao.forState(State.ACTIVATE)).containsExactly(message);
+    assertThat(messageDao.stateOf(message)).contains(State.ACTIVATE);
     messageDao.updateState(message, State.PENDING);
+    assertThat(messageDao.stateOf(message)).contains(State.PENDING);
     assertThat(messageDao.forState(State.PENDING)).containsExactly(message);
     assertThat(messageDao.forState(State.ACTIVATE)).isEmpty();
   }

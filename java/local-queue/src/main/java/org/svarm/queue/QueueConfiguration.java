@@ -28,4 +28,14 @@ public interface QueueConfiguration {
     return 5;
   }
 
+  /**
+   * Exception on enqueue fail boolean.
+   *
+   * @return the boolean
+   */
+  @Value.Default
+  default boolean exceptionOnEnqueueFail() {
+    return true;
+  }
+
 }
