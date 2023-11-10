@@ -78,4 +78,10 @@ public interface MessageDao {
    */
   @SqlUpdate("delete from QUEUE where UUID = :uuid")
   void delete(@BindPojo final Message message);
+
+  /**
+   * Delete all.
+   */
+  @SqlUpdate("delete from QUEUE")
+  void deleteAll();
 }

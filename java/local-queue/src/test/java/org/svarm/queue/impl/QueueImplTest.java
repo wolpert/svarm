@@ -107,4 +107,22 @@ class QueueImplTest {
     assertThatExceptionOfType(IllegalStateException.class)
         .isThrownBy(()->queue.enqueue(TYPE, PAYLOAD));
   }
+
+  @Test
+  void getState() {
+    when(messageDao.stateOf(message)).thenReturn(Optional.of(State.ACTIVATE));
+    assertThat(queue.getState(message)).contains(State.ACTIVATE);
+  }
+
+  @Test
+  void delete() {
+    queue.clear(message);
+    verify(messageDao).delete(message);
+  }
+
+  @Test
+  void deleteAll() {
+    queue.clearAll();
+    verify(messageDao).deleteAll();
+  }
 }

@@ -83,14 +83,25 @@ class MessageDaoTest {
   }
 
   @Test
-  void testDupPayload() throws InterruptedException {
+  void testDupPayload() {
     final Message message1 = messageFactory.createMessage("type", "payload");
-    Thread.sleep(10);
     final Message message2 = messageFactory.createMessage("type", "payload");
     messageDao.store(message1, State.ACTIVATE);
     assertThatExceptionOfType(UnableToExecuteStatementException.class)
         .isThrownBy(() -> messageDao.store(message2, State.ACTIVATE))
         .withCauseInstanceOf(SQLIntegrityConstraintViolationException.class);
+  }
+
+  @Test
+  void testDeleteAll() {
+    final Message message1 = messageFactory.createMessage("type", "payload1");
+    final Message message2 = messageFactory.createMessage("type", "payload2");
+    messageDao.store(message1, State.ACTIVATE);
+    messageDao.store(message2, State.ACTIVATE);
+    assertThat(messageDao.forState(State.ACTIVATE)).hasSize(2).containsExactly(message1, message2);
+
+    messageDao.deleteAll();
+    assertThat(messageDao.forState(State.ACTIVATE)).isEmpty();
   }
 
   @Test

@@ -46,7 +46,6 @@ public class QueueImpl implements Queue {
     LOGGER.info("QueueImpl({}, {},{},{})", queueConfiguration, queueRegister, messageDao, messageFactory);
   }
 
-
   @Override
   public Optional<Message> enqueue(final String messageType, final String payload) {
     LOGGER.trace("enqueue({},{})", messageType, payload);
@@ -79,16 +78,18 @@ public class QueueImpl implements Queue {
   @Override
   public Optional<State> getState(final Message message) {
     LOGGER.trace("getState({})", message);
-    return Optional.empty();
+    return messageDao.stateOf(message);
   }
 
   @Override
   public void clearAll() {
     LOGGER.trace("clearAll()");
+    messageDao.deleteAll();
   }
 
   @Override
   public void clear(final Message message) {
     LOGGER.trace("clear({})", message);
+    messageDao.delete(message);
   }
 }

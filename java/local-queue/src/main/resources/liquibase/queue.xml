@@ -23,10 +23,10 @@
 
     <changeSet id="2023-11-07-01" author="wolpert">
         <createTable tableName="QUEUE">
-            <column name="TIMESTAMP" type="bigint">
+            <column name="UUID" type="varchar(36)">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="UUID" type="varchar(36)">
+            <column name="TIMESTAMP" type="bigint">
                 <constraints primaryKey="false" nullable="false"/>
             </column>
             <column name="MESSAGE_TYPE" type="varchar(256)">

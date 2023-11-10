@@ -36,4 +36,12 @@ class MessageFactoryTest {
     assertThat(message.payload()).isEqualTo("payload");
   }
 
+  @Test
+  void testHashChanges() {
+    when(clock.instant()).thenReturn(java.time.Instant.EPOCH);
+    Message message1 = messageFactory.createMessage("type", "payload1");
+    Message message2 = messageFactory.createMessage("type", "payload2");
+    assertThat(message1.hash()).isNotEqualTo(message2.hash());
+  }
+
 }
