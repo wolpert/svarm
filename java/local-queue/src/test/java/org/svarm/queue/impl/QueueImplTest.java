@@ -12,11 +12,9 @@ import org.jdbi.v3.core.statement.UnableToExecuteStatementException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.svarm.queue.Message;
-import org.svarm.queue.MessageConsumer;
 import org.svarm.queue.QueueConfiguration;
 import org.svarm.queue.State;
 import org.svarm.queue.dao.MessageDao;
@@ -36,7 +34,6 @@ class QueueImplTest {
 
   @Mock private Message message;
   @Mock private Message lookupMessage;
-  @Mock private MessageConsumer messageConsumer;
   @Mock private UnableToExecuteStatementException unableToExecuteStatementException;
   @Mock private SQLIntegrityConstraintViolationException sqlIntegrityConstraintViolationException;
 
