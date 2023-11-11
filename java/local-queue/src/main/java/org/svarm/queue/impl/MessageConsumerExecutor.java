@@ -53,7 +53,10 @@ public class MessageConsumerExecutor implements Managed {
     queueRegister.getConsumer(message.messageType())
         .ifPresentOrElse(
             messageConsumer -> executorService.execute(() -> execute(message, messageConsumer)),
-            () -> LOGGER.error("No message for type {}", message.messageType()));
+            () -> {
+              LOGGER.error("No message for type {}", message.messageType());
+              messageDao.delete(message);
+            });
   }
 
   private void execute(final Message message, final MessageConsumer consumer) {
@@ -69,12 +72,19 @@ public class MessageConsumerExecutor implements Managed {
   }
 
   @Override
+  public void start() throws Exception {
+    LOGGER.info("Executor service enabled to start executing messages");
+  }
+
+  @Override
   public void stop() throws Exception {
     LOGGER.info("stop()");
     LOGGER.info("Shutting down the executor service");
+    executorService.shutdown();
     if (!executorService.awaitTermination(15, TimeUnit.SECONDS)) {
       LOGGER.info("Shutting down nicely failed. No longer being nice.");
-      executorService.shutdownNow();
+      executorService.shutdownNow().forEach(runnable -> LOGGER.warn("Unable to shutdown {}", runnable));
     }
+    LOGGER.info("Executor service no longer executing messages");
   }
 }

@@ -3,8 +3,6 @@ package org.svarm.queue.factory;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import com.google.common.hash.HashFunction;
-import com.google.common.hash.Hashing;
 import java.time.Clock;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,13 +14,12 @@ import org.svarm.queue.Message;
 @ExtendWith(MockitoExtension.class)
 class MessageFactoryTest {
 
-  private final HashFunction hashFunction = Hashing.murmur3_32_fixed();
   @Mock private Clock clock;
   private MessageFactory messageFactory;
 
   @BeforeEach
   void setup() {
-    messageFactory = new MessageFactory(clock, hashFunction);
+    messageFactory = new MessageFactory(clock);
   }
 
   @Test

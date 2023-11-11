@@ -48,16 +48,6 @@ class MessageDaoTest {
   private DataSource dataSource;
   private MessageDao messageDao;
 
-  @BeforeEach
-  void setup() throws SQLException, LiquibaseException {
-    messageFactory = new MessageFactory(clock, Hashing.murmur3_32_fixed());
-    dataSource = dataSource();
-    runLiquibase(dataSource.getConnection());
-    jdbi = Jdbi.create(dataSource);
-    jdbi.installPlugin(new SqlObjectPlugin());
-    messageDao = new QueueModule().messageDao(jdbi);
-  }
-
   @Test
   void testRoundTrip() {
     when(clock.instant()).thenReturn(EPOCH);
@@ -138,6 +128,21 @@ class MessageDaoTest {
         .containsExactly(message1, message3);
   }
 
+  @BeforeEach
+  void setup() throws SQLException, LiquibaseException {
+    messageFactory = new MessageFactory(clock);
+    dataSource = dataSource();
+    runLiquibase(dataSource.getConnection());
+    jdbi = Jdbi.create(dataSource);
+    jdbi.installPlugin(new SqlObjectPlugin());
+    messageDao = new QueueModule().messageDao(jdbi);
+  }
+
+  @AfterEach
+  void shutdownSQLEngine() {
+    Jdbi.create(dataSource).withHandle(handle -> handle.execute("shutdown;"));
+  }
+
   private void runLiquibase(final Connection connection) throws LiquibaseException {
     Database database = DatabaseFactory.getInstance()
         .findCorrectDatabaseImplementation(new JdbcConnection(connection));
@@ -161,9 +166,5 @@ class MessageDaoTest {
     return cpds;
   }
 
-  @AfterEach
-  void shutdownSQLEngine() {
-    Jdbi.create(dataSource).withHandle(handle -> handle.execute("shutdown;"));
-  }
 
 }

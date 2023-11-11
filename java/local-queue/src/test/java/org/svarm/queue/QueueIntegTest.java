@@ -1,0 +1,174 @@
+package org.svarm.queue;
+
+import com.google.common.hash.HashFunction;
+import com.google.common.hash.Hashing;
+import com.mchange.v2.c3p0.ComboPooledDataSource;
+import dagger.Component;
+import dagger.Module;
+import dagger.Provides;
+import dagger.multibindings.IntoMap;
+import dagger.multibindings.StringKey;
+import io.dropwizard.lifecycle.Managed;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.time.Clock;
+import java.util.Set;
+import java.util.UUID;
+import javax.inject.Singleton;
+import javax.sql.DataSource;
+import liquibase.Contexts;
+import liquibase.LabelExpression;
+import liquibase.Liquibase;
+import liquibase.database.Database;
+import liquibase.database.DatabaseFactory;
+import liquibase.database.jvm.JdbcConnection;
+import liquibase.exception.LiquibaseException;
+import liquibase.resource.ClassLoaderResourceAccessor;
+import org.jdbi.v3.core.Jdbi;
+import org.jdbi.v3.sqlobject.SqlObjectPlugin;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+import org.svarm.queue.module.QueueModule;
+
+/**
+ * This test pretends to be a full dropwizard application.
+ */
+@Tag("integ")
+public class QueueIntegTest {
+
+  private static final String KEY_WORKING = "KEY_WORKING";
+  private static QueueComponent queueComponent;
+
+  public static boolean WORKING = false;
+
+
+  @Test
+  public void working() {
+    WORKING = false;
+    queueComponent.queue().enqueue(KEY_WORKING, "payload");
+    int count = 0;
+    while (!WORKING && count < 20) { // wait up to 10 seconds
+      try {
+        Thread.sleep(500);
+        count++;
+      } catch (InterruptedException e) {
+        throw new RuntimeException(e);
+      }
+    }
+    if (!WORKING) {
+      throw new RuntimeException("Not working");
+    }
+  }
+
+  @BeforeAll
+  public static void beforeAll() {
+    queueComponent = DaggerQueueIntegTest_QueueComponent.builder()
+        .build();
+    queueComponent.managed().forEach(managed -> {
+      try {
+        managed.start();
+      } catch (Exception e) {
+        throw new RuntimeException(e);
+      }
+    });
+  }
+
+  @AfterAll
+  public static void afterAll() {
+    queueComponent.managed().forEach(managed -> {
+      try {
+        managed.stop();
+      } catch (Exception e) {
+        throw new RuntimeException(e);
+      }
+    });
+    Jdbi.create(queueComponent.dataSource()).withHandle(handle -> handle.execute("shutdown;"));
+  }
+
+  public static class WorkingTest implements MessageConsumer {
+
+    @Override
+    public void accept(final Message message) {
+      WORKING = true;
+    }
+  }
+
+  @Component(modules = {QueueModule.class, JdbiModule.class})
+  @Singleton
+  public interface QueueComponent {
+
+    DataSource dataSource();
+    Queue queue();
+    Set<Managed> managed();
+
+  }
+
+  @Module
+  public static class JdbiModule {
+
+    @Provides
+    @Singleton
+    public Clock clock() {
+      return Clock.systemUTC();
+    }
+
+    @Provides
+    @IntoMap
+    @StringKey(KEY_WORKING)
+    public MessageConsumer workingConsumer() {
+      return new WorkingTest();
+    }
+
+    // You do not have to set this if you are using the defaults.
+    @Provides
+    @Singleton
+    public QueueConfiguration queueConfiguration() {
+      return ImmutableQueueConfiguration.builder()
+          .queueProcessorInitialDelay(1)
+          .waitBetweenPollsSeconds(3)
+          .queueProcessorInterval(3)
+          .build();
+    }
+
+    @Provides
+    @Singleton
+    public Jdbi jdbi(final DataSource dataSource) {
+      try {
+        runLiquibase(dataSource.getConnection());
+      } catch (LiquibaseException | SQLException e) {
+        throw new RuntimeException(e);
+      }
+      return Jdbi.create(dataSource)
+          .installPlugin(new SqlObjectPlugin());
+    }
+
+    private void runLiquibase(final Connection connection) throws LiquibaseException {
+      Database database = DatabaseFactory.getInstance()
+          .findCorrectDatabaseImplementation(new JdbcConnection(connection));
+      Liquibase liquibase = new liquibase.Liquibase(
+          "liquibase/queue.xml",
+          new ClassLoaderResourceAccessor(),
+          database);
+      liquibase.update(new Contexts(), new LabelExpression());
+    }
+
+    @Provides
+    @Singleton
+    public DataSource dataSource() {
+      final String url = "jdbc:hsqldb:mem:" + getClass().getSimpleName() + ":" + UUID.randomUUID();
+      final ComboPooledDataSource cpds = new ComboPooledDataSource();
+      cpds.setJdbcUrl(url);
+      cpds.setUser("SA");
+      cpds.setPassword("");
+      cpds.setMinPoolSize(0);
+      cpds.setAcquireIncrement(10);
+      cpds.setMaxPoolSize(40);
+      cpds.setMaxIdleTime(300);
+      return cpds;
+    }
+
+  }
+
+}

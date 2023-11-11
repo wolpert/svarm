@@ -20,10 +20,12 @@ import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.mapper.immutables.JdbiImmutables;
 import org.svarm.queue.Message;
 import org.svarm.queue.MessageConsumer;
+import org.svarm.queue.Queue;
 import org.svarm.queue.QueueConfiguration;
 import org.svarm.queue.dao.MessageDao;
 import org.svarm.queue.factory.QueueConfigurationFactory;
 import org.svarm.queue.impl.MessageConsumerExecutor;
+import org.svarm.queue.impl.QueueImpl;
 import org.svarm.queue.impl.QueueProcessor;
 
 /**
@@ -40,6 +42,18 @@ public class QueueModule {
    * The constant QUEUE_PROCESSOR_EXECUTOR.
    */
   public static final String QUEUE_PROCESSOR_EXECUTOR = "QueueProcessorExecutor";
+
+  /**
+   * Queue queue.
+   *
+   * @param queue the queue
+   * @return the queue
+   */
+  @Singleton
+  @Provides
+  public Queue queue(final QueueImpl queue) {
+    return queue;
+  }
 
   /**
    * Message dao message dao.

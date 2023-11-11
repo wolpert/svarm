@@ -64,6 +64,7 @@ public class QueueProcessor implements Managed {
             TimeUnit.SECONDS);
       }
     }
+    LOGGER.info("Queue accepting messages");
   }
 
   private void resetState(final State state) {
@@ -101,5 +102,6 @@ public class QueueProcessor implements Managed {
         }
       }
     }
+    LOGGER.info("Queue no longer accepting messages");
   }
 }
