@@ -8,8 +8,12 @@ import dagger.multibindings.IntoSet;
 import dagger.multibindings.Multibinds;
 import io.dropwizard.lifecycle.Managed;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import javax.inject.Named;
 import javax.inject.Singleton;
 import org.jdbi.v3.core.Jdbi;
@@ -18,6 +22,8 @@ import org.svarm.queue.Message;
 import org.svarm.queue.MessageConsumer;
 import org.svarm.queue.QueueConfiguration;
 import org.svarm.queue.dao.MessageDao;
+import org.svarm.queue.factory.QueueConfigurationFactory;
+import org.svarm.queue.impl.MessageConsumerExecutor;
 import org.svarm.queue.impl.QueueProcessor;
 
 /**
@@ -30,6 +36,10 @@ public class QueueModule {
    * The constant QUEUE_PROCESSOR_SCHEDULER.
    */
   public static final String QUEUE_PROCESSOR_SCHEDULER = "QueueProcessorScheduler";
+  /**
+   * The constant QUEUE_PROCESSOR_EXECUTOR.
+   */
+  public static final String QUEUE_PROCESSOR_EXECUTOR = "QueueProcessorExecutor";
 
   /**
    * Message dao message dao.
@@ -58,10 +68,28 @@ public class QueueModule {
   }
 
   /**
+   * Thread pool executor executor service.
+   *
+   * @param factory the factory
+   * @return the executor service
+   */
+  @Singleton
+  @Provides
+  @Named(QUEUE_PROCESSOR_EXECUTOR)
+  public ExecutorService threadPoolExecutor(final QueueConfigurationFactory factory) {
+    final QueueConfiguration configuration = factory.queueConfiguration();
+    return new ThreadPoolExecutor(configuration.queueExecutorMinThreads(),
+        configuration.queueExecutorMaxThreads(),
+        configuration.queueExecutorIdleSeconds(),
+        TimeUnit.SECONDS, new LinkedBlockingQueue<>());
+  }
+
+  /**
    * The interface Binder.
    */
   @Module
   interface Binder {
+
 
     /**
      * Queue configuration queue configuration. If you don't define one, we use the default.
@@ -79,7 +107,17 @@ public class QueueModule {
      */
     @IntoSet
     @Binds
-    Managed managed(final QueueProcessor queueProcessor);
+    Managed managedQueueProcessor(final QueueProcessor queueProcessor);
+
+    /**
+     * Managed message consumer executor managed.
+     *
+     * @param messageConsumerExecutor the message consumer executor
+     * @return the managed
+     */
+    @IntoSet
+    @Binds
+    Managed managedMessageConsumerExecutor(final MessageConsumerExecutor messageConsumerExecutor);
 
     /**
      * Message consumers map.

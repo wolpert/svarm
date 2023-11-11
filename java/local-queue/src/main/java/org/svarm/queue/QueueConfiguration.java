@@ -58,4 +58,31 @@ public interface QueueConfiguration {
     return 15;
   }
 
+  /**
+   * Queue executor min threads int.
+   *
+   * @return the int
+   */
+  default int queueExecutorMinThreads() {
+    return 10;
+  }
+
+  /**
+   * Queue executor max threads int.
+   *
+   * @return the int
+   */
+  default int queueExecutorMaxThreads() {
+    return 20;
+  }
+
+  /**
+   * Queue executor idle seconds int.
+   *
+   * @return the int
+   */
+  default int queueExecutorIdleSeconds() {
+    return 30;
+  }
+
 }
