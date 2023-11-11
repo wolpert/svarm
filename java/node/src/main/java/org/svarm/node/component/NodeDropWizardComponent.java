@@ -28,6 +28,7 @@ import org.svarm.node.module.NodeConfigurationModule;
 import org.svarm.node.module.ResourceModule;
 import org.svarm.node.module.TableDefinitionEngineModule;
 import org.svarm.node.module.UtilitiesModule;
+import org.svarm.queue.module.QueueModule;
 import org.svarm.server.component.DropWizardComponent;
 import org.svarm.server.module.DropWizardModule;
 
@@ -46,7 +47,8 @@ import org.svarm.server.module.DropWizardModule;
     JavaClientModule.class,
     ResourceModule.class,
     TableDefinitionEngineModule.class,
-    UtilitiesModule.class
+    UtilitiesModule.class,
+    QueueModule.class
 })
 public interface NodeDropWizardComponent extends DropWizardComponent {
 
