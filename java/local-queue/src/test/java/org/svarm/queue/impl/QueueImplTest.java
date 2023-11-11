@@ -102,8 +102,8 @@ class QueueImplTest {
 
   @Test
   void getState() {
-    when(messageDao.stateOf(message)).thenReturn(Optional.of(State.ACTIVATE));
-    assertThat(queue.getState(message)).contains(State.ACTIVATE);
+    when(messageDao.stateOf(message)).thenReturn(Optional.of(State.ACTIVATING));
+    assertThat(queue.getState(message)).contains(State.ACTIVATING);
   }
 
   @Test

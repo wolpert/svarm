@@ -38,4 +38,24 @@ public interface QueueConfiguration {
     return true;
   }
 
+  /**
+   * Queue processor initial delay int for processing the durable queue for entries.
+   *
+   * @return the int
+   */
+  @Value.Default
+  default int queueProcessorInitialDelay() {
+    return 50;
+  }
+
+  /**
+   * Queue processor interval int for processing the durable queue for entries.
+   *
+   * @return the int
+   */
+  @Value.Default
+  default int queueProcessorInterval() {
+    return 15;
+  }
+
 }

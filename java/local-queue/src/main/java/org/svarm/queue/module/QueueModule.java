@@ -8,6 +8,9 @@ import dagger.multibindings.IntoSet;
 import dagger.multibindings.Multibinds;
 import io.dropwizard.lifecycle.Managed;
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import javax.inject.Named;
 import javax.inject.Singleton;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.mapper.immutables.JdbiImmutables;
@@ -24,6 +27,11 @@ import org.svarm.queue.impl.QueueProcessor;
 public class QueueModule {
 
   /**
+   * The constant QUEUE_PROCESSOR_SCHEDULER.
+   */
+  public static final String QUEUE_PROCESSOR_SCHEDULER = "QueueProcessorScheduler";
+
+  /**
    * Message dao message dao.
    *
    * @param jdbi the jdbi, which we require already has the SQLObjects and immutable plugin installed.
@@ -35,6 +43,18 @@ public class QueueModule {
     jdbi.getConfig(JdbiImmutables.class)
         .registerImmutable(Message.class);
     return jdbi.onDemand(MessageDao.class);
+  }
+
+  /**
+   * Scheduled executor service scheduled executor service.
+   *
+   * @return the scheduled executor service
+   */
+  @Singleton
+  @Provides
+  @Named(QUEUE_PROCESSOR_SCHEDULER)
+  public ScheduledExecutorService scheduledExecutorService() {
+    return Executors.newScheduledThreadPool(1);
   }
 
   /**

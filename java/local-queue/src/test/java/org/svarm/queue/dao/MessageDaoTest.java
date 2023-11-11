@@ -62,7 +62,7 @@ class MessageDaoTest {
   void testRoundTrip() {
     when(clock.instant()).thenReturn(EPOCH);
     final Message message = messageFactory.createMessage("type", "payload");
-    messageDao.store(message, State.ACTIVATE);
+    messageDao.store(message, State.ACTIVATING);
     final Optional<Message> result = messageDao.readByUuid(message.uuid());
     assertThat(result)
         .isNotEmpty()
@@ -76,7 +76,7 @@ class MessageDaoTest {
   void testHashLookup() {
     when(clock.instant()).thenReturn(EPOCH);
     final Message message = messageFactory.createMessage("type", "payload");
-    messageDao.store(message, State.ACTIVATE);
+    messageDao.store(message, State.ACTIVATING);
     assertThat(messageDao.readByHash(message.hash()))
         .isNotEmpty()
         .contains(message);
@@ -86,13 +86,13 @@ class MessageDaoTest {
   void testUpdateState() {
     when(clock.instant()).thenReturn(EPOCH);
     final Message message = messageFactory.createMessage("type", "payload");
-    messageDao.store(message, State.ACTIVATE);
-    assertThat(messageDao.forState(State.ACTIVATE)).containsExactly(message);
-    assertThat(messageDao.stateOf(message)).contains(State.ACTIVATE);
+    messageDao.store(message, State.ACTIVATING);
+    assertThat(messageDao.forState(State.ACTIVATING)).containsExactly(message);
+    assertThat(messageDao.stateOf(message)).contains(State.ACTIVATING);
     messageDao.updateState(message, State.PENDING);
     assertThat(messageDao.stateOf(message)).contains(State.PENDING);
     assertThat(messageDao.forState(State.PENDING)).containsExactly(message);
-    assertThat(messageDao.forState(State.ACTIVATE)).isEmpty();
+    assertThat(messageDao.forState(State.ACTIVATING)).isEmpty();
   }
 
   @Test
@@ -101,9 +101,9 @@ class MessageDaoTest {
     final Message message1 = messageFactory.createMessage("type", "payload");
     when(clock.instant()).thenReturn(Instant.ofEpochMilli(101));
     final Message message2 = messageFactory.createMessage("type", "payload");
-    messageDao.store(message1, State.ACTIVATE);
+    messageDao.store(message1, State.ACTIVATING);
     assertThatExceptionOfType(UnableToExecuteStatementException.class)
-        .isThrownBy(() -> messageDao.store(message2, State.ACTIVATE))
+        .isThrownBy(() -> messageDao.store(message2, State.ACTIVATING))
         .withCauseInstanceOf(SQLIntegrityConstraintViolationException.class);
   }
 
@@ -113,12 +113,12 @@ class MessageDaoTest {
     final Message message1 = messageFactory.createMessage("type", "payload1");
     when(clock.instant()).thenReturn(Instant.ofEpochMilli(101));
     final Message message2 = messageFactory.createMessage("type", "payload2");
-    messageDao.store(message1, State.ACTIVATE);
-    messageDao.store(message2, State.ACTIVATE);
-    assertThat(messageDao.forState(State.ACTIVATE)).hasSize(2).containsExactly(message1, message2);
+    messageDao.store(message1, State.ACTIVATING);
+    messageDao.store(message2, State.ACTIVATING);
+    assertThat(messageDao.forState(State.ACTIVATING)).hasSize(2).containsExactly(message1, message2);
 
     messageDao.deleteAll();
-    assertThat(messageDao.forState(State.ACTIVATE)).isEmpty();
+    assertThat(messageDao.forState(State.ACTIVATING)).isEmpty();
   }
 
   @Test
@@ -129,10 +129,10 @@ class MessageDaoTest {
     final Message message2 = messageFactory.createMessage("type", "payload:2");
     when(clock.instant()).thenReturn(Instant.ofEpochMilli(120));
     final Message message3 = messageFactory.createMessage("type", "payload:3");
-    messageDao.store(message1, State.ACTIVATE);
+    messageDao.store(message1, State.ACTIVATING);
     messageDao.store(message2, State.PENDING);
-    messageDao.store(message3, State.ACTIVATE);
-    final List<Message> list = messageDao.forState(State.ACTIVATE);
+    messageDao.store(message3, State.ACTIVATING);
+    final List<Message> list = messageDao.forState(State.ACTIVATING);
     assertThat(list)
         .hasSize(2)
         .containsExactly(message1, message3);

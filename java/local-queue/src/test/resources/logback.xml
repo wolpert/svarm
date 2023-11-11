@@ -23,7 +23,7 @@
         </encoder>
     </appender>
 
-    <logger name="com.codeheadsystems" level="TRACE"/>
+    <logger name="org.svarm" level="TRACE"/>
 
     <root level="warn">
         <appender-ref ref="STDOUT"/>
