@@ -2,7 +2,9 @@ package org.svarm.queue.impl;
 
 import static org.svarm.queue.module.QueueModule.QUEUE_PROCESSOR_EXECUTOR;
 
+import com.codeheadsystems.metrics.Metrics;
 import io.dropwizard.lifecycle.Managed;
+import io.micrometer.core.instrument.Tags;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
@@ -25,6 +27,7 @@ public class MessageConsumerExecutor implements Managed {
   private final ExecutorService executorService;
   private final MessageDao messageDao;
   private final QueueRegister queueRegister;
+  private final Metrics metrics;
 
   /**
    * Instantiates a new Message consumer executor.
@@ -32,14 +35,16 @@ public class MessageConsumerExecutor implements Managed {
    * @param executorService the executor service
    * @param messageDao      the message dao
    * @param queueRegister   the queue register
+   * @param metrics         the metrics
    */
   @Inject
   public MessageConsumerExecutor(@Named(QUEUE_PROCESSOR_EXECUTOR) final ExecutorService executorService,
                                  final MessageDao messageDao,
-                                 final QueueRegister queueRegister) {
+                                 final QueueRegister queueRegister, final Metrics metrics) {
     this.executorService = executorService;
     this.messageDao = messageDao;
     this.queueRegister = queueRegister;
+    this.metrics = metrics;
     LOGGER.info("MessageConsumerExecutor({},{},{})", messageDao, executorService, queueRegister);
   }
 
@@ -50,20 +55,27 @@ public class MessageConsumerExecutor implements Managed {
    */
   public void enqueue(final Message message) {
     LOGGER.trace("enqueue({})", message);
-    queueRegister.getConsumer(message.messageType())
-        .ifPresentOrElse(
-            messageConsumer -> executorService.execute(() -> execute(message, messageConsumer)),
-            () -> {
-              LOGGER.error("No message for type {}", message.messageType());
-              messageDao.delete(message);
-            });
+    final String messageType = message.messageType();
+    metrics.time("MessageConsumerExecutor.enqueue", Tags.of("messageType", messageType), () -> {
+      queueRegister.getConsumer(messageType)
+          .ifPresentOrElse(
+              messageConsumer -> executorService.execute(() -> execute(message, messageConsumer)),
+              () -> {
+                LOGGER.error("No message for type {}", message.messageType());
+                messageDao.delete(message);
+              });
+      return null;
+    });
   }
 
   private void execute(final Message message, final MessageConsumer consumer) {
     LOGGER.trace("execute({},{})", message, consumer);
     try {
-      messageDao.updateState(message, State.PROCESSING);
-      consumer.accept(message);
+      metrics.time("MessageConsumerExecutor.enqueue", Tags.of("messageType", message.messageType()), () -> {
+        messageDao.updateState(message, State.PROCESSING);
+        consumer.accept(message);
+        return null;
+      });
     } catch (final Throwable t) {
       LOGGER.error("Error processing message: {}", message, t); // do not die
     } finally {

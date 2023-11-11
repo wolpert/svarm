@@ -7,6 +7,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.codeheadsystems.metrics.test.BaseMetricTest;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ScheduledExecutorService;
@@ -24,7 +25,7 @@ import org.svarm.queue.dao.MessageDao;
 import org.svarm.queue.factory.QueueConfigurationFactory;
 
 @ExtendWith(MockitoExtension.class)
-class QueueProcessorTest {
+class QueueProcessorTest extends BaseMetricTest {
 
   @Mock private MessageDao messageDao;
   @Mock private QueueConfiguration queueConfiguration;
@@ -38,7 +39,7 @@ class QueueProcessorTest {
 
   @BeforeEach
   void setup() {
-    processor = new QueueProcessor(messageDao, new QueueConfigurationFactory(Optional.of(queueConfiguration)), messageConsumerExecutor, scheduledExecutorService);
+    processor = new QueueProcessor(messageDao, new QueueConfigurationFactory(Optional.of(queueConfiguration)), messageConsumerExecutor, scheduledExecutorService, metrics);
   }
 
   @SuppressWarnings("unchecked")

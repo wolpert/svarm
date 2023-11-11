@@ -1,7 +1,5 @@
 package org.svarm.queue;
 
-import com.google.common.hash.HashFunction;
-import com.google.common.hash.Hashing;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 import dagger.Component;
 import dagger.Module;
@@ -9,11 +7,16 @@ import dagger.Provides;
 import dagger.multibindings.IntoMap;
 import dagger.multibindings.StringKey;
 import io.dropwizard.lifecycle.Managed;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Tags;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.Clock;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Supplier;
 import javax.inject.Singleton;
 import javax.sql.DataSource;
 import liquibase.Contexts;
@@ -131,6 +134,45 @@ public class QueueIntegTest {
           .queueProcessorInterval(3)
           .build();
     }
+
+    // --- START METRICS ---
+
+    /**
+     * Default registry.
+     *
+     * @return the value.
+     */
+    @Provides
+    @Singleton
+    MeterRegistry meterRegistry() {
+      return new SimpleMeterRegistry();
+    }
+
+    /**
+     * The instrumented meter registry.
+     *
+     * @return registry. tags
+     */
+    @Provides
+    @Singleton
+    public Tags defaultTags() {
+      return Tags.of("test", "true");
+    }
+
+    /**
+     * Returns the supplier for the default tags.
+     *
+     * @param defaultTags base set.
+     * @return the supplier.
+     */
+    @Provides
+    @Singleton
+    public Supplier<Tags> defaultTagSupplier(final Tags defaultTags) {
+      final Optional<Tags> optional = Optional.of(defaultTags);
+      return optional::get;
+    }
+
+    // ---- END METRICS ----
 
     @Provides
     @Singleton

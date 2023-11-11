@@ -2,7 +2,9 @@ package org.svarm.queue.impl;
 
 import static org.svarm.queue.module.QueueModule.QUEUE_PROCESSOR_SCHEDULER;
 
+import com.codeheadsystems.metrics.Metrics;
 import io.dropwizard.lifecycle.Managed;
+import io.micrometer.core.instrument.Tags;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -27,6 +29,7 @@ public class QueueProcessor implements Managed {
   private final QueueConfiguration queueConfiguration;
   private final MessageConsumerExecutor messageConsumerExecutor;
   private final ScheduledExecutorService scheduledExecutorService;
+  private final Metrics metrics;
   private ScheduledFuture<?> scheduler;
 
   /**
@@ -36,16 +39,19 @@ public class QueueProcessor implements Managed {
    * @param queueConfigurationFactory the queue configuration factory
    * @param messageConsumerExecutor   the message consumer executor
    * @param scheduledExecutorService  the scheduled executor service
+   * @param metrics                   the metrics
    */
   @Inject
   public QueueProcessor(final MessageDao dao,
                         final QueueConfigurationFactory queueConfigurationFactory,
                         final MessageConsumerExecutor messageConsumerExecutor,
-                        @Named(QUEUE_PROCESSOR_SCHEDULER) final ScheduledExecutorService scheduledExecutorService) {
+                        @Named(QUEUE_PROCESSOR_SCHEDULER) final ScheduledExecutorService scheduledExecutorService,
+                        final Metrics metrics) {
     this.dao = dao;
     this.queueConfiguration = queueConfigurationFactory.queueConfiguration();
     this.messageConsumerExecutor = messageConsumerExecutor;
     this.scheduledExecutorService = scheduledExecutorService;
+    this.metrics = metrics;
     LOGGER.info("QueueProcessor({},{},{})", dao, queueConfiguration, messageConsumerExecutor);
   }
 
@@ -79,10 +85,13 @@ public class QueueProcessor implements Managed {
    */
   public void processPendingQueue() {
     LOGGER.trace("processPendingQueue()");
-    dao.forState(State.PENDING).forEach(message -> {
-      LOGGER.trace("Processing message {}", message);
-      dao.updateState(message, State.ACTIVATING);
-      messageConsumerExecutor.enqueue(message);
+    metrics.time("QueueProcessor.processPendingQueue", () -> {
+      dao.forState(State.PENDING).forEach(message -> {
+        LOGGER.trace("Processing message {}", message);
+        dao.updateState(message, State.ACTIVATING);
+        messageConsumerExecutor.enqueue(message);
+      });
+      return null;
     });
   }
 

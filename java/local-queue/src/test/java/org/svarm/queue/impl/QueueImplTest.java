@@ -6,6 +6,7 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.codeheadsystems.metrics.test.BaseMetricTest;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.Optional;
 import org.jdbi.v3.core.statement.UnableToExecuteStatementException;
@@ -22,7 +23,7 @@ import org.svarm.queue.factory.MessageFactory;
 import org.svarm.queue.factory.QueueConfigurationFactory;
 
 @ExtendWith(MockitoExtension.class)
-class QueueImplTest {
+class QueueImplTest extends BaseMetricTest {
 
   private static final String TYPE = "messageType";
   private static final String PAYLOAD = "payload";
@@ -41,7 +42,7 @@ class QueueImplTest {
 
   @BeforeEach
   public void setup() {
-    queue = new QueueImpl(messageDao, messageFactory, new QueueConfigurationFactory(Optional.of(queueConfiguration)));
+    queue = new QueueImpl(messageDao, messageFactory, new QueueConfigurationFactory(Optional.of(queueConfiguration)), metrics);
   }
 
   @Test
