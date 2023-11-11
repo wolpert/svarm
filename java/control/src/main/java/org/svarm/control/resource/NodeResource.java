@@ -130,8 +130,8 @@ public class NodeResource implements JerseyResource, ControlNodeService {
   @ExceptionMetered
   @ResponseMetered
   public NodeInfo delete(final String nodeUuid,
-                          final String tenant,
-                          final String resource) {
+                         final String tenant,
+                         final String resource) {
     LOGGER.trace("delete({},{},{})", nodeUuid, tenant, resource);
     final Node node = nodeManager.read(nodeUuid)
         .orElseThrow(() -> new NotFoundException("No such node"));

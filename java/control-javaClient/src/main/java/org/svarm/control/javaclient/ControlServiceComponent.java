@@ -17,10 +17,6 @@
 package org.svarm.control.javaclient;
 
 import dagger.Component;
-import dagger.Module;
-import dagger.Provides;
-import io.micrometer.core.instrument.MeterRegistry;
-import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import javax.inject.Singleton;
 import org.svarm.common.javaclient.JavaClientModule;
 import org.svarm.common.javaclient.StandaloneMeterRegistry;

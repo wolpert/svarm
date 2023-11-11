@@ -4,7 +4,6 @@ import static org.svarm.queue.module.QueueModule.QUEUE_PROCESSOR_SCHEDULER;
 
 import com.codeheadsystems.metrics.Metrics;
 import io.dropwizard.lifecycle.Managed;
-import io.micrometer.core.instrument.Tags;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;

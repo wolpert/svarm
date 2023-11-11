@@ -11,8 +11,6 @@ import org.svarm.common.engine.JsonEngine;
 import org.svarm.common.factory.ObjectMapperFactory;
 import org.svarm.node.api.EntryInfo;
 import org.svarm.node.api.ImmutableEntryInfo;
-import org.svarm.node.engine.impl.v1singleentry.V1Row;
-import org.svarm.node.engine.impl.v1singleentry.V1RowConverter;
 
 class V1RowConverterTest {
 

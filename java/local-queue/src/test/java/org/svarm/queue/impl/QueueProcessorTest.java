@@ -1,6 +1,5 @@
 package org.svarm.queue.impl;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
@@ -59,7 +58,7 @@ class QueueProcessorTest extends BaseMetricTest {
   }
 
   @Test
-  void testProcessingPendingQueue(){
+  void testProcessingPendingQueue() {
     when(messageDao.forState(State.PENDING)).thenReturn(List.of(message));
 
     processor.processPendingQueue();

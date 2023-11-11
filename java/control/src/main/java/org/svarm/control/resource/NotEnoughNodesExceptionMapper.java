@@ -25,7 +25,6 @@ import jakarta.ws.rs.ext.ExceptionMapper;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.svarm.control.exception.NotEnoughNodesException;
-import org.svarm.server.exception.NotFoundException;
 import org.svarm.server.resource.JerseyResource;
 
 /**

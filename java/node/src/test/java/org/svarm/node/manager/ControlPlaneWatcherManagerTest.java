@@ -1,6 +1,5 @@
 package org.svarm.node.manager;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -66,7 +65,7 @@ class ControlPlaneWatcherManagerTest {
   }
 
   @Test
-  void putEvent_newTable(){
+  void putEvent_newTable() {
     when(event.type()).thenReturn(Event.Type.PUT);
     when(event.key()).thenReturn(KEY);
     when(event.value()).thenReturn(Optional.of(VALUE));
@@ -84,7 +83,7 @@ class ControlPlaneWatcherManagerTest {
   }
 
   @Test
-  void putEvent_delete_found(){
+  void putEvent_delete_found() {
     when(event.type()).thenReturn(Event.Type.PUT);
     when(event.key()).thenReturn(KEY);
     when(event.value()).thenReturn(Optional.of(VALUE));
@@ -102,7 +101,7 @@ class ControlPlaneWatcherManagerTest {
   }
 
   @Test
-  void putEvent_delete_notFound(){
+  void putEvent_delete_notFound() {
     when(event.type()).thenReturn(Event.Type.PUT);
     when(event.key()).thenReturn(KEY);
     when(event.value()).thenReturn(Optional.of(VALUE));

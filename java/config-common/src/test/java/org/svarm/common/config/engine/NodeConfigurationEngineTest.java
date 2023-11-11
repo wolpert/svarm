@@ -74,10 +74,10 @@ class NodeConfigurationEngineTest {
         .mapToObj(i -> Map.entry(
             i * 23,
             ImmutableNodeRange.builder()
-                    .hash(i)
-                    .uri(uuid())
-                    .uuid(uuid())
-                    .build()))
+                .hash(i)
+                .uri(uuid())
+                .uuid(uuid())
+                .build()))
         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     return ImmutableTenantResourceRange.builder()
         .resource(uuid())

@@ -17,7 +17,6 @@
 package org.svarm.server;
 
 import io.dropwizard.core.Application;
-import io.dropwizard.core.setup.Bootstrap;
 import io.dropwizard.core.setup.Environment;
 import java.security.Security;
 import java.util.UUID;

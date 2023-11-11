@@ -16,14 +16,8 @@
 
 package org.svarm.server.component;
 
-import com.codahale.metrics.health.HealthCheck;
-import io.dropwizard.lifecycle.Managed;
 import java.util.Set;
-import org.svarm.server.initializer.HealthCheckInitializer;
 import org.svarm.server.initializer.Initializer;
-import org.svarm.server.initializer.JerseyResourceInitializer;
-import org.svarm.server.initializer.ManagedObjectInitializer;
-import org.svarm.server.resource.JerseyResource;
 
 /**
  * Expected drop wizard sets needed for initialization.

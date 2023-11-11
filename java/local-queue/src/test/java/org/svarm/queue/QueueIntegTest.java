@@ -42,28 +42,8 @@ import org.svarm.queue.module.QueueModule;
 public class QueueIntegTest {
 
   private static final String KEY_WORKING = "KEY_WORKING";
-  private static QueueComponent queueComponent;
-
   public static boolean WORKING = false;
-
-
-  @Test
-  public void working() {
-    WORKING = false;
-    queueComponent.queue().enqueue(KEY_WORKING, "payload");
-    int count = 0;
-    while (!WORKING && count < 20) { // wait up to 10 seconds
-      try {
-        Thread.sleep(500);
-        count++;
-      } catch (InterruptedException e) {
-        throw new RuntimeException(e);
-      }
-    }
-    if (!WORKING) {
-      throw new RuntimeException("Not working");
-    }
-  }
+  private static QueueComponent queueComponent;
 
   @BeforeAll
   public static void beforeAll() {
@@ -90,11 +70,21 @@ public class QueueIntegTest {
     Jdbi.create(queueComponent.dataSource()).withHandle(handle -> handle.execute("shutdown;"));
   }
 
-  public static class WorkingTest implements MessageConsumer {
-
-    @Override
-    public void accept(final Message message) {
-      WORKING = true;
+  @Test
+  public void working() {
+    WORKING = false;
+    queueComponent.queue().enqueue(KEY_WORKING, "payload");
+    int count = 0;
+    while (!WORKING && count < 20) { // wait up to 10 seconds
+      try {
+        Thread.sleep(500);
+        count++;
+      } catch (InterruptedException e) {
+        throw new RuntimeException(e);
+      }
+    }
+    if (!WORKING) {
+      throw new RuntimeException("Not working");
     }
   }
 
@@ -103,9 +93,19 @@ public class QueueIntegTest {
   public interface QueueComponent {
 
     DataSource dataSource();
+
     Queue queue();
+
     Set<Managed> managed();
 
+  }
+
+  public static class WorkingTest implements MessageConsumer {
+
+    @Override
+    public void accept(final Message message) {
+      WORKING = true;
+    }
   }
 
   @Module

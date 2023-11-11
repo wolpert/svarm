@@ -19,7 +19,6 @@ package org.svarm.common.engine;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -66,7 +65,7 @@ class RingEngineTest {
         Arguments.of(20, 200, Set.of(200, 214748564, 429496928, 644245292, 858993656, 1073742020, 1288490384,
             1503238748, 1717987112, 1932735476, -2147483455, -1932735091, -1717986727, -1503238363, -1288489999,
             -1073741635, -858993271, -644244907, -429496543, -214748179))
-        );
+    );
   }
 
   @ParameterizedTest
