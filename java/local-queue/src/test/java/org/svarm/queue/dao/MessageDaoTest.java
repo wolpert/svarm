@@ -6,7 +6,6 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Mockito.when;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.time.Clock;
@@ -15,14 +14,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import javax.sql.DataSource;
-import liquibase.Contexts;
-import liquibase.LabelExpression;
-import liquibase.Liquibase;
-import liquibase.database.Database;
-import liquibase.database.DatabaseFactory;
-import liquibase.database.jvm.JdbcConnection;
-import liquibase.exception.LiquibaseException;
-import liquibase.resource.ClassLoaderResourceAccessor;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.statement.UnableToExecuteStatementException;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
@@ -36,6 +27,7 @@ import org.svarm.queue.Message;
 import org.svarm.queue.State;
 import org.svarm.queue.factory.MessageFactory;
 import org.svarm.queue.module.QueueModule;
+import org.svarm.util.LiquibaseHelper;
 
 @ExtendWith(MockitoExtension.class)
 class MessageDaoTest {
@@ -128,10 +120,10 @@ class MessageDaoTest {
   }
 
   @BeforeEach
-  void setup() throws SQLException, LiquibaseException {
+  void setup() throws SQLException {
     messageFactory = new MessageFactory(clock);
     dataSource = dataSource();
-    runLiquibase(dataSource.getConnection());
+    new LiquibaseHelper().runLiquibase(dataSource, "liquibase/queue.xml");
     jdbi = Jdbi.create(dataSource);
     jdbi.installPlugin(new SqlObjectPlugin());
     messageDao = new QueueModule().messageDao(jdbi);
@@ -140,16 +132,6 @@ class MessageDaoTest {
   @AfterEach
   void shutdownSQLEngine() {
     Jdbi.create(dataSource).withHandle(handle -> handle.execute("shutdown;"));
-  }
-
-  private void runLiquibase(final Connection connection) throws LiquibaseException {
-    Database database = DatabaseFactory.getInstance()
-        .findCorrectDatabaseImplementation(new JdbcConnection(connection));
-    Liquibase liquibase = new liquibase.Liquibase(
-        "liquibase/queue.xml",
-        new ClassLoaderResourceAccessor(),
-        database);
-    liquibase.update(new Contexts(), new LabelExpression());
   }
 
   private DataSource dataSource() {

@@ -1,0 +1,35 @@
+/*
+ * Copyright (c) 2020-2023. CodeHead Systems. All rights reserved
+ * Ned Wolpert <ned.wolpert@codeheadsystems.com>
+ */
+
+ext {
+    appName = "liquibase-common"
+}
+
+configurations {
+    jar.archiveBaseName = "${appName}"
+}
+
+base {
+    archivesName = "${appName}"
+    version = "${version}"
+}
+
+//jacocoTestReport.finalizedBy jacocoTestCoverageVerification  // Require code coverage to pass
+
+dependencies {
+    implementation libs.liquibase.core
+}
+
+testing {
+    dependencies {
+        implementation libs.hsqldb
+        implementation libs.c3p0
+
+        // Logging stuff... need all thos for logback changes
+        implementation libs.logback.classic
+        implementation libs.logback.core
+        implementation libs.logback.access
+    }
+}

@@ -10,8 +10,6 @@ import io.dropwizard.lifecycle.Managed;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Tags;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.time.Clock;
 import java.util.Optional;
 import java.util.Set;
@@ -19,14 +17,6 @@ import java.util.UUID;
 import java.util.function.Supplier;
 import javax.inject.Singleton;
 import javax.sql.DataSource;
-import liquibase.Contexts;
-import liquibase.LabelExpression;
-import liquibase.Liquibase;
-import liquibase.database.Database;
-import liquibase.database.DatabaseFactory;
-import liquibase.database.jvm.JdbcConnection;
-import liquibase.exception.LiquibaseException;
-import liquibase.resource.ClassLoaderResourceAccessor;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.junit.jupiter.api.AfterAll;
@@ -34,6 +24,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.svarm.queue.module.QueueModule;
+import org.svarm.util.LiquibaseHelper;
 
 /**
  * This test pretends to be a full dropwizard application.
@@ -177,23 +168,9 @@ public class QueueIntegTest {
     @Provides
     @Singleton
     public Jdbi jdbi(final DataSource dataSource) {
-      try {
-        runLiquibase(dataSource.getConnection());
-      } catch (LiquibaseException | SQLException e) {
-        throw new RuntimeException(e);
-      }
+      new LiquibaseHelper().runLiquibase(dataSource, "liquibase/queue.xml");
       return Jdbi.create(dataSource)
           .installPlugin(new SqlObjectPlugin());
-    }
-
-    private void runLiquibase(final Connection connection) throws LiquibaseException {
-      Database database = DatabaseFactory.getInstance()
-          .findCorrectDatabaseImplementation(new JdbcConnection(connection));
-      Liquibase liquibase = new liquibase.Liquibase(
-          "liquibase/queue.xml",
-          new ClassLoaderResourceAccessor(),
-          database);
-      liquibase.update(new Contexts(), new LabelExpression());
     }
 
     @Provides

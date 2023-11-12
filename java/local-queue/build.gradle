@@ -23,7 +23,6 @@ dependencies {
     implementation libs.dropwizard4.core
     api libs.micrometer.core
     // SQL
-    implementation libs.liquibase.core
     implementation libs.jdbi.core
     implementation libs.jdbi.testing
     implementation libs.jdbi.sqlobject
@@ -35,6 +34,7 @@ dependencies {
 }
 testing {
     dependencies {
+        implementation project(":liquibase-common")
         implementation libs.hsqldb
         implementation libs.c3p0
     }

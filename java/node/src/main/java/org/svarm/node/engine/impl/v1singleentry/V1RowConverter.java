@@ -47,7 +47,7 @@ public class V1RowConverter {
     final ImmutableEntryInfo.Builder builder = ImmutableEntryInfo.builder();
     final ObjectNode node = jsonEngine.createObjectNode();
 
-    list.stream().forEach(row -> {
+    list.forEach(row -> {
       builder.id(row.id());
       builder.locationHash(row.hash());
       builder.timestamp(row.timestamp());

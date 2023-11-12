@@ -87,7 +87,7 @@ public class V1SingleEntryEngine implements TableDefinitionEngine {
                 .bind("id", entity)
                 .mapTo(V1Row.class)
                 .list());
-    if (rows.size() == 0) {
+    if (rows.isEmpty()) {
       return Optional.empty();
     } else {
       return Optional.of(converter.toEntryInfo(rows));
@@ -140,11 +140,11 @@ public class V1SingleEntryEngine implements TableDefinitionEngine {
    */
   DataStoreActions<V1Row, String> generate(final Map<String, V1Row> v1map, List<String> existingKeys) {
     final ImmutableDataStoreActions.Builder<V1Row, String> builder = ImmutableDataStoreActions.builder();
-    v1map.entrySet().forEach(es -> {
-      if (existingKeys.contains(es.getKey())) {
-        builder.addUpdate(es.getValue());
+    v1map.forEach((key, value) -> {
+      if (existingKeys.contains(key)) {
+        builder.addUpdate(value);
       } else {
-        builder.addInsert(es.getValue());
+        builder.addInsert(value);
       }
     });
     final Set<String> incomingKeys = v1map.keySet();
