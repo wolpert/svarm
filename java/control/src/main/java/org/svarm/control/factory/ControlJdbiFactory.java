@@ -22,14 +22,6 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import liquibase.Contexts;
-import liquibase.LabelExpression;
-import liquibase.Liquibase;
-import liquibase.database.Database;
-import liquibase.database.DatabaseFactory;
-import liquibase.database.jvm.JdbcConnection;
-import liquibase.exception.LiquibaseException;
-import liquibase.resource.ClassLoaderResourceAccessor;
 import org.jdbi.v3.cache.caffeine.CaffeineCachePlugin;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
@@ -41,6 +33,7 @@ import org.svarm.control.ControlConfiguration;
 import org.svarm.control.model.Key;
 import org.svarm.control.model.Node;
 import org.svarm.control.model.NodeRange;
+import org.svarm.util.LiquibaseHelper;
 
 /**
  * Creates an instance of the JDBI object.
@@ -107,16 +100,9 @@ public class ControlJdbiFactory {
   private void runLiquibase(final Handle handle) {
     LOGGER.info("runLiquibase(): true");
     try (final Connection connection = handle.getConnection()) {
-      final Database database = DatabaseFactory.getInstance()
-          .findCorrectDatabaseImplementation(new JdbcConnection(connection));
-      final Liquibase liquibase = new liquibase.Liquibase(
-          "liquibase/liquibase-setup.xml",
-          new ClassLoaderResourceAccessor(),
-          database
-      );
-      liquibase.update(new Contexts(), new LabelExpression());
+      new LiquibaseHelper().runLiquibase(connection, "liquibase/liquibase-setup.xml");
       LOGGER.info("runLiquibase(): complete");
-    } catch (LiquibaseException | SQLException e) {
+    } catch (RuntimeException | SQLException e) {
       throw new IllegalStateException("Database update failure", e);
     }
   }

@@ -23,6 +23,7 @@ base {
 dependencies {
     implementation project(":common")
     implementation project(':dataStore-common')
+    implementation project(':liquibase-common')
     implementation project(":common-javaClient")
     implementation project(":server-common")
     implementation project(":config-common")
@@ -33,7 +34,6 @@ dependencies {
 
     // SQL
     implementation libs.hsqldb
-    implementation libs.liquibase.core
     implementation libs.c3p0
     implementation libs.jdbi.core
     implementation libs.jdbi.testing

@@ -18,13 +18,13 @@ base {
 //jacocoTestReport.finalizedBy jacocoTestCoverageVerification
 
 dependencies {
+    implementation project(":liquibase-common")
     implementation project(":common")
     implementation project(":server-common")
     implementation project(":config-common")
     implementation project(":control-common")
 
     // SQL
-    implementation libs.liquibase.core
     implementation libs.c3p0
     implementation libs.pgjdbc
     implementation libs.hsqldb

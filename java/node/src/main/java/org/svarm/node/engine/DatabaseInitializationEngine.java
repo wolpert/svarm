@@ -19,16 +19,9 @@ package org.svarm.node.engine;
 import java.sql.Connection;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import liquibase.Contexts;
-import liquibase.LabelExpression;
-import liquibase.Liquibase;
-import liquibase.database.Database;
-import liquibase.database.DatabaseFactory;
-import liquibase.database.jvm.JdbcConnection;
-import liquibase.exception.LiquibaseException;
-import liquibase.resource.ClassLoaderResourceAccessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.svarm.util.LiquibaseHelper;
 
 /**
  * Initializes the database using the proper liquibase files. Needed for provisioning a new datastore.
@@ -56,16 +49,10 @@ public class DatabaseInitializationEngine {
                          final String path) {
     LOGGER.info("initialize({})", path); // INFO because this is rare
     try {
-      Database database = DatabaseFactory.getInstance()
-          .findCorrectDatabaseImplementation(new JdbcConnection(connection));
-      Liquibase liquibase = new liquibase.Liquibase(
-          "liquibase/" + path + "/liquibase-setup.xml",
-          new ClassLoaderResourceAccessor(),
-          database
-      );
-      liquibase.update(new Contexts(), new LabelExpression());
+      new LiquibaseHelper()
+          .runLiquibase(connection, "liquibase/" + path + "/liquibase-setup.xml");
       LOGGER.info("complete");
-    } catch (LiquibaseException e) {
+    } catch (RuntimeException e) {
       throw new IllegalStateException("Database update failure", e);
     }
   }
