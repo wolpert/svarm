@@ -150,8 +150,9 @@ public class NodeRangeManager {
         .ifPresentOrElse(nodeRange -> {
           if (nodeRange.status().equals(NodeRange.STATUS_DELETING)) {
             LOGGER.info("Deleting: {}", nodeRange);
-            nodeRangeDao.delete(nodeUuid, tenant, resource);
+            final int deletes = nodeRangeDao.delete(nodeUuid, tenant, resource);
             nodeRangeDao.commit();
+            LOGGER.info("Deleted: {}", deletes);
             nodeConfigurationEngine.deleteNodeTenantResourceRange(nodeUuid, tenant, resource);
           } else {
             LOGGER.warn("Not in deleting state, ignoring! {}", nodeRange);

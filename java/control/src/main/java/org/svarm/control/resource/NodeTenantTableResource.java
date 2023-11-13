@@ -76,6 +76,7 @@ public class NodeTenantTableResource implements ControlTenantResourceService, Je
   public Optional<TenantResourceInfo> readResource(final String tenantId, final String table) {
     LOGGER.trace("readTenantTable({},{})", tenantId, table);
     final List<NodeRange> nodeRanges = nodeRangeManager.getNodeRange(tenantId, table);
+    LOGGER.trace("readResource results: {}", nodeRanges);
     if (nodeRanges.size() > 0) {
       return Optional.of(tenantResourceInfoConverter.from(nodeRanges));
     } else {

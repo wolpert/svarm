@@ -126,6 +126,6 @@ public interface NodeRangeDao extends Transactional<NodeRangeDao> {
    * @param resource to delete.
    */
   @SqlUpdate("delete from NODE_RANGE where node_uuid = :nodeUuid and tenant = :tenant and resource = :resource")
-  void delete(@Bind("nodeUuid") String nodeUuid, @Bind("tenant") String tenant, @Bind("resource") String resource);
+  int delete(@Bind("nodeUuid") String nodeUuid, @Bind("tenant") String tenant, @Bind("resource") String resource);
 
 }
