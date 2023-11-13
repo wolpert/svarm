@@ -1,4 +1,4 @@
-FROM amazoncorretto:17
+FROM amazoncorretto:21
 
 RUN mkdir -p /server/logs /server/dist /server/work
 ADD build/install/proxy /server/dist/

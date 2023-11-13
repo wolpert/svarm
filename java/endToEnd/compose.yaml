@@ -40,7 +40,7 @@ services:
       retries: 10
 
   control:
-    image: amazoncorretto:17
+    image: amazoncorretto:21
     ports:
       - 9090:8080
     networks:
@@ -65,7 +65,7 @@ services:
     deploy:
       replicas: 3
       mode: replicated
-    image: amazoncorretto:17
+    image: amazoncorretto:21
     networks:
       - back-tier
     volumes:
@@ -85,7 +85,7 @@ services:
       retries: 10
 
   proxy:
-    image: amazoncorretto:17
+    image: amazoncorretto:21
     ports:
       - 8180:8080
     networks:

@@ -14,7 +14,6 @@ import liquibase.command.core.helpers.DbUrlConnectionCommandStep;
 import liquibase.database.Database;
 import liquibase.database.DatabaseFactory;
 import liquibase.database.jvm.JdbcConnection;
-import liquibase.exception.LiquibaseException;
 import liquibase.resource.ClassLoaderResourceAccessor;
 
 /**
