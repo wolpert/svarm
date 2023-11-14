@@ -125,8 +125,10 @@ public class NodeRangeManager {
         return nodeRange;
       }
       final NodeRange updated = ImmutableNodeRange.copyOf(nodeRange).withReady(ready);
-      nodeRangeDao.update(updated);
-      nodeRangeDao.commit();
+      nodeRangeDao.useTransaction(tDao -> {
+        tDao.update(updated);
+        tDao.commit();
+      });
       final boolean allReady = getNodeRange(tenant, resource).stream().allMatch(NodeRange::ready);
       if (allReady) {
         updateTenantResourceConfiguration(tenant, resource);
@@ -150,11 +152,11 @@ public class NodeRangeManager {
         .ifPresentOrElse(nodeRange -> {
           if (nodeRange.status().equals(NodeRange.STATUS_DELETING)) {
             LOGGER.trace("finalizeDelete: Deleting: {}", nodeRange);
-            nodeRangeDao.useTransaction(t -> {
-              final int deletes = nodeRangeDao.delete(nodeUuid, tenant, resource);
+            nodeRangeDao.useTransaction(tDao -> {
+              final int deletes = tDao.delete(nodeUuid, tenant, resource);
               LOGGER.trace("finalizeDelete: Deleted: {}", deletes);
               nodeConfigurationEngine.deleteNodeTenantResourceRange(nodeUuid, tenant, resource);
-              t.commit();
+              tDao.commit();
               LOGGER.trace("finalizeDelete: Delete complete: ({},{},{})", nodeUuid, tenant, resource);
             });
           } else {
@@ -256,9 +258,9 @@ public class NodeRangeManager {
             .hash(hashes.remove(0))
             .build())
         .collect(Collectors.toList());
-    nodeRangeDao.useTransaction(t -> {
-      nodeRange.forEach(t::insert);
-      t.commit();
+    nodeRangeDao.useTransaction(tDao -> {
+      nodeRange.forEach(tDao::insert);
+      tDao.commit();
     });
     return nodeRange;
   }
@@ -273,10 +275,10 @@ public class NodeRangeManager {
                                    final String resource) {
     LOGGER.info("deleteTenantResource({},{})", tenantId, resource);
     final List<NodeRange> nodeRange = nodeRangeDao.nodeRanges(tenantId, resource);
-    nodeRangeDao.useTransaction(t -> {
+    nodeRangeDao.useTransaction(tDao -> {
       nodeRange.forEach(nr ->
-          nodeRangeDao.update(ImmutableNodeRange.copyOf(nr).withStatus(NodeRange.STATUS_DELETING)));
-      t.commit();
+          tDao.update(ImmutableNodeRange.copyOf(nr).withStatus(NodeRange.STATUS_DELETING)));
+      tDao.commit();
     });
     final List<NodeTenantResourceRange> nodeTenantResourceRanges = nodeRangeConverter
         .toNodeTenantResourceRanges(tenantId, resource, nodeRange).stream().map(range -> {
