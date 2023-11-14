@@ -149,11 +149,14 @@ public class NodeRangeManager {
     getNodeRange(nodeUuid, tenant, resource)
         .ifPresentOrElse(nodeRange -> {
           if (nodeRange.status().equals(NodeRange.STATUS_DELETING)) {
-            LOGGER.info("Deleting: {}", nodeRange);
-            final int deletes = nodeRangeDao.delete(nodeUuid, tenant, resource);
-            nodeRangeDao.commit();
-            LOGGER.info("Deleted: {}", deletes);
-            nodeConfigurationEngine.deleteNodeTenantResourceRange(nodeUuid, tenant, resource);
+            LOGGER.trace("finalizeDelete: Deleting: {}", nodeRange);
+            nodeRangeDao.useTransaction(t -> {
+              final int deletes = nodeRangeDao.delete(nodeUuid, tenant, resource);
+              LOGGER.trace("finalizeDelete: Deleted: {}", deletes);
+              nodeConfigurationEngine.deleteNodeTenantResourceRange(nodeUuid, tenant, resource);
+              t.commit();
+              LOGGER.trace("finalizeDelete: Delete complete: ({},{},{})", nodeUuid, tenant, resource);
+            });
           } else {
             LOGGER.warn("Not in deleting state, ignoring! {}", nodeRange);
           }
