@@ -26,6 +26,10 @@ import com.codeheadsystems.metrics.test.BaseMetricTest;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
+import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.HandleCallback;
+import org.jdbi.v3.core.transaction.TransactionIsolationLevel;
+import org.jdbi.v3.sqlobject.transaction.TransactionalConsumer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -63,7 +67,7 @@ class NodeRangeManagerTest extends BaseMetricTest {
 
   @BeforeEach
   void setup() {
-    nodeRangeManager = new NodeRangeManager(nodeRangeDao, clock, metrics, nodeAvailabilityEngine,
+    nodeRangeManager = new NodeRangeManager(new FakeNodeRangeDao(nodeRangeDao), clock, metrics, nodeAvailabilityEngine,
         nodeConfigurationEngine, ringHashSplitEngine, nodeRangeConverter);
   }
 
@@ -110,9 +114,9 @@ class NodeRangeManagerTest extends BaseMetricTest {
 
     nodeRangeManager.setReady(UUID, TENANT, TABLE, true);
 
-//    verify(nodeRangeDao).update(nodeRangeArgumentCaptor.capture()); // TODO: Fix test, only runs in integ
-//    assertThat(nodeRangeArgumentCaptor.getValue())
-//        .hasFieldOrPropertyWithValue("ready", true);
+    verify(nodeRangeDao).update(nodeRangeArgumentCaptor.capture());
+    assertThat(nodeRangeArgumentCaptor.getValue())
+        .hasFieldOrPropertyWithValue("ready", true);
   }
 
   @Test
@@ -123,9 +127,9 @@ class NodeRangeManagerTest extends BaseMetricTest {
 
     nodeRangeManager.setReady(UUID, TENANT, TABLE, true);
 
-//    verify(nodeRangeDao).update(nodeRangeArgumentCaptor.capture()); // TODO Fix test, only runs in integ
-//    assertThat(nodeRangeArgumentCaptor.getValue())
-//        .hasFieldOrPropertyWithValue("ready", true);
+    verify(nodeRangeDao).update(nodeRangeArgumentCaptor.capture());
+    assertThat(nodeRangeArgumentCaptor.getValue())
+        .hasFieldOrPropertyWithValue("ready", true);
   }
 
   private void mockIt(final NodeRange nodeRange, final boolean ready) {
@@ -138,4 +142,74 @@ class NodeRangeManagerTest extends BaseMetricTest {
     when(nodeRange.status()).thenReturn(STATUS);
     when(nodeRange.tableVersion()).thenReturn(VERSION);
   }
+
+  static class FakeNodeRangeDao implements NodeRangeDao {
+
+    private final NodeRangeDao dao;
+
+    public FakeNodeRangeDao(final NodeRangeDao dao) {
+      this.dao = dao;
+    }
+
+    @Override
+    public <X extends Exception> void useTransaction(final TransactionalConsumer<NodeRangeDao, X> callback) throws X {
+      callback.useTransaction(dao);
+    }
+
+    @Override
+    public void insert(final NodeRange instance) {
+      dao.insert(instance);
+    }
+
+    @Override
+    public void update(final NodeRange instance) {
+      dao.update(instance);
+    }
+
+    @Override
+    public NodeRange read(final String nodeUuid, final String tenant, final String resource) {
+      return dao.read(nodeUuid, tenant, resource);
+    }
+
+    @Override
+    public List<NodeRange> nodeRanges(final String tenant, final String resource) {
+      return dao.nodeRanges(tenant, resource);
+    }
+
+    @Override
+    public List<NodeRange> nodeRanges(final String uuid) {
+      return dao.nodeRanges(uuid);
+    }
+
+    @Override
+    public List<org.svarm.common.config.api.NodeRange> apiNodeRanges(final String tenant, final String resource) {
+      return dao.apiNodeRanges(tenant, resource);
+    }
+
+    @Override
+    public List<String> tenants() {
+      return dao.tenants();
+    }
+
+    @Override
+    public List<String> resources(final String tenant) {
+      return dao.resources(tenant);
+    }
+
+    @Override
+    public int delete(final String nodeUuid, final String tenant, final String resource) {
+      return dao.delete(nodeUuid, tenant, resource);
+    }
+
+    @Override
+    public Handle getHandle() {
+      return dao.getHandle();
+    }
+
+    @Override
+    public <R, X extends Exception> R withHandle(final HandleCallback<R, X> callback) throws X {
+      return dao.withHandle(callback);
+    }
+  }
+
 }
