@@ -1,6 +1,6 @@
 databaseDirectory: /tmp/endToEnd
 runDatabaseInMemory: false
-controlPlaneUrl: http://control:8080/
+controlPlaneUrl: https://control:8080/
 nodePort: 8080
 
 logging:

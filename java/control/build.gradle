@@ -44,6 +44,7 @@ dependencies {
     implementation libs.dropwizard4.jackson
     implementation libs.dropwizard4.metrics.graphite
     implementation libs.dropwizard4.jdbi
+    implementation libs.dropwizard4.http2
     implementation libs.micrometer.core
     implementation libs.metrics.core
     implementation libs.metrics.jdbi

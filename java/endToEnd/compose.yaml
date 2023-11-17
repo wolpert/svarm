@@ -47,6 +47,7 @@ services:
       - back-tier
     volumes:
       - ../control/build/install/control:/control
+      - ../config/certs:/server
       - ./src/test/resources:/config
       - logs:/tmp/logs
     command: [ "/control/bin/control", "server", "/config/control-config.yaml" ]

@@ -26,7 +26,6 @@ import org.svarm.server.ServerConfiguration;
  * Configuration for the control plane.
  */
 public class ControlConfiguration extends ServerConfiguration {
-
   @Valid
   @NotNull
   private DataSourceFactory database = new DataSourceFactory();
