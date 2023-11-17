@@ -43,11 +43,29 @@ server:
   adminContextPath: /
   applicationContextPath: /
   applicationConnectors:
-    - type: http
+    - type: h2
+      jceProvider: Conscrypt
       port: 8080
+      maxConcurrentStreams: 1024
+      initialStreamRecvWindow: 65535
+      keyStorePath: /server/keystore.jks
+      keyStorePassword: password
+      trustStorePath: /server/cacerts.jks
+      trustStorePassword: password
+      certAlias: svarm
+      validateCerts: false
   adminConnectors:
-    - type: http
+    - type: h2
+      jceProvider: Conscrypt
       port: 8081
+      maxConcurrentStreams: 1024
+      initialStreamRecvWindow: 65535
+      keyStorePath: /server/keystore.jks
+      keyStorePassword: password
+      trustStorePath: /server/cacerts.jks
+      trustStorePassword: password
+      certAlias: svarm
+      validateCerts: false
 
 health:
   healthCheckUrlPaths: [ "/health-check" ]
