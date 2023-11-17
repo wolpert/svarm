@@ -16,8 +16,8 @@
 
 package org.svarm.server;
 
-import java.security.Security;
 import io.dropwizard.core.Configuration;
+import java.security.Security;
 import org.conscrypt.OpenSSLProvider;
 import org.svarm.common.config.EtcdConfiguration;
 
@@ -28,6 +28,7 @@ public class ServerConfiguration extends Configuration {
   static {
     Security.insertProviderAt(new OpenSSLProvider(), 1);
   }
+
   private EtcdConfiguration etcdConfiguration;
   private String stage = "dev"; // dev, test, alpha, beta, gamma, prod
 
