@@ -23,13 +23,18 @@ dependencies {
     api project(":config-common")
     implementation project(":common")
     api libs.conscrypt.openjdk.uber
+    implementation "com.google.code.findbugs:jsr305:+"
 
+    implementation platform(libs.dropwizard4.dependencies)
     implementation libs.dropwizard4.auth
     implementation libs.dropwizard4.core
     implementation libs.dropwizard4.jackson
     implementation libs.dropwizard4.metrics.graphite
+    implementation libs.dropwizard4.http2
     implementation libs.micrometer.core
     implementation libs.metrics.core
+    implementation libs.metrics.jersey2
+    implementation libs.metrics.caffeine
 
     implementation libs.jetcd.core
     testImplementation libs.jetcd.test
