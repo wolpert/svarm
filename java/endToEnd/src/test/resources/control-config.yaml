@@ -56,10 +56,11 @@ server:
       trustStorePassword: password
       certAlias: svarm
       validateCerts: false
+      disableSniHostCheck: true  # Work with docker hosts
   adminConnectors:
     - type: h2
-      jceProvider: Conscrypt
       port: 8081
+      jceProvider: Conscrypt
       maxConcurrentStreams: 1024
       initialStreamRecvWindow: 65535
       keyStorePath: /server/keystore.jks
@@ -68,6 +69,7 @@ server:
       trustStorePassword: password
       certAlias: svarm
       validateCerts: false
+      disableSniHostCheck: true  # Work with docker hosts
 
 health:
   healthCheckUrlPaths: [ "/health-check" ]
