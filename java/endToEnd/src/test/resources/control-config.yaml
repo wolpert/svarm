@@ -54,7 +54,7 @@ server:
       keyStorePassword: password
       trustStorePath: /server/cacerts.jks
       trustStorePassword: password
-      certAlias: svarm
+      certAlias: control
       validateCerts: false
       disableSniHostCheck: true  # Work with docker hosts
   adminConnectors:
@@ -67,7 +67,7 @@ server:
       keyStorePassword: password
       trustStorePath: /server/cacerts.jks
       trustStorePassword: password
-      certAlias: svarm
+      certAlias: control
       validateCerts: false
       disableSniHostCheck: true  # Work with docker hosts
 
