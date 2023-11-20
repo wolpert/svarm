@@ -18,8 +18,15 @@ package org.svarm.server;
 
 import io.dropwizard.core.Application;
 import io.dropwizard.core.setup.Environment;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.security.Security;
+import java.security.cert.X509Certificate;
 import java.util.UUID;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 import org.conscrypt.OpenSSLProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +44,34 @@ public abstract class Server<T extends ServerConfiguration> extends Application<
 
   static {
     Security.insertProviderAt(new OpenSSLProvider(), 1);
+
+    //Create a trust manager that does not validate certificate chains
+    TrustManager[] trustAllCerts = new TrustManager[] {
+        new X509TrustManager() {
+          public java.security.cert.X509Certificate[] getAcceptedIssuers()
+          {
+            return null;
+          }
+          public void checkClientTrusted(X509Certificate[] certs, String authType)
+          {
+            //
+          }
+          public void checkServerTrusted(X509Certificate[] certs, String authType)
+          {
+            //
+          }
+        }
+    };
+
+//Install the all-trusting trust manager
+    try {
+      SSLContext sc = SSLContext.getInstance("TLS");
+      sc.init(null, trustAllCerts, new java.security.SecureRandom());
+      HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+    } catch (KeyManagementException | NoSuchAlgorithmException e) {
+      e.printStackTrace();
+    }
+
   }
 
   /**
