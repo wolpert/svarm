@@ -24,6 +24,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import javax.inject.Named;
 import javax.inject.Singleton;
+import org.svarm.common.javaclient.JavaClientConfig;
 import org.svarm.proxy.ProxyConfiguration;
 import org.svarm.server.ServerConfiguration;
 
@@ -48,6 +49,18 @@ public class ProxyModule {
   @Singleton
   public ProxyConfiguration configuration(final ServerConfiguration configuration) {
     return (ProxyConfiguration) configuration;
+  }
+
+  /**
+   * Java client config java client config.
+   *
+   * @param configuration the configuration
+   * @return the java client config
+   */
+  @Provides
+  @Singleton
+  public JavaClientConfig javaClientConfig(final ServerConfiguration configuration) {
+    return configuration.isUseTestJavaClient() ? JavaClientConfig.testConfig() : JavaClientConfig.defaultConfig();
   }
 
   /**

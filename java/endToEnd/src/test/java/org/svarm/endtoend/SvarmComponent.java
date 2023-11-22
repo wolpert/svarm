@@ -32,6 +32,7 @@ import org.svarm.common.config.ImmutableEtcdConfiguration;
 import org.svarm.common.config.accessor.EtcdAccessor;
 import org.svarm.common.config.module.EtcdModule;
 import org.svarm.common.engine.TraceUuidEngine;
+import org.svarm.common.javaclient.JavaClientConfig;
 import org.svarm.common.javaclient.JavaClientModule;
 import org.svarm.common.module.CommonModule;
 import org.svarm.control.common.api.ControlNodeService;
@@ -67,6 +68,13 @@ public interface SvarmComponent {
 
   @Module
   class Configuration {
+
+    @Provides
+    @Singleton
+    public JavaClientConfig javaClientConfig() {
+      return JavaClientConfig.testConfig();
+    }
+
     @Provides
     @Singleton
     public EtcdConfiguration etcdConfiguration() {
@@ -78,7 +86,7 @@ public interface SvarmComponent {
     @Singleton
     @Named(CONTROL_SERVICE_CONNECTION_URL)
     String controlServiceConnectionUrl() {
-      return "http://localhost:9090/";
+      return "https://localhost:9090/";
     }
 
 

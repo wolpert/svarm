@@ -25,6 +25,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import javax.inject.Named;
 import javax.inject.Singleton;
+import org.svarm.common.javaclient.JavaClientConfig;
 import org.svarm.node.NodeConfiguration;
 import org.svarm.node.factory.NodeConfigurationFactory;
 import org.svarm.node.model.NodeInternalConfiguration;
@@ -46,6 +47,18 @@ public class NodeConfigurationModule {
   @Singleton
   public NodeConfiguration configuration(final ServerConfiguration configuration) {
     return (NodeConfiguration) configuration;
+  }
+
+  /**
+   * Java client config java client config.
+   *
+   * @param configuration the configuration
+   * @return the java client config
+   */
+  @Provides
+  @Singleton
+  public JavaClientConfig javaClientConfig(final ServerConfiguration configuration) {
+    return configuration.isUseTestJavaClient() ? JavaClientConfig.testConfig() : JavaClientConfig.defaultConfig();
   }
 
   /**
