@@ -13,6 +13,12 @@ import javax.inject.Singleton;
 public class StandaloneMeterRegistry {
 
   /**
+   * Instantiates a new Standalone meter registry.
+   */
+  public StandaloneMeterRegistry() {
+  }
+
+  /**
    * Default registry.
    *
    * @return the value.

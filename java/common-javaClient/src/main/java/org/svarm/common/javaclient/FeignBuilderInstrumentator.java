@@ -3,12 +3,12 @@ package org.svarm.common.javaclient;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import feign.Client;
 import feign.Feign;
 import feign.jackson.JacksonDecoder;
 import feign.jackson.JacksonEncoder;
 import feign.jaxrs.JakartaContract;
 import feign.micrometer.MicrometerCapability;
-import feign.okhttp.OkHttpClient;
 import feign.slf4j.Slf4jLogger;
 import io.github.resilience4j.feign.FeignDecorators;
 import io.github.resilience4j.feign.Resilience4jFeign;
@@ -31,7 +31,7 @@ public class FeignBuilderInstrumentator {
   private final JakartaContract jakartaContract;
   private final JacksonDecoder jacksonDecoder;
   private final JacksonEncoder jacksonEncoder;
-  private final OkHttpClient okHttpClient;
+  private final Client client;
 
   /**
    * Constructor.
@@ -39,14 +39,14 @@ public class FeignBuilderInstrumentator {
    * @param traceInterceptor for tracing.
    * @param meterRegistry    for metrics.
    * @param objectMapper     for json.
-   * @param okHttpClient     the ok http client
+   * @param client           the ok http client
    */
   @Inject
   public FeignBuilderInstrumentator(final TraceInterceptor traceInterceptor,
                                     final MeterRegistry meterRegistry,
                                     final ObjectMapper objectMapper,
-                                    final OkHttpClient okHttpClient) {
-    this.okHttpClient = okHttpClient;
+                                    final Client client) {
+    this.client = client;
     this.slf4jLogger = new Slf4jLogger();
     this.micrometerCapability = new MicrometerCapability(meterRegistry);
     this.jakartaContract = new JakartaContract();
@@ -65,7 +65,7 @@ public class FeignBuilderInstrumentator {
   public Feign.Builder instrument(final Feign.Builder builder) {
     LOGGER.trace("instrument({})", builder);
     return builder
-        .client(okHttpClient)
+        .client(this.client)
         .requestInterceptor(traceInterceptor)
         .logger(slf4jLogger)
         .contract(jakartaContract)
