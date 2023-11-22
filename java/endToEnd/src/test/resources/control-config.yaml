@@ -1,3 +1,5 @@
+useTestJavaClient: true
+
 logging:
   level: INFO
   loggers:

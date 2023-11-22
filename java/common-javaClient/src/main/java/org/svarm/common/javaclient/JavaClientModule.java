@@ -28,14 +28,20 @@ import io.github.resilience4j.retry.Retry;
 import io.github.resilience4j.retry.RetryConfig;
 import io.github.resilience4j.retry.RetryRegistry;
 import io.micrometer.core.instrument.MeterRegistry;
+import java.util.Optional;
 import javax.inject.Named;
 import javax.inject.Singleton;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
+import org.apache.http.ssl.SSLContexts;
+import org.apache.http.ssl.TrustStrategy;
 
 /**
  * Module for the java client.
  */
 @Module(includes = {JavaClientModule.Binder.class})
 public class JavaClientModule {
+
 
   /**
    * Instantiates a new Java client module.
@@ -68,13 +74,31 @@ public class JavaClientModule {
   /**
    * Ok http client ok http client.
    *
+   * @param config the config
    * @return the ok http client
    */
   @Provides
   @Singleton
-  public Client client() {
-    final okhttp3.OkHttpClient.Builder builder = new okhttp3.OkHttpClient.Builder();
-    return new OkHttpClient(builder.build());
+  public Client client(final Optional<JavaClientConfig> config) {
+    if (config.isPresent() && config.get().disableSslVerification()) {
+      return new Client.Default(
+          getSslSocketFactory(),
+          (hostname, session) -> true
+      );
+    } else {
+      final okhttp3.OkHttpClient.Builder builder = new okhttp3.OkHttpClient.Builder();
+      return new OkHttpClient(builder.build());
+    }
+  }
+
+  private SSLSocketFactory getSslSocketFactory() {
+    try {
+      final TrustStrategy acceptingTrustStrategy = (chain, authType) -> true;
+      final SSLContext sslContext = SSLContexts.custom().loadTrustMaterial(null, acceptingTrustStrategy).build();
+      return sslContext.getSocketFactory();
+    } catch (Exception exception) {
+      throw new RuntimeException(exception);
+    }
   }
 
   /**
@@ -90,6 +114,14 @@ public class JavaClientModule {
      */
     @BindsOptionalOf
     MeterRegistry meterRegistry();
+
+    /**
+     * Java client config java client config.
+     *
+     * @return the java client config
+     */
+    @BindsOptionalOf
+    JavaClientConfig optionalJavaClientConfig();
 
   }
 

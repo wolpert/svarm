@@ -2,6 +2,7 @@ databaseDirectory: /tmp/endToEnd
 runDatabaseInMemory: false
 controlPlaneUrl: https://control:8080/
 nodePort: 8080
+useTestJavaClient: true
 
 logging:
   level: INFO

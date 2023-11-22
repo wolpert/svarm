@@ -31,6 +31,7 @@ public class ServerConfiguration extends Configuration {
 
   private EtcdConfiguration etcdConfiguration;
   private String stage = "dev"; // dev, test, alpha, beta, gamma, prod
+  private boolean useTestJavaClient = false;
 
   /**
    * Getter for the etcd configuration.
@@ -66,5 +67,23 @@ public class ServerConfiguration extends Configuration {
    */
   public void setStage(final String stage) {
     this.stage = stage;
+  }
+
+  /**
+   * Is use test java client boolean.
+   *
+   * @return the boolean
+   */
+  public boolean isUseTestJavaClient() {
+    return useTestJavaClient;
+  }
+
+  /**
+   * Sets use test java client.
+   *
+   * @param useTestJavaClient the use test java client
+   */
+  public void setUseTestJavaClient(final boolean useTestJavaClient) {
+    this.useTestJavaClient = useTestJavaClient;
   }
 }
