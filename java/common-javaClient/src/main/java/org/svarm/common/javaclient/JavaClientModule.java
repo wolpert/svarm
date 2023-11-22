@@ -19,6 +19,7 @@ package org.svarm.common.javaclient;
 import dagger.BindsOptionalOf;
 import dagger.Module;
 import dagger.Provides;
+import feign.Client;
 import feign.FeignException;
 import feign.okhttp.OkHttpClient;
 import io.github.resilience4j.core.IntervalFunction;
@@ -35,6 +36,12 @@ import javax.inject.Singleton;
  */
 @Module(includes = {JavaClientModule.Binder.class})
 public class JavaClientModule {
+
+  /**
+   * Instantiates a new Java client module.
+   */
+  public JavaClientModule() {
+  }
 
   /**
    * The default retry policy.
@@ -65,8 +72,9 @@ public class JavaClientModule {
    */
   @Provides
   @Singleton
-  public OkHttpClient okHttpClient() {
-    return new OkHttpClient();
+  public Client client() {
+    final okhttp3.OkHttpClient.Builder builder = new okhttp3.OkHttpClient.Builder();
+    return new OkHttpClient(builder.build());
   }
 
   /**
