@@ -4,11 +4,11 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import feign.Feign;
-import feign.http2client.Http2Client;
 import feign.jackson.JacksonDecoder;
 import feign.jackson.JacksonEncoder;
 import feign.jaxrs.JakartaContract;
 import feign.micrometer.MicrometerCapability;
+import feign.okhttp.OkHttpClient;
 import feign.slf4j.Slf4jLogger;
 import io.github.resilience4j.feign.FeignDecorators;
 import io.github.resilience4j.feign.Resilience4jFeign;
@@ -31,7 +31,7 @@ public class FeignBuilderInstrumentator {
   private final JakartaContract jakartaContract;
   private final JacksonDecoder jacksonDecoder;
   private final JacksonEncoder jacksonEncoder;
-  private final Http2Client http2Client;
+  private final OkHttpClient okHttpClient;
 
   /**
    * Constructor.
@@ -39,17 +39,19 @@ public class FeignBuilderInstrumentator {
    * @param traceInterceptor for tracing.
    * @param meterRegistry    for metrics.
    * @param objectMapper     for json.
+   * @param okHttpClient     the ok http client
    */
   @Inject
   public FeignBuilderInstrumentator(final TraceInterceptor traceInterceptor,
                                     final MeterRegistry meterRegistry,
-                                    final ObjectMapper objectMapper) {
+                                    final ObjectMapper objectMapper,
+                                    final OkHttpClient okHttpClient) {
+    this.okHttpClient = okHttpClient;
     this.slf4jLogger = new Slf4jLogger();
     this.micrometerCapability = new MicrometerCapability(meterRegistry);
     this.jakartaContract = new JakartaContract();
     this.jacksonDecoder = new JacksonDecoder(objectMapper);
     this.jacksonEncoder = new JacksonEncoder(objectMapper);
-    this.http2Client = new Http2Client();
     this.traceInterceptor = traceInterceptor;
     LOGGER.info("FeignBuilderInstrumentator({},{},{})", traceInterceptor, meterRegistry, objectMapper);
   }
@@ -63,9 +65,9 @@ public class FeignBuilderInstrumentator {
   public Feign.Builder instrument(final Feign.Builder builder) {
     LOGGER.trace("instrument({})", builder);
     return builder
+        .client(okHttpClient)
         .requestInterceptor(traceInterceptor)
         .logger(slf4jLogger)
-        .client(http2Client)
         .contract(jakartaContract)
         .addCapability(micrometerCapability)
         .decoder(jacksonDecoder)
