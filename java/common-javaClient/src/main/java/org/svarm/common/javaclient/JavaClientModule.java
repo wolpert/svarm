@@ -20,6 +20,7 @@ import dagger.BindsOptionalOf;
 import dagger.Module;
 import dagger.Provides;
 import feign.FeignException;
+import feign.okhttp.OkHttpClient;
 import io.github.resilience4j.core.IntervalFunction;
 import io.github.resilience4j.micrometer.tagged.TaggedRetryMetrics;
 import io.github.resilience4j.retry.Retry;
@@ -55,6 +56,17 @@ public class JavaClientModule {
     TaggedRetryMetrics.ofRetryRegistry(registry)
         .bindTo(meterRegistry);
     return registry.retry("DEFAULT");
+  }
+
+  /**
+   * Ok http client ok http client.
+   *
+   * @return the ok http client
+   */
+  @Provides
+  @Singleton
+  public OkHttpClient okHttpClient() {
+    return new OkHttpClient();
   }
 
   /**
