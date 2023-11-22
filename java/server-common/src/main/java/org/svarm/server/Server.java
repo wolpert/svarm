@@ -44,34 +44,6 @@ public abstract class Server<T extends ServerConfiguration> extends Application<
 
   static {
     Security.insertProviderAt(new OpenSSLProvider(), 1);
-
-    //Create a trust manager that does not validate certificate chains
-    TrustManager[] trustAllCerts = new TrustManager[] {
-        new X509TrustManager() {
-          public java.security.cert.X509Certificate[] getAcceptedIssuers()
-          {
-            return null;
-          }
-          public void checkClientTrusted(X509Certificate[] certs, String authType)
-          {
-            //
-          }
-          public void checkServerTrusted(X509Certificate[] certs, String authType)
-          {
-            //
-          }
-        }
-    };
-
-//Install the all-trusting trust manager
-    try {
-      SSLContext sc = SSLContext.getInstance("TLS");
-      sc.init(null, trustAllCerts, new java.security.SecureRandom());
-      HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
-    } catch (KeyManagementException | NoSuchAlgorithmException e) {
-      e.printStackTrace();
-    }
-
   }
 
   /**
