@@ -44,4 +44,11 @@ public interface NodeMetaData {
    */
   Integer port();
 
+  /**
+   * Uri string.
+   *
+   * @return the string
+   */
+  String uri();
+
 }

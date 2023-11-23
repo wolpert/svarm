@@ -87,13 +87,12 @@ public interface NodeRangeDao extends Transactional<NodeRangeDao> {
 
   /**
    * Get the node ranges from the datastore for the tenant/resource, but using the API version of node ranges.
-   * TODO: this is a little janky. Maybe we can figure out a better way.
    *
    * @param tenant   to use.
    * @param resource to use.
    * @return the list of node ranges.
    */
-  @SqlQuery("select *, NODES.host || ':' || NODES.port as uri "
+  @SqlQuery("select * "
       + "from NODE_RANGE, NODES where NODE_RANGE.tenant = :tenant "
       + "and NODE_RANGE.resource = :resource "
       + "and NODE_RANGE.node_uuid = NODES.uuid")

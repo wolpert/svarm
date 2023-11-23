@@ -63,8 +63,7 @@ public class NodeServiceFactory {
    */
   public NodeTenantTableEntryService nodeService(final String uri) {
     LOGGER.info("nodeService({})", uri);
-    final String url = String.format("http://%s", uri);
-    return builder.target(NodeTenantTableEntryService.class, url);
+    return builder.target(NodeTenantTableEntryService.class, uri);
   }
 
 }

@@ -94,7 +94,7 @@ public interface SvarmComponent {
     @Singleton
     @Named(ProxyServiceModule.PROXY_SERVICE_CONNECTION_URL)
     String proxyServiceConnectionUrl() {
-      return "http://localhost:8180/";
+      return "https://localhost:8180/";
     }
 
     /**

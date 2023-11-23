@@ -42,6 +42,7 @@ class RealControlPlaneManagerTest extends BaseMetricTest {
   private static final String KEY = "key";
   private static final String HOST = "host";
   private static final Integer PORT = 99999;
+  private static final String SCHEME = "scheme";
 
   @Mock private ControlAccessor controlAccessor;
   @Mock private NodeConfiguration nodeConfiguration;
@@ -55,6 +56,7 @@ class RealControlPlaneManagerTest extends BaseMetricTest {
   void setup() {
     when(nodeConfiguration.getNodeHost()).thenReturn(HOST);
     when(nodeConfiguration.getNodePort()).thenReturn(PORT);
+    when(nodeConfiguration.getNodeScheme()).thenReturn(SCHEME);
     when(nodeInternalConfiguration.uuid()).thenReturn(UUID);
     manager = new RealControlPlaneManager(metrics, controlAccessor, nodeInternalConfiguration, nodeConfiguration);
   }
@@ -87,8 +89,8 @@ class RealControlPlaneManagerTest extends BaseMetricTest {
     when(controlAccessor.keyForNode(UUID)).thenReturn(KEY);
     assertThat(manager.keyForNode()).isEqualTo(KEY);
     verify(controlAccessor).enable(stringArgumentCaptor.capture());
-    verify(controlAccessor).register(stringArgumentCaptor.capture(), stringArgumentCaptor.capture(), integerArgumentCaptor.capture());
-    assertThat(stringArgumentCaptor.getAllValues()).contains(UUID, HOST);
+    verify(controlAccessor).register(stringArgumentCaptor.capture(), stringArgumentCaptor.capture(), integerArgumentCaptor.capture(), stringArgumentCaptor.capture());
+    assertThat(stringArgumentCaptor.getAllValues()).contains(UUID, HOST, SCHEME + "://" + HOST + ":" + PORT);
     assertThat(integerArgumentCaptor.getValue()).isEqualTo(PORT);
   }
 
@@ -96,8 +98,8 @@ class RealControlPlaneManagerTest extends BaseMetricTest {
   void keyForNode_registeredFailed() {
     when(controlAccessor.status(UUID)).thenReturn(Optional.empty()).thenReturn(Optional.empty());
     assertThatExceptionOfType(IllegalStateException.class).isThrownBy(() -> manager.keyForNode());
-    verify(controlAccessor).register(stringArgumentCaptor.capture(), stringArgumentCaptor.capture(), integerArgumentCaptor.capture());
-    assertThat(stringArgumentCaptor.getAllValues()).contains(UUID, HOST);
+    verify(controlAccessor).register(stringArgumentCaptor.capture(), stringArgumentCaptor.capture(), integerArgumentCaptor.capture(), stringArgumentCaptor.capture());
+    assertThat(stringArgumentCaptor.getAllValues()).contains(UUID, HOST, SCHEME + "://" + HOST + ":" + PORT);
     assertThat(integerArgumentCaptor.getValue()).isEqualTo(PORT);
   }
 }

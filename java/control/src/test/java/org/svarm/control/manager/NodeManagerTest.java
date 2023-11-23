@@ -48,6 +48,7 @@ class NodeManagerTest extends BaseMetricTest {
   private static final String STATUS = "status";
   private static final String HOST = "host";
   private static final int PORT = 1234;
+  private static final String URI = "uri";
   private static final String TENANT = "Tenant";
   @Mock private NodeDao nodeDao;
   @Mock private KeyManager keyManager;
@@ -91,6 +92,7 @@ class NodeManagerTest extends BaseMetricTest {
   public void create() {
     when(nodeMetaData.host()).thenReturn(HOST);
     when(nodeMetaData.port()).thenReturn(PORT);
+    when(nodeMetaData.uri()).thenReturn(URI);
     when(clock.instant()).thenReturn(Instant.now());
     final Node result = nodeManager.create(UUID, nodeMetaData);
     assertThat(result.status()).isEqualTo(NodeInfo.Status.DISABLED.name());
@@ -99,7 +101,8 @@ class NodeManagerTest extends BaseMetricTest {
         .isEqualTo(result)
         .hasFieldOrPropertyWithValue("host", HOST)
         .hasFieldOrPropertyWithValue("port", PORT)
-        .hasFieldOrPropertyWithValue("uuid", UUID);
+        .hasFieldOrPropertyWithValue("uuid", UUID)
+        .hasFieldOrPropertyWithValue("uri", URI);
   }
 
   @Test
@@ -215,6 +218,6 @@ class NodeManagerTest extends BaseMetricTest {
   private Node generate(final String status) {
     return ImmutableNode.builder().uuid(UUID)
         .createDate(Instant.ofEpochMilli(System.currentTimeMillis()))
-        .status(status).host(HOST).port(PORT).build();
+        .status(status).host(HOST).port(PORT).uri(URI).build();
   }
 }

@@ -127,7 +127,7 @@ public class ControlIntegTest {
   @Test
   public void roundTrip() {
     final String uuid = UUID.randomUUID().toString();
-    final NodeMetaData metaData = ImmutableNodeMetaData.builder().host("host").port(123).build();
+    final NodeMetaData metaData = ImmutableNodeMetaData.builder().host("host").port(123).uri("uri").build();
     registerAndEnable(uuid, metaData);
     validateNodeKey(uuid);
     // TODO: Create a tenant

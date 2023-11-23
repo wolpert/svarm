@@ -62,6 +62,13 @@ public interface Node {
   Integer port();
 
   /**
+   * Uri string.
+   *
+   * @return value. string
+   */
+  String uri();
+
+  /**
    * The status.
    *
    * @return status. string

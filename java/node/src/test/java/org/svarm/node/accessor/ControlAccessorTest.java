@@ -43,6 +43,7 @@ class ControlAccessorTest extends BaseMetricTest {
   private static final String STATUS = "status";
   private static final String HOST = "host";
   private static final int PORT = 90;
+  private static final String URI = "uri";
   private static final String KEY = "KEY";
   private static final String TENANT = "tenant";
   private static final String TABLE = "table";
@@ -102,12 +103,13 @@ class ControlAccessorTest extends BaseMetricTest {
 
   @Test
   void register() {
-    accessor.register(UUID, HOST, PORT);
+    accessor.register(UUID, HOST, PORT, URI);
     verify(controlNodeService).register(stringArgumentCaptor.capture(), metaDataArgumentCaptor.capture());
     assertThat(stringArgumentCaptor.getValue()).isEqualTo(UUID);
     assertThat(metaDataArgumentCaptor.getValue())
         .hasFieldOrPropertyWithValue("host", HOST)
-        .hasFieldOrPropertyWithValue("port", PORT);
+        .hasFieldOrPropertyWithValue("port", PORT)
+        .hasFieldOrPropertyWithValue("uri", URI);
   }
 
   @Test

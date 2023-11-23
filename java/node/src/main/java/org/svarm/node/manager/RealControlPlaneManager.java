@@ -44,6 +44,7 @@ public class RealControlPlaneManager implements ControlPlaneManager {
   private final String nodeUuid;
   private final String host;
   private final Integer port;
+  private final String uri;
 
   /**
    * Constructor.
@@ -69,6 +70,7 @@ public class RealControlPlaneManager implements ControlPlaneManager {
       LOGGER.trace("Using host from configuration: {}", host);
     }
     this.port = nodeConfiguration.getNodePort();
+    this.uri = String.format("%s://%s:%d", nodeConfiguration.getNodeScheme(), host, port);
     LOGGER.info("RealControlPlaneManager({},{},{},{})", nodeUuid, controlAccessor, this.host, port);
   }
 
@@ -92,7 +94,7 @@ public class RealControlPlaneManager implements ControlPlaneManager {
         return true;
       } // we are enabled. If it was not enabled, we will force enablement below.
     } else { // not present, better register.
-      controlAccessor.register(nodeUuid, host, port);
+      controlAccessor.register(nodeUuid, host, port, uri);
     }
     controlAccessor.enable(nodeUuid);
     final String newStatus = controlAccessor.status(nodeUuid)
@@ -141,6 +143,6 @@ public class RealControlPlaneManager implements ControlPlaneManager {
   @Override
   public void start() throws Exception {
     LOGGER.trace("start()");
-    controlAccessor.register(nodeUuid, host, port);
+    controlAccessor.register(nodeUuid, host, port, uri);
   }
 }
