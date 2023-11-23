@@ -29,13 +29,6 @@ dependencies {
     implementation project(":node-common")
     implementation project(":node-javaClient")
 
-    implementation libs.dropwizard4.auth
-    implementation libs.dropwizard4.core
-    implementation libs.dropwizard4.jackson
-    implementation libs.dropwizard4.metrics.graphite
-    implementation libs.micrometer.core
-    implementation libs.metrics.core
-
     implementation libs.openfeign.core
     implementation libs.openfeign.jackson
     implementation libs.feign.slf4j

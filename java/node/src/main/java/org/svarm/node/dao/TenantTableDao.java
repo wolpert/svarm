@@ -98,6 +98,12 @@ public interface TenantTableDao {
    */
   class TenantTableRowMapper implements RowMapper<TenantTable> {
 
+    /**
+     * Instantiates a new Tenant table row mapper.
+     */
+    public TenantTableRowMapper() {
+    }
+
     @Override
     public TenantTable map(final ResultSet rs, final StatementContext ctx) throws SQLException {
       return ImmutableTenantTable.builder()

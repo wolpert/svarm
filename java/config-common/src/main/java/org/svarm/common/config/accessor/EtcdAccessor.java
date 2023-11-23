@@ -64,7 +64,7 @@ public class EtcdAccessor {
   public EtcdAccessor(final Client client,
                       @Named(INTERNAL_ETCD_ACCESSOR_PREAMBLE) final String preamble) {
     this.client = client;
-    this.namespaceKeyFormat = "" + preamble + "_%s/%s";
+    this.namespaceKeyFormat = preamble + "_%s/%s";
     LOGGER.info("EtcdAccessor({},{})", namespaceKeyFormat, client);
   }
 
@@ -150,7 +150,7 @@ public class EtcdAccessor {
     final String namespaceKey = getNamespaceKey(namespace, key);
     LOGGER.trace("watch({})", namespaceKey);
     final ByteSequence namespaceKeyBytes = ByteSequence.from(namespaceKey.getBytes(StandardCharsets.UTF_8));
-    final WatchOption watchOption = WatchOption.newBuilder().isPrefix(true).build();
+    final WatchOption watchOption = WatchOption.builder().isPrefix(true).build();
     final Watch watch = client.getWatchClient();
     return watch.watch(namespaceKeyBytes, watchOption, listener);
   }
@@ -191,7 +191,7 @@ public class EtcdAccessor {
     final String namespaceKey = getNamespaceKey(namespace, key);
     LOGGER.trace("getAll({})", namespaceKey);
     final ByteSequence byteSequenceKey = ByteSequence.from(namespaceKey.getBytes(StandardCharsets.UTF_8));
-    final GetOption getOption = GetOption.newBuilder().isPrefix(true).build();
+    final GetOption getOption = GetOption.builder().isPrefix(true).build();
     final CompletableFuture<GetResponse> future =
         client.getKVClient().get(byteSequenceKey, getOption);
     try {

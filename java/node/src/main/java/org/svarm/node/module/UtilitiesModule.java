@@ -29,6 +29,12 @@ import javax.inject.Singleton;
 public class UtilitiesModule {
 
   /**
+   * Instantiates a new Utilities module.
+   */
+  public UtilitiesModule() {
+  }
+
+  /**
    * Random generator for our app.
    *
    * @return a secure random generator.

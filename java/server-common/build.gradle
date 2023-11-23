@@ -25,16 +25,16 @@ dependencies {
     api libs.conscrypt.openjdk.uber
     implementation "com.google.code.findbugs:jsr305:+"
 
-    implementation platform(libs.dropwizard4.dependencies)
-    implementation libs.dropwizard4.auth
-    implementation libs.dropwizard4.core
-    implementation libs.dropwizard4.jackson
-    implementation libs.dropwizard4.metrics.graphite
-    implementation libs.dropwizard4.http2
-    implementation libs.micrometer.core
-    implementation libs.metrics.core
-    implementation libs.metrics.jersey2
-    implementation libs.metrics.caffeine
+    api platform(libs.dropwizard4.dependencies)
+    api libs.dropwizard4.auth
+    api libs.dropwizard4.core
+    api libs.dropwizard4.jackson
+    api libs.dropwizard4.metrics.graphite
+    api libs.dropwizard4.http2
+    api libs.micrometer.core
+    api libs.metrics.core
+    api libs.metrics.jersey2
+    api libs.metrics.caffeine
 
     implementation libs.jetcd.core
     testImplementation libs.jetcd.test

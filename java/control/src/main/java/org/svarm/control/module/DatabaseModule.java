@@ -37,6 +37,12 @@ import org.svarm.control.factory.ControlJdbiFactory;
 public class DatabaseModule {
 
   /**
+   * Instantiates a new Database module.
+   */
+  public DatabaseModule() {
+  }
+
+  /**
    * The JDBI handler.
    *
    * @param factory        factory to setup.

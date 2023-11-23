@@ -31,6 +31,13 @@ public class Control extends Server<ControlConfiguration> {
   private static final Logger LOGGER = LoggerFactory.getLogger(Control.class);
 
   /**
+   * Instantiates a new Control.
+   */
+  public Control() {
+    super();
+  }
+
+  /**
    * Run the world.
    *
    * @param args from the command line.

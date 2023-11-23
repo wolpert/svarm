@@ -44,6 +44,12 @@ public class QueueModule {
   public static final String QUEUE_PROCESSOR_EXECUTOR = "QueueProcessorExecutor";
 
   /**
+   * Instantiates a new Queue module.
+   */
+  public QueueModule() {
+  }
+
+  /**
    * Queue queue.
    *
    * @param queue the queue

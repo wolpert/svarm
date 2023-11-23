@@ -44,13 +44,6 @@ dependencies {
     // etcd
     implementation libs.jetcd.core
     testImplementation libs.jetcd.test
-
-    implementation libs.dropwizard4.auth
-    implementation libs.dropwizard4.core
-    implementation libs.dropwizard4.jackson
-    implementation libs.dropwizard4.metrics.graphite
-    implementation libs.micrometer.core
-    implementation libs.metrics.core
     implementation libs.metrics.jdbi
 
     implementation libs.openfeign.core

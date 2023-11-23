@@ -27,6 +27,13 @@ import org.svarm.server.module.DropWizardModule;
 public class Proxy extends Server<ProxyConfiguration> {
 
   /**
+   * Instantiates a new Proxy.
+   */
+  public Proxy() {
+    super();
+  }
+
+  /**
    * The main method.
    *
    * @param args from the commandline.

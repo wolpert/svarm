@@ -29,6 +29,12 @@ import javax.inject.Singleton;
 public class UtilitiesModule {
 
   /**
+   * Instantiates a new Utilities module.
+   */
+  public UtilitiesModule() {
+  }
+
+  /**
    * Generator.
    *
    * @return the generator.

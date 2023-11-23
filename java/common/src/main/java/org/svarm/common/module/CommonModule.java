@@ -38,6 +38,12 @@ public class CommonModule {
   public static final String SERVER_OBJECT_MAPPER = "SERVER OBJECT MAPPER";
 
   /**
+   * Instantiates a new Common module.
+   */
+  public CommonModule() {
+  }
+
+  /**
    * Setups the object mapper for the dagger instance.
    *
    * @param factory            that will generate the object mapper.

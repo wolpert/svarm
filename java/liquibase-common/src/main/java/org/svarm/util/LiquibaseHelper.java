@@ -21,6 +21,11 @@ import liquibase.resource.ClassLoaderResourceAccessor;
  */
 public class LiquibaseHelper {
 
+  /**
+   * Instantiates a new Liquibase helper.
+   */
+  public LiquibaseHelper() {
+  }
 
   /**
    * Run liquibase.

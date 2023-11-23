@@ -30,6 +30,13 @@ public class ProxyConfiguration extends ServerConfiguration {
   private int nodeTenantServiceCacheSize = 100;
 
   /**
+   * Instantiates a new Proxy configuration.
+   */
+  public ProxyConfiguration() {
+    super();
+  }
+
+  /**
    * Getter.
    *
    * @return value. replication factor

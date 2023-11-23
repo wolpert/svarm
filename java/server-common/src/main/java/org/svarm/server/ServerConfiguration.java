@@ -34,6 +34,13 @@ public class ServerConfiguration extends Configuration {
   private boolean useTestJavaClient = false;
 
   /**
+   * Instantiates a new Server configuration.
+   */
+  public ServerConfiguration() {
+    super();
+  }
+
+  /**
    * Getter for the etcd configuration.
    *
    * @return value. etcd configuration

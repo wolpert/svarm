@@ -33,6 +33,13 @@ public class NodeConfiguration extends ServerConfiguration {
   private String nodeScheme = "http";
 
   /**
+   * Instantiates a new Node configuration.
+   */
+  public NodeConfiguration() {
+    super();
+  }
+
+  /**
    * Gets the host that proxies can use to contact this node. Defaults to localhost.
    *
    * @return value. node host

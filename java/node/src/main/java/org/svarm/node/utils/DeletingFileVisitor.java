@@ -32,6 +32,12 @@ public class DeletingFileVisitor implements FileVisitor<Path> {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(DeletingFileVisitor.class);
 
+  /**
+   * Instantiates a new Deleting file visitor.
+   */
+  public DeletingFileVisitor() {
+  }
+
   @Override
   public FileVisitResult preVisitDirectory(final Path path,
                                            final BasicFileAttributes basicFileAttributes) throws IOException {

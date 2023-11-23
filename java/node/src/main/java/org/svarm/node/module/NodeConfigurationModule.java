@@ -38,6 +38,12 @@ import org.svarm.server.ServerConfiguration;
 public class NodeConfigurationModule {
 
   /**
+   * Instantiates a new Node configuration module.
+   */
+  public NodeConfigurationModule() {
+  }
+
+  /**
    * Converts the configuration to a node configuration.
    *
    * @param configuration from dropwizard.

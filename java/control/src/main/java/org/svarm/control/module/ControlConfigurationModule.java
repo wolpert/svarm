@@ -29,6 +29,12 @@ import org.svarm.server.ServerConfiguration;
 public class ControlConfigurationModule {
 
   /**
+   * Instantiates a new Control configuration module.
+   */
+  public ControlConfigurationModule() {
+  }
+
+  /**
    * Converts the configuration to a control configuration.
    *
    * @param configuration from dropwizard.

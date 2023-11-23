@@ -40,6 +40,12 @@ public class ProxyModule {
   public static final String NODE_SERVICE_EXECUTOR = "Node service executor";
 
   /**
+   * Instantiates a new Proxy module.
+   */
+  public ProxyModule() {
+  }
+
+  /**
    * Converts the configuration to a proxy configuration.
    *
    * @param configuration from dropwizard.

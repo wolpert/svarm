@@ -46,6 +46,12 @@ public class DataSourceModule {
   public static final String INTERNAL = "internal";
 
   /**
+   * Instantiates a new Data source module.
+   */
+  public DataSourceModule() {
+  }
+
+  /**
    * Returns a built, usable data source.
    *
    * @param databaseEngine               database  engine.

@@ -59,6 +59,12 @@ public class EtcdModule {
   public static final String INTERNAL_WATCH_ENGINE_EXECUTOR = "INTERNAL_WATCH_ENGINE_EXECUTOR";
 
   /**
+   * Instantiates a new Etcd module.
+   */
+  public EtcdModule() {
+  }
+
+  /**
    * Provide the preamble for the accessor.
    *
    * @param preamble if we have a custom one.

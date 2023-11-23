@@ -32,6 +32,12 @@ import org.svarm.node.manager.RealControlPlaneManager;
 public class ControlPlaneModule {
 
   /**
+   * Instantiates a new Control plane module.
+   */
+  public ControlPlaneModule() {
+  }
+
+  /**
    * This will be removed once we have the real control plane.
    *
    * @param fakeControlPlaneManager fake.

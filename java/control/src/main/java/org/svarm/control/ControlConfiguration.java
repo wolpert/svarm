@@ -32,6 +32,13 @@ public class ControlConfiguration extends ServerConfiguration {
   private Boolean runLiquibase;
 
   /**
+   * Instantiates a new Control configuration.
+   */
+  public ControlConfiguration() {
+    super();
+  }
+
+  /**
    * Can be null. If set runs liquibase support.
    *
    * @return boolean, can be null.
