@@ -34,11 +34,31 @@ server:
   adminContextPath: /
   applicationContextPath: /
   applicationConnectors:
-    - type: http
+    - type: h2
+      jceProvider: Conscrypt
       port: 8080
+      maxConcurrentStreams: 1024
+      initialStreamRecvWindow: 65535
+      keyStorePath: /server/keystore.jks
+      keyStorePassword: password
+      trustStorePath: /server/cacerts.jks
+      trustStorePassword: password
+      certAlias: proxy
+      validateCerts: false
+      disableSniHostCheck: true  # Work with docker hosts
   adminConnectors:
-    - type: http
+    - type: h2
       port: 8081
+      jceProvider: Conscrypt
+      maxConcurrentStreams: 1024
+      initialStreamRecvWindow: 65535
+      keyStorePath: /server/keystore.jks
+      keyStorePassword: password
+      trustStorePath: /server/cacerts.jks
+      trustStorePassword: password
+      certAlias: proxy
+      validateCerts: false
+      disableSniHostCheck: true  # Work with docker hosts
 
 etcdConfiguration:
   target: ip:///etcd:2379

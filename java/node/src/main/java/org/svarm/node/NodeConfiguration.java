@@ -30,6 +30,7 @@ public class NodeConfiguration extends ServerConfiguration {
   private String nodeHost;
   private Integer nodePort = 8080;
   private int watchEngineThreads = 5;
+  private String nodeScheme = "http";
 
   /**
    * Gets the host that proxies can use to contact this node. Defaults to localhost.
@@ -157,5 +158,23 @@ public class NodeConfiguration extends ServerConfiguration {
    */
   public void setWatchEngineThreads(final int watchEngineThreads) {
     this.watchEngineThreads = watchEngineThreads;
+  }
+
+  /**
+   * Gets node scheme.
+   *
+   * @return the node scheme
+   */
+  public String getNodeScheme() {
+    return nodeScheme;
+  }
+
+  /**
+   * Sets node scheme.
+   *
+   * @param nodeScheme the node scheme
+   */
+  public void setNodeScheme(final String nodeScheme) {
+    this.nodeScheme = nodeScheme;
   }
 }

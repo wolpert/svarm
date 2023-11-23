@@ -83,6 +83,7 @@ public class NodeManager {
           .uuid(uuid)
           .host(metaData.host())
           .port(metaData.port())
+          .uri(metaData.uri())
           .createDate(clock.instant())
           .status(NodeInfo.Status.DISABLED.name())
           .build();

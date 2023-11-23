@@ -33,7 +33,7 @@ public interface NodeDao {
    *
    * @param instance to use.
    */
-  @SqlUpdate("insert into NODES (uuid, create_date, update_date, host, port, status) values (:uuid, :createDate, :updateDate, :host, :port, :status)")
+  @SqlUpdate("insert into NODES (uuid, create_date, update_date, host, port, status, uri) values (:uuid, :createDate, :updateDate, :host, :port, :status, :uri)")
   void insert(@BindPojo final Node instance);
 
   /**
@@ -41,7 +41,7 @@ public interface NodeDao {
    *
    * @param instance to use.
    */
-  @SqlUpdate("update NODES set create_date = :createDate, update_date = :updateDate, host = :host, port = :port, status = :status where uuid = :uuid")
+  @SqlUpdate("update NODES set create_date = :createDate, update_date = :updateDate, host = :host, port = :port, status = :status, uri = :uri where uuid = :uuid")
   void update(@BindPojo final Node instance);
 
   /**

@@ -61,6 +61,9 @@
             <column name="PORT" type="integer">
                 <constraints nullable="false"/>
             </column>
+            <column name="URI" type="varchar(256)">
+                <constraints nullable="false"/>
+            </column>
             <column name="STATUS" type="varchar(256)">
                 <constraints nullable="false"/>
             </column>
