@@ -94,7 +94,7 @@ public class RealControlPlaneManager implements ControlPlaneManager {
         return true;
       } // we are enabled. If it was not enabled, we will force enablement below.
     } else { // not present, better register.
-      controlAccessor.register(nodeUuid, host, port, uri);
+      controlAccessor.register(nodeUuid, uri);
     }
     controlAccessor.enable(nodeUuid);
     final String newStatus = controlAccessor.status(nodeUuid)
@@ -143,6 +143,6 @@ public class RealControlPlaneManager implements ControlPlaneManager {
   @Override
   public void start() throws Exception {
     LOGGER.trace("start()");
-    controlAccessor.register(nodeUuid, host, port, uri);
+    controlAccessor.register(nodeUuid, uri);
   }
 }

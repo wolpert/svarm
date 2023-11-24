@@ -31,20 +31,6 @@ import org.immutables.value.Value;
 public interface NodeMetaData {
 
   /**
-   * Host name.
-   *
-   * @return the value.
-   */
-  String host();
-
-  /**
-   * Port.
-   *
-   * @return the value.
-   */
-  Integer port();
-
-  /**
    * Uri string.
    *
    * @return the string

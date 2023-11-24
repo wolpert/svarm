@@ -19,19 +19,16 @@ package org.svarm.control;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import feign.FeignException;
 import io.dropwizard.testing.DropwizardTestSupport;
 import io.dropwizard.testing.ResourceHelpers;
 import io.etcd.jetcd.test.EtcdClusterExtension;
-import java.util.Random;
 import java.util.UUID;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
-import org.svarm.common.factory.ObjectMapperFactory;
 import org.svarm.control.common.api.ControlNodeService;
 import org.svarm.control.common.api.ImmutableNodeMetaData;
 import org.svarm.control.common.api.KeyInfo;
@@ -46,8 +43,6 @@ public class ControlIntegTest {
       .withNodes(1)
       .build();
   private static DropwizardTestSupport<ControlConfiguration> SUPPORT;
-  private static ObjectMapper OBJECT_MAPPER;
-  private static Random RANDOM;
   private static String CONNECTION_URL;
   private static ControlNodeService CONTROL_NODE;
 
@@ -61,8 +56,6 @@ public class ControlIntegTest {
     SUPPORT.before();
     CONNECTION_URL = "http://localhost:" + SUPPORT.getLocalPort() + "/";
     CONTROL_NODE = ControlServiceComponent.controlNodeService(CONNECTION_URL).controlNodeService();
-    OBJECT_MAPPER = new ObjectMapperFactory().generate();
-    RANDOM = new Random();
   }
 
   @AfterAll
@@ -127,7 +120,7 @@ public class ControlIntegTest {
   @Test
   public void roundTrip() {
     final String uuid = UUID.randomUUID().toString();
-    final NodeMetaData metaData = ImmutableNodeMetaData.builder().host("host").port(123).uri("uri").build();
+    final NodeMetaData metaData = ImmutableNodeMetaData.builder().uri("uri").build();
     registerAndEnable(uuid, metaData);
     validateNodeKey(uuid);
     // TODO: Create a tenant

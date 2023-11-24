@@ -81,8 +81,6 @@ public class NodeManager {
       }
       final Node node = ImmutableNode.builder()
           .uuid(uuid)
-          .host(metaData.host())
-          .port(metaData.port())
           .uri(metaData.uri())
           .createDate(clock.instant())
           .status(NodeInfo.Status.DISABLED.name())

@@ -55,12 +55,6 @@
             <column name="UPDATE_DATE" type="timestamp">
                 <constraints nullable="true"/>
             </column>
-            <column name="HOST" type="varchar(256)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="PORT" type="integer">
-                <constraints nullable="false"/>
-            </column>
             <column name="URI" type="varchar(256)">
                 <constraints nullable="false"/>
             </column>

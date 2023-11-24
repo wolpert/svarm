@@ -89,17 +89,15 @@ class RealControlPlaneManagerTest extends BaseMetricTest {
     when(controlAccessor.keyForNode(UUID)).thenReturn(KEY);
     assertThat(manager.keyForNode()).isEqualTo(KEY);
     verify(controlAccessor).enable(stringArgumentCaptor.capture());
-    verify(controlAccessor).register(stringArgumentCaptor.capture(), stringArgumentCaptor.capture(), integerArgumentCaptor.capture(), stringArgumentCaptor.capture());
-    assertThat(stringArgumentCaptor.getAllValues()).contains(UUID, HOST, SCHEME + "://" + HOST + ":" + PORT);
-    assertThat(integerArgumentCaptor.getValue()).isEqualTo(PORT);
+    verify(controlAccessor).register(stringArgumentCaptor.capture(), stringArgumentCaptor.capture());
+    assertThat(stringArgumentCaptor.getAllValues()).contains(UUID, SCHEME + "://" + HOST + ":" + PORT);
   }
 
   @Test
   void keyForNode_registeredFailed() {
     when(controlAccessor.status(UUID)).thenReturn(Optional.empty()).thenReturn(Optional.empty());
     assertThatExceptionOfType(IllegalStateException.class).isThrownBy(() -> manager.keyForNode());
-    verify(controlAccessor).register(stringArgumentCaptor.capture(), stringArgumentCaptor.capture(), integerArgumentCaptor.capture(), stringArgumentCaptor.capture());
-    assertThat(stringArgumentCaptor.getAllValues()).contains(UUID, HOST, SCHEME + "://" + HOST + ":" + PORT);
-    assertThat(integerArgumentCaptor.getValue()).isEqualTo(PORT);
+    verify(controlAccessor).register(stringArgumentCaptor.capture(), stringArgumentCaptor.capture());
+    assertThat(stringArgumentCaptor.getAllValues()).contains(UUID, SCHEME + "://" + HOST + ":" + PORT);
   }
 }

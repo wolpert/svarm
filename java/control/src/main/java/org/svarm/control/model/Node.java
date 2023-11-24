@@ -48,20 +48,6 @@ public interface Node {
   Optional<Instant> updateDate();
 
   /**
-   * Host to access the node.
-   *
-   * @return value. string
-   */
-  String host();
-
-  /**
-   * Port of the node.
-   *
-   * @return value. integer
-   */
-  Integer port();
-
-  /**
    * Uri string.
    *
    * @return value. string

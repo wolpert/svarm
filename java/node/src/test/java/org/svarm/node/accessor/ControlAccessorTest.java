@@ -103,12 +103,10 @@ class ControlAccessorTest extends BaseMetricTest {
 
   @Test
   void register() {
-    accessor.register(UUID, HOST, PORT, URI);
+    accessor.register(UUID, URI);
     verify(controlNodeService).register(stringArgumentCaptor.capture(), metaDataArgumentCaptor.capture());
     assertThat(stringArgumentCaptor.getValue()).isEqualTo(UUID);
     assertThat(metaDataArgumentCaptor.getValue())
-        .hasFieldOrPropertyWithValue("host", HOST)
-        .hasFieldOrPropertyWithValue("port", PORT)
         .hasFieldOrPropertyWithValue("uri", URI);
   }
 

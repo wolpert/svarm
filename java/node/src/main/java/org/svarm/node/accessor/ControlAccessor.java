@@ -140,15 +140,12 @@ public class ControlAccessor {
    * Registers this node.
    *
    * @param uuid to register.
-   * @param host the host.
-   * @param port the port.
    * @param uri  the uri.
    */
-  public void register(final String uuid, final String host, final int port, final String uri) {
-    LOGGER.trace("register({},{},{})", uuid, host, port);
+  public void register(final String uuid, final String uri) {
+    LOGGER.trace("register({},{})", uuid, uri);
     metrics.time("ControlAccessor.register", () -> {
-      final NodeMetaData metaData = ImmutableNodeMetaData.builder()
-          .host(host).port(port).uri(uri).build();
+      final NodeMetaData metaData = ImmutableNodeMetaData.builder().uri(uri).build();
       final NodeInfo info = controlNodeService.register(uuid, metaData);
       LOGGER.info("register result:{}", info);
       return null;
