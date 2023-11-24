@@ -85,8 +85,23 @@ public class NodeManager {
           .createDate(clock.instant())
           .status(NodeInfo.Status.DISABLED.name())
           .build();
-      nodeDao.insert(node);
+      try {
+        nodeDao.insert(node);
+      } catch (Throwable e) {
+        LOGGER.error("create({}): Initial: Error creating node: {}", uuid, node, e);
+        final Node existing = nodeDao.read(uuid);
+        if (existing != null) {
+          metrics.counter("NodeManager.create.alreadyCreated").increment();
+          LOGGER.error("create({}): Node actually already created, returning existing: {}", uuid, existing);
+          return existing; // idempotent
+        } else {
+          metrics.counter("NodeManager.create.error").increment();
+          LOGGER.error("create({}): Error creating node: {}", uuid, node, e);
+          throw e;
+        }
+      }
       LOGGER.debug("create({}): Node created: {}", uuid, node);
+      metrics.counter("NodeManager.create.created").increment();
       return node;
     });
   }
