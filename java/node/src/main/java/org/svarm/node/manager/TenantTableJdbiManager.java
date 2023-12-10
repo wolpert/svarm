@@ -24,16 +24,20 @@ import com.google.common.cache.RemovalNotification;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Map;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.sql.DataSource;
+import org.immutables.value.Value;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.mapper.immutables.JdbiImmutables;
+import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.svarm.node.engine.DatabaseEngine;
 import org.svarm.node.engine.DatabaseInitializationEngine;
 import org.svarm.node.engine.impl.v1singleentry.V1Row;
+import org.svarm.node.engine.impl.v1singleentry.V1RowDao;
 import org.svarm.node.factory.JdbiFactory;
 import org.svarm.node.model.TenantTable;
 import org.svarm.node.utils.TagHelper;
@@ -45,7 +49,7 @@ import org.svarm.node.utils.TagHelper;
 public class TenantTableJdbiManager {
   private static final Logger LOGGER = LoggerFactory.getLogger(TenantTableJdbiManager.class);
 
-  private final LoadingCache<TenantTable, Jdbi> jdbiLoadingCache;
+  private final LoadingCache<TenantTable, CacheHolder> jdbiLoadingCache;
   private final DatabaseEngine databaseEngine;
   private final DatabaseInitializationEngine databaseInitializationEngine;
   private final Metrics metrics;
@@ -64,7 +68,7 @@ public class TenantTableJdbiManager {
                                 final DatabaseInitializationEngine databaseInitializationEngine,
                                 final Metrics metrics,
                                 final JdbiFactory jdbiFactory) {
-    LOGGER.info("TenantTableJdbiManager({},{},{})",
+    LOGGER.info("TenantTableJdbiManager({},{},{},{})",
         databaseEngine, databaseInitializationEngine, metrics, jdbiFactory);
     this.metrics = metrics;
     this.databaseEngine = databaseEngine;
@@ -83,7 +87,8 @@ public class TenantTableJdbiManager {
    * @return map of the tenants.
    */
   public Map<TenantTable, Jdbi> allValues() {
-    return jdbiLoadingCache.asMap();
+    return jdbiLoadingCache.asMap().entrySet().stream()
+        .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().jdbi()));
   }
 
   /**
@@ -108,7 +113,19 @@ public class TenantTableJdbiManager {
   public Jdbi getJdbi(final TenantTable tenantTable) {
     LOGGER.trace("getDataSource({})", tenantTable);
     metrics.counter("TenantTableJdbiManager.getJdbi", TagHelper.from(tenantTable)).increment();
-    return jdbiLoadingCache.getUnchecked(tenantTable);
+    return jdbiLoadingCache.getUnchecked(tenantTable).jdbi();
+  }
+
+  /**
+   * Gets the v1 row dao for the tenant.
+   *
+   * @param tenantTable to get the source for.
+   * @return the source.
+   */
+  public V1RowDao getV1RowDao(final TenantTable tenantTable) {
+    LOGGER.trace("getV1RowDao({})", tenantTable);
+    metrics.counter("TenantTableJdbiManager.getV1RowDao", TagHelper.from(tenantTable)).increment();
+    return jdbiLoadingCache.getUnchecked(tenantTable).v1RowDao();
   }
 
   /**
@@ -122,19 +139,23 @@ public class TenantTableJdbiManager {
     jdbiLoadingCache.invalidate(tenantTable);
   }
 
-  private void onRemoval(RemovalNotification<TenantTable, Jdbi> notification) {
+  private void onRemoval(RemovalNotification<TenantTable, CacheHolder> notification) {
     LOGGER.debug("onRemoval({},{})", notification.getKey(), notification.getCause());
     metrics.counter("TenantTableJdbiManager.onRemoval", TagHelper.from(notification.getKey())).increment();
-    notification.getValue().withHandle(handle -> handle.execute("shutdown;"));
+    notification.getValue().jdbi().withHandle(handle -> handle.execute("shutdown;"));
   }
 
 
-  private Jdbi generateJdbi(final TenantTable tenantTable) {
+  private CacheHolder generateJdbi(final TenantTable tenantTable) {
     final DataSource dataSource = generateDataSource(tenantTable);
     final Jdbi jdbi = jdbiFactory.generate(dataSource);
+    jdbi.installPlugin(new SqlObjectPlugin());
     jdbi.getConfig(JdbiImmutables.class)
         .registerImmutable(V1Row.class);
-    return jdbi;
+    return ImmutableCacheHolder.builder()
+        .jdbi(jdbi)
+        .v1RowDao(jdbi.onDemand(V1RowDao.class))
+        .build();
   }
 
   /**
@@ -166,5 +187,22 @@ public class TenantTableJdbiManager {
     metrics.counter("TenantTableJdbiManager.deleteEverything", TagHelper.from(tenantTable)).increment();
     evictTenant(tenantTable);
     databaseEngine.deleteTenantDataStoreLocation(tenantTable);
+  }
+
+  /**
+   * The interface Cache holder.
+   */
+  @Value.Immutable
+  interface CacheHolder {
+
+    /**
+     * Jdbi jdbi.
+     *
+     * @return the jdbi
+     */
+    Jdbi jdbi();
+
+    V1RowDao v1RowDao();
+
   }
 }

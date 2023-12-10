@@ -1,5 +1,6 @@
 package org.svarm.node.engine;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -8,11 +9,13 @@ import java.util.Optional;
 import java.util.Set;
 
 /**
- * Sets of V1Rows based on hashes.
+ * A chunk represents hashes, and each hash can have the set of rows. It does not do any
+ * unique checks on data except for the hashes themselves. It is the responsibility of the
+ * caller to ensure that the data is unique.
  *
  * @param <T> the type parameter
  */
-public class Chunk<T> {
+public class Chunk<T> implements Serializable {
 
   private final Map<Integer, List<T>> sets; // hash -> list of rows
   private int rows;

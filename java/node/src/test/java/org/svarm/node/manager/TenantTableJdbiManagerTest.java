@@ -30,6 +30,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.svarm.node.engine.DatabaseEngine;
 import org.svarm.node.engine.DatabaseInitializationEngine;
+import org.svarm.node.engine.impl.v1singleentry.V1RowDao;
 import org.svarm.node.factory.JdbiFactory;
 import org.svarm.node.model.TenantTable;
 import org.svarm.node.model.TenantTableIdentifier;
@@ -53,6 +54,7 @@ class TenantTableJdbiManagerTest extends BaseMetricTest {
   @Mock private JdbiFactory jdbiFactory;
   @Mock private Jdbi jdbi;
   @Mock private JdbiImmutables jdbiImmutables;
+  @Mock private V1RowDao v1RowDao;
 
   private TenantTableJdbiManager tenantTableJdbiManager;
 
@@ -66,6 +68,7 @@ class TenantTableJdbiManagerTest extends BaseMetricTest {
     when(databaseEngine.tenantDataSource(tenantTable)).thenReturn(dataSource);
     when(jdbiFactory.generate(dataSource)).thenReturn(jdbi);
     when(jdbi.getConfig(JdbiImmutables.class)).thenReturn(jdbiImmutables);
+    when(jdbi.onDemand(V1RowDao.class)).thenReturn(v1RowDao);
     when(tenantTable.identifier()).thenReturn(identifier);
     when(identifier.tenantId()).thenReturn(TENANT_ID);
     when(identifier.tableName()).thenReturn(TABLE_NAME);

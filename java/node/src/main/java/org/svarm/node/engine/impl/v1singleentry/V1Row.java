@@ -1,12 +1,13 @@
 package org.svarm.node.engine.impl.v1singleentry;
 
+import java.io.Serializable;
 import org.immutables.value.Value;
 
 /**
  * Represents a row in the v1 model.
  */
 @Value.Immutable
-public interface V1Row {
+public interface V1Row extends Serializable {
 
   /**
    * The id of the row.
