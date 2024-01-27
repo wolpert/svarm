@@ -7,7 +7,7 @@ import feign.Client;
 import feign.Feign;
 import feign.jackson.JacksonDecoder;
 import feign.jackson.JacksonEncoder;
-import feign.jaxrs.JakartaContract;
+import feign.jaxrs.JAXRSContract;
 import feign.micrometer.MicrometerCapability;
 import feign.slf4j.Slf4jLogger;
 import io.github.resilience4j.feign.FeignDecorators;
@@ -28,7 +28,7 @@ public class FeignBuilderInstrumentator {
   private final TraceInterceptor traceInterceptor;
   private final Slf4jLogger slf4jLogger;
   private final MicrometerCapability micrometerCapability;
-  private final JakartaContract jakartaContract;
+  private final JAXRSContract jakartaContract;
   private final JacksonDecoder jacksonDecoder;
   private final JacksonEncoder jacksonEncoder;
   private final Client client;
@@ -49,7 +49,7 @@ public class FeignBuilderInstrumentator {
     this.client = client;
     this.slf4jLogger = new Slf4jLogger();
     this.micrometerCapability = new MicrometerCapability(meterRegistry);
-    this.jakartaContract = new JakartaContract();
+    this.jakartaContract = new JAXRSContract();
     this.jacksonDecoder = new JacksonDecoder(objectMapper);
     this.jacksonEncoder = new JacksonEncoder(objectMapper);
     this.traceInterceptor = traceInterceptor;

@@ -42,8 +42,7 @@ dependencies {
     api libs.feign.slf4j
     api libs.feign.micrometer
     api libs.openfeign.java11
-    api libs.openfeign.jaxrs2
-    api libs.openfeign.jakarta
+    api libs.openfeign.jaxrs3
     api libs.openfeign.okhttp
 
     api(platform(libs.okhttp.bom))
