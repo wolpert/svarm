@@ -34,8 +34,7 @@ dependencies {
     implementation libs.feign.slf4j
     implementation libs.feign.micrometer
     implementation libs.openfeign.java11
-    implementation libs.openfeign.jaxrs2
-    implementation libs.openfeign.jakarta
+    implementation libs.openfeign.jaxrs3
 
     implementation libs.retrofit
     implementation libs.retrofit2.converter.jackson

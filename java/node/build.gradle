@@ -56,8 +56,7 @@ dependencies {
     testImplementation libs.feign.slf4j
     testImplementation libs.feign.micrometer
     testImplementation libs.openfeign.java11
-    testImplementation libs.openfeign.jaxrs2
-    testImplementation libs.openfeign.jakarta
+    testImplementation libs.openfeign.jaxrs3
 
     // Logging stuff... need all these for logback changes
     implementation libs.logback.classic
