@@ -17,7 +17,14 @@ import java.util.Set;
  */
 public class Chunk<T> implements Serializable {
 
+  /**
+   * The sets of rows in this chunk, aligned by the hash value.
+   */
   private final Map<Integer, List<T>> sets; // hash -> list of rows
+
+  /**
+   * The total number of rows in this chunk across all sets.
+   */
   private int rows;
 
   /**

@@ -24,6 +24,7 @@ import static org.svarm.endtoend.EnvironmentManager.COMPONENT;
 import com.fasterxml.jackson.databind.JsonNode;
 import feign.FeignException;
 import java.io.IOException;
+import java.util.UUID;
 import java.util.function.Supplier;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -49,23 +50,24 @@ public class TableTenantLifecycleTest {
 
   @Test
   void createTable() throws IOException {
+    final String tenant = TENANT + ":" + UUID.randomUUID();
     COMPONENT.traceUuidEngine().set("TableTenantLifecycleTest.createTable");
-    final TenantResourceInfo info = COMPONENT.controlTenantResourceService().createResource(TENANT, TABLE, META_DATA);
+    final TenantResourceInfo info = COMPONENT.controlTenantResourceService().createResource(tenant, TABLE, META_DATA);
     LOGGER.info("Create table {} ", info);
     COMPONENT.etcdAccessor().getAll("node", "").forEach(LOGGER::info);
     final JsonNode data = COMPONENT.objectMapper().readValue("{\"a\":2,\"something\":\"else\"}", JsonNode.class);
-    boolean ready = retry(20, () -> COMPONENT.controlTenantResourceService().readResource(TENANT, TABLE).get().ready());
+    boolean ready = retry(20, () -> COMPONENT.controlTenantResourceService().readResource(tenant, TABLE).get().ready());
     assertThat(ready).isTrue();
-    COMPONENT.proxyService().createTenantTableEntry(TENANT, TABLE, ENTRY, data);
-    final JsonNode result = COMPONENT.proxyService().readTenantTableEntry(TENANT, TABLE, ENTRY).get();
+    COMPONENT.proxyService().createTenantTableEntry(tenant, TABLE, ENTRY, data);
+    final JsonNode result = COMPONENT.proxyService().readTenantTableEntry(tenant, TABLE, ENTRY).get();
     assertThat(result).isEqualTo(data);
-    COMPONENT.proxyService().deleteTenantTableEntry(TENANT, TABLE, ENTRY);
+    COMPONENT.proxyService().deleteTenantTableEntry(tenant, TABLE, ENTRY);
     assertThatExceptionOfType(FeignException.NotFound.class)
-        .isThrownBy(() -> COMPONENT.proxyService().readTenantTableEntry(TENANT, TABLE, ENTRY));
-    COMPONENT.controlTenantResourceService().deleteResource(TENANT, TABLE);
+        .isThrownBy(() -> COMPONENT.proxyService().readTenantTableEntry(tenant, TABLE, ENTRY));
+    COMPONENT.controlTenantResourceService().deleteResource(tenant, TABLE);
     final boolean deleted = retry(20, () -> {
       try {
-        return COMPONENT.controlTenantResourceService().readResource(TENANT, TABLE).isEmpty();
+        return COMPONENT.controlTenantResourceService().readResource(tenant, TABLE).isEmpty();
       } catch (FeignException.NotFound e) {
         return true;
       }
