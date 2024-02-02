@@ -48,14 +48,16 @@ public class V1RowConverter {
     final ObjectNode node = jsonEngine.createObjectNode();
 
     list.forEach(row -> {
-      builder.id(row.id());
-      builder.locationHash(row.hash());
-      builder.timestamp(row.timestamp());
-      switch (row.cDataType()) {
-        case INTEGER_TYPE -> node.put(row.cCol(), Integer.valueOf(row.cData()));
-        case STRING_TYPE -> node.put(row.cCol(), row.cData());
-        default -> throw new IllegalArgumentException("Unknown type: " + row.cDataType());
-      }
+      row.cData().ifPresent(data -> {
+        builder.id(row.id());
+        builder.locationHash(row.hash());
+        builder.timestamp(row.timestamp());
+        switch (row.cDataType()) {
+          case INTEGER_TYPE -> node.put(row.cCol(), Integer.valueOf(data));
+          case STRING_TYPE -> node.put(row.cCol(), data);
+          default -> throw new IllegalArgumentException("Unknown type: " + row.cDataType());
+        }
+      });
     });
     builder.data(node);
     return builder.build();

@@ -39,7 +39,7 @@
                 <constraints nullable="false"/>
             </column>
             <column name="C_DATA" type="varchar(4096)">
-                <constraints nullable="false"/>
+                <constraints nullable="true"/>
             </column>
         </createTable>
         <createIndex tableName="TENANT_DATA" indexName="TENANT_DATA_HASH_IDX" unique="false">

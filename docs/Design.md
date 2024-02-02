@@ -160,6 +160,18 @@ use HSQLDB at this point. Folks with a better idea are welcome to comment. In
 the case of using MySQL, we can encrypt at the 'tablespace' layer. For
 PostgreSQL, the data partition will need to be encrypted at the OS layer.
 
+### Deletion
+
+We treat deleted columns as a state change that needs propagation, and reuse
+the same row for management of the deletion request. This is similar to the
+approach taken by Cassandra's tombstone. When a row's column is deleted, the
+column data field is removed and the column state is set to 'deleted', and the
+expiry time for that row. At some time interval, the rows are removed 
+automatically if the expiration time has passed. This means when data is
+migrating to new servers, these deletion tombstones are also migrated. We still
+have the updated timestamp on the rows in-case there is a collision so the 
+latest row wins.
+
 ## Control
 
 The Proxy and Data nodes are managed by the Control plane. Not pictured here is

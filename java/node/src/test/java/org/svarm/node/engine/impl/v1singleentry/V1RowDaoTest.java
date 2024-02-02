@@ -2,6 +2,7 @@ package org.svarm.node.engine.impl.v1singleentry;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,6 +36,15 @@ class V1RowDaoTest extends BaseSQLTest {
     assertThat(dao.read(row.hash())).isEmpty();
     dao.insert(row);
     assertThat(dao.read(row.hash())).containsExactly(row);
+  }
+
+  @Test
+  void roundTripWithoutCData() {
+    final V1Row row = ImmutableV1Row.builder().from(randomRow()).cData(Optional.empty()).build();
+    assertThat(dao.read(row.hash())).isEmpty();
+    dao.insert(row);
+    final V1Row result = dao.read(row.hash()).get(0);
+    assertThat(result).hasNoNullFieldsOrPropertiesExcept("cData").isEqualTo(row);
   }
 
   private V1Row randomRow() {

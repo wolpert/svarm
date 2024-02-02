@@ -1,6 +1,7 @@
 package org.svarm.node.engine.impl.v1singleentry;
 
 import java.io.Serializable;
+import java.util.Optional;
 import org.immutables.value.Value;
 
 /**
@@ -49,6 +50,6 @@ public interface V1Row extends Serializable {
    *
    * @return the value.
    */
-  String cData();
+  Optional<String> cData();
 
 }
