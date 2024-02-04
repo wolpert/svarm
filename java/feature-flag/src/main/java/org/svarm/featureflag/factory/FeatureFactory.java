@@ -3,10 +3,12 @@ package org.svarm.featureflag.factory;
 import com.google.common.base.Charsets;
 import com.google.common.hash.HashCode;
 import com.google.common.hash.HashFunction;
+import com.google.common.hash.Hashing;
+import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.svarm.featureflag.Feature;
+import org.svarm.featureflag.manager.Feature;
 
 /**
  * The type Feature factory.
@@ -20,9 +22,17 @@ public class FeatureFactory {
 
   /**
    * Instantiates a new Feature factory.
+   */
+  public FeatureFactory() {
+    this(Hashing.murmur3_32_fixed());
+  }
+
+  /**
+   * Instantiates a new Feature factory.
    *
    * @param hashFunction the hash function
    */
+  @Inject
   public FeatureFactory(HashFunction hashFunction) {
     this.hashFunction = hashFunction;
     LOGGER.info("FeatureFactory({})", hashFunction);

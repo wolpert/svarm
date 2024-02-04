@@ -1,4 +1,4 @@
-package org.svarm.featureflag;
+package org.svarm.featureflag.manager;
 
 /**
  * Feature interface to vet if something is enabled for a given discriminator.
