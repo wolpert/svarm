@@ -14,3 +14,7 @@ If successful, this may go to its own project.
 
 * Current libraries are overly complicated or spring-based. (ff4j)
 * Too many bells ans whistles and leaky abstractions. 
+
+## TODO
+1. Added a watcher on new feature flags so that on change/delete events we invalidate the cache.
+2. Generic CLI would be nice.

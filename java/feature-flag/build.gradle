@@ -24,5 +24,7 @@ dependencies {
     implementation libs.logback.classic
     implementation libs.logback.core
     implementation libs.logback.access
+    testImplementation libs.jetcd.core
+    testImplementation libs.jetcd.test
 }
 

@@ -33,6 +33,14 @@ class EtcdFeatureLookupManagerTest {
   }
 
   @Test
+  void lookupPercentage_notFound() {
+    when(accessor.get(NAMESPACE, FEATURE_ID)).thenReturn(Optional.empty());
+    Optional<Double> result = etcdFeatureLookupManager.lookupPercentage(FEATURE_ID);
+    assertThat(result).isNotNull()
+        .isEmpty();
+  }
+
+  @Test
   void setPercentage() {
     etcdFeatureLookupManager.setPercentage(FEATURE_ID, 0.5);
     verify(accessor).put(NAMESPACE, FEATURE_ID, "0.5");
