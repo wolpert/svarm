@@ -5,12 +5,12 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import java.time.Duration;
 import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.svarm.featureflag.factory.Feature;
 import org.svarm.featureflag.factory.FeatureFactory;
 
 /**

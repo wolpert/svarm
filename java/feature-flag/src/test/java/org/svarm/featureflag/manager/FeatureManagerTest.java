@@ -1,6 +1,9 @@
 package org.svarm.featureflag.manager;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
@@ -67,6 +70,19 @@ class FeatureManagerTest {
     featureManager.invalidate(FEATURE_ID);
     assertThat(featureManager.ifEnabledElse(FEATURE_ID, DISCRIMINATOR, () -> "enabled", () -> "disabled"))
         .isEqualTo("enabled");
+    verify(featureLookupManager, times(2)).lookupPercentage(FEATURE_ID);
+  }
 
+  @Test
+  void invalidate_notCalled() {
+    lenient().when(featureLookupManager.lookupPercentage(FEATURE_ID)).thenReturn(Optional.empty()).thenReturn(Optional.of(0.5));
+    lenient().when(featureFactory.disabledFeature()).thenReturn(discriminator -> false);
+    lenient().when(featureFactory.generate(0.5)).thenReturn(discriminator -> true);
+
+    assertThat(featureManager.ifEnabledElse(FEATURE_ID, DISCRIMINATOR, () -> "enabled", () -> "disabled"))
+        .isEqualTo("disabled");
+    assertThat(featureManager.ifEnabledElse(FEATURE_ID, DISCRIMINATOR, () -> "enabled", () -> "disabled"))
+        .isEqualTo("disabled");
+    verify(featureLookupManager, times(1)).lookupPercentage(FEATURE_ID);
   }
 }
