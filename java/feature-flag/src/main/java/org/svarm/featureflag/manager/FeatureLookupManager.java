@@ -5,7 +5,6 @@ import java.util.Optional;
 /**
  * The interface Feature lookup manager.
  */
-@FunctionalInterface
 public interface FeatureLookupManager {
 
   /**
@@ -15,5 +14,21 @@ public interface FeatureLookupManager {
    * @return the feature percentage dialed up.
    */
   Optional<Double> lookupPercentage(String featureId);
+
+  /**
+   * Sets percentage.
+   *
+   * @param featureId  the feature id
+   * @param percentage the percentage
+   * @return the percentage
+   */
+  boolean setPercentage(String featureId, double percentage);
+
+  /**
+   * Delete percentage boolean.
+   *
+   * @param featureId the feature id
+   */
+  void deletePercentage(String featureId);
 
 }

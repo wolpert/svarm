@@ -19,6 +19,7 @@ base {
 //jacocoTestReport.finalizedBy jacocoTestCoverageVerification
 
 dependencies {
+    implementation project(":config-common")
     // Logging stuff... need all these for logback changes
     implementation libs.logback.classic
     implementation libs.logback.core

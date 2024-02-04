@@ -40,7 +40,7 @@ public class FeatureManager {
         .maximumSize(100) // oh god, like we will have 100 features?
         .refreshAfterWrite(Duration.ofSeconds(60)) // refresh from source every 60seconds
         .expireAfterAccess(Duration.ofSeconds(600)) // expire after 600 seconds of inactivity
-        .removalListener(notification -> LOGGER.trace("FeatureManager.removed({})", notification.getKey()))
+        .removalListener(notification -> LOGGER.trace("removalListener({})", notification.getKey()))
         //.recordStats()
         .build(CacheLoader.asyncReloading(
             CacheLoader.from(this::lookup),
@@ -81,7 +81,7 @@ public class FeatureManager {
   }
 
   /**
-   * Invalidate.
+   * Invalidate the feature id in the cache.
    *
    * @param featureId the feature id
    */
