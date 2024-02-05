@@ -49,7 +49,7 @@ public class FeatureManager {
   }
 
   private Feature lookup(String featureId) {
-    LOGGER.trace("lookup({})", featureId);
+    LOGGER.info("lookup({})", featureId);
     return featureLookupManager.lookupPercentage(featureId)
         .map(featureFactory::generate)
         .orElseGet(featureFactory::disabledFeature);

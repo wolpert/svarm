@@ -28,6 +28,7 @@ import javax.inject.Singleton;
 import org.jdbi.v3.core.statement.PreparedBatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.svarm.featureflag.manager.FeatureManager;
 import org.svarm.node.api.EntryInfo;
 import org.svarm.node.engine.TableDefinitionEngine;
 import org.svarm.node.manager.TenantTableJdbiManager;
@@ -53,6 +54,7 @@ public class V1SingleEntryEngine implements TableDefinitionEngine {
   private final Metrics metrics;
   private final TenantTableJdbiManager dataSourceManager;
   private final V1RowConverter converter;
+  private final FeatureManager featureManager;
 
   /**
    * Default constructor.
@@ -60,15 +62,18 @@ public class V1SingleEntryEngine implements TableDefinitionEngine {
    * @param metrics           for analytics.
    * @param dataSourceManager for retrieving data sources of tenant dbs
    * @param converter         for conversion.
+   * @param featureManager    for feature flags.
    */
   @Inject
   public V1SingleEntryEngine(final Metrics metrics,
                              final TenantTableJdbiManager dataSourceManager,
-                             final V1RowConverter converter) {
+                             final V1RowConverter converter,
+                             final FeatureManager featureManager) {
     this.dataSourceManager = dataSourceManager;
     this.metrics = metrics;
     this.converter = converter;
-    LOGGER.info("V1SingleEntryEngine({},{},{})", metrics, dataSourceManager, converter);
+    this.featureManager = featureManager;
+    LOGGER.info("V1SingleEntryEngine({},{},{},{})", metrics, dataSourceManager, converter, featureManager);
   }
 
   /**

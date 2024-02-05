@@ -7,7 +7,7 @@ Notes about the Java code.
 Requires
 
 * JDK17
-* Gradle (Tested with 8.0)
+* Gradle (Tested with 8.6)
 * Docker for endToEnd tests
 
 ```shell
@@ -95,7 +95,7 @@ rm -rf /tmp/dataNodeConfig.json /tmp/nodeInternalDb
 
 There have been issues with plugins like checkstyle if the gradle version is
 mismatched. Officially the version in the gradle-wrapper.properties is the
-version we should build with. 8.0.2 as of last checked.
+version we should build with. 8.6 as of last checked.
 
 ## Package layout.
 

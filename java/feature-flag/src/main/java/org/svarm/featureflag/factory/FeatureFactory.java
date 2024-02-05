@@ -22,6 +22,7 @@ public class FeatureFactory {
   /**
    * Instantiates a new Feature factory.
    */
+  @Inject
   public FeatureFactory() {
     this(Hashing.murmur3_32_fixed());
   }
@@ -31,7 +32,6 @@ public class FeatureFactory {
    *
    * @param hashFunction the hash function
    */
-  @Inject
   public FeatureFactory(HashFunction hashFunction) {
     this.hashFunction = hashFunction;
     LOGGER.info("FeatureFactory({})", hashFunction);
@@ -63,7 +63,7 @@ public class FeatureFactory {
    * @return the feature
    */
   public Feature enabledFeature() {
-    LOGGER.trace("enabledFeature()");
+    LOGGER.info("enabledFeature()");
     return (discriminator) -> true;
   }
 
@@ -73,7 +73,7 @@ public class FeatureFactory {
    * @return the feature
    */
   public Feature disabledFeature() {
-    LOGGER.trace("disabledFeature()");
+    LOGGER.info("disabledFeature()");
     return (discriminator) -> false;
   }
 
@@ -84,7 +84,7 @@ public class FeatureFactory {
    * @return the feature
    */
   public Feature percentageFeature(double percentage) {
-    LOGGER.trace("percentageFeature({})", percentage);
+    LOGGER.info("percentageFeature({})", percentage);
     return (discriminator) -> {
       final HashCode hashCode = hashFunction.hashString(discriminator, Charsets.UTF_8);
       final int hash = hashCode.asInt();
