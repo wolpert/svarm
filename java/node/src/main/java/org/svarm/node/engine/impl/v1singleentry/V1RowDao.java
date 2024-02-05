@@ -48,4 +48,13 @@ public interface V1RowDao extends Transactional<V1RowDao> {
   @SqlQuery("select * from TENANT_DATA where hash between :hashLow and :hashHigh order by hash")
   List<V1Row> read(@Bind("hashLow") Integer hashLow, @Bind("hashHigh") Integer hashHigh);
 
+  /**
+   * Read list.
+   *
+   * @param id the entry id.
+   * @return the list
+   */
+  @SqlQuery("select * from TENANT_DATA where id = :id")
+  List<V1Row> readEntry(@Bind("id") String id);
+
 }

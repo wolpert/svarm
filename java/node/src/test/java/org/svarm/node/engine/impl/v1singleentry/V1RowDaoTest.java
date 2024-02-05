@@ -36,6 +36,7 @@ class V1RowDaoTest extends BaseSQLTest {
     assertThat(dao.read(row.hash())).isEmpty();
     dao.insert(row);
     assertThat(dao.read(row.hash())).containsExactly(row);
+    assertThat(dao.readEntry(row.id())).containsExactly(row);
   }
 
   @Test

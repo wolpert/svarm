@@ -1,6 +1,9 @@
 package org.svarm.node.engine.impl.v1singleentry;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,6 +48,7 @@ class V1SingleEntryEngineTest extends BaseSQLTest {
 
   @Test
   void readWrite() {
+    when(featureManager.isEnabled("V1_DAO_READ", "ID")).thenReturn(false);
     final ObjectNode objectNode = jsonEngine.createObjectNode()
         .put("something", "else")
         .put("number", 5)
@@ -73,6 +77,44 @@ class V1SingleEntryEngineTest extends BaseSQLTest {
     engine.delete(TENANT_TABLE, info.id());
     assertThat(engine.read(TENANT_TABLE, info.id()))
         .isEmpty();
+
+    verify(featureManager, atLeastOnce()).isEnabled("V1_DAO_READ", "ID");
+  }
+
+  @Test
+  void readWriteWithFeatureFlag() {
+    when(featureManager.isEnabled("V1_DAO_READ", "ID")).thenReturn(true);
+    final ObjectNode objectNode = jsonEngine.createObjectNode()
+        .put("something", "else")
+        .put("number", 5)
+        .put("other", "thing");
+    final EntryInfo info = ImmutableEntryInfo.builder().id("ID").locationHash(2).timestamp(System.currentTimeMillis())
+        .data(objectNode).build();
+    engine.write(TENANT_TABLE, info);
+    assertThat(engine.read(TENANT_TABLE, info.id()))
+        .isNotEmpty()
+        .contains(info);
+    assertThat(engine.keys(TENANT_TABLE, info.id()))
+        .hasSize(3)
+        .contains("something", "number", "other");
+    final ObjectNode objectNodeUpdated = objectNode.deepCopy();
+    objectNodeUpdated.remove("other");
+    objectNodeUpdated.put("number", "seven");
+    objectNodeUpdated.put("ANewField", "doesIt work?");
+    final EntryInfo infoUpdated = ImmutableEntryInfo.copyOf(info).withData(objectNodeUpdated);
+    engine.write(TENANT_TABLE, infoUpdated);
+    assertThat(engine.read(TENANT_TABLE, info.id()))
+        .isNotEmpty()
+        .contains(infoUpdated);
+    assertThat(engine.keys(TENANT_TABLE, info.id()))
+        .hasSize(3)
+        .contains("something", "number", "ANewField");
+    engine.delete(TENANT_TABLE, info.id());
+    assertThat(engine.read(TENANT_TABLE, info.id()))
+        .isEmpty();
+
+    // Make sure the feature flag was actually checked
+    verify(featureManager, atLeastOnce()).isEnabled("V1_DAO_READ", "ID");
   }
 
 }

@@ -51,6 +51,7 @@ public class V1SingleEntryEngine implements TableDefinitionEngine {
   private static final String READ_COLUMNS = "select C_COL from TENANT_DATA where :id = id";
   private static final String DELETE_ALL_ROWS_FOR_ENTRY = "delete from TENANT_DATA where ID = :id";
   private static final String DELETE_ONE_ROW_FOR_ENTRY = "delete from TENANT_DATA where ID = :id and C_COL = :cCol";
+  private static final String FF_V1_DAO_READ = "V1_DAO_READ";
   private final Metrics metrics;
   private final TenantTableJdbiManager dataSourceManager;
   private final V1RowConverter converter;
@@ -86,17 +87,29 @@ public class V1SingleEntryEngine implements TableDefinitionEngine {
   @Override
   public Optional<EntryInfo> read(final TenantTable tenantTable, final String entity) {
     LOGGER.trace("read({},{})", tenantTable, entity);
+    final List<V1Row> rows = featureManager.isEnabled(FF_V1_DAO_READ, entity)
+        ? getV1RowsViaDao(tenantTable, entity) : getV1RowsViaJdbi(tenantTable, entity);
+    if (rows.isEmpty()) {
+      return Optional.empty();
+    } else {
+      return Optional.of(converter.toEntryInfo(rows));
+    }
+  }
+
+  private List<V1Row> getV1RowsViaDao(final TenantTable tenantTable, final String entity) {
+    final List<V1Row> rows = dataSourceManager.getV1RowDao(tenantTable)
+        .readEntry(entity);
+    return rows;
+  }
+
+  private List<V1Row> getV1RowsViaJdbi(final TenantTable tenantTable, final String entity) {
     final List<V1Row> rows = dataSourceManager.getJdbi(tenantTable)
         .withHandle(handle ->
             handle.createQuery(READ_ROWS)
                 .bind("id", entity)
                 .mapTo(V1Row.class)
                 .list());
-    if (rows.isEmpty()) {
-      return Optional.empty();
-    } else {
-      return Optional.of(converter.toEntryInfo(rows));
-    }
+    return rows;
   }
 
   /**
