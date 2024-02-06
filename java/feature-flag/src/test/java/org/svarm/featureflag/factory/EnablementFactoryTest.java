@@ -17,14 +17,14 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-class FeatureFactoryTest {
+class EnablementFactoryTest {
 
   private static final String TEST = "test";
 
   @Mock private HashFunction hashFunction;
   @Mock private HashCode hashCode;
 
-  @InjectMocks private FeatureFactory featureFactory;
+  @InjectMocks private EnablementFactory enablementFactory;
 
   private static Stream<Arguments> provideGenerate() {
     return Stream.of(
@@ -65,19 +65,19 @@ class FeatureFactoryTest {
   void generate(final double featurePercentage, final int hashCodeInt, final boolean expected) {
     lenient().when(hashFunction.hashString(TEST, StandardCharsets.UTF_8)).thenReturn(hashCode);
     lenient().when(hashCode.asInt()).thenReturn(hashCodeInt);
-    assertThat(featureFactory.generate(featurePercentage).enabled(TEST))
+    assertThat(enablementFactory.generate(featurePercentage).enabled(TEST))
         .as("featurePercentage: %s, hashCodeInt: %s", featurePercentage, hashCodeInt)
         .isEqualTo(expected);
   }
 
   @Test
   void enabledFeature() {
-    assertThat(featureFactory.enabledFeature().enabled(TEST)).isTrue();
+    assertThat(enablementFactory.enabledFeature().enabled(TEST)).isTrue();
   }
 
   @Test
   void disabledFeature() {
-    assertThat(featureFactory.disabledFeature().enabled(TEST)).isFalse();
+    assertThat(enablementFactory.disabledFeature().enabled(TEST)).isFalse();
   }
 
   @ParameterizedTest
@@ -86,7 +86,7 @@ class FeatureFactoryTest {
     lenient().when(hashFunction.hashString(TEST, StandardCharsets.UTF_8)).thenReturn(hashCode);
     lenient().when(hashCode.asInt()).thenReturn(hashCodeInt);
     final boolean updatedExpected = (featurePercentage == 0.0 && hashCodeInt % 100 == 0 || expected); // 0.0 will come back as true
-    assertThat(featureFactory.percentageFeature(featurePercentage).enabled(TEST))
+    assertThat(enablementFactory.percentageFeature(featurePercentage).enabled(TEST))
         .as("featurePercentage: %s, hashCodeInt: %s", featurePercentage, hashCodeInt)
         .isEqualTo(updatedExpected);
   }

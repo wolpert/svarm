@@ -10,33 +10,33 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.svarm.featureflag.factory.Feature;
-import org.svarm.featureflag.factory.FeatureFactory;
+import org.svarm.featureflag.factory.Enablement;
+import org.svarm.featureflag.factory.EnablementFactory;
 
 /**
- * The type Feature manager.
+ * The type Enablement manager.
  */
 @Singleton
 public class FeatureManager {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(FeatureManager.class);
 
-  private final FeatureFactory featureFactory;
+  private final EnablementFactory enablementFactory;
   private final FeatureLookupManager featureLookupManager;
-  private final LoadingCache<String, Feature> featureCache;
+  private final LoadingCache<String, Enablement> featureEnablementCache;
 
   /**
    * Instantiates a new Feature manager.
    *
-   * @param featureFactory       the feature factory
+   * @param enablementFactory       the feature factory
    * @param featureLookupManager the feature lookup manager
    */
   @Inject
-  public FeatureManager(final FeatureFactory featureFactory,
+  public FeatureManager(final EnablementFactory enablementFactory,
                         final FeatureLookupManager featureLookupManager) {
-    this.featureFactory = featureFactory;
+    this.enablementFactory = enablementFactory;
     this.featureLookupManager = featureLookupManager;
-    featureCache = CacheBuilder.newBuilder()
+    this.featureEnablementCache = CacheBuilder.newBuilder()
         .maximumSize(100) // oh god, like we will have 100 features?
         .refreshAfterWrite(Duration.ofSeconds(60)) // refresh from source every 60seconds
         .expireAfterAccess(Duration.ofSeconds(600)) // expire after 600 seconds of inactivity
@@ -45,14 +45,14 @@ public class FeatureManager {
         .build(CacheLoader.asyncReloading(
             CacheLoader.from(this::lookup),
             ForkJoinPool.commonPool()));
-    LOGGER.info("FeatureManager({},{})", featureLookupManager, featureFactory);
+    LOGGER.info("FeatureManager({},{})", featureLookupManager, enablementFactory);
   }
 
-  private Feature lookup(String featureId) {
+  private Enablement lookup(String featureId) {
     LOGGER.info("lookup({})", featureId);
     return featureLookupManager.lookupPercentage(featureId)
-        .map(featureFactory::generate)
-        .orElseGet(featureFactory::disabledFeature);
+        .map(enablementFactory::generate)
+        .orElseGet(enablementFactory::disabledFeature);
   }
 
   /**
@@ -63,7 +63,7 @@ public class FeatureManager {
    * @return the boolean
    */
   public boolean isEnabled(String featureId, String discriminator) {
-    return featureCache.getUnchecked(featureId).enabled(discriminator);
+    return featureEnablementCache.getUnchecked(featureId).enabled(discriminator);
   }
 
   /**
@@ -86,7 +86,7 @@ public class FeatureManager {
    * @param featureId the feature id
    */
   public void invalidate(String featureId) {
-    featureCache.invalidate(featureId);
+    featureEnablementCache.invalidate(featureId);
   }
 
 }

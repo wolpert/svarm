@@ -15,7 +15,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.svarm.common.config.accessor.EtcdAccessor;
 
 @ExtendWith(MockitoExtension.class)
-class EtcdFeatureLookupManagerTest {
+class EtcdEnablementLookupManagerTest {
 
   private static final String FEATURE_ID = "featureId";
 

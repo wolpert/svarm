@@ -60,6 +60,7 @@ public class NodeIntegTest {
   @RegisterExtension
   public static final EtcdClusterExtension cluster = EtcdClusterExtension.builder()
       .withNodes(1)
+      .withClusterName("NodeIntegTest")
       .build();
 
   private static final TableMetaData TABLE_META_DATA = ImmutableTableMetaData.builder()

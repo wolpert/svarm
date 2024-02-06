@@ -43,6 +43,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
@@ -188,10 +189,10 @@ class EtcdAccessorTest {
   }
 
   @Test
-  void get() throws ExecutionException, InterruptedException {
+  void get() throws ExecutionException, InterruptedException, TimeoutException {
     when(client.getKVClient()).thenReturn(kv);
     when(kv.get(getNamespaceKeyBytes())).thenReturn(getResponseCompletableFuture);
-    when(getResponseCompletableFuture.get()).thenReturn(getResponse);
+    when(getResponseCompletableFuture.get(100, TimeUnit.MILLISECONDS)).thenReturn(getResponse);
     when(getResponse.getKvs()).thenReturn(List.of(keyValue));
     when(keyValue.getValue()).thenReturn(ByteSequence.from(VALUE.getBytes()));
     assertThat(accessor.get(NAMESPACE, KEY))
@@ -200,18 +201,18 @@ class EtcdAccessorTest {
   }
 
   @Test
-  void get_interrupted() throws ExecutionException, InterruptedException {
+  void get_interrupted() throws ExecutionException, InterruptedException, TimeoutException {
     when(client.getKVClient()).thenReturn(kv);
     when(kv.get(getNamespaceKeyBytes())).thenReturn(getResponseCompletableFuture);
-    when(getResponseCompletableFuture.get()).thenThrow(new InterruptedException());
+    when(getResponseCompletableFuture.get(100, TimeUnit.MILLISECONDS)).thenThrow(new InterruptedException());
     assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> accessor.get(NAMESPACE, KEY));
   }
 
   @Test
-  void get_execution() throws ExecutionException, InterruptedException {
+  void get_execution() throws ExecutionException, InterruptedException, TimeoutException {
     when(client.getKVClient()).thenReturn(kv);
     when(kv.get(getNamespaceKeyBytes())).thenReturn(getResponseCompletableFuture);
-    when(getResponseCompletableFuture.get()).thenThrow(new ExecutionException(new NullPointerException()));
+    when(getResponseCompletableFuture.get(100, TimeUnit.MILLISECONDS)).thenThrow(new ExecutionException(new NullPointerException()));
     assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> accessor.get(NAMESPACE, KEY));
   }
 

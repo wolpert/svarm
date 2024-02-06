@@ -1,10 +1,10 @@
 package org.svarm.featureflag.factory;
 
 /**
- * Feature interface to vet if something is enabled for a given discriminator.
+ * Enablement interface to vet if something is enabled for a given discriminator.
  */
 @FunctionalInterface
-public interface Feature {
+public interface Enablement {
 
   /**
    * Is the feature enabled for the given discriminator.

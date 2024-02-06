@@ -3,7 +3,7 @@ package org.svarm.featureflag.manager;
 import java.util.Optional;
 
 /**
- * The interface Feature lookup manager.
+ * The interface Enablement lookup manager.
  */
 public interface FeatureLookupManager {
 

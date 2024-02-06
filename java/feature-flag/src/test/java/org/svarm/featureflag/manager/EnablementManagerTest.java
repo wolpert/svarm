@@ -12,23 +12,23 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.svarm.featureflag.factory.FeatureFactory;
+import org.svarm.featureflag.factory.EnablementFactory;
 
 @ExtendWith(MockitoExtension.class)
-class FeatureManagerTest {
+class EnablementManagerTest {
 
   private static final String FEATURE_ID = "featureId";
   private static final String DISCRIMINATOR = "discriminator";
 
   @Mock private FeatureLookupManager featureLookupManager;
-  @Mock private FeatureFactory featureFactory;
+  @Mock private EnablementFactory enablementFactory;
 
   @InjectMocks private FeatureManager featureManager;
 
   @Test
   void isEnabled() {
     when(featureLookupManager.lookupPercentage(FEATURE_ID)).thenReturn(Optional.of(0.5));
-    when(featureFactory.generate(0.5)).thenReturn(discriminator -> true);
+    when(enablementFactory.generate(0.5)).thenReturn(discriminator -> true);
 
     assertThat(featureManager.isEnabled(FEATURE_ID, DISCRIMINATOR)).isTrue();
   }
@@ -36,7 +36,7 @@ class FeatureManagerTest {
   @Test
   void isEnabled_noFeature() {
     when(featureLookupManager.lookupPercentage(FEATURE_ID)).thenReturn(Optional.empty());
-    when(featureFactory.disabledFeature()).thenReturn(discriminator -> false);
+    when(enablementFactory.disabledFeature()).thenReturn(discriminator -> false);
 
     assertThat(featureManager.isEnabled(FEATURE_ID, DISCRIMINATOR)).isFalse();
   }
@@ -44,7 +44,7 @@ class FeatureManagerTest {
   @Test
   void ifEnabledElse_enabled() {
     when(featureLookupManager.lookupPercentage(FEATURE_ID)).thenReturn(Optional.of(0.5));
-    when(featureFactory.generate(0.5)).thenReturn(discriminator -> true);
+    when(enablementFactory.generate(0.5)).thenReturn(discriminator -> true);
 
     assertThat(featureManager.ifEnabledElse(FEATURE_ID, DISCRIMINATOR, () -> "enabled", () -> "disabled"))
         .isEqualTo("enabled");
@@ -53,7 +53,7 @@ class FeatureManagerTest {
   @Test
   void ifEnabledElse_disabled() {
     when(featureLookupManager.lookupPercentage(FEATURE_ID)).thenReturn(Optional.empty());
-    when(featureFactory.disabledFeature()).thenReturn(discriminator -> false);
+    when(enablementFactory.disabledFeature()).thenReturn(discriminator -> false);
 
     assertThat(featureManager.ifEnabledElse(FEATURE_ID, DISCRIMINATOR, () -> "enabled", () -> "disabled"))
         .isEqualTo("disabled");
@@ -62,8 +62,8 @@ class FeatureManagerTest {
   @Test
   void invalidate() {
     when(featureLookupManager.lookupPercentage(FEATURE_ID)).thenReturn(Optional.empty()).thenReturn(Optional.of(0.5));
-    when(featureFactory.disabledFeature()).thenReturn(discriminator -> false);
-    when(featureFactory.generate(0.5)).thenReturn(discriminator -> true);
+    when(enablementFactory.disabledFeature()).thenReturn(discriminator -> false);
+    when(enablementFactory.generate(0.5)).thenReturn(discriminator -> true);
 
     assertThat(featureManager.ifEnabledElse(FEATURE_ID, DISCRIMINATOR, () -> "enabled", () -> "disabled"))
         .isEqualTo("disabled");
@@ -76,8 +76,8 @@ class FeatureManagerTest {
   @Test
   void invalidate_notCalled() {
     lenient().when(featureLookupManager.lookupPercentage(FEATURE_ID)).thenReturn(Optional.empty()).thenReturn(Optional.of(0.5));
-    lenient().when(featureFactory.disabledFeature()).thenReturn(discriminator -> false);
-    lenient().when(featureFactory.generate(0.5)).thenReturn(discriminator -> true);
+    lenient().when(enablementFactory.disabledFeature()).thenReturn(discriminator -> false);
+    lenient().when(enablementFactory.generate(0.5)).thenReturn(discriminator -> true);
 
     assertThat(featureManager.ifEnabledElse(FEATURE_ID, DISCRIMINATOR, () -> "enabled", () -> "disabled"))
         .isEqualTo("disabled");

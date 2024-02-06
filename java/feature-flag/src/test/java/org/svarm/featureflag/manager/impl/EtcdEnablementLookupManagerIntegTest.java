@@ -17,7 +17,7 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import org.svarm.common.config.accessor.EtcdAccessor;
 
 @Tag("integ")
-public class EtcdFeatureLookupManagerIntegTest {
+public class EtcdEnablementLookupManagerIntegTest {
   @RegisterExtension
   public static final EtcdClusterExtension cluster = EtcdClusterExtension.builder()
       .withNodes(1)

@@ -10,31 +10,31 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * The type Feature factory.
+ * The type Enablement factory.
  */
 @Singleton
-public class FeatureFactory {
+public class EnablementFactory {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(FeatureFactory.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(EnablementFactory.class);
 
   private final HashFunction hashFunction;
 
   /**
-   * Instantiates a new Feature factory.
+   * Instantiates a new Enablement factory.
    */
   @Inject
-  public FeatureFactory() {
+  public EnablementFactory() {
     this(Hashing.murmur3_32_fixed());
   }
 
   /**
-   * Instantiates a new Feature factory.
+   * Instantiates a new Enablement factory.
    *
    * @param hashFunction the hash function
    */
-  public FeatureFactory(HashFunction hashFunction) {
+  public EnablementFactory(HashFunction hashFunction) {
     this.hashFunction = hashFunction;
-    LOGGER.info("FeatureFactory({})", hashFunction);
+    LOGGER.info("EnablementFactory({})", hashFunction);
   }
 
   /**
@@ -43,7 +43,7 @@ public class FeatureFactory {
    * @param percentage the percentage
    * @return the feature
    */
-  public Feature generate(double percentage) {
+  public Enablement generate(double percentage) {
     LOGGER.trace("generate({})", percentage);
     if (percentage <= 0.0) {
       LOGGER.trace("Disabled feature");
@@ -62,7 +62,7 @@ public class FeatureFactory {
    *
    * @return the feature
    */
-  public Feature enabledFeature() {
+  public Enablement enabledFeature() {
     LOGGER.info("enabledFeature()");
     return (discriminator) -> true;
   }
@@ -72,7 +72,7 @@ public class FeatureFactory {
    *
    * @return the feature
    */
-  public Feature disabledFeature() {
+  public Enablement disabledFeature() {
     LOGGER.info("disabledFeature()");
     return (discriminator) -> false;
   }
@@ -83,7 +83,7 @@ public class FeatureFactory {
    * @param percentage the percentage
    * @return the feature
    */
-  public Feature percentageFeature(double percentage) {
+  public Enablement percentageFeature(double percentage) {
     LOGGER.info("percentageFeature({})", percentage);
     return (discriminator) -> {
       final HashCode hashCode = hashFunction.hashString(discriminator, Charsets.UTF_8);

@@ -157,6 +157,7 @@ public class EtcdAccessor {
 
   /**
    * Gets the key from the etcd instance. Waits forever.
+   * TODO: This should be a timeout option.
    *
    * @param namespace of the key.
    * @param key       the key.
@@ -168,7 +169,7 @@ public class EtcdAccessor {
     final CompletableFuture<GetResponse> future =
         client.getKVClient().get(ByteSequence.from(namespaceKey.getBytes(StandardCharsets.UTF_8)));
     try {
-      final GetResponse getResponse = future.get();
+      final GetResponse getResponse = future.get(100, TimeUnit.MILLISECONDS);
       return getResponse.getKvs().stream()
           .map(KeyValue::getValue)
           .findFirst()
@@ -176,6 +177,9 @@ public class EtcdAccessor {
     } catch (InterruptedException | ExecutionException e) {
       LOGGER.error("Unable to get from etcd {}", namespaceKey, e);
       throw new IllegalArgumentException(e);
+    } catch (TimeoutException e) {
+      LOGGER.info("Not found in etcd {}", namespaceKey);
+      return Optional.empty();
     }
   }
 
