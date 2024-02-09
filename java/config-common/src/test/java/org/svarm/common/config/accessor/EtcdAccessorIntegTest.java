@@ -18,6 +18,7 @@ package org.svarm.common.config.accessor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.codeheadsystems.metrics.test.BaseMetricTest;
 import io.etcd.jetcd.Client;
 import io.etcd.jetcd.test.EtcdClusterExtension;
 import org.junit.jupiter.api.AfterEach;
@@ -27,7 +28,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 @Tag("integ")
-class EtcdAccessorIntegTest {
+class EtcdAccessorIntegTest extends BaseMetricTest {
   @RegisterExtension
   public static final EtcdClusterExtension cluster = EtcdClusterExtension.builder()
       .withNodes(1)
@@ -41,7 +42,7 @@ class EtcdAccessorIntegTest {
   @BeforeEach
   void setupClient() {
     client = Client.builder().endpoints(cluster.clientEndpoints()).build();
-    accessor = new EtcdAccessor(client, "test");
+    accessor = new EtcdAccessor(client, "test", metrics);
   }
 
   @AfterEach

@@ -24,7 +24,9 @@ import dagger.Module;
 import dagger.Provides;
 import io.etcd.jetcd.Client;
 import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Tags;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
+import java.util.function.Supplier;
 import javax.inject.Named;
 import javax.inject.Singleton;
 import org.svarm.common.config.EtcdConfiguration;
@@ -79,6 +81,12 @@ public interface SvarmComponent {
     @Singleton
     public EtcdConfiguration etcdConfiguration() {
       return ImmutableEtcdConfiguration.builder().target("ip:///localhost:2379").build();
+    }
+
+    @Provides
+    @Singleton
+    public Supplier<Tags> tagsSupplier() {
+      return Tags::empty;
     }
 
 

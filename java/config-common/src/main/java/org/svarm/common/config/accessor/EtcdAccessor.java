@@ -18,6 +18,7 @@ package org.svarm.common.config.accessor;
 
 import static org.svarm.common.config.module.EtcdModule.INTERNAL_ETCD_ACCESSOR_PREAMBLE;
 
+import com.codeheadsystems.metrics.Metrics;
 import io.etcd.jetcd.ByteSequence;
 import io.etcd.jetcd.Client;
 import io.etcd.jetcd.KV;
@@ -53,19 +54,23 @@ public class EtcdAccessor {
 
   private final Client client;
   private final String namespaceKeyFormat;
+  private final Metrics metrics;
 
   /**
    * Constructor.
    *
    * @param client   for etcd.
    * @param preamble for us to use.
+   * @param metrics  the metrics
    */
   @Inject
   public EtcdAccessor(final Client client,
-                      @Named(INTERNAL_ETCD_ACCESSOR_PREAMBLE) final String preamble) {
+                      @Named(INTERNAL_ETCD_ACCESSOR_PREAMBLE) final String preamble,
+                      final Metrics metrics) {
     this.client = client;
     this.namespaceKeyFormat = preamble + "_%s/%s";
-    LOGGER.info("EtcdAccessor({},{})", namespaceKeyFormat, client);
+    this.metrics = metrics;
+    LOGGER.info("EtcdAccessor({},{},{})", namespaceKeyFormat, client, metrics);
   }
 
   private String getNamespaceKey(final String namespace, final String key) {

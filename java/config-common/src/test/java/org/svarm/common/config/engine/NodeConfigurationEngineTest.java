@@ -16,15 +16,29 @@
 
 package org.svarm.common.config.engine;
 
+import static com.codeheadsystems.metrics.dagger.MetricsModule.PROVIDED_METER_REGISTRY;
+
+import com.codahale.metrics.MetricRegistry;
+import com.codeheadsystems.metrics.Metrics;
+import com.codeheadsystems.metrics.dagger.MetricsModule;
+import com.codeheadsystems.metrics.helper.DropwizardMetricsHelper;
+import com.codeheadsystems.metrics.test.BaseMetricTest;
 import dagger.Component;
+import dagger.Module;
+import dagger.Provides;
 import io.etcd.jetcd.test.EtcdClusterExtension;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Tags;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import javax.inject.Named;
 import javax.inject.Singleton;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -47,8 +61,8 @@ import org.svarm.common.config.module.EtcdConfigurationModule;
 import org.svarm.common.config.module.EtcdModule;
 import org.svarm.common.module.CommonModule;
 
-@Tag("integ")
-class NodeConfigurationEngineTest {
+//@Tag("integ")
+class NodeConfigurationEngineTest extends BaseMetricTest {
 
   @RegisterExtension
   public static final EtcdClusterExtension cluster = EtcdClusterExtension.builder()
@@ -91,7 +105,10 @@ class NodeConfigurationEngineTest {
     final List<String> endpoints = cluster.clientEndpoints().stream().map(Objects::toString).toList();
     final EtcdConfiguration configuration = ImmutableEtcdConfiguration.builder().endpoints(endpoints).build();
     final EtcdConfigurationModule etcdModule = new EtcdConfigurationModule(configuration);
-    final EngineComponent component = DaggerNodeConfigurationEngineTest_EngineComponent.builder().etcdConfigurationModule(etcdModule).build();
+    final EngineComponent component = DaggerNodeConfigurationEngineTest_EngineComponent.builder()
+        .etcdConfigurationModule(etcdModule)
+        .testModule(new TestModule())
+        .build();
     engine = component.engine();
   }
 
@@ -135,7 +152,18 @@ class NodeConfigurationEngineTest {
         .contains(resource2, resource3);
   }
 
-  @Component(modules = {EtcdModule.class, EtcdConfigurationModule.class, CommonModule.class})
+  @Module
+  class TestModule {
+
+    @Provides
+    @Singleton
+    Metrics metrics() {
+      return metrics;
+    }
+
+  }
+
+  @Component(modules = {EtcdModule.class, EtcdConfigurationModule.class, CommonModule.class, TestModule.class})
   @Singleton
   public interface EngineComponent {
     NodeConfigurationEngine engine();

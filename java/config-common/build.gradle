@@ -30,8 +30,8 @@ dependencies {
     implementation libs.metrics.core
 
     implementation libs.jetcd.core
-    testImplementation libs.jetcd.test
 
+    testImplementation libs.jetcd.test
     testImplementation libs.jackson.dataformat.yaml
 
     // Logging stuff... need all these for logback changes

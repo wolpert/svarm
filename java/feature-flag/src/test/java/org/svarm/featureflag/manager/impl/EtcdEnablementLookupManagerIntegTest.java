@@ -1,10 +1,8 @@
 package org.svarm.featureflag.manager.impl;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.svarm.featureflag.manager.impl.EtcdFeatureLookupManager.NAMESPACE;
 
+import com.codeheadsystems.metrics.test.BaseMetricTest;
 import io.etcd.jetcd.Client;
 import io.etcd.jetcd.test.EtcdClusterExtension;
 import java.util.Optional;
@@ -17,7 +15,7 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import org.svarm.common.config.accessor.EtcdAccessor;
 
 @Tag("integ")
-public class EtcdEnablementLookupManagerIntegTest {
+public class EtcdEnablementLookupManagerIntegTest extends BaseMetricTest {
   @RegisterExtension
   public static final EtcdClusterExtension cluster = EtcdClusterExtension.builder()
       .withNodes(1)
@@ -31,7 +29,7 @@ public class EtcdEnablementLookupManagerIntegTest {
   @BeforeEach
   void setupClient() {
     client = Client.builder().endpoints(cluster.clientEndpoints()).build();
-    accessor = new EtcdAccessor(client, "test");
+    accessor = new EtcdAccessor(client, "test", metrics);
     etcdFeatureLookupManager = new EtcdFeatureLookupManager(accessor);
     featureId = UUID.randomUUID().toString();
   }

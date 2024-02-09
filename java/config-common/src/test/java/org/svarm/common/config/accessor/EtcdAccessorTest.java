@@ -24,6 +24,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.codeheadsystems.metrics.test.BaseMetricTest;
 import io.etcd.jetcd.ByteSequence;
 import io.etcd.jetcd.Client;
 import io.etcd.jetcd.KV;
@@ -55,7 +56,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-class EtcdAccessorTest {
+class EtcdAccessorTest extends BaseMetricTest {
 
   private static final String PREAMBLE = "p";
   private static final String VALUE = "value";
@@ -91,7 +92,7 @@ class EtcdAccessorTest {
 
   @BeforeEach
   void setUp() {
-    accessor = new EtcdAccessor(client, PREAMBLE);
+    accessor = new EtcdAccessor(client, PREAMBLE, metrics);
   }
 
   @Test
