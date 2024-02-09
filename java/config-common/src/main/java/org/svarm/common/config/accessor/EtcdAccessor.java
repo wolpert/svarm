@@ -183,7 +183,8 @@ public class EtcdAccessor {
   public Optional<String> get(final String namespace, final String key) {
     final String namespaceKey = getNamespaceKey(namespace, key);
     LOGGER.trace("get({})", namespaceKey);
-    return metrics.time("etcd.get", Tags.of("namespace", namespace, "key", key), () -> {
+    final Tags customTags = Tags.of("namespace", namespace, "key", key);
+    return metrics.time("etcd.get", customTags, () -> {
       final CompletableFuture<GetResponse> future =
           client.getKVClient().get(ByteSequence.from(namespaceKey.getBytes(StandardCharsets.UTF_8)));
       try {
@@ -197,6 +198,7 @@ public class EtcdAccessor {
         throw new IllegalArgumentException(e);
       } catch (TimeoutException e) {
         LOGGER.info("Not found in etcd {}", namespaceKey);
+        metrics.counter("etcd.get.timeout", customTags).increment();
         return Optional.empty();
       }
     });
@@ -213,7 +215,8 @@ public class EtcdAccessor {
   public Map<String, String> getAll(final String namespace, final String key) {
     final String namespaceKey = getNamespaceKey(namespace, key);
     LOGGER.trace("getAll({})", namespaceKey);
-    return metrics.time("etcd.getAll", Tags.of("namespace", namespace, "key", key), () -> {
+    final Tags customTags = Tags.of("namespace", namespace, "key", key);
+    return metrics.time("etcd.getAll", customTags, () -> {
       final ByteSequence byteSequenceKey = ByteSequence.from(namespaceKey.getBytes(StandardCharsets.UTF_8));
       final GetOption getOption = GetOption.builder().isPrefix(true).build();
       final CompletableFuture<GetResponse> future =
@@ -224,9 +227,12 @@ public class EtcdAccessor {
                 kv -> kv.getKey().toString(),
                 kv -> kv.getValue().toString()
             ));
-      } catch (TimeoutException | InterruptedException | ExecutionException e) {
+      } catch (InterruptedException | ExecutionException e) {
         LOGGER.error("Unable to get from etcd {}", namespaceKey, e);
         throw new IllegalArgumentException(e);
+      } catch (TimeoutException e) {
+        metrics.counter("etcd.getAll.timeout", customTags).increment();
+        return Map.of();
       }
     });
   }
