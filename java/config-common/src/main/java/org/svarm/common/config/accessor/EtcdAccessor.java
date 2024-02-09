@@ -30,6 +30,7 @@ import io.etcd.jetcd.op.Op;
 import io.etcd.jetcd.options.GetOption;
 import io.etcd.jetcd.options.PutOption;
 import io.etcd.jetcd.options.WatchOption;
+import io.micrometer.core.instrument.Tags;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Optional;
@@ -87,15 +88,18 @@ public class EtcdAccessor {
   public void put(final String namespace, final String key, final String value) {
     final String namespaceKey = getNamespaceKey(namespace, key);
     LOGGER.trace("put({},{})", namespaceKey, value);
-    try {
-      client.getKVClient().put(
-              ByteSequence.from(namespaceKey.getBytes(StandardCharsets.UTF_8)),
-              ByteSequence.from(value.getBytes(StandardCharsets.UTF_8)))
-          .get();
-    } catch (InterruptedException | ExecutionException e) {
-      LOGGER.error("Unable to get from etcd {}", namespaceKey, e);
-      throw new IllegalArgumentException(e);
-    }
+    metrics.time("etcd.put", Tags.of("namespace", namespace, "key", key), () -> {
+      try {
+        client.getKVClient().put(
+                ByteSequence.from(namespaceKey.getBytes(StandardCharsets.UTF_8)),
+                ByteSequence.from(value.getBytes(StandardCharsets.UTF_8)))
+            .get();
+      } catch (InterruptedException | ExecutionException e) {
+        LOGGER.error("Unable to get from etcd {}", namespaceKey, e);
+        throw new IllegalArgumentException(e);
+      }
+      return null;
+    });
   }
 
   /**
@@ -108,17 +112,20 @@ public class EtcdAccessor {
     LOGGER.trace("putAll({},{}", namespace, map);
     final KV kv = client.getKVClient();
     final Txn txn = kv.txn();
-    try {
-      map.entrySet().stream()
-          .map(e -> Map.entry(getNamespaceKey(namespace, e.getKey()), e.getValue()))
-          .map(e -> Map.entry(ByteSequence.from(e.getKey().getBytes()), ByteSequence.from(e.getValue().getBytes())))
-          .forEach(e ->
-              txn.Then(Op.put(e.getKey(), e.getValue(), PutOption.DEFAULT)));
-      txn.commit().get();
-    } catch (InterruptedException | ExecutionException e) {
-      LOGGER.error("Unable to get from etcd {}", namespace, e);
-      throw new IllegalArgumentException(e);
-    }
+    metrics.time("etcd.putAll", Tags.of("namespace", namespace), () -> {
+      try {
+        map.entrySet().stream()
+            .map(e -> Map.entry(getNamespaceKey(namespace, e.getKey()), e.getValue()))
+            .map(e -> Map.entry(ByteSequence.from(e.getKey().getBytes()), ByteSequence.from(e.getValue().getBytes())))
+            .forEach(e ->
+                txn.Then(Op.put(e.getKey(), e.getValue(), PutOption.DEFAULT)));
+        txn.commit().get();
+      } catch (InterruptedException | ExecutionException e) {
+        LOGGER.error("Unable to get from etcd {}", namespace, e);
+        throw new IllegalArgumentException(e);
+      }
+      return null;
+    });
   }
 
 
@@ -131,14 +138,17 @@ public class EtcdAccessor {
   public void delete(final String namespace, final String key) {
     final String namespaceKey = getNamespaceKey(namespace, key);
     LOGGER.trace("delete({})", namespaceKey);
-    try {
-      client.getKVClient()
-          .delete(ByteSequence.from(namespaceKey.getBytes(StandardCharsets.UTF_8)))
-          .get();
-    } catch (InterruptedException | ExecutionException e) {
-      LOGGER.error("Unable to delete from etcd {}", namespaceKey, e);
-      throw new IllegalArgumentException(e);
-    }
+    metrics.time("etcd.delete", Tags.of("namespace", namespace, "key", key), () -> {
+      try {
+        client.getKVClient()
+            .delete(ByteSequence.from(namespaceKey.getBytes(StandardCharsets.UTF_8)))
+            .get();
+      } catch (InterruptedException | ExecutionException e) {
+        LOGGER.error("Unable to delete from etcd {}", namespaceKey, e);
+        throw new IllegalArgumentException(e);
+      }
+      return null;
+    });
   }
 
   /**
@@ -154,10 +164,12 @@ public class EtcdAccessor {
                              final Watch.Listener listener) {
     final String namespaceKey = getNamespaceKey(namespace, key);
     LOGGER.trace("watch({})", namespaceKey);
-    final ByteSequence namespaceKeyBytes = ByteSequence.from(namespaceKey.getBytes(StandardCharsets.UTF_8));
-    final WatchOption watchOption = WatchOption.builder().isPrefix(true).build();
-    final Watch watch = client.getWatchClient();
-    return watch.watch(namespaceKeyBytes, watchOption, listener);
+    return metrics.time("etcd.watch", Tags.of("namespace", namespace, "key", key), () -> {
+      final ByteSequence namespaceKeyBytes = ByteSequence.from(namespaceKey.getBytes(StandardCharsets.UTF_8));
+      final WatchOption watchOption = WatchOption.builder().isPrefix(true).build();
+      final Watch watch = client.getWatchClient();
+      return watch.watch(namespaceKeyBytes, watchOption, listener);
+    });
   }
 
   /**
@@ -171,21 +183,23 @@ public class EtcdAccessor {
   public Optional<String> get(final String namespace, final String key) {
     final String namespaceKey = getNamespaceKey(namespace, key);
     LOGGER.trace("get({})", namespaceKey);
-    final CompletableFuture<GetResponse> future =
-        client.getKVClient().get(ByteSequence.from(namespaceKey.getBytes(StandardCharsets.UTF_8)));
-    try {
-      final GetResponse getResponse = future.get(100, TimeUnit.MILLISECONDS);
-      return getResponse.getKvs().stream()
-          .map(KeyValue::getValue)
-          .findFirst()
-          .map(ByteSequence::toString);
-    } catch (InterruptedException | ExecutionException e) {
-      LOGGER.error("Unable to get from etcd {}", namespaceKey, e);
-      throw new IllegalArgumentException(e);
-    } catch (TimeoutException e) {
-      LOGGER.info("Not found in etcd {}", namespaceKey);
-      return Optional.empty();
-    }
+    return metrics.time("etcd.get", Tags.of("namespace", namespace, "key", key), () -> {
+      final CompletableFuture<GetResponse> future =
+          client.getKVClient().get(ByteSequence.from(namespaceKey.getBytes(StandardCharsets.UTF_8)));
+      try {
+        final GetResponse getResponse = future.get(100, TimeUnit.MILLISECONDS);
+        return getResponse.getKvs().stream()
+            .map(KeyValue::getValue)
+            .findFirst()
+            .map(ByteSequence::toString);
+      } catch (InterruptedException | ExecutionException e) {
+        LOGGER.error("Unable to get from etcd {}", namespaceKey, e);
+        throw new IllegalArgumentException(e);
+      } catch (TimeoutException e) {
+        LOGGER.info("Not found in etcd {}", namespaceKey);
+        return Optional.empty();
+      }
+    });
   }
 
   /**
@@ -199,19 +213,21 @@ public class EtcdAccessor {
   public Map<String, String> getAll(final String namespace, final String key) {
     final String namespaceKey = getNamespaceKey(namespace, key);
     LOGGER.trace("getAll({})", namespaceKey);
-    final ByteSequence byteSequenceKey = ByteSequence.from(namespaceKey.getBytes(StandardCharsets.UTF_8));
-    final GetOption getOption = GetOption.builder().isPrefix(true).build();
-    final CompletableFuture<GetResponse> future =
-        client.getKVClient().get(byteSequenceKey, getOption);
-    try {
-      return future.get(10, TimeUnit.SECONDS).getKvs().stream()
-          .collect(Collectors.toMap(
-              kv -> kv.getKey().toString(),
-              kv -> kv.getValue().toString()
-          ));
-    } catch (TimeoutException | InterruptedException | ExecutionException e) {
-      LOGGER.error("Unable to get from etcd {}", namespaceKey, e);
-      throw new IllegalArgumentException(e);
-    }
+    return metrics.time("etcd.getAll", Tags.of("namespace", namespace, "key", key), () -> {
+      final ByteSequence byteSequenceKey = ByteSequence.from(namespaceKey.getBytes(StandardCharsets.UTF_8));
+      final GetOption getOption = GetOption.builder().isPrefix(true).build();
+      final CompletableFuture<GetResponse> future =
+          client.getKVClient().get(byteSequenceKey, getOption);
+      try {
+        return future.get(1, TimeUnit.SECONDS).getKvs().stream()
+            .collect(Collectors.toMap(
+                kv -> kv.getKey().toString(),
+                kv -> kv.getValue().toString()
+            ));
+      } catch (TimeoutException | InterruptedException | ExecutionException e) {
+        LOGGER.error("Unable to get from etcd {}", namespaceKey, e);
+        throw new IllegalArgumentException(e);
+      }
+    });
   }
 }
