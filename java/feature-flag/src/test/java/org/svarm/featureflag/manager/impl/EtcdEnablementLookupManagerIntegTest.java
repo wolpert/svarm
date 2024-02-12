@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.svarm.common.config.accessor.EtcdAccessor;
+import org.svarm.common.config.accessor.EtcdAccessorImpl;
 
 @Tag("integ")
 public class EtcdEnablementLookupManagerIntegTest extends BaseMetricTest {
@@ -29,7 +30,7 @@ public class EtcdEnablementLookupManagerIntegTest extends BaseMetricTest {
   @BeforeEach
   void setupClient() {
     client = Client.builder().endpoints(cluster.clientEndpoints()).build();
-    accessor = new EtcdAccessor(client, "test", metrics);
+    accessor = new EtcdAccessorImpl(client, "test", metrics);
     etcdFeatureLookupManager = new EtcdFeatureLookupManager(accessor);
     featureId = UUID.randomUUID().toString();
   }

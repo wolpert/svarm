@@ -30,6 +30,8 @@ import java.util.concurrent.Executors;
 import javax.inject.Named;
 import javax.inject.Singleton;
 import org.svarm.common.config.EtcdConfiguration;
+import org.svarm.common.config.accessor.EtcdAccessor;
+import org.svarm.common.config.accessor.EtcdAccessorImpl;
 import org.svarm.common.config.healthchecks.EtcdHealthCheck;
 
 /**
@@ -62,6 +64,18 @@ public class EtcdModule {
    * Instantiates a new Etcd module.
    */
   public EtcdModule() {
+  }
+
+  /**
+   * Etcd accessor etcd accessor.
+   *
+   * @param etcdAccessor the etcd accessor
+   * @return the etcd accessor
+   */
+  @Provides
+  @Singleton
+  public EtcdAccessor etcdAccessor(final EtcdAccessorImpl etcdAccessor) {
+    return etcdAccessor;
   }
 
   /**
