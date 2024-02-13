@@ -25,7 +25,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.jdbi.v3.core.statement.PreparedBatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.svarm.node.api.EntryInfo;
@@ -42,11 +41,6 @@ import org.svarm.node.model.TenantTable;
 public class V1SingleEntryEngine implements TableDefinitionEngine {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(V1SingleEntryEngine.class);
-  private static final String INSERT_ROW = "insert into TENANT_DATA (ID,C_COL,HASH,C_DATA_TYPE,C_DATA,TIMESTAMP) "
-      + "values (:id, :cCol, :hash, :cDataType, :cData, :timestamp)";
-  private static final String UPDATE_ROW = "update TENANT_DATA set C_DATA_TYPE = :cDataType, C_DATA = :cData, "
-      + "TIMESTAMP = :timestamp where ID = :id and C_COL = :cCol";
-  private static final String DELETE_ONE_ROW_FOR_ENTRY = "delete from TENANT_DATA where ID = :id and C_COL = :cCol";
   private final Metrics metrics;
   private final TenantTableJdbiManager dataSourceManager;
   private final V1RowConverter converter;
@@ -100,28 +94,19 @@ public class V1SingleEntryEngine implements TableDefinitionEngine {
         .collect(Collectors.toMap(V1Row::cCol, Function.identity()));
     final List<String> existingKeys = keys(tenantTable, entryInfo.id());
     final DataStoreActions<V1Row, String> actions = generate(v1Rows, existingKeys);
-    dataSourceManager.getJdbi(tenantTable)
-        .useTransaction(handle -> {
-          if (!actions.insert().isEmpty()) {
-            final PreparedBatch insertBatch = handle.prepareBatch(INSERT_ROW);
-            actions.insert().forEach(row -> insertBatch.bindPojo(row).add());
-            insertBatch.execute();
-          }
-          if (!actions.update().isEmpty()) {
-            final PreparedBatch updateBatch = handle.prepareBatch(UPDATE_ROW);
-            actions.update().forEach(row -> updateBatch.bindPojo(row).add());
-            updateBatch.execute();
-          }
-          if (!actions.delete().isEmpty()) {
-            final PreparedBatch deleteBatch = handle.prepareBatch(DELETE_ONE_ROW_FOR_ENTRY);
-            actions.delete().forEach(row -> deleteBatch
-                .bind("id", entryInfo.id())
-                .bind("cCol", row)
-                .add());
-            deleteBatch.execute();
-            handle.commit();
-          }
-        });
+    final V1RowDao dao = dataSourceManager.getV1RowDao(tenantTable);
+    dao.useTransaction(handle -> {
+      if (!actions.insert().isEmpty()) {
+        dao.batchInsert(actions.insert());
+      }
+      if (!actions.update().isEmpty()) {
+        dao.batchUpdate(actions.update());
+      }
+      if (!actions.delete().isEmpty()) {
+        dao.batchDeleteKeys(entryInfo.id(), actions.delete());
+        handle.commit();
+      }
+    });
   }
 
   /**

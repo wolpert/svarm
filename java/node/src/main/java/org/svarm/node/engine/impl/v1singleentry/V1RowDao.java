@@ -4,6 +4,7 @@ package org.svarm.node.engine.impl.v1singleentry;
 import java.util.List;
 import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.customizer.BindPojo;
+import org.jdbi.v3.sqlobject.statement.SqlBatch;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.jdbi.v3.sqlobject.transaction.Transactional;
@@ -74,5 +75,35 @@ public interface V1RowDao extends Transactional<V1RowDao> {
    */
   @SqlQuery("select C_COL from TENANT_DATA where :id = id")
   List<String> keys(@Bind("id") String id);
+
+  // ---- BATCH ----
+
+  /**
+   * Batch insert.
+   *
+   * @param instances the instances
+   */
+  @SqlBatch("insert into TENANT_DATA (ID,C_COL,HASH,C_DATA_TYPE,C_DATA,TIMESTAMP) "
+      + "values (:id, :cCol, :hash, :cDataType, :cData, :timestamp)")
+  void batchInsert(@BindPojo List<V1Row> instances);
+
+  /**
+   * Batch update.
+   *
+   * @param instances the instances
+   */
+  @SqlBatch("update TENANT_DATA set C_DATA_TYPE = :cDataType, C_DATA = :cData, "
+      + "TIMESTAMP = :timestamp where ID = :id and C_COL = :cCol")
+  void batchUpdate(@BindPojo List<V1Row> instances);
+
+
+  /**
+   * Batch delete keys.
+   *
+   * @param id   the id
+   * @param keys the keys
+   */
+  @SqlBatch("delete from TENANT_DATA where ID = :id and C_COL = :cCol")
+  void batchDeleteKeys(@Bind("id") String id, @Bind("cCol") List<String> keys);
 
 }
