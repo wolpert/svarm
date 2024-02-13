@@ -55,7 +55,6 @@ public class V1SingleEntryEngine implements TableDefinitionEngine {
   private final Metrics metrics;
   private final TenantTableJdbiManager dataSourceManager;
   private final V1RowConverter converter;
-  private final FeatureManager featureManager;
 
   /**
    * Default constructor.
@@ -63,18 +62,15 @@ public class V1SingleEntryEngine implements TableDefinitionEngine {
    * @param metrics           for analytics.
    * @param dataSourceManager for retrieving data sources of tenant dbs
    * @param converter         for conversion.
-   * @param featureManager    for feature flags.
    */
   @Inject
   public V1SingleEntryEngine(final Metrics metrics,
                              final TenantTableJdbiManager dataSourceManager,
-                             final V1RowConverter converter,
-                             final FeatureManager featureManager) {
+                             final V1RowConverter converter) {
     this.dataSourceManager = dataSourceManager;
     this.metrics = metrics;
     this.converter = converter;
-    this.featureManager = featureManager;
-    LOGGER.info("V1SingleEntryEngine({},{},{},{})", metrics, dataSourceManager, converter, featureManager);
+    LOGGER.info("V1SingleEntryEngine({},{},{})", metrics, dataSourceManager, converter);
   }
 
   /**
@@ -87,29 +83,13 @@ public class V1SingleEntryEngine implements TableDefinitionEngine {
   @Override
   public Optional<EntryInfo> read(final TenantTable tenantTable, final String entity) {
     LOGGER.trace("read({},{})", tenantTable, entity);
-    final List<V1Row> rows = featureManager.isEnabled(FF_V1_DAO_READ, entity)
-        ? getV1RowsViaDao(tenantTable, entity) : getV1RowsViaJdbi(tenantTable, entity);
+    final List<V1Row> rows = dataSourceManager.getV1RowDao(tenantTable)
+        .readEntry(entity);
     if (rows.isEmpty()) {
       return Optional.empty();
     } else {
       return Optional.of(converter.toEntryInfo(rows));
     }
-  }
-
-  private List<V1Row> getV1RowsViaDao(final TenantTable tenantTable, final String entity) {
-    final List<V1Row> rows = dataSourceManager.getV1RowDao(tenantTable)
-        .readEntry(entity);
-    return rows;
-  }
-
-  private List<V1Row> getV1RowsViaJdbi(final TenantTable tenantTable, final String entity) {
-    final List<V1Row> rows = dataSourceManager.getJdbi(tenantTable)
-        .withHandle(handle ->
-            handle.createQuery(READ_ROWS)
-                .bind("id", entity)
-                .mapTo(V1Row.class)
-                .list());
-    return rows;
   }
 
   /**
