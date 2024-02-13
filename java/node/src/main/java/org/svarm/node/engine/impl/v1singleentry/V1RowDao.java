@@ -30,6 +30,15 @@ public interface V1RowDao extends Transactional<V1RowDao> {
   void insert(@BindPojo final List<V1Row> instances);
 
   /**
+   * Delete all rows for the entry.
+   *
+   * @param id the entity to delete
+   * @return the count
+   */
+  @SqlUpdate("delete from TENANT_DATA where ID = :id")
+  int delete(@Bind("id") String id);
+
+  /**
    * Read list.
    *
    * @param hash the hash
@@ -56,5 +65,14 @@ public interface V1RowDao extends Transactional<V1RowDao> {
    */
   @SqlQuery("select * from TENANT_DATA where id = :id")
   List<V1Row> readEntry(@Bind("id") String id);
+
+  /**
+   * Read keys for the entry.
+   *
+   * @param id the entry id.
+   * @return the list of keys
+   */
+  @SqlQuery("select C_COL from TENANT_DATA where :id = id")
+  List<String> keys(@Bind("id") String id);
 
 }

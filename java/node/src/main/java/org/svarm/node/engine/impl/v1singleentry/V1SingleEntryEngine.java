@@ -28,7 +28,6 @@ import javax.inject.Singleton;
 import org.jdbi.v3.core.statement.PreparedBatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.svarm.featureflag.manager.FeatureManager;
 import org.svarm.node.api.EntryInfo;
 import org.svarm.node.engine.TableDefinitionEngine;
 import org.svarm.node.manager.TenantTableJdbiManager;
@@ -43,15 +42,11 @@ import org.svarm.node.model.TenantTable;
 public class V1SingleEntryEngine implements TableDefinitionEngine {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(V1SingleEntryEngine.class);
-  private static final String READ_ROWS = "select * from TENANT_DATA where ID = :id";
   private static final String INSERT_ROW = "insert into TENANT_DATA (ID,C_COL,HASH,C_DATA_TYPE,C_DATA,TIMESTAMP) "
       + "values (:id, :cCol, :hash, :cDataType, :cData, :timestamp)";
   private static final String UPDATE_ROW = "update TENANT_DATA set C_DATA_TYPE = :cDataType, C_DATA = :cData, "
       + "TIMESTAMP = :timestamp where ID = :id and C_COL = :cCol";
-  private static final String READ_COLUMNS = "select C_COL from TENANT_DATA where :id = id";
-  private static final String DELETE_ALL_ROWS_FOR_ENTRY = "delete from TENANT_DATA where ID = :id";
   private static final String DELETE_ONE_ROW_FOR_ENTRY = "delete from TENANT_DATA where ID = :id and C_COL = :cCol";
-  private static final String FF_V1_DAO_READ = "V1_DAO_READ";
   private final Metrics metrics;
   private final TenantTableJdbiManager dataSourceManager;
   private final V1RowConverter converter;
@@ -159,12 +154,7 @@ public class V1SingleEntryEngine implements TableDefinitionEngine {
    */
   List<String> keys(final TenantTable tenantTable, final String entity) {
     LOGGER.trace("keys({},{})", tenantTable, entity);
-    return dataSourceManager.getJdbi(tenantTable).withHandle(handle ->
-        handle.createQuery(READ_COLUMNS)
-            .bind("id", entity)
-            .mapTo(String.class)
-            .list()
-    );
+    return dataSourceManager.getV1RowDao(tenantTable).keys(entity);
   }
 
   /**
@@ -178,12 +168,7 @@ public class V1SingleEntryEngine implements TableDefinitionEngine {
   public boolean delete(final TenantTable tenantTable, final String entity) {
     LOGGER.trace("delete({},{})", tenantTable, entity);
 
-    final int updateCount = dataSourceManager.getJdbi(tenantTable)
-        .withHandle(handle -> handle.createUpdate(DELETE_ALL_ROWS_FOR_ENTRY)
-            .bind("id", entity)
-            .execute()
-        );
-
+    final int updateCount = dataSourceManager.getV1RowDao(tenantTable).delete(entity);
     final boolean result = updateCount > 0;
 
     LOGGER.trace("deleted: {}:{}:{}", tenantTable, entity, result);
