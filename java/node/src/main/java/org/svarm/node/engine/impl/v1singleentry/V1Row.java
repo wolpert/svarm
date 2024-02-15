@@ -52,4 +52,11 @@ public interface V1Row extends Serializable {
    */
   Optional<String> cData();
 
+  /**
+   * The expiry of the row. This is used for tombstoning.
+   *
+   * @return the value.
+   */
+  Optional<Long> expiry();
+
 }

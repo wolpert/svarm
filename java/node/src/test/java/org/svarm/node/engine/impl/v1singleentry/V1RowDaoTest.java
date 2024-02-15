@@ -23,7 +23,7 @@ class V1RowDaoTest extends BaseSQLTest {
       .identifier(TENANT_TABLE_IDENTIFIER).tableVersion(TableDefinition.V1SingleEntryEngine.name()).enabled(true).estimatedQuantity(1)
       .key("KEY").nonce("NONCE").build();
   private V1RowDao dao;
-  private Random random = new Random();
+  private final Random random = new Random();
 
   @BeforeEach
   void setup() {
@@ -48,12 +48,22 @@ class V1RowDaoTest extends BaseSQLTest {
     assertThat(result).hasNoNullFieldsOrPropertiesExcept("cData").isEqualTo(row);
   }
 
+  @Test
+  void roundTripWithoutExpiry() {
+    final V1Row row = ImmutableV1Row.builder().from(randomRow()).expiry(Optional.empty()).build();
+    assertThat(dao.read(row.hash())).isEmpty();
+    dao.insert(row);
+    final V1Row result = dao.read(row.hash()).get(0);
+    assertThat(result).hasNoNullFieldsOrPropertiesExcept("expiry").isEqualTo(row);
+  }
+
   private V1Row randomRow() {
     return ImmutableV1Row.builder()
         .id(UUID.randomUUID().toString())
         .cCol(UUID.randomUUID().toString())
         .hash(random.nextInt())
         .timestamp(random.nextLong())
+        .expiry(random.nextLong())
         .cDataType(UUID.randomUUID().toString())
         .cData(UUID.randomUUID().toString())
         .build();

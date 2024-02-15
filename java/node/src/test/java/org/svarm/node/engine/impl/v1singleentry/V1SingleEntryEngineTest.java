@@ -1,20 +1,15 @@
 package org.svarm.node.engine.impl.v1singleentry;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.svarm.common.engine.JsonEngine;
 import org.svarm.common.factory.ObjectMapperFactory;
 import org.svarm.datastore.common.TableDefinition;
-import org.svarm.featureflag.manager.FeatureManager;
 import org.svarm.node.BaseSQLTest;
 import org.svarm.node.api.EntryInfo;
 import org.svarm.node.api.ImmutableEntryInfo;
@@ -46,7 +41,7 @@ class V1SingleEntryEngineTest extends BaseSQLTest {
   }
 
   @Test
-  void readWriteWithFeatureFlag() {
+  void readWrite() {
     final ObjectNode objectNode = jsonEngine.createObjectNode()
         .put("something", "else")
         .put("number", 5)

@@ -19,7 +19,8 @@ public interface V1RowDao extends Transactional<V1RowDao> {
    *
    * @param instance the instance
    */
-  @SqlUpdate("insert into TENANT_DATA (ID, C_COL, HASH, TIMESTAMP,C_DATA_TYPE,C_DATA) values (:id, :cCol, :hash, :timestamp, :cDataType, :cData)")
+  @SqlUpdate("insert into TENANT_DATA (ID, C_COL, HASH, TIMESTAMP, C_DATA_TYPE, C_DATA, EXPIRY) "
+      + "values (:id, :cCol, :hash, :timestamp, :cDataType, :cData, :expiry)")
   void insert(@BindPojo final V1Row instance);
 
   /**
@@ -27,7 +28,8 @@ public interface V1RowDao extends Transactional<V1RowDao> {
    *
    * @param instances the instances
    */
-  @SqlUpdate("insert into TENANT_DATA (ID, C_COL, HASH, TIMESTAMP,C_DATA_TYPE,C_DATA) values (:id, :cCol, :hash, :timestamp, :cDataType, :cData)")
+  @SqlUpdate("insert into TENANT_DATA (ID, C_COL, HASH, TIMESTAMP, C_DATA_TYPE, C_DATA, EXPIRY) "
+      + "values (:id, :cCol, :hash, :timestamp, :cDataType, :cData, :expiry)")
   void insert(@BindPojo final List<V1Row> instances);
 
   /**
@@ -83,8 +85,8 @@ public interface V1RowDao extends Transactional<V1RowDao> {
    *
    * @param instances the instances
    */
-  @SqlBatch("insert into TENANT_DATA (ID,C_COL,HASH,C_DATA_TYPE,C_DATA,TIMESTAMP) "
-      + "values (:id, :cCol, :hash, :cDataType, :cData, :timestamp)")
+  @SqlBatch("insert into TENANT_DATA (ID, C_COL, HASH, C_DATA_TYPE, C_DATA, TIMESTAMP, EXPIRY) "
+      + "values (:id, :cCol, :hash, :cDataType, :cData, :timestamp, :expiry)")
   void batchInsert(@BindPojo List<V1Row> instances);
 
   /**
@@ -92,7 +94,7 @@ public interface V1RowDao extends Transactional<V1RowDao> {
    *
    * @param instances the instances
    */
-  @SqlBatch("update TENANT_DATA set C_DATA_TYPE = :cDataType, C_DATA = :cData, "
+  @SqlBatch("update TENANT_DATA set C_DATA_TYPE = :cDataType, C_DATA = :cData, EXPIRY = :expiry, "
       + "TIMESTAMP = :timestamp where ID = :id and C_COL = :cCol")
   void batchUpdate(@BindPojo List<V1Row> instances);
 
