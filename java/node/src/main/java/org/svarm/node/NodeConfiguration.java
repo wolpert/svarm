@@ -16,6 +16,7 @@
 
 package org.svarm.node;
 
+import java.time.Duration;
 import org.svarm.server.ServerConfiguration;
 
 /**
@@ -31,6 +32,7 @@ public class NodeConfiguration extends ServerConfiguration {
   private Integer nodePort = 8080;
   private int watchEngineThreads = 5;
   private String nodeScheme = "http";
+  private Duration expiryDuration = Duration.ofDays(2);
 
   /**
    * Instantiates a new Node configuration.
@@ -183,5 +185,23 @@ public class NodeConfiguration extends ServerConfiguration {
    */
   public void setNodeScheme(final String nodeScheme) {
     this.nodeScheme = nodeScheme;
+  }
+
+  /**
+   * Gets expiry duration.
+   *
+   * @return the expiry duration
+   */
+  public Duration getExpiryDuration() {
+    return expiryDuration;
+  }
+
+  /**
+   * Sets expiry duration.
+   *
+   * @param expiryDuration the expiry duration
+   */
+  public void setExpiryDuration(final Duration expiryDuration) {
+    this.expiryDuration = expiryDuration;
   }
 }

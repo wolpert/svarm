@@ -11,6 +11,7 @@ import org.svarm.common.engine.JsonEngine;
 import org.svarm.common.factory.ObjectMapperFactory;
 import org.svarm.datastore.common.TableDefinition;
 import org.svarm.node.BaseSQLTest;
+import org.svarm.node.NodeConfiguration;
 import org.svarm.node.api.EntryInfo;
 import org.svarm.node.api.ImmutableEntryInfo;
 import org.svarm.node.model.ImmutableTenantTable;
@@ -37,7 +38,7 @@ class V1SingleEntryEngineTest extends BaseSQLTest {
   void setup() {
     jsonEngine = new JsonEngine(new ObjectMapperFactory().generate());
     converter = new V1RowConverter(jsonEngine);
-    engine = new V1SingleEntryEngine(metrics, tenantTableJdbiManager, converter);
+    engine = new V1SingleEntryEngine(metrics, tenantTableJdbiManager, converter, new NodeConfiguration());
   }
 
   @Test
@@ -65,8 +66,8 @@ class V1SingleEntryEngineTest extends BaseSQLTest {
         .isNotEmpty()
         .contains(infoUpdated);
     assertThat(engine.keys(TENANT_TABLE, info.id()))
-        .hasSize(3)
-        .contains("something", "number", "ANewField");
+        .hasSize(4)
+        .contains("something", "number", "ANewField", "other"); // other is still there, but should be null
     engine.delete(TENANT_TABLE, info.id());
     assertThat(engine.read(TENANT_TABLE, info.id()))
         .isEmpty();

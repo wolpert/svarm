@@ -56,11 +56,15 @@ public class TableTenantLifecycleTest {
     LOGGER.info("Create table {} ", info);
     COMPONENT.etcdAccessor().getAll("node", "").forEach(LOGGER::info);
     final JsonNode data = COMPONENT.objectMapper().readValue("{\"a\":2,\"something\":\"else\"}", JsonNode.class);
+    final JsonNode data2 = COMPONENT.objectMapper().readValue("{\"a\":2,\"b\":\"altogether\"}", JsonNode.class);
     boolean ready = retry(20, () -> COMPONENT.controlTenantResourceService().readResource(tenant, TABLE).get().ready());
     assertThat(ready).isTrue();
     COMPONENT.proxyService().createTenantTableEntry(tenant, TABLE, ENTRY, data);
     final JsonNode result = COMPONENT.proxyService().readTenantTableEntry(tenant, TABLE, ENTRY).get();
     assertThat(result).isEqualTo(data);
+    COMPONENT.proxyService().createTenantTableEntry(tenant, TABLE, ENTRY, data2);
+    final JsonNode result2 = COMPONENT.proxyService().readTenantTableEntry(tenant, TABLE, ENTRY).get();
+    assertThat(result2).isEqualTo(data2);
     COMPONENT.proxyService().deleteTenantTableEntry(tenant, TABLE, ENTRY);
     assertThatExceptionOfType(FeignException.NotFound.class)
         .isThrownBy(() -> COMPONENT.proxyService().readTenantTableEntry(tenant, TABLE, ENTRY));

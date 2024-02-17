@@ -108,4 +108,16 @@ public interface V1RowDao extends Transactional<V1RowDao> {
   @SqlBatch("delete from TENANT_DATA where ID = :id and C_COL = :cCol")
   void batchDeleteKeys(@Bind("id") String id, @Bind("cCol") List<String> keys);
 
+  /**
+   * Batch soft delete int.
+   *
+   * @param id        the id of the entry.
+   * @param expiry    the expiry of the entry.
+   * @param timestamp the timestamp of the change.
+   * @param keys      the keys to soft delete.
+   */
+  @SqlBatch("update TENANT_DATA set C_DATA = null, EXPIRY = :expiry, TIMESTAMP = :timestamp "
+      + "where ID = :id and C_COL = :cCol")
+  void batchSoftDelete(@Bind("id") String id, @Bind("expiry") long expiry, @Bind("timestamp") long timestamp,
+                      @Bind("cCol") List<String> keys);
 }

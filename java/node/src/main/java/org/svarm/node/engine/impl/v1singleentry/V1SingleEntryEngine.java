@@ -17,6 +17,7 @@
 package org.svarm.node.engine.impl.v1singleentry;
 
 import com.codeheadsystems.metrics.Metrics;
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -27,6 +28,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.svarm.node.NodeConfiguration;
 import org.svarm.node.api.EntryInfo;
 import org.svarm.node.engine.TableDefinitionEngine;
 import org.svarm.node.manager.TenantTableJdbiManager;
@@ -44,6 +46,7 @@ public class V1SingleEntryEngine implements TableDefinitionEngine {
   private final Metrics metrics;
   private final TenantTableJdbiManager dataSourceManager;
   private final V1RowConverter converter;
+  private final Duration expiryDuration;
 
   /**
    * Default constructor.
@@ -51,14 +54,17 @@ public class V1SingleEntryEngine implements TableDefinitionEngine {
    * @param metrics           for analytics.
    * @param dataSourceManager for retrieving data sources of tenant dbs
    * @param converter         for conversion.
+   * @param nodeConfiguration the node configuration
    */
   @Inject
   public V1SingleEntryEngine(final Metrics metrics,
                              final TenantTableJdbiManager dataSourceManager,
-                             final V1RowConverter converter) {
+                             final V1RowConverter converter,
+                             final NodeConfiguration nodeConfiguration) {
     this.dataSourceManager = dataSourceManager;
     this.metrics = metrics;
     this.converter = converter;
+    this.expiryDuration = nodeConfiguration.getExpiryDuration();
     LOGGER.info("V1SingleEntryEngine({},{},{})", metrics, dataSourceManager, converter);
   }
 
@@ -103,7 +109,9 @@ public class V1SingleEntryEngine implements TableDefinitionEngine {
         dao.batchUpdate(actions.update());
       }
       if (!actions.delete().isEmpty()) {
-        dao.batchDeleteKeys(entryInfo.id(), actions.delete());
+        final long expiry = System.currentTimeMillis() + expiryDuration.toMillis();
+        final long timestamp = System.currentTimeMillis();
+        dao.batchSoftDelete(entryInfo.id(), expiry, timestamp, actions.delete());
         handle.commit();
       }
     });

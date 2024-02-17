@@ -51,6 +51,12 @@
         <createIndex tableName="TENANT_DATA" indexName="TENANT_DATA_ID_IDX" unique="false">
             <column name="ID"/>
         </createIndex>
+        <!--
+          Ideally this is a partial index where EXPIRY is not null. HSQLDB does not support this.
+          SQLite, PGSQL, and MySQL do support partial indexes. I'm unsure if this impact is big enough
+          where I would consider switching to SQLite. But if this does move to rust, it would be SQLite
+          anyway.
+          -->
         <createIndex tableName="TENANT_DATA" indexName="TENANT_DATA_EXPIRY_IDX" unique="false">
             <column name="EXPIRY"/>
         </createIndex>
