@@ -28,13 +28,13 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.svarm.node.NodeConfiguration;
 import org.svarm.node.api.EntryInfo;
 import org.svarm.node.engine.TableDefinitionEngine;
 import org.svarm.node.manager.TenantTableJdbiManager;
 import org.svarm.node.model.DataStoreActions;
 import org.svarm.node.model.ImmutableDataStoreActions;
 import org.svarm.node.model.TenantTable;
+import org.svarm.node.model.TombstoneConfiguration;
 
 /**
  * First implementation of reading/writing the data for an entry.
@@ -51,20 +51,20 @@ public class V1SingleEntryEngine implements TableDefinitionEngine {
   /**
    * Default constructor.
    *
-   * @param metrics           for analytics.
-   * @param dataSourceManager for retrieving data sources of tenant dbs
-   * @param converter         for conversion.
-   * @param nodeConfiguration the node configuration
+   * @param metrics                for analytics.
+   * @param dataSourceManager      for retrieving data sources of tenant dbs
+   * @param converter              for conversion.
+   * @param tombstoneConfiguration the node configuration
    */
   @Inject
   public V1SingleEntryEngine(final Metrics metrics,
                              final TenantTableJdbiManager dataSourceManager,
                              final V1RowConverter converter,
-                             final NodeConfiguration nodeConfiguration) {
+                             final TombstoneConfiguration tombstoneConfiguration) {
     this.dataSourceManager = dataSourceManager;
     this.metrics = metrics;
     this.converter = converter;
-    this.expiryDuration = nodeConfiguration.getExpiryDuration();
+    this.expiryDuration = tombstoneConfiguration.expiryDuration();
     LOGGER.info("V1SingleEntryEngine({},{},{})", metrics, dataSourceManager, converter);
   }
 

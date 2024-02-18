@@ -11,9 +11,9 @@ import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.svarm.common.util.ShutdownUtility;
-import org.svarm.node.NodeConfiguration;
 import org.svarm.node.dao.TenantDao;
 import org.svarm.node.model.TenantTableIdentifier;
+import org.svarm.node.model.TombstoneConfiguration;
 
 /**
  * The type Tombstone manager.
@@ -37,18 +37,18 @@ public class TombstoneManager implements Managed {
    * @param tenantDao               the tenant dao
    * @param tenantTableManager      the tenant table manager
    * @param tenantTableEntryManager the tenant table entry manager
-   * @param nodeConfiguration       the node configuration
+   * @param tombstoneConfiguration  the node configuration
    */
   @Inject
   public TombstoneManager(final TenantDao tenantDao,
                           final TenantTableManager tenantTableManager,
                           final TenantTableEntryManager tenantTableEntryManager,
-                          final NodeConfiguration nodeConfiguration) {
+                          final TombstoneConfiguration tombstoneConfiguration) {
     this.tenantDao = tenantDao;
     this.tenantTableManager = tenantTableManager;
     this.tenantTableEntryManager = tenantTableEntryManager;
-    this.tombstoneRerunDelay = nodeConfiguration.getTombstoneRerunDelay();
-    this.tombstoneServiceStartDelay = nodeConfiguration.getTombstoneServiceStartDelay();
+    this.tombstoneRerunDelay = tombstoneConfiguration.tombstoneRerunDelay();
+    this.tombstoneServiceStartDelay = tombstoneConfiguration.tombstoneServiceStartDelay();
     this.tombstoneService = Executors.newSingleThreadExecutor();
     this.scheduler = Executors.newSingleThreadScheduledExecutor();
     LOGGER.info("TombstoneManager({},{},{},{})", tenantDao, tenantTableManager, tenantTableEntryManager, tombstoneRerunDelay);

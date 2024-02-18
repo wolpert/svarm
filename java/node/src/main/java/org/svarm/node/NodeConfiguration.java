@@ -17,6 +17,8 @@
 package org.svarm.node;
 
 import java.time.Duration;
+import org.svarm.node.model.ImmutableTombstoneConfiguration;
+import org.svarm.node.model.TombstoneConfiguration;
 import org.svarm.server.ServerConfiguration;
 
 /**
@@ -32,9 +34,7 @@ public class NodeConfiguration extends ServerConfiguration {
   private Integer nodePort = 8080;
   private int watchEngineThreads = 5;
   private String nodeScheme = "http";
-  private Duration expiryDuration = Duration.ofDays(2);
-  private Duration tombstoneRerunDelay = Duration.ofHours(3);
-  private Duration tombstoneServiceStartDelay = Duration.ofSeconds(10);
+  private TombstoneConfiguration tombstoneConfiguration = ImmutableTombstoneConfiguration.builder().build();
 
   /**
    * Instantiates a new Node configuration.
@@ -190,56 +190,20 @@ public class NodeConfiguration extends ServerConfiguration {
   }
 
   /**
-   * Gets expiry duration.
+   * Gets tombstone configuration.
    *
-   * @return the expiry duration
+   * @return the tombstone configuration
    */
-  public Duration getExpiryDuration() {
-    return expiryDuration;
+  public TombstoneConfiguration getTombstoneConfiguration() {
+    return tombstoneConfiguration;
   }
 
   /**
-   * Sets expiry duration.
+   * Sets tombstone configuration.
    *
-   * @param expiryDuration the expiry duration
+   * @param tombstoneConfiguration the tombstone configuration
    */
-  public void setExpiryDuration(final Duration expiryDuration) {
-    this.expiryDuration = expiryDuration;
-  }
-
-  /**
-   * Gets expiry cleanup.
-   *
-   * @return the expiry cleanup
-   */
-  public Duration getTombstoneRerunDelay() {
-    return tombstoneRerunDelay;
-  }
-
-  /**
-   * Sets expiry cleanup.
-   *
-   * @param tombstoneRerunDelay the expiry cleanup
-   */
-  public void setTombstoneRerunDelay(final Duration tombstoneRerunDelay) {
-    this.tombstoneRerunDelay = tombstoneRerunDelay;
-  }
-
-  /**
-   * Gets tombstone service start delay.
-   *
-   * @return the tombstone service start delay
-   */
-  public Duration getTombstoneServiceStartDelay() {
-    return tombstoneServiceStartDelay;
-  }
-
-  /**
-   * Sets tombstone service start delay.
-   *
-   * @param tombstoneServiceStartDelay the tombstone service start delay
-   */
-  public void setTombstoneServiceStartDelay(final Duration tombstoneServiceStartDelay) {
-    this.tombstoneServiceStartDelay = tombstoneServiceStartDelay;
+  public void setTombstoneConfiguration(final TombstoneConfiguration tombstoneConfiguration) {
+    this.tombstoneConfiguration = tombstoneConfiguration;
   }
 }

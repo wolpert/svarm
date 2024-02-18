@@ -16,8 +16,10 @@ import org.svarm.node.api.EntryInfo;
 import org.svarm.node.api.ImmutableEntryInfo;
 import org.svarm.node.model.ImmutableTenantTable;
 import org.svarm.node.model.ImmutableTenantTableIdentifier;
+import org.svarm.node.model.ImmutableTombstoneConfiguration;
 import org.svarm.node.model.TenantTable;
 import org.svarm.node.model.TenantTableIdentifier;
+import org.svarm.node.model.TombstoneConfiguration;
 
 @ExtendWith(MockitoExtension.class)
 class V1SingleEntryEngineTest extends BaseSQLTest {
@@ -38,9 +40,8 @@ class V1SingleEntryEngineTest extends BaseSQLTest {
   void setup() {
     jsonEngine = new JsonEngine(new ObjectMapperFactory().generate());
     converter = new V1RowConverter(jsonEngine);
-    final NodeConfiguration configuration = new NodeConfiguration();
-    configuration.setExpiryDuration(java.time.Duration.ofSeconds(0));
-    engine = new V1SingleEntryEngine(metrics, tenantTableJdbiManager, converter, configuration);
+    final TombstoneConfiguration tombstoneConfiguration = ImmutableTombstoneConfiguration.builder().expiryDuration(java.time.Duration.ofSeconds(0)).build();
+    engine = new V1SingleEntryEngine(metrics, tenantTableJdbiManager, converter, tombstoneConfiguration);
   }
 
   @Test

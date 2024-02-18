@@ -29,6 +29,7 @@ import org.svarm.common.javaclient.JavaClientConfig;
 import org.svarm.node.NodeConfiguration;
 import org.svarm.node.factory.NodeConfigurationFactory;
 import org.svarm.node.model.NodeInternalConfiguration;
+import org.svarm.node.model.TombstoneConfiguration;
 import org.svarm.server.ServerConfiguration;
 
 /**
@@ -53,6 +54,18 @@ public class NodeConfigurationModule {
   @Singleton
   public NodeConfiguration configuration(final ServerConfiguration configuration) {
     return (NodeConfiguration) configuration;
+  }
+
+  /**
+   * Tombstone configuration tombstone configuration.
+   *
+   * @param configuration the configuration
+   * @return the tombstone configuration
+   */
+  @Provides
+  @Singleton
+  public TombstoneConfiguration tombstoneConfiguration(final NodeConfiguration configuration) {
+    return configuration.getTombstoneConfiguration();
   }
 
   /**
