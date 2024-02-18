@@ -98,6 +98,18 @@ public class TenantTableEntryManager {
     return engine(tenantTable).delete(tenantTable, entity);
   }
 
+  /**
+   * Clean tombstones.
+   *
+   * @param identifier the identifier
+   */
+  public void cleanTombstones(final TenantTableIdentifier identifier) {
+    LOGGER.trace("cleanTombstones({})", identifier);
+    final TenantTable tenantTable = tenantTableManager.get(identifier)
+        .orElseThrow(() -> new NotFoundException("No such table:" + identifier));
+    engine(tenantTable).clearTombstones(tenantTable);
+  }
+
   private TableDefinitionEngine engine(final TenantTable tenantTable) {
     final String tableVersion = tenantTable.tableVersion();
     LOGGER.trace("engine({})", tableVersion);

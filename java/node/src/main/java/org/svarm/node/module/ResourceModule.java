@@ -22,6 +22,7 @@ import dagger.multibindings.IntoSet;
 import io.dropwizard.lifecycle.Managed;
 import org.svarm.node.manager.ControlPlaneManager;
 import org.svarm.node.manager.ControlPlaneWatcherManager;
+import org.svarm.node.manager.TombstoneManager;
 import org.svarm.node.resource.TenantResource;
 import org.svarm.node.resource.TenantTableEntryResource;
 import org.svarm.node.resource.TenantTableResource;
@@ -82,5 +83,15 @@ public interface ResourceModule {
   @Binds
   @IntoSet
   Managed controlPlaneManager(ControlPlaneManager resource);
+
+  /**
+   * Managed resource: tombstone.
+   *
+   * @param resource tombstone manager.
+   * @return managed resources.
+   */
+  @Binds
+  @IntoSet
+  Managed tombstoneManager(TombstoneManager resource);
 
 }

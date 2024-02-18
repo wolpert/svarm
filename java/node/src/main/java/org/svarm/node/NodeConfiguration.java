@@ -33,6 +33,8 @@ public class NodeConfiguration extends ServerConfiguration {
   private int watchEngineThreads = 5;
   private String nodeScheme = "http";
   private Duration expiryDuration = Duration.ofDays(2);
+  private Duration tombstoneRerunDelay = Duration.ofHours(3);
+  private Duration tombstoneServiceStartDelay = Duration.ofSeconds(10);
 
   /**
    * Instantiates a new Node configuration.
@@ -203,5 +205,41 @@ public class NodeConfiguration extends ServerConfiguration {
    */
   public void setExpiryDuration(final Duration expiryDuration) {
     this.expiryDuration = expiryDuration;
+  }
+
+  /**
+   * Gets expiry cleanup.
+   *
+   * @return the expiry cleanup
+   */
+  public Duration getTombstoneRerunDelay() {
+    return tombstoneRerunDelay;
+  }
+
+  /**
+   * Sets expiry cleanup.
+   *
+   * @param tombstoneRerunDelay the expiry cleanup
+   */
+  public void setTombstoneRerunDelay(final Duration tombstoneRerunDelay) {
+    this.tombstoneRerunDelay = tombstoneRerunDelay;
+  }
+
+  /**
+   * Gets tombstone service start delay.
+   *
+   * @return the tombstone service start delay
+   */
+  public Duration getTombstoneServiceStartDelay() {
+    return tombstoneServiceStartDelay;
+  }
+
+  /**
+   * Sets tombstone service start delay.
+   *
+   * @param tombstoneServiceStartDelay the tombstone service start delay
+   */
+  public void setTombstoneServiceStartDelay(final Duration tombstoneServiceStartDelay) {
+    this.tombstoneServiceStartDelay = tombstoneServiceStartDelay;
   }
 }
