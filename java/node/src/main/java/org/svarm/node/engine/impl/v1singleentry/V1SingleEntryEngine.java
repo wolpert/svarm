@@ -168,5 +168,14 @@ public class V1SingleEntryEngine implements TableDefinitionEngine {
     return result;
   }
 
+  @Override
+  public int clearTombstones(final TenantTable tenantTable) {
+    LOGGER.trace("clearTombstones()");
+    final int count = dataSourceManager.getV1RowDao(tenantTable).deleteExpired(System.currentTimeMillis());
+
+    LOGGER.trace("cleared: {}:{}", tenantTable, count);
+    return count;
+  }
+
 
 }

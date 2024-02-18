@@ -50,4 +50,12 @@ public interface TableDefinitionEngine {
    * @return boolean if anything was deleted.
    */
   boolean delete(TenantTable tenantTable, String entity);
+
+  /**
+   * Clear tombstones from the table.
+   *
+   * @param tenantTable table to delete from.
+   * @return int number of tombstones cleared.
+   */
+  int clearTombstones(TenantTable tenantTable);
 }

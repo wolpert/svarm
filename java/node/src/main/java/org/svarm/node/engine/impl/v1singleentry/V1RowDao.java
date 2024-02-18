@@ -120,4 +120,13 @@ public interface V1RowDao extends Transactional<V1RowDao> {
       + "where ID = :id and C_COL = :cCol")
   void batchSoftDelete(@Bind("id") String id, @Bind("expiry") long expiry, @Bind("timestamp") long timestamp,
                       @Bind("cCol") List<String> keys);
+
+  /**
+   * Delete expired int.
+   *
+   * @param now for the deletion.
+   * @return number of rows deleted.
+   */
+  @SqlUpdate("delete from TENANT_DATA where EXPIRY is not null and EXPIRY <= :now")
+  int deleteExpired(@Bind("now") long now);
 }

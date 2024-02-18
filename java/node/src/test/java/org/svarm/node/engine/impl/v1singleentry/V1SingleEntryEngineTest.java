@@ -38,7 +38,9 @@ class V1SingleEntryEngineTest extends BaseSQLTest {
   void setup() {
     jsonEngine = new JsonEngine(new ObjectMapperFactory().generate());
     converter = new V1RowConverter(jsonEngine);
-    engine = new V1SingleEntryEngine(metrics, tenantTableJdbiManager, converter, new NodeConfiguration());
+    final NodeConfiguration configuration = new NodeConfiguration();
+    configuration.setExpiryDuration(java.time.Duration.ofSeconds(0));
+    engine = new V1SingleEntryEngine(metrics, tenantTableJdbiManager, converter, configuration);
   }
 
   @Test
@@ -68,6 +70,10 @@ class V1SingleEntryEngineTest extends BaseSQLTest {
     assertThat(engine.keys(TENANT_TABLE, info.id()))
         .hasSize(4)
         .contains("something", "number", "ANewField", "other"); // other is still there, but should be null
+    engine.clearTombstones(TENANT_TABLE);
+    assertThat(engine.keys(TENANT_TABLE, info.id()))
+        .hasSize(3)
+        .contains("something", "number", "ANewField"); // other is now gone
     engine.delete(TENANT_TABLE, info.id());
     assertThat(engine.read(TENANT_TABLE, info.id()))
         .isEmpty();
