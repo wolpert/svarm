@@ -17,6 +17,7 @@ dagger = "2.51.1"
 dropwizard4 = "4.0.7"
 guava = "33.2.0-jre"
 hsqldb = '2.7.2'
+httpclient = '4.5.13'
 immutables = '2.10.1'
 jackson = '2.17.1'
 jdbi = '3.45.1'
@@ -43,11 +44,9 @@ aws-dynamodblocal = { module = "com.amazonaws:DynamoDBLocal", version.ref = "aws
 aws-sdk2-ddb = { module = "software.amazon.awssdk:dynamodb", version.ref = "awsSDK2" }
 aws-sdk2-bom = { module = "software.amazon.awssdk:bom", version.ref = "awsSDK2" }
 aws-sdk-ddb = { module = "com.amazonaws:aws-java-sdk-dynamodb", version.ref = "awsSDK1" }
-
 bcpkix =  { module = "org.bouncycastle:bcpkix-jdk18on", version.ref ="bouncy" }
 bcprov =  { module = "org.bouncycastle:bcprov-jdk18on", version.ref ="bouncy" }
 c3p0 =  { module = "com.mchange:c3p0", version.ref ="c3p0" }
-
 codehead-test = { module = "com.codeheadsystems:codehead-test", version.ref = "codehead-test" }
 database-test = { module = "com.codeheadsystems:database-test", version.ref = "codehead-database-test" }
 codehead-metrics = { module = "com.codeheadsystems:metrics", version.ref = "codehead-metrics" }
@@ -56,7 +55,6 @@ commons-io = { module = "commons-io:commons-io", version.ref = "commons-io" }
 conscrypt-openjdk-uber = { module = "org.conscrypt:conscrypt-openjdk-uber", version.ref = "conscrypt" }
 dagger = { module = "com.google.dagger:dagger", version.ref = "dagger" }
 dagger-compiler = { module = "com.google.dagger:dagger-compiler", version.ref = "dagger" }
-
 dropwizard4-bom= { module = "io.dropwizard:dropwizard-bom", version.ref = "dropwizard4" }
 dropwizard4-auth= { module = "io.dropwizard:dropwizard-auth", version.ref = "dropwizard4" }
 dropwizard4-core= { module = "io.dropwizard:dropwizard-core", version.ref = "dropwizard4" }
@@ -66,11 +64,9 @@ dropwizard4-jdbi= { module = "io.dropwizard:dropwizard-jdbi3", version.ref = "dr
 dropwizard4-metrics-graphite= { module = "io.dropwizard:dropwizard-metrics-graphite", version.ref = "dropwizard4" }
 dropwizard4-testing= { module = "io.dropwizard:dropwizard-testing", version.ref = "dropwizard4" }
 dropwizard4-http2= { module = "io.dropwizard:dropwizard-http2", version.ref = "dropwizard4" }
-
-
 guava = { module = "com.google.guava:guava", version.ref = "guava" }
 hsqldb = { module = "org.hsqldb:hsqldb", version.ref = "hsqldb" }
-
+httpclient = { module = "org.apache.httpcomponents:httpclient", version.ref = "httpclient" }
 immutables-value = { module = "org.immutables:value", version.ref = "immutables" }
 immutables-annotations = { module = "org.immutables:value-annotations", version.ref = "immutables" }
 jackson-core = { module = "com.fasterxml.jackson.core:jackson-core", version.ref = "jackson" }
@@ -78,9 +74,7 @@ jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", ver
 jackson-annotations = { module = "com.fasterxml.jackson.core:jackson-annotations", version.ref = "jackson" }
 jackson-datatype-jdk8 = { module = "com.fasterxml.jackson.datatype:jackson-datatype-jdk8", version.ref = "jackson" }
 jackson-dataformat-yaml = { module = "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml", version.ref = "jackson" }
-
 javax-inject = { module = "javax.inject:javax.inject", version = "1" }
-
 jdbi-core = {module = "org.jdbi:jdbi3-core", version.ref = "jdbi" }
 jdbi-caffeine = {module = "org.jdbi:jdbi3-caffeine-cache", version.ref = "jdbi" }
 jdbi-noopcache = {module = "org.jdbi:jdbi3-noop-cache", version.ref = "jdbi" }
@@ -91,7 +85,6 @@ jdbi-jackson2 = {module = "org.jdbi:jdbi3-jackson2", version.ref = "jdbi" }
 jdbi-postgres = {module = "org.jdbi:jdbi3-postgres", version.ref = "jdbi" }
 jdbi-sqlobject = {module = "org.jdbi:jdbi3-sqlobject", version.ref = "jdbi" }
 jdbi-bom = {module = "org.jdbi:jdbi3-bom", version.ref = "jdbi" }
-
 jetcd-core = { module = "io.etcd:jetcd-core", version.ref = "jetcd" }
 jetcd-test = { module = "io.etcd:jetcd-test", version.ref = "jetcd" }
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit-jupiter" }
@@ -124,9 +117,7 @@ openfeign-jakarta = { module = "io.github.openfeign:feign-jakarta", version.ref 
 openfeign-okhttp = { module = "io.github.openfeign:feign-okhttp", version.ref = "openfeign" }
 openfeign-micrometer = { module = "io.github.openfeign:feign-micrometer", version.ref = "openfeign" }
 openfeign-slf4j = { module = "io.github.openfeign:feign-slf4j", version.ref = "openfeign" }
-
 pgjdbc = { module = "org.postgresql:postgresql", version.ref = "pgjdbc" }
-
 retrofit2-converter-jackson = { module = "com.squareup.retrofit2:converter-jackson", version.ref = "retrofit" }
 retrofit2-converter-java8 = { module = "com.squareup.retrofit2:converter-java8", version.ref = "retrofit" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
@@ -137,8 +128,6 @@ resilience4j-feign = { module = "io.github.resilience4j:resilience4j-feign", ver
 resilience4j-retrofit = { module = "io.github.resilience4j:resilience4j-retrofit", version.ref = "resilience4j" }
 resilience4j-ratelimiter = { module = "io.github.resilience4j:resilience4j-ratelimiter", version.ref = "resilience4j" }
 resilience4j-circuitbreaker = { module = "io.github.resilience4j:resilience4j-circuitbreaker", version.ref = "resilience4j" }
-
-
 slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
 testcontainers = { module = "org.testcontainers:testcontainers", version.ref = "testcontainers" }
 testcontainers-postgresql = { module = "org.testcontainers:postgresql", version.ref = "testcontainers" }
