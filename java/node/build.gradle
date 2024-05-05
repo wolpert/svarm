@@ -54,8 +54,8 @@ dependencies {
     testImplementation project(":node-javaClient")
     testImplementation libs.openfeign.core
     testImplementation libs.openfeign.jackson
-    testImplementation libs.feign.slf4j
-    testImplementation libs.feign.micrometer
+    testImplementation libs.openfeign.slf4j
+    testImplementation libs.openfeign.micrometer
     testImplementation libs.openfeign.java11
     testImplementation libs.openfeign.jaxrs3
 

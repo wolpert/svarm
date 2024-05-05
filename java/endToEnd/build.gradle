@@ -55,8 +55,8 @@ dependencies {
 
     implementation libs.openfeign.core
     implementation libs.openfeign.jackson
-    implementation libs.feign.slf4j
-    implementation libs.feign.micrometer
+    implementation libs.openfeign.slf4j
+    implementation libs.openfeign.micrometer
     implementation libs.openfeign.java11
     implementation libs.openfeign.jaxrs3
 

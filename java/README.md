@@ -2,6 +2,9 @@
 
 Notes about the Java code.
 
+## Status
+![Svarm Build](https://github.com/wolpert/svarm/actions/workflows/gradle.yml/badge.svg)
+
 ## Build
 
 Requires

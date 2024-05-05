@@ -16,11 +16,6 @@ dependencyResolutionManagement {
         maven { url "https://s3-us-west-2.amazonaws.com/dynamodb-local/release/" }
     }
     // Added in the codehead dependencies list.
-    versionCatalogs {
-        libs {
-            from("com.codeheadsystems:dependencies:1.0.4-SNAPSHOT")
-        }
-    }
 }
 
 // All subprojects we want to build.

@@ -21,14 +21,6 @@ buildscript {
     }
 }
 
-
-ext {
-    codeheadTestVersion = '1.0.6-SNAPSHOT'
-    codeheadMetricsVersion = '1.0.3-SNAPSHOT'
-    statemachineVersion = '1.0.1-SNAPSHOT'
-    gamelibVersion = '1.0.3-SNAPSHOT'
-}
-
 allprojects {
     group 'org.svarm'
     version '1.0.0-SNAPSHOT'
@@ -63,7 +55,7 @@ allprojects {
         finalizedBy jacocoTestReport
     }
     dependencies {
-        implementation "com.codeheadsystems:metrics:${codeheadMetricsVersion}"
+        implementation(libs.codehead.metrics)
 
         implementation libs.slf4j.api
         implementation libs.bcprov
@@ -80,78 +72,20 @@ allprojects {
         implementation libs.jackson.databind
         implementation libs.jackson.datatype.jdk8
 
-        testImplementation("com.codeheadsystems:codehead-test:${codeheadTestVersion}")
-        testImplementation "com.codeheadsystems:metrics-test:${codeheadMetricsVersion}"
-        testImplementation(libs.assertj.core)
-        testImplementation(libs.junit.jupiter.engine)
-        testImplementation(libs.junit.jupiter.api)
-        testImplementation(libs.junit.jupiter.params)
+        testImplementation(libs.codehead.test)
+        testImplementation(libs.codehead.metrics.test)
+        testImplementation(libs.bundles.testing)
         testImplementation(libs.junit.platform.suite.api)
         testImplementation(libs.junit.platform.suite.engine)
-        testImplementation(libs.mockito.junit.jupiter)
-        testImplementation(libs.mockito.core)
 
         testCompileOnly libs.immutables.value
         testAnnotationProcessor libs.immutables.value
         testAnnotationProcessor libs.dagger.compiler
 
         // Logging in tests
-        testImplementation libs.logback.classic
-        testImplementation libs.logback.core
+        testImplementation libs.bundles.logback
 
         testImplementation libs.junit.platform.launcher
-    }
-    jacocoTestReport {
-        dependsOn test
-        afterEvaluate {
-            classDirectories.setFrom(files(classDirectories.files.collect {
-                fileTree(dir: it, exclude: [
-                        '**/dagger/**.class',
-                        '**/Dagger*Builder.class',
-                        '**/*Exception.class',
-                        '**/*Module.class',
-                        '**/*_Factory.class',
-                        '**/*_Factory.*class',
-                        '**/*InstanceHolder.class',
-                        '**/*_Factory$InstanceHolder.class'
-                ])
-            }))
-        }
-    }
-    def excludeFiles = [
-            '**.dagger.**',
-            '**.Dagger*Builder',
-            '**.*Exception',
-            '**.*Module',
-            '**.*_Factory',
-            '**.*_Factory*',
-            '**.InstanceHolder',
-            '**.*_Factory$InstanceHolder'
-    ]
-
-// If you want to override, use this in your package and set. This is the low bar.
-    jacocoTestCoverageVerification {
-        dependsOn jacocoTestReport
-        violationRules {
-            rule {
-                excludes = excludeFiles
-                element = 'BUNDLE'
-                limit {
-                    counter = 'LINE'
-                    value = 'COVEREDRATIO'
-                    minimum = 0.8
-                }
-            }
-            rule {
-                excludes = excludeFiles
-                element = 'BUNDLE'
-                limit {
-                    counter = 'BRANCH'
-                    value = 'COVEREDRATIO'
-                    minimum = 0.7
-                }
-            }
-        }
     }
 
     javadoc {
