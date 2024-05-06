@@ -11,6 +11,7 @@ c3p0 = "0.10.0"
 codehead-test = "1.0.6"
 codehead-database-test = "1.0.3"
 codehead-metrics = "1.0.3"
+codehead-ff="1.0.0"
 commons-io = "2.16.1"
 conscrypt = '2.5.2'
 dagger = "2.51.1"
@@ -47,6 +48,8 @@ aws-sdk-ddb = { module = "com.amazonaws:aws-java-sdk-dynamodb", version.ref = "a
 bcpkix =  { module = "org.bouncycastle:bcpkix-jdk18on", version.ref ="bouncy" }
 bcprov =  { module = "org.bouncycastle:bcprov-jdk18on", version.ref ="bouncy" }
 c3p0 =  { module = "com.mchange:c3p0", version.ref ="c3p0" }
+codehead-ff = { module = "com.codeheadsystems:feature-flag", version.ref = "codehead-ff" }
+codehead-ff-etcd = { module = "com.codeheadsystems:feature-flag-etcd", version.ref = "codehead-ff" }
 codehead-test = { module = "com.codeheadsystems:codehead-test", version.ref = "codehead-test" }
 database-test = { module = "com.codeheadsystems:database-test", version.ref = "codehead-database-test" }
 codehead-metrics = { module = "com.codeheadsystems:metrics", version.ref = "codehead-metrics" }

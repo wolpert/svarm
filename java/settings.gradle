@@ -21,7 +21,6 @@ dependencyResolutionManagement {
 // All subprojects we want to build.
 include ':the-ring', ':local-queue', ':liquibase-common',
         ':common', ':server-common', ':common-javaClient', ':config-common',
-        ':feature-flag',
         ':dataStore-common',
         ':node-common', ':node-javaClient', ':node',
         ':control-common', ':control-javaClient', ':control',

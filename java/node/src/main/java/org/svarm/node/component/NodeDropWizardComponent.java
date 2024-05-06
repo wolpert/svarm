@@ -21,9 +21,9 @@ import javax.inject.Singleton;
 import org.svarm.common.config.module.EtcdModule;
 import org.svarm.common.javaclient.JavaClientModule;
 import org.svarm.control.javaclient.module.ControlServiceModule;
-import org.svarm.featureflag.module.FeatureFlagEtcdModule;
 import org.svarm.node.module.ControlPlaneModule;
 import org.svarm.node.module.DataSourceModule;
+import org.svarm.node.module.FeatureFlagModule;
 import org.svarm.node.module.HealthCheckModule;
 import org.svarm.node.module.NodeConfigurationModule;
 import org.svarm.node.module.ResourceModule;
@@ -43,7 +43,7 @@ import org.svarm.server.module.DropWizardModule;
     DataSourceModule.class,
     DropWizardModule.class,
     EtcdModule.class,
-    FeatureFlagEtcdModule.class,
+    FeatureFlagModule.class,
     HealthCheckModule.class,
     NodeConfigurationModule.class,
     JavaClientModule.class,

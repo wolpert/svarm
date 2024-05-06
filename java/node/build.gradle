@@ -31,7 +31,6 @@ dependencies {
     implementation project(":control-common")
     implementation project(":control-javaClient")
     implementation project(":local-queue")
-    implementation project(":feature-flag")
 
     // SQL
     implementation libs.hsqldb
@@ -46,6 +45,8 @@ dependencies {
     implementation libs.jetcd.core
     testImplementation libs.jetcd.test
     implementation libs.metrics.jdbi
+    implementation libs.codehead.ff
+    implementation libs.codehead.ff.etcd
 
     implementation libs.openfeign.core
 
