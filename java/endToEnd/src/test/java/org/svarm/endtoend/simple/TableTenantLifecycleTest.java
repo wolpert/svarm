@@ -23,6 +23,10 @@ import static org.svarm.endtoend.EnvironmentManager.COMPONENT;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import feign.FeignException;
+import io.github.resilience4j.feign.FeignDecorator;
+import io.github.resilience4j.feign.FeignDecorators;
+import io.github.resilience4j.feign.Resilience4jFeign;
+import io.github.resilience4j.retry.Retry;
 import java.io.IOException;
 import java.util.UUID;
 import java.util.function.Supplier;

@@ -47,6 +47,7 @@ dependencies {
     implementation libs.metrics.jdbi
     implementation libs.codehead.ff
     implementation libs.codehead.ff.etcd
+    implementation libs.codehead.ff.metrics
 
     implementation libs.openfeign.core
 

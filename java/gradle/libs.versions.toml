@@ -50,6 +50,7 @@ bcprov =  { module = "org.bouncycastle:bcprov-jdk18on", version.ref ="bouncy" }
 c3p0 =  { module = "com.mchange:c3p0", version.ref ="c3p0" }
 codehead-ff = { module = "com.codeheadsystems:feature-flag", version.ref = "codehead-ff" }
 codehead-ff-etcd = { module = "com.codeheadsystems:feature-flag-etcd", version.ref = "codehead-ff" }
+codehead-ff-metrics = { module = "com.codeheadsystems:feature-flag-metrics", version.ref = "codehead-ff" }
 codehead-test = { module = "com.codeheadsystems:codehead-test", version.ref = "codehead-test" }
 database-test = { module = "com.codeheadsystems:database-test", version.ref = "codehead-database-test" }
 codehead-metrics = { module = "com.codeheadsystems:metrics", version.ref = "codehead-metrics" }
