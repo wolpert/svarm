@@ -4,14 +4,14 @@
 [versions]
 assertj = "3.25.3"
 aws-dynamodblocal = "2.4.0"
-awsSDK1 = "1.12.723"
-awsSDK2 = "2.25.53"
+awsSDK1 = "1.12.724"
+awsSDK2 = "2.25.54"
 bouncy = '1.78.1'
 c3p0 = "0.10.1"
 codehead-test = "1.0.7"
 codehead-database-test = "1.0.5"
 codehead-metrics = "1.0.4"
-codehead-ff="1.0.4"
+codehead-ff="1.0.6"
 commons-io = "2.16.1"
 conscrypt = '2.5.2'
 dagger = "2.51.1"
