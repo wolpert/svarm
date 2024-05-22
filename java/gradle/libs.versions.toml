@@ -4,8 +4,8 @@
 [versions]
 assertj = "3.25.3"
 aws-dynamodblocal = "2.4.0"
-awsSDK1 = "1.12.726"
-awsSDK2 = "2.25.56"
+awsSDK1 = "1.12.727"
+awsSDK2 = "2.25.57"
 bouncy = '1.78.1'
 c3p0 = "0.10.1"
 codehead-test = "1.0.7"
@@ -25,7 +25,7 @@ jdbi = '3.45.1'
 jetcd = "0.8.0"
 junit-jupiter = "5.10.2"
 junit-platform = '1.10.2'
-liquibase = '4.27.0'
+liquibase = '4.28.0'
 logback = '1.4.14'
 log4j = '2.23.1'
 micrometer = '1.13.0'
