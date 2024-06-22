@@ -3,13 +3,13 @@
 
 [versions]
 assertj = "3.26.0"
-aws-dynamodblocal = "2.5.1"
-awsSDK1 = "1.12.745"
-awsSDK2 = "2.26.4"
+aws-dynamodblocal = "2.5.2"
+awsSDK1 = "1.12.748"
+awsSDK2 = "2.26.7"
 bouncy = '1.78.1'
 c3p0 = "0.10.1"
 codehead-test = "1.0.9"
-codehead-database-test = "1.0.6"
+codehead-database-test = "1.0.7"
 codehead-metrics = "1.0.4"
 codehead-ff="1.0.6"
 commons-io = "2.16.1"
@@ -32,7 +32,7 @@ micrometer = '1.13.1'
 metrics = '4.2.26'
 mokito = '5.12.0'
 okhttp = '4.12.0'
-openfeign = '13.2.1'
+openfeign = '13.3'
 pgjdbc = '42.7.3'
 resilience4j = '2.2.0'
 retrofit = '2.11.0'
