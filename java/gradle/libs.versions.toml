@@ -4,8 +4,8 @@
 [versions]
 assertj = "3.26.3"
 aws-dynamodblocal = "2.5.2"
-awsSDK1 = "1.12.761"
-awsSDK2 = "2.26.20"
+awsSDK1 = "1.12.762"
+awsSDK2 = "2.26.21"
 bouncy = '1.78.1'
 c3p0 = "0.10.1"
 codehead-test = "1.0.9"
@@ -37,7 +37,7 @@ pgjdbc = '42.7.3'
 resilience4j = '2.2.0'
 retrofit = '2.11.0'
 slf4j = '2.0.13'
-testcontainers = '1.19.8'
+testcontainers = '1.20.0'
 
 [libraries]
 assertj = { module = "org.assertj:assertj-core", version.ref = "assertj" }
