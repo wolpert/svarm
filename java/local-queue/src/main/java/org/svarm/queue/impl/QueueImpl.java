@@ -1,7 +1,7 @@
 package org.svarm.queue.impl;
 
 import com.codeheadsystems.metrics.Metrics;
-import io.micrometer.core.instrument.Tags;
+import com.codeheadsystems.metrics.Tags;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.Optional;
 import javax.inject.Inject;

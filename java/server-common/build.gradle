@@ -17,10 +17,6 @@ base {
     version = "${version}"
 }
 
-repositories {
-    mavenCentral()
-}
-
 //jacocoTestReport.finalizedBy jacocoTestCoverageVerification
 
 dependencies {

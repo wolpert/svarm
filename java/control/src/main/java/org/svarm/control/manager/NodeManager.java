@@ -91,17 +91,17 @@ public class NodeManager {
         LOGGER.error("create({}): Initial: Error creating node: {}", uuid, node, e);
         final Node existing = nodeDao.read(uuid);
         if (existing != null) {
-          metrics.counter("NodeManager.create.alreadyCreated").increment();
+          metrics.increment("NodeManager.create.alreadyCreated");
           LOGGER.error("create({}): Node actually already created, returning existing: {}", uuid, existing);
           return existing; // idempotent
         } else {
-          metrics.counter("NodeManager.create.error").increment();
+          metrics.increment("NodeManager.create.error");
           LOGGER.error("create({}): Error creating node: {}", uuid, node, e);
           throw e;
         }
       }
       LOGGER.debug("create({}): Node created: {}", uuid, node);
-      metrics.counter("NodeManager.create.created").increment();
+      metrics.increment("NodeManager.create.created");
       return node;
     });
   }

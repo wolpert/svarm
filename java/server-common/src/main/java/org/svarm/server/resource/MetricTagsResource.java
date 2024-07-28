@@ -16,7 +16,7 @@
 
 package org.svarm.server.resource;
 
-import com.codeheadsystems.metrics.Metrics;
+import com.codeheadsystems.metrics.MetricFactory;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ContainerRequestFilter;
 import jakarta.ws.rs.container.ContainerResponseContext;
@@ -36,17 +36,19 @@ import org.slf4j.LoggerFactory;
 public class MetricTagsResource implements ContainerRequestFilter, ContainerResponseFilter, JerseyResource {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(MetricTagsResource.class);
-  private final Metrics metrics;
+  private final MetricFactory metricFactory;
+
+  private final ThreadLocal<MetricFactory.MetricsContext> metricsContextThreadLocal = new ThreadLocal<>();
 
   /**
    * Default constructor.
    *
-   * @param metrics metrics object to set the tags.
+   * @param metricFactory metrics object to set the tags.
    */
   @Inject
-  public MetricTagsResource(final Metrics metrics) {
-    this.metrics = metrics;
-    LOGGER.info("MetricTagsResource({},{})", metrics);
+  public MetricTagsResource(final MetricFactory metricFactory) {
+    this.metricFactory = metricFactory;
+    LOGGER.info("MetricTagsResource({})", metricFactory);
   }
 
   private static String getHost() {
@@ -66,9 +68,15 @@ public class MetricTagsResource implements ContainerRequestFilter, ContainerResp
    */
   @Override
   public void filter(final ContainerRequestContext requestContext) throws IOException {
-    metrics.close();
+    final MetricFactory.MetricsContext oldContext = metricsContextThreadLocal.get();
+    if (oldContext != null) {
+      LOGGER.warn("Metrics context already set. This is a bug. {}", oldContext);
+      metricFactory.disableMetricsContext(oldContext);
+    }
+    final MetricFactory.MetricsContext context = metricFactory.enableMetricsContext();
+    metricsContextThreadLocal.set(context);
     //TODO: this is bad when tenant/table or whatnot appears in the path. Figure it out. :/
-    //metrics.and("path", requestContext.getUriInfo().getPath());
+    metricFactory.and("path", requestContext.getUriInfo().getPath());
   }
 
   /**
@@ -81,6 +89,12 @@ public class MetricTagsResource implements ContainerRequestFilter, ContainerResp
   @Override
   public void filter(final ContainerRequestContext requestContext,
                      final ContainerResponseContext responseContext) throws IOException {
-    metrics.close();
+    final MetricFactory.MetricsContext context = metricsContextThreadLocal.get();
+    if (context == null) {
+      LOGGER.warn("Metrics context not set. This is a bug.");
+    } else {
+      metricFactory.disableMetricsContext(context);
+      metricsContextThreadLocal.remove();
+    }
   }
 }

@@ -16,7 +16,7 @@
 
 package org.svarm.node.utils;
 
-import io.micrometer.core.instrument.Tags;
+import com.codeheadsystems.metrics.Tags;
 import org.svarm.node.model.TenantTable;
 import org.svarm.node.model.TenantTableIdentifier;
 

@@ -10,7 +10,7 @@ bouncy = '1.78.1'
 c3p0 = "0.10.1"
 codehead-test = "1.0.9"
 codehead-database-test = "1.0.7"
-codehead-metrics = "1.0.4"
+codehead-metrics = "2.0.3"
 codehead-ff="1.0.6"
 commons-io = "2.16.1"
 conscrypt = '2.5.2'
@@ -54,6 +54,7 @@ codehead-ff-metrics = { module = "com.codeheadsystems:feature-flag-metrics", ver
 codehead-test = { module = "com.codeheadsystems:codehead-test", version.ref = "codehead-test" }
 database-test = { module = "com.codeheadsystems:database-test", version.ref = "codehead-database-test" }
 codehead-metrics = { module = "com.codeheadsystems:metrics", version.ref = "codehead-metrics" }
+codehead-metrics-micrometer = { module = "com.codeheadsystems:metrics-micrometer", version.ref = "codehead-metrics" }
 codehead-metrics-test = { module = "com.codeheadsystems:metrics-test", version.ref = "codehead-metrics" }
 commons-io = { module = "commons-io:commons-io", version.ref = "commons-io" }
 conscrypt-openjdk-uber = { module = "org.conscrypt:conscrypt-openjdk-uber", version.ref = "conscrypt" }

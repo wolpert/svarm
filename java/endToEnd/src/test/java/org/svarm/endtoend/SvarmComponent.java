@@ -18,13 +18,15 @@ package org.svarm.endtoend;
 
 import static org.svarm.control.javaclient.module.ControlServiceModule.CONTROL_SERVICE_CONNECTION_URL;
 
+import com.codeheadsystems.metrics.MetricFactory;
+import com.codeheadsystems.metrics.Metrics;
+import com.codeheadsystems.metrics.Tags;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dagger.Component;
 import dagger.Module;
 import dagger.Provides;
 import io.etcd.jetcd.Client;
 import io.micrometer.core.instrument.MeterRegistry;
-import io.micrometer.core.instrument.Tags;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import java.util.function.Supplier;
 import javax.inject.Named;
@@ -114,6 +116,28 @@ public interface SvarmComponent {
     @Singleton
     MeterRegistry meterRegistry() {
       return new SimpleMeterRegistry();
+    }
+
+    /**
+     * Default metric factory.
+     *
+     * @return the value.
+     */
+    @Provides
+    @Singleton
+    public MetricFactory metricFactory() {
+      return MetricFactory.builder().build();
+    }
+
+    /**
+     * Default metric factory.
+     *
+     * @return the value.
+     */
+    @Provides
+    @Singleton
+    public Metrics metrics(MetricFactory metricFactory) {
+      return metricFactory;
     }
   }
 

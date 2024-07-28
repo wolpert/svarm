@@ -20,7 +20,13 @@ import static org.svarm.common.module.CommonModule.SERVER_OBJECT_MAPPER;
 
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.health.HealthCheck;
-import com.codeheadsystems.metrics.helper.DropwizardMetricsHelper;
+import com.codeheadsystems.metrics.MetricFactory;
+import com.codeheadsystems.metrics.Metrics;
+import com.codeheadsystems.metrics.Tags;
+import com.codeheadsystems.metrics.TagsGenerator;
+import com.codeheadsystems.metrics.helper.TagsGeneratorRegistry;
+import com.codeheadsystems.metrics.impl.MetricPublisher;
+import com.codeheadsystems.metrics.impl.MicrometerMetricsPublisher;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dagger.Binds;
 import dagger.Module;
@@ -30,9 +36,12 @@ import dagger.multibindings.Multibinds;
 import io.dropwizard.core.setup.Environment;
 import io.dropwizard.lifecycle.Managed;
 import io.micrometer.core.instrument.MeterRegistry;
-import io.micrometer.core.instrument.Tags;
+import io.micrometer.core.instrument.dropwizard.DropwizardConfig;
+import io.micrometer.core.instrument.dropwizard.DropwizardMeterRegistry;
+import io.micrometer.core.instrument.util.HierarchicalNameMapper;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.time.Clock;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
@@ -70,7 +79,6 @@ public class DropWizardModule {
   public static final String DEPLOYMENT_STAGE = "Deployment stage";
   private final TraceUuidEngine engine;
   private final MetricRegistry metricRegistry;
-  private final MeterRegistry meterRegistry;
   private final Environment environment;
   private final ServerConfiguration configuration;
   private final String applicationName;
@@ -87,7 +95,6 @@ public class DropWizardModule {
                           final ServerConfiguration configuration) {
     this.engine = engine;
     this.metricRegistry = environment.metrics();
-    this.meterRegistry = new DropwizardMetricsHelper().instrument(metricRegistry);
     this.environment = environment;
     this.configuration = configuration;
     this.applicationName = environment.getName();
@@ -196,25 +203,102 @@ public class DropWizardModule {
   }
 
   /**
-   * The instrumented meter registry.
+   * Metric publisher metric publisher.
    *
-   * @return registry. meter registry
+   * @param meterRegistry the metric registry
+   * @return the metric publisher
    */
   @Provides
   @Singleton
-  public MeterRegistry meterRegistry() {
-    return meterRegistry;
+  public MetricPublisher metricPublisher(final MeterRegistry meterRegistry) {
+    return new MicrometerMetricsPublisher(meterRegistry);
+  }
+
+  /**
+   * Meter registry meter registry.
+   *
+   * @param metricRegistry the metric registry
+   * @return the meter registry
+   */
+  @Provides
+  @Singleton
+  public MeterRegistry meterRegistry(final MetricRegistry metricRegistry) {
+    final DropwizardConfig config = new DropwizardConfig() {
+      @Override
+      public String prefix() {
+        return "svarm";
+      }
+
+      @Override
+      public String get(final String key) {
+        return null;
+      }
+    };
+    return new DropwizardMeterRegistry(config, metricRegistry, HierarchicalNameMapper.DEFAULT, io.micrometer.core.instrument.Clock.SYSTEM) {
+      @Override
+      protected Double nullGaugeValue() {
+        return null;
+      }
+    };
+  }
+
+  /**
+   * Tags generator registry tags generator registry.
+   *
+   * @return the tags generator registry
+   */
+  @Provides
+  @Singleton
+  public TagsGeneratorRegistry tagsGeneratorRegistry() {
+    return new TagsGeneratorRegistry();
+  }
+
+  /**
+   * Metric factory metric factory.
+   *
+   * @param metricPublisher       the metric publisher
+   * @param defaultTags           the default tags
+   * @param clock                 the clock
+   * @param tagsGeneratorRegistry the tags generator registry
+   * @return the metric factory
+   */
+  @Provides
+  @Singleton
+  public MetricFactory metricFactory(final MetricPublisher metricPublisher,
+                                     final Tags defaultTags,
+                                     final Clock clock,
+                                     final TagsGeneratorRegistry tagsGeneratorRegistry) {
+    return MetricFactory.builder()
+        .withMetricPublisher(metricPublisher)
+        .withTags(defaultTags)
+        .withClock(clock)
+        .withCloseAndOpenOnlyForInitial(false)
+        .withDefaultTagsGeneratorForThrowable(new TagsGenerator<Throwable>() {
+          @Override
+          public Tags from(final Throwable throwable) {
+            return Tags.of("exception", throwable.getClass().getSimpleName());
+          }
+        })
+        .withTagsGeneratorRegistry(tagsGeneratorRegistry)
+        .build();
   }
 
   /**
    * The instrumented meter registry.
    *
+   * @param deployment      the deployment
+   * @param applicationName the application name
    * @return registry. tags
    */
   @Provides
   @Singleton
-  public Tags defaultTags() {
-    return Tags.of("host", getHost(), "application", applicationName);
+  public Tags defaultTags(final @Named(DEPLOYMENT_STAGE) String deployment,
+                          final @Named(DROPWIZARD_APPLICATION_NAME) String applicationName
+  ) {
+    return Tags.of(
+        "host", getHost(),
+        "application", applicationName,
+        "stage", deployment);
   }
 
   /**
@@ -319,6 +403,15 @@ public class DropWizardModule {
     @Binds
     @IntoSet
     JerseyResource metricTagsResource(MetricTagsResource resource);
+
+    /**
+     * Metrics metrics.
+     *
+     * @param metricFactory metric factory
+     * @return Metrics. metrics
+     */
+    @Binds
+    Metrics metrics(MetricFactory metricFactory);
 
   }
 }

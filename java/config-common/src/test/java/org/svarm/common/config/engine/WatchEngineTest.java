@@ -67,7 +67,7 @@ class WatchEngineTest extends BaseMetricTest {
   @BeforeEach
   void setupEngine() {
     when(accessor.watch(eq(NAMESPACE), eq(KEY), listenerArgumentCaptor.capture())).thenReturn(watcher);
-    watchEngine = new WatchEngine(accessor, metrics, executorService, NAMESPACE, KEY, eventConsumer);
+    watchEngine = new WatchEngine(accessor, metricsFactory, executorService, NAMESPACE, KEY, eventConsumer);
   }
 
   @AfterEach

@@ -3,8 +3,8 @@ package org.svarm.queue.impl;
 import static org.svarm.queue.module.QueueModule.QUEUE_PROCESSOR_EXECUTOR;
 
 import com.codeheadsystems.metrics.Metrics;
+import com.codeheadsystems.metrics.Tags;
 import io.dropwizard.lifecycle.Managed;
-import io.micrometer.core.instrument.Tags;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
@@ -40,7 +40,8 @@ public class MessageConsumerExecutor implements Managed {
   @Inject
   public MessageConsumerExecutor(@Named(QUEUE_PROCESSOR_EXECUTOR) final ExecutorService executorService,
                                  final MessageDao messageDao,
-                                 final QueueRegister queueRegister, final Metrics metrics) {
+                                 final QueueRegister queueRegister,
+                                 final Metrics metrics) {
     this.executorService = executorService;
     this.messageDao = messageDao;
     this.queueRegister = queueRegister;

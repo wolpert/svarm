@@ -17,6 +17,7 @@
 package org.svarm.common.config.engine;
 
 
+import com.codeheadsystems.metrics.MetricFactory;
 import com.codeheadsystems.metrics.Metrics;
 import com.codeheadsystems.metrics.test.BaseMetricTest;
 import dagger.Component;
@@ -151,6 +152,12 @@ class NodeConfigurationEngineTest extends BaseMetricTest {
 
   @Module
   class TestModule {
+
+    @Provides
+    @Singleton
+    MetricFactory metricsFactory() {
+      return metricsFactory;
+    }
 
     @Provides
     @Singleton

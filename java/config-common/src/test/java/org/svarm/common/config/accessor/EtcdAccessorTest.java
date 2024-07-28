@@ -92,7 +92,7 @@ class EtcdAccessorTest extends BaseMetricTest {
 
   @BeforeEach
   void setUp() {
-    accessor = new EtcdAccessorImpl(client, PREAMBLE, metrics);
+    accessor = new EtcdAccessorImpl(client, PREAMBLE, metricsFactory);
   }
 
   @Test

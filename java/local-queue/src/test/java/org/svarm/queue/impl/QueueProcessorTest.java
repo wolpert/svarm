@@ -38,7 +38,7 @@ class QueueProcessorTest extends BaseMetricTest {
 
   @BeforeEach
   void setup() {
-    processor = new QueueProcessor(messageDao, new QueueConfigurationFactory(Optional.of(queueConfiguration)), messageConsumerExecutor, scheduledExecutorService, metrics);
+    processor = new QueueProcessor(messageDao, new QueueConfigurationFactory(Optional.of(queueConfiguration)), messageConsumerExecutor, scheduledExecutorService, metricsFactory);
   }
 
   @SuppressWarnings("unchecked")

@@ -1,5 +1,8 @@
 package org.svarm.queue;
 
+import com.codeheadsystems.metrics.MetricFactory;
+import com.codeheadsystems.metrics.Metrics;
+import com.codeheadsystems.metrics.Tags;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 import dagger.Component;
 import dagger.Module;
@@ -8,7 +11,6 @@ import dagger.multibindings.IntoMap;
 import dagger.multibindings.StringKey;
 import io.dropwizard.lifecycle.Managed;
 import io.micrometer.core.instrument.MeterRegistry;
-import io.micrometer.core.instrument.Tags;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import java.time.Clock;
 import java.util.Optional;
@@ -137,6 +139,18 @@ public class QueueIntegTest {
     @Singleton
     MeterRegistry meterRegistry() {
       return new SimpleMeterRegistry();
+    }
+
+    /**
+     * The metric factory.
+     *
+     * @return the factory.
+     */
+    @Provides
+    @Singleton
+    Metrics metricFactory() {
+      return MetricFactory.builder()
+          .build();
     }
 
     /**

@@ -19,6 +19,7 @@ package org.svarm.common.config.accessor;
 import static org.svarm.common.config.module.EtcdModule.INTERNAL_ETCD_ACCESSOR_PREAMBLE;
 
 import com.codeheadsystems.metrics.Metrics;
+import com.codeheadsystems.metrics.Tags;
 import io.etcd.jetcd.ByteSequence;
 import io.etcd.jetcd.Client;
 import io.etcd.jetcd.KV;
@@ -30,7 +31,6 @@ import io.etcd.jetcd.op.Op;
 import io.etcd.jetcd.options.GetOption;
 import io.etcd.jetcd.options.PutOption;
 import io.etcd.jetcd.options.WatchOption;
-import io.micrometer.core.instrument.Tags;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Optional;
@@ -203,7 +203,7 @@ public class EtcdAccessorImpl implements EtcdAccessor {
         throw new IllegalArgumentException(e);
       } catch (TimeoutException e) {
         LOGGER.info("Not found in etcd {}", namespaceKey);
-        metrics.counter("etcd.get.timeout", customTags).increment();
+        metrics.increment("etcd.get.timeout", customTags);
         return Optional.empty();
       }
     });
@@ -237,7 +237,7 @@ public class EtcdAccessorImpl implements EtcdAccessor {
         LOGGER.error("Unable to get from etcd {}", namespaceKey, e);
         throw new IllegalArgumentException(e);
       } catch (TimeoutException e) {
-        metrics.counter("etcd.getAll.timeout", customTags).increment();
+        metrics.increment("etcd.getAll.timeout", customTags);
         return Map.of();
       }
     });

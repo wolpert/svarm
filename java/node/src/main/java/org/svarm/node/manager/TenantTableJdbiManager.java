@@ -112,7 +112,7 @@ public class TenantTableJdbiManager {
    */
   public Jdbi getJdbi(final TenantTable tenantTable) {
     LOGGER.trace("getDataSource({})", tenantTable);
-    metrics.counter("TenantTableJdbiManager.getJdbi", TagHelper.from(tenantTable)).increment();
+    metrics.increment("TenantTableJdbiManager.getJdbi", TagHelper.from(tenantTable));
     return jdbiLoadingCache.getUnchecked(tenantTable).jdbi();
   }
 
@@ -124,7 +124,7 @@ public class TenantTableJdbiManager {
    */
   public V1RowDao getV1RowDao(final TenantTable tenantTable) {
     LOGGER.trace("getV1RowDao({})", tenantTable);
-    metrics.counter("TenantTableJdbiManager.getV1RowDao", TagHelper.from(tenantTable)).increment();
+    metrics.increment("TenantTableJdbiManager.getV1RowDao", TagHelper.from(tenantTable));
     return jdbiLoadingCache.getUnchecked(tenantTable).v1RowDao();
   }
 
@@ -135,13 +135,13 @@ public class TenantTableJdbiManager {
    */
   public void evictTenant(final TenantTable tenantTable) {
     LOGGER.trace("evictTenant({})", tenantTable);
-    metrics.counter("TenantTableJdbiManager.evictTenant", TagHelper.from(tenantTable)).increment();
+    metrics.increment("TenantTableJdbiManager.evictTenant", TagHelper.from(tenantTable));
     jdbiLoadingCache.invalidate(tenantTable);
   }
 
   private void onRemoval(RemovalNotification<TenantTable, CacheHolder> notification) {
     LOGGER.debug("onRemoval({},{})", notification.getKey(), notification.getCause());
-    metrics.counter("TenantTableJdbiManager.onRemoval", TagHelper.from(notification.getKey())).increment();
+    metrics.increment("TenantTableJdbiManager.onRemoval", TagHelper.from(notification.getKey()));
     notification.getValue().jdbi().withHandle(handle -> handle.execute("shutdown;"));
   }
 
@@ -184,7 +184,7 @@ public class TenantTableJdbiManager {
    */
   public void deleteEverything(final TenantTable tenantTable) {
     LOGGER.info("deleteEverything({})", tenantTable.identifier());
-    metrics.counter("TenantTableJdbiManager.deleteEverything", TagHelper.from(tenantTable)).increment();
+    metrics.increment("TenantTableJdbiManager.deleteEverything", TagHelper.from(tenantTable));
     evictTenant(tenantTable);
     databaseEngine.deleteTenantDataStoreLocation(tenantTable);
   }

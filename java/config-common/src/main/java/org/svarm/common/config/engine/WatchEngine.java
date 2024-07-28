@@ -122,8 +122,8 @@ public class WatchEngine {
     LOGGER.trace("{}:watchResponse({})", tag, watchResponse);
     metrics.time("WatchEngine.watchResponse", () -> {
       watchResponse.getEvents().forEach(e -> {
-        metrics.registry().counter("WatchEngine.watchResponse.event",
-            "tag", tag, "type", e.getEventType().name()).increment();
+        metrics.increment("WatchEngine.watchResponse.event",
+            "tag", tag, "type", e.getEventType().name());
         final Optional<Event.Type> eventType = getEventType(e);
         eventType.ifPresentOrElse(type -> {
           LOGGER.info("Scheduling event: {}", e);
@@ -160,7 +160,7 @@ public class WatchEngine {
   @VisibleForTesting
   void error(final Throwable throwable) {
     LOGGER.error("{}:error({})", tag, throwable.getMessage(), throwable);
-    metrics.registry().counter("WatchEngine.error", "tag", tag).increment();
+    metrics.increment("WatchEngine.error", "tag", tag);
   }
 
 
@@ -170,7 +170,7 @@ public class WatchEngine {
   @VisibleForTesting
   void complete() {
     LOGGER.info("{}: Shutdown complete", tag);
-    metrics.registry().counter("WatchEngine.complete", "tag", tag).increment();
+    metrics.increment("WatchEngine.complete", "tag", tag);
   }
 
 }

@@ -42,7 +42,7 @@ class QueueImplTest extends BaseMetricTest {
 
   @BeforeEach
   public void setup() {
-    queue = new QueueImpl(messageDao, messageFactory, new QueueConfigurationFactory(Optional.of(queueConfiguration)), metrics);
+    queue = new QueueImpl(messageDao, messageFactory, new QueueConfigurationFactory(Optional.of(queueConfiguration)), metricsFactory);
   }
 
   @Test

@@ -42,7 +42,7 @@ class EtcdAccessorIntegTest extends BaseMetricTest {
   @BeforeEach
   void setupClient() {
     client = Client.builder().endpoints(cluster.clientEndpoints()).build();
-    accessor = new EtcdAccessorImpl(client, "test", metrics);
+    accessor = new EtcdAccessorImpl(client, "test", metricsFactory);
   }
 
   @AfterEach

@@ -52,6 +52,7 @@ allprojects {
     }
     dependencies {
         implementation(libs.codehead.metrics)
+        implementation(libs.codehead.metrics.micrometer)
 
         implementation libs.slf4j.api
         implementation libs.bcprov
