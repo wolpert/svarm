@@ -39,18 +39,18 @@ the work in progress note will be removed.
 ## Press Release
 
 October 25, 2025. Scottsdale, Arizona: CodeHead Systems is proud to present a
-new open-source NoSQL key/value data store the scales linearly and with little
+new open-source NoSQL key/value datastore that scales linearly, with little
 to no maintenance. This multi-tenant datastore can quickly consume workloads in
-the thousands of TPS, support data models with single or multiple partitioning
-keys, and available indexing on high-cardinality fields. Companies and research
+the tens of thousands of TPS, support data models with single or multiple partitioning
+keys, and provides indexing on high-cardinality fields. Companies and research
 teams can simply provide the hardware, kubernetes instances or docker swarm and
-start using today on or off prem.
+start using today either on or off prem.
 
 "Our small lab was able to install svarm within a day and get up and running"
 says Professor Utonium at PPG Chem LLC. "Real-time data acquisition of our ionic
-capture array operating at 60khz from our instruments is now possible...
-resulting in a transfer data transfer rate of well over 25 Gbs. Good thing our
-fibre optic array with quantum gates is working on our single 42U rack!"
+capture array operating at 60Ghz is now possible...
+resulting in a data transfer rate of well over 25 GB/s. Good thing our
+fibre optic array with quantum gates is working on our 12 42U racks!"
 
 Download your copy of Apache 2.0 licensed svarm today!
 
@@ -58,11 +58,11 @@ Download your copy of Apache 2.0 licensed svarm today!
 
 ### Is it done?
 
-No, not yet. But if you want to help, please do!
+Lol, no, not yet. But if you want to help, please do!
 
 ### Is svarm really about a NoSQL data store?
 
-No. Svarm is intended to provide a generic control plane for any hyper-scaled
+Yes and no. Svarm was intended to provide a generic control plane for any hyper-scaled
 system. I'm proving it out with a key-value data store. But I do like
 DynamoDB so why not redo it?
 
