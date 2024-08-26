@@ -34,10 +34,5 @@ dependencies {
 
     implementation libs.retrofit
     implementation libs.retrofit2.converter.jackson
-
-    // Logging stuff... need all these for logback changes
-    implementation libs.logback.classic
-    implementation libs.logback.core
-    implementation libs.logback.access
-
+    implementation libs.bundles.logback
 }

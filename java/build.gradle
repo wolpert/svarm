@@ -21,18 +21,13 @@ allprojects {
     group 'org.svarm'
     version '1.0.0-SNAPSHOT'
 
-    apply plugin: "java-library"
+    apply plugin: "buildlogic.java-library-conventions"
+
     apply plugin: "idea"
     apply plugin: 'jacoco'
     apply plugin: 'signing'
     apply plugin: 'maven-publish'
     apply plugin: 'checkstyle'
-    java {
-        sourceCompatibility = JavaVersion.VERSION_21
-        targetCompatibility = JavaVersion.VERSION_21
-        withJavadocJar()
-        withSourcesJar()
-    }
     checkstyleTest { // ignore checkstyle in tests
         ignoreFailures true
         showViolations false
@@ -85,19 +80,6 @@ allprojects {
         testImplementation libs.junit.platform.launcher
     }
 
-    javadoc {
-        if (JavaVersion.current().isJava9Compatible()) {
-            options.addBooleanOption('html5', true)
-        }
-    }
-
-    test {
-        useJUnitPlatform {
-            if (!project.hasProperty('integ')) {
-                excludeTags 'integ'
-            }
-        }
-    }
 }
 
 task dockerLogs(type: Exec) {

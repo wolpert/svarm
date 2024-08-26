@@ -43,9 +43,7 @@ dependencies {
     implementation libs.metrics.jdbi
 
     // Logging stuff... need all these for logback changes
-    implementation libs.logback.classic
-    implementation libs.logback.core
-    implementation libs.logback.access
+    implementation libs.bundles.logback
 
     testImplementation project(":control-javaClient")
     testImplementation libs.jdbi.testing

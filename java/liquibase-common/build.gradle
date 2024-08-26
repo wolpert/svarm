@@ -26,10 +26,7 @@ testing {
     dependencies {
         implementation libs.hsqldb
         implementation libs.c3p0
+        implementation libs.bundles.logback
 
-        // Logging stuff... need all thos for logback changes
-        implementation libs.logback.classic
-        implementation libs.logback.core
-        implementation libs.logback.access
     }
 }

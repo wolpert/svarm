@@ -70,10 +70,7 @@ dependencies {
     testAnnotationProcessor libs.dagger.compiler
     testImplementation libs.pgjdbc
 
-    // Logging stuff... need all these for logback changes
-    implementation libs.logback.classic
-    implementation libs.logback.core
-    implementation libs.logback.access
+    implementation libs.bundles.logback
 }
 
 if (project.hasProperty("e2e")) {

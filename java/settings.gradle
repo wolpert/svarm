@@ -3,20 +3,6 @@
  * Ned Wolpert <ned.wolpert@codeheadsystems.com>
  */
 
-// Setting global dependency management.
-dependencyResolutionManagement {
-    // All build.gradle files will use the repositories listed here.
-    repositories {
-        mavenLocal()
-        mavenCentral()
-        gradlePluginPortal()  // was jcenter() which is dying
-        google()
-        maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
-        maven { url "https://oss.sonatype.org/content/repositories/releases/" }
-        maven { url "https://s3-us-west-2.amazonaws.com/dynamodb-local/release/" }
-    }
-    // Added in the codehead dependencies list.
-}
 
 // All subprojects we want to build.
 include ':the-ring', ':local-queue', ':liquibase-common',

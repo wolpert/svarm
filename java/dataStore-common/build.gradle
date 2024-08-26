@@ -24,10 +24,7 @@ dependencies {
     annotationProcessor libs.dagger.compiler
     compileOnly libs.immutables.value
     annotationProcessor libs.immutables.value
+    implementation libs.bundles.logback
 
-    // Logging stuff... need all thos for logback changes
-    testImplementation libs.logback.classic
-    testImplementation libs.logback.core
-    testImplementation libs.logback.access
 }
 
