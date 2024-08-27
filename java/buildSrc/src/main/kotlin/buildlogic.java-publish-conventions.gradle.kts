@@ -9,9 +9,9 @@ publishing {
         create<MavenPublication>("mavenJava") {
             from(components["java"])
             pom {
-                name = "State Machine Redux"
-                description = "Core Feature Flag library"
-                url = "https://github.com/wolpert/state-machine-redux"
+                name = "Svarm"
+                description = "SVARM: Hyper-scale for your home."
+                url = "https://github.com/wolpert/svarm"
                 licenses {
                     license {
                         name = "The Apache License, Version 2.0"
@@ -26,9 +26,9 @@ publishing {
                     }
                 }
                 scm {
-                    connection = "scm:git:git://github.com/wolpert/state-machine-redux.git"
-                    developerConnection = "scm:git:ssh://github.com/wolpert/state-machine-redux.git"
-                    url = "https://github.com/wolpert/state-machine-redux/"
+                    connection = "scm:git:git://github.com/wolpert/svarm.git"
+                    developerConnection = "scm:git:ssh://github.com/wolpert/svarm.git"
+                    url = "https://github.com/wolpert/svarm/"
                 }
             }
 

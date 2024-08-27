@@ -20,7 +20,12 @@ repositories {
 }
 
 dependencies {
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testImplementation("org.junit.platform:junit-platform-launcher") // used to be runtimeOnly
+    // Logging
+    implementation("org.slf4j:slf4j-api:2.0.16")
+    testImplementation("ch.qos.logback:logback-access:1.4.14")
+    testImplementation("ch.qos.logback:logback-classic:1.4.14")
+    testImplementation("ch.qos.logback:logback-core:1.4.14")
 }
 
 java {
@@ -32,14 +37,7 @@ java {
 }
 
 tasks.named<Test>("test") {
-    // Use JUnit Platform for unit tests.
-
     useJUnitPlatform()
-//    {
-//        if (!project.hasProperty("integ")) {
-//            excludeTags("integ")
-//        }
-//    }
 }
 
 tasks.javadoc {

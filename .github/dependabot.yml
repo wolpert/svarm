@@ -6,6 +6,20 @@
 version: 2
 updates:
   - package-ecosystem: "gradle" # See documentation for possible values
+    directory: "java/buildSrc" # Location of package manifests
+    schedule:
+      interval: "weekly"
+      day: "saturday"
+    groups:
+      # Specify a name for the group, which will be used in pull request titles
+      # and branch names
+      dev-dependencies:
+        # Define patterns to include dependencies in the group (based on
+        # dependency name)
+        applies-to: version-updates # Applies the group rule to version updates
+        patterns:
+          - "*"       # Yolo!
+  - package-ecosystem: "gradle" # See documentation for possible values
     directory: "java/" # Location of package manifests
     schedule:
       interval: "weekly"

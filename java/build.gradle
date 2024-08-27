@@ -49,7 +49,6 @@ allprojects {
         implementation(libs.codehead.metrics)
         implementation(libs.codehead.metrics.micrometer)
 
-        implementation libs.slf4j.api
         implementation libs.bcprov
         implementation libs.guava
 
@@ -74,10 +73,6 @@ allprojects {
         testAnnotationProcessor libs.immutables.value
         testAnnotationProcessor libs.dagger.compiler
 
-        // Logging in tests
-        testImplementation libs.bundles.logback
-
-        testImplementation libs.junit.platform.launcher
     }
 
 }
