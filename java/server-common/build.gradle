@@ -42,7 +42,6 @@ dependencies {
 
     testImplementation libs.jackson.dataformat.yaml
 
-    implementation libs.bundles.logback
     // from the BOM of dropwizard...
     api 'org.eclipse.jetty:jetty-alpn-conscrypt-server'
 }

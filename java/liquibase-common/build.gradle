@@ -26,7 +26,5 @@ testing {
     dependencies {
         implementation libs.hsqldb
         implementation libs.c3p0
-        implementation libs.bundles.logback
-
     }
 }

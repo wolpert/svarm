@@ -23,7 +23,6 @@ dependencies {
     annotationProcessor libs.dagger.compiler
     compileOnly libs.immutables.value
     annotationProcessor libs.immutables.value
-    implementation libs.bundles.logback
 
 }
 

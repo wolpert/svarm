@@ -70,7 +70,6 @@ dependencies {
     testAnnotationProcessor libs.dagger.compiler
     testImplementation libs.pgjdbc
 
-    implementation libs.bundles.logback
 }
 
 if (project.hasProperty("e2e")) {

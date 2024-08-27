@@ -19,6 +19,5 @@ base {
 //jacocoTestReport.finalizedBy jacocoTestCoverageVerification
 
 dependencies {
-    implementation libs.bundles.logback
 }
 

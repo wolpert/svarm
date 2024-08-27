@@ -26,7 +26,6 @@ dependencies {
     implementation libs.jdbi.core
     implementation libs.jdbi.testing
     implementation libs.jdbi.sqlobject
-    implementation libs.bundles.logback
 
 }
 testing {
