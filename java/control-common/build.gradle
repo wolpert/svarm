@@ -25,7 +25,6 @@ dependencies {
     implementation libs.dropwizard4.auth
     implementation libs.dropwizard4.core
     implementation libs.dropwizard4.jackson
-    implementation libs.bundles.logback
 
 }
 

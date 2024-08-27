@@ -61,7 +61,6 @@ dependencies {
     testImplementation libs.openfeign.java11
     testImplementation libs.openfeign.jaxrs3
 
-    implementation libs.bundles.logback
 }
 
 application {

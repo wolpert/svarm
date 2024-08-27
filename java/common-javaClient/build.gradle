@@ -63,6 +63,5 @@ dependencies {
 
     testImplementation libs.jackson.dataformat.yaml
     testAnnotationProcessor libs.dagger.compiler
-    implementation libs.bundles.logback
 
 }

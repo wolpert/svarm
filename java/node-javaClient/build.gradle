@@ -34,5 +34,4 @@ dependencies {
 
     implementation libs.retrofit
     implementation libs.retrofit2.converter.jackson
-    implementation libs.bundles.logback
 }

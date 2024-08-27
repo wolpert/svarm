@@ -5,7 +5,7 @@
 assertj = "3.26.3"
 aws-dynamodblocal = "2.5.2"
 awsSDK1 = "1.12.770"
-awsSDK2 = "2.27.12"
+awsSDK2 = "2.27.13"
 bouncy = '1.78.1'
 c3p0 = "0.10.1"
 codehead-test = "1.0.9"
@@ -15,7 +15,7 @@ codehead-ff="1.0.6"
 commons-io = "2.16.1"
 conscrypt = '2.5.2'
 dagger = "2.52"
-dropwizard4 = "4.0.7"
+dropwizard4 = "4.0.8"
 guava = "33.3.0-jre"
 hsqldb = '2.7.3'
 httpclient = '4.5.14'
@@ -26,7 +26,6 @@ jetcd = "0.8.3"
 junit-jupiter = "5.11.0"
 junit-platform = '1.11.0'
 liquibase = '4.29.1'
-logback = '1.4.14'
 logback-access = '2.0.3'
 log4j = '2.23.1'
 micrometer = '1.13.3'
@@ -37,7 +36,6 @@ openfeign = '13.3'
 pgjdbc = '42.7.4'
 resilience4j = '2.2.0'
 retrofit = '2.11.0'
-slf4j = '2.0.16'
 testcontainers = '1.20.1'
 
 [libraries]
@@ -103,9 +101,6 @@ junit-platform-suite-engine = { module = "org.junit.platform:junit-platform-suit
 liquibase-core = { module = "org.liquibase:liquibase-core", version.ref = "liquibase" }
 log4j-api = { module = "org.apache.logging.log4j:log4j-api", version.ref = "log4j" }
 log4j-core = { module = "org.apache.logging.log4j:log4j-core", version.ref = "log4j" }
-logback-access = { module = "ch.qos.logback:logback-access", version.ref = "logback" }
-logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
-logback-core = { module = "ch.qos.logback:logback-core", version.ref = "logback" }
 metrics-core = { module = "io.dropwizard.metrics:metrics-core", version.ref = "metrics" }
 metrics-jdbi = { module = "io.dropwizard.metrics:metrics-jdbi3", version.ref = "metrics" }
 metrics-jersey2 = { module = "io.dropwizard.metrics:metrics-jersey3", version.ref = "metrics" }
@@ -134,12 +129,10 @@ resilience4j-feign = { module = "io.github.resilience4j:resilience4j-feign", ver
 resilience4j-retrofit = { module = "io.github.resilience4j:resilience4j-retrofit", version.ref = "resilience4j" }
 resilience4j-ratelimiter = { module = "io.github.resilience4j:resilience4j-ratelimiter", version.ref = "resilience4j" }
 resilience4j-circuitbreaker = { module = "io.github.resilience4j:resilience4j-circuitbreaker", version.ref = "resilience4j" }
-slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
 testcontainers = { module = "org.testcontainers:testcontainers", version.ref = "testcontainers" }
 testcontainers-postgresql = { module = "org.testcontainers:postgresql", version.ref = "testcontainers" }
 
 [bundles]
 jackson = ["jackson-core", "jackson-databind", "jackson-annotations", "jackson-datatype-jdk8"]
-logback = ["logback-classic", "logback-core", "logback-access"]
 log4j = ["log4j-api", "log4j-core"]
 testing = ["mockito-core", "mockito-junit-jupiter", "assertj", "junit-jupiter", "junit-jupiter-api", "junit-jupiter-engine", "junit-jupiter-params", "codehead-test"]

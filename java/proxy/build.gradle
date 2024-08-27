@@ -44,7 +44,6 @@ dependencies {
     testImplementation libs.jetcd.test
 
     testImplementation libs.jackson.dataformat.yaml
-    implementation libs.bundles.logback
 }
 
 application {
