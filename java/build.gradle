@@ -5,46 +5,12 @@
 
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
-buildscript {
-    repositories {
-        mavenLocal()
-        mavenCentral()
-        maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
-        maven { url "https://plugins.gradle.org/m2/" }
-        maven { url "https://maven.google.com" } // Google's Maven repository
-        gradlePluginPortal() // was jcenter() which is dying
-        google()
-    }
-}
-
 allprojects {
     group 'org.svarm'
     version '1.0.0-SNAPSHOT'
 
     apply plugin: "buildlogic.java-library-conventions"
 
-    apply plugin: "idea"
-    apply plugin: 'jacoco'
-    apply plugin: 'signing'
-    apply plugin: 'maven-publish'
-    apply plugin: 'checkstyle'
-    checkstyleTest { // ignore checkstyle in tests
-        ignoreFailures true
-        showViolations false
-        enabled = false
-    }
-    checkstyle {
-        ignoreFailures = false
-        maxWarnings = 0
-    }
-    // Ensure we have lint warnings displayed so we can fix or  @SuppressWarnings("unchecked")
-    tasks.withType(JavaCompile) {
-        options.compilerArgs << "-Xlint:unchecked"
-    }
-    test {
-        useJUnitPlatform() // needed for junit5
-        finalizedBy jacocoTestReport
-    }
     dependencies {
         implementation(libs.codehead.metrics)
         implementation(libs.codehead.metrics.micrometer)
