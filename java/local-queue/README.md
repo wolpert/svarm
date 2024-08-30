@@ -27,7 +27,8 @@ distributed fashion.
       an error and deletes the request.
 5. When the executor pool queues the message and when its active, changes the
    state tp processing.
-6. When the executor completes the message, it deletes the request.
+6. When the executor completes the message, it deletes the request. There is no 
+   deleting state.
 
 ## On start up
 

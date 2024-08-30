@@ -44,7 +44,6 @@ public class MessageFactory {
                                final String payload) {
     LOGGER.trace("createMessage({},{})", messageType, payload);
     return ImmutableMessage.builder()
-        .uuid(java.util.UUID.randomUUID().toString())
         .timestamp(clock.instant().toEpochMilli())
         .messageType(messageType)
         .payload(payload)

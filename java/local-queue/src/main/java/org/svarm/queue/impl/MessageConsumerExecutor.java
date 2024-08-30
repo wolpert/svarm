@@ -72,12 +72,13 @@ public class MessageConsumerExecutor implements Managed {
   private void execute(final Message message, final MessageConsumer consumer) {
     LOGGER.trace("execute({},{})", message, consumer);
     try {
-      metrics.time("MessageConsumerExecutor.enqueue", Tags.of("messageType", message.messageType()), () -> {
+      metrics.time("MessageConsumerExecutor.execute", Tags.of("messageType", message.messageType()), () -> {
         messageDao.updateState(message, State.PROCESSING);
         consumer.accept(message);
         return null;
       });
     } catch (final Throwable t) {
+      // TODO: There is no dead letter queue... yet
       LOGGER.error("Error processing message: {}", message, t); // do not die
     } finally {
       messageDao.delete(message);

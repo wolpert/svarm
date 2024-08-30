@@ -44,12 +44,12 @@ class MessageDaoTest {
     when(clock.instant()).thenReturn(EPOCH);
     final Message message = messageFactory.createMessage("type", "payload");
     messageDao.store(message, State.ACTIVATING);
-    final Optional<Message> result = messageDao.readByUuid(message.uuid());
+    final Optional<Message> result = messageDao.readByHash(message.hash());
     assertThat(result)
         .isNotEmpty()
         .contains(message);
     messageDao.delete(message);
-    assertThat(messageDao.readByUuid(message.uuid()))
+    assertThat(messageDao.readByHash(message.hash()))
         .isEmpty();
   }
 

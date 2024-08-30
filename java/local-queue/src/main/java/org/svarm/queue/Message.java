@@ -9,11 +9,11 @@ import org.immutables.value.Value;
 public interface Message {
 
   /**
-   * Uuid uuid.
+   * Hash string for deduping.
    *
-   * @return the uuid
+   * @return the string
    */
-  String uuid();
+  String hash();
 
   /**
    * Created instant.
@@ -35,12 +35,5 @@ public interface Message {
    * @return the string
    */
   String payload();
-
-  /**
-   * Hash string for deduping.
-   *
-   * @return the string
-   */
-  String hash();
 
 }

@@ -20,19 +20,10 @@ public interface MessageDao {
    * @param message the message
    * @param state   the state
    */
-  @SqlUpdate("insert into QUEUE (UUID, TIMESTAMP, MESSAGE_TYPE, PAYLOAD, HASH, STATE) "
+  @SqlUpdate("insert into QUEUE (HASH, TIMESTAMP, MESSAGE_TYPE, PAYLOAD, STATE) "
       + "values "
-      + "(:uuid, :timestamp, :messageType, :payload, :hash, :state)")
+      + "(:hash, :timestamp, :messageType, :payload, :state)")
   void store(@BindPojo final Message message, @Bind("state") final State state);
-
-  /**
-   * Read by uuid optional.
-   *
-   * @param uuid the uuid
-   * @return the optional
-   */
-  @SqlQuery("select * from QUEUE where UUID = :uuid")
-  Optional<Message> readByUuid(@Bind("uuid") final String uuid);
 
   /**
    * Read by hash optional.
@@ -49,7 +40,7 @@ public interface MessageDao {
    * @param message the message
    * @return the optional
    */
-  @SqlQuery("select STATE from QUEUE where UUID = :uuid")
+  @SqlQuery("select STATE from QUEUE where HASH = :hash")
   Optional<State> stateOf(@BindPojo final Message message);
 
   /**
@@ -68,7 +59,7 @@ public interface MessageDao {
    * @param message the message
    * @param state   the state
    */
-  @SqlUpdate("update QUEUE set STATE = :state where UUID = :uuid")
+  @SqlUpdate("update QUEUE set STATE = :state where HASH = :hash")
   void updateState(@BindPojo final Message message, @Bind("state") final State state);
 
   /**
@@ -76,7 +67,7 @@ public interface MessageDao {
    *
    * @param message the message
    */
-  @SqlUpdate("delete from QUEUE where UUID = :uuid")
+  @SqlUpdate("delete from QUEUE where HASH = :hash")
   void delete(@BindPojo final Message message);
 
   /**

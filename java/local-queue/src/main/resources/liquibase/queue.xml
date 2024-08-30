@@ -23,7 +23,7 @@
 
     <changeSet id="2023-11-07-01" author="wolpert">
         <createTable tableName="QUEUE">
-            <column name="UUID" type="varchar(36)">
+            <column name="HASH" type="varchar(64)">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="TIMESTAMP" type="bigint">
@@ -35,16 +35,10 @@
             <column name="PAYLOAD" type="varchar(4096)">
                 <constraints primaryKey="false" nullable="false"/>
             </column>
-            <column name="HASH" type="varchar(256)">
-                <constraints primaryKey="false" nullable="false"/>
-            </column>
             <column name="STATE" type="varchar(32)">
                 <constraints primaryKey="false" nullable="false"/>
             </column>
         </createTable>
-        <createIndex tableName="QUEUE" indexName="QUEUE_HASH_IDX" unique="true">
-            <column name="HASH"/>
-        </createIndex>
         <createIndex tableName="QUEUE" indexName="QUEUE_STATE_IDX" unique="false">
             <column name="STATE"/>
         </createIndex>
