@@ -26,6 +26,7 @@ jetcd = "0.8.3"
 junit-jupiter = "5.11.0"
 junit-platform = '1.11.0'
 liquibase = '4.29.1'
+local-queue = '1.0.0'
 logback-access = '2.0.3'
 log4j = '2.23.1'
 micrometer = '1.13.3'
@@ -99,6 +100,7 @@ junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher
 junit-platform-suite-api = { module = "org.junit.platform:junit-platform-suite-api", version.ref = "junit-platform" }
 junit-platform-suite-engine = { module = "org.junit.platform:junit-platform-suite-engine", version.ref = "junit-platform" }
 liquibase-core = { module = "org.liquibase:liquibase-core", version.ref = "liquibase" }
+local-queue = { module = "com.codeheadsystems:local-queue", version.ref = "local-queue" }
 log4j-api = { module = "org.apache.logging.log4j:log4j-api", version.ref = "log4j" }
 log4j-core = { module = "org.apache.logging.log4j:log4j-core", version.ref = "log4j" }
 metrics-core = { module = "io.dropwizard.metrics:metrics-core", version.ref = "metrics" }

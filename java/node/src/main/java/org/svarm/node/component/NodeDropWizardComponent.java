@@ -29,7 +29,7 @@ import org.svarm.node.module.NodeConfigurationModule;
 import org.svarm.node.module.ResourceModule;
 import org.svarm.node.module.TableDefinitionEngineModule;
 import org.svarm.node.module.UtilitiesModule;
-import org.svarm.queue.module.QueueModule;
+import com.codeheadsystems.queue.module.QueueModule;
 import org.svarm.server.component.DropWizardComponent;
 import org.svarm.server.module.DropWizardModule;
 

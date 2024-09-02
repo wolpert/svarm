@@ -30,7 +30,7 @@ dependencies {
     implementation project(":node-common")
     implementation project(":control-common")
     implementation project(":control-javaClient")
-    implementation project(":local-queue")
+    implementation libs.local.queue
 
     // SQL
     implementation libs.hsqldb

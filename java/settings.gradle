@@ -17,7 +17,7 @@ buildscript {
 }
 
 // All subprojects we want to build.
-include ':the-ring', ':local-queue', ':liquibase-common',
+include ':the-ring', ':liquibase-common',
         ':common', ':server-common', ':common-javaClient', ':config-common',
         ':dataStore-common',
         ':node-common', ':node-javaClient', ':node',
