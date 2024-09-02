@@ -17,18 +17,7 @@ Requires
 gradle clean build test
 ```
 
-Integration tests take additional time. To execute build with full integration
-tests, do this:
-
-```shell
-gradle build test -Pinteg
-```
-
-and, of course, if you just want to run the integ tests...
-
-```shell
-gradle test -Pinteg
-```
+This will run unit and integ tests.
 
 ### End to end tests
 
@@ -44,14 +33,10 @@ gradle test -Pe2e
 or
 
 ```shell
-gradle clean build test -Pinteg -Pe2e
+gradle clean build test -Pe2e
 ```
 
 This will enable the endToEnd subproject. Else that project is skipped.
-
-Note, when trying to run e2e tests in the intelij instance, you'll need to edit
-the configuration since intelij will start ignoring tests labeled integ now. Do
-this by adding `-Pe2e` to the params.
 
 Logs for the services in these runs are in `build/docker-logs`.
 
@@ -62,13 +47,10 @@ test suite)
 
 ### Troubleshooting
 
-#### Dependencies
-
-The dependencies for this project are controlled by the dependencies
-artifact. (`com.codeheadsystesms:dependencies`). The SNAPSHOT build is used so
-it is easy to update dependencies here. For whatever reason, if the dependencies
-in the public nexus service is out of date, you can clone
-`github.com:wolpert/dependencies` and run `gradle publishToMavenLocal`.
+The build process is now completely internal as the CodeHead dependency project is
+deprecated. Use the `gradle/libs.versions.toml` file to declare the dependencies.
+Note, bulidSrc is not updated by github's dependabot, so do not add universal 
+dependencies there. (Minus the logger ones I already added. Sorry)
 
 #### Docker volume mess-up
 
@@ -98,7 +80,7 @@ rm -rf /tmp/dataNodeConfig.json /tmp/nodeInternalDb
 
 There have been issues with plugins like checkstyle if the gradle version is
 mismatched. Officially the version in the gradle-wrapper.properties is the
-version we should build with. 8.6 as of last checked.
+version we should build with. 8.10 as of last checked.
 
 ## Package layout.
 
