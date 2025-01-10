@@ -2,10 +2,10 @@
 # https://docs.gradle.org/current/userguide/platforms.html#sub::toml-dependencies-format
 
 [versions]
-assertj = "3.27.1"
+assertj = "3.27.2"
 aws-dynamodblocal = "2.5.4"
 awsSDK1 = "1.12.780"
-awsSDK2 = "2.29.44"
+awsSDK2 = "2.29.49"
 bouncy = '1.79'
 c3p0 = "0.10.1"
 codehead-test = "1.0.11"
@@ -14,7 +14,7 @@ codehead-metrics = "2.0.10"
 codehead-ff="1.0.8"
 commons-io = "2.18.0"
 conscrypt = '2.5.2'
-dagger = "2.54"
+dagger = "2.55"
 dropwizard4 = "4.0.11"
 guava = "33.4.0-jre"
 hsqldb = '2.7.4'
