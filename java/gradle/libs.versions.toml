@@ -5,9 +5,9 @@
 assertj = "3.27.3"
 aws-dynamodblocal = "2.5.4"
 awsSDK1 = "1.12.780"
-awsSDK2 = "2.30.10"
+awsSDK2 = "2.30.15"
 bouncy = '1.80'
-c3p0 = "0.10.1"
+c3p0 = "0.10.2"
 codehead-test = "1.0.11"
 codehead-database-test = "1.0.9"
 codehead-metrics = "2.0.11"
