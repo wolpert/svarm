@@ -3,9 +3,9 @@
 
 [versions]
 assertj = "3.27.3"
-aws-dynamodblocal = "2.5.4"
+aws-dynamodblocal = "2.6.0"
 awsSDK1 = "1.12.782"
-awsSDK2 = "2.30.35"
+awsSDK2 = "2.31.0"
 bouncy = '1.80'
 c3p0 = "0.10.2"
 codehead-test = "3.0.1"
@@ -29,7 +29,7 @@ liquibase = '4.31.1'
 local-queue = '3.0.1'
 logback-access = '2.0.3'
 log4j = '2.24.3'
-micrometer = '1.14.4'
+micrometer = '1.14.5'
 metrics = '4.2.30'
 mokito = '5.16.0'
 okhttp = '4.12.0'
