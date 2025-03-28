@@ -12,11 +12,6 @@ allprojects {
     apply plugin: "buildlogic.java-library-conventions"
 
     dependencies {
-
-        // bug for dagger 2.56 https://mvnrepository.com/artifact/com.squareup/kotlinpoet-javapoet
-        annotationProcessor("com.squareup:kotlinpoet-javapoet:2.1.0")
-        testAnnotationProcessor("com.squareup:kotlinpoet-javapoet:2.1.0")
-
         implementation(libs.codehead.metrics)
         implementation(libs.codehead.metrics.micrometer)
 
@@ -43,7 +38,6 @@ allprojects {
         testCompileOnly libs.immutables.value
         testAnnotationProcessor libs.immutables.value
         testAnnotationProcessor libs.dagger.compiler
-
     }
 
 }
