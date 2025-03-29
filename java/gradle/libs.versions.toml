@@ -18,7 +18,6 @@ commons-io = "2.18.0"
 conscrypt = '2.5.2'
 dagger = "2.56.1"
 dropwizard4 = "4.0.13"
-guava = "33.4.6-jre"
 hsqldb = '2.7.4'
 httpclient = '4.5.14'
 immutables = '2.10.1'
@@ -74,7 +73,6 @@ dropwizard4-jdbi= { module = "io.dropwizard:dropwizard-jdbi3", version.ref = "dr
 dropwizard4-metrics-graphite= { module = "io.dropwizard:dropwizard-metrics-graphite", version.ref = "dropwizard4" }
 dropwizard4-testing= { module = "io.dropwizard:dropwizard-testing", version.ref = "dropwizard4" }
 dropwizard4-http2= { module = "io.dropwizard:dropwizard-http2", version.ref = "dropwizard4" }
-guava = { module = "com.google.guava:guava", version.ref = "guava" }
 hsqldb = { module = "org.hsqldb:hsqldb", version.ref = "hsqldb" }
 httpclient = { module = "org.apache.httpcomponents:httpclient", version.ref = "httpclient" }
 immutables-value = { module = "org.immutables:value", version.ref = "immutables" }
@@ -90,7 +88,6 @@ jdbi-caffeine = {module = "org.jdbi:jdbi3-caffeine-cache", version.ref = "jdbi" 
 jdbi-noopcache = {module = "org.jdbi:jdbi3-noop-cache", version.ref = "jdbi" }
 jdbi-testing = {module = "org.jdbi:jdbi3-testing", version.ref = "jdbi" }
 jdbi-testcontainers = {module = "org.jdbi:jdbi3-testcontainers", version.ref = "jdbi" }
-jdbi-guava = {module = "org.jdbi:jdbi3-guava", version.ref = "jdbi" }
 jdbi-jackson2 = {module = "org.jdbi:jdbi3-jackson2", version.ref = "jdbi" }
 jdbi-postgres = {module = "org.jdbi:jdbi3-postgres", version.ref = "jdbi" }
 jdbi-sqlobject = {module = "org.jdbi:jdbi3-sqlobject", version.ref = "jdbi" }

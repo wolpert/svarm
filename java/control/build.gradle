@@ -29,7 +29,6 @@ dependencies {
     implementation libs.pgjdbc
     implementation libs.hsqldb
     implementation libs.jdbi.core
-    implementation libs.jdbi.guava
     implementation libs.jdbi.jackson2
     implementation libs.jdbi.postgres
     implementation libs.jdbi.sqlobject

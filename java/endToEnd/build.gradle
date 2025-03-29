@@ -32,7 +32,6 @@ dependencies {
     implementation project(":proxy")
     implementation project(":proxy-common")
     implementation project(":proxy-javaClient")
-    implementation libs.guava
 
     // etcd
     testImplementation libs.jetcd.core

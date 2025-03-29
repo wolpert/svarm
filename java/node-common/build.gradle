@@ -20,7 +20,6 @@ base {
 
 dependencies {
     implementation project(":common")
-    implementation libs.guava
 
     implementation libs.dropwizard4.auth
     implementation libs.dropwizard4.core
