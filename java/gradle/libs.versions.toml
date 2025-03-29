@@ -8,10 +8,12 @@ awsSDK1 = "1.12.782"
 awsSDK2 = "2.31.10"
 bouncy = '1.80'
 c3p0 = "0.10.2"
+caffine = "3.2.0"
 codehead-test = "3.0.2"
 codehead-database-test = "3.0.2"
 codehead-metrics = "3.0.2"
 codehead-ff="3.0.2"
+commons-codec = "1.18.0"
 commons-io = "2.18.0"
 conscrypt = '2.5.2'
 dagger = "2.56.1"
@@ -48,6 +50,8 @@ aws-sdk-ddb = { module = "com.amazonaws:aws-java-sdk-dynamodb", version.ref = "a
 bcpkix =  { module = "org.bouncycastle:bcpkix-jdk18on", version.ref ="bouncy" }
 bcprov =  { module = "org.bouncycastle:bcprov-jdk18on", version.ref ="bouncy" }
 c3p0 =  { module = "com.mchange:c3p0", version.ref ="c3p0" }
+caffeine = { module = "com.github.ben-manes.caffeine:caffeine", version.ref = "caffine" }
+caffeine-jcache = { module = "com.github.ben-manes.caffeine:jcache", version.ref = "caffine" }
 codehead-ff = { module = "com.codeheadsystems:feature-flag", version.ref = "codehead-ff" }
 codehead-ff-etcd = { module = "com.codeheadsystems:feature-flag-etcd", version.ref = "codehead-ff" }
 codehead-ff-metrics = { module = "com.codeheadsystems:feature-flag-metrics", version.ref = "codehead-ff" }
@@ -56,6 +60,7 @@ database-test = { module = "com.codeheadsystems:database-test", version.ref = "c
 codehead-metrics = { module = "com.codeheadsystems:metrics", version.ref = "codehead-metrics" }
 codehead-metrics-micrometer = { module = "com.codeheadsystems:metrics-micrometer", version.ref = "codehead-metrics" }
 codehead-metrics-test = { module = "com.codeheadsystems:metrics-test", version.ref = "codehead-metrics" }
+commons-codec = { module = "commons-codec:commons-codec", version.ref = "commons-codec" }
 commons-io = { module = "commons-io:commons-io", version.ref = "commons-io" }
 conscrypt-openjdk-uber = { module = "org.conscrypt:conscrypt-openjdk-uber", version.ref = "conscrypt" }
 dagger = { module = "com.google.dagger:dagger", version.ref = "dagger" }

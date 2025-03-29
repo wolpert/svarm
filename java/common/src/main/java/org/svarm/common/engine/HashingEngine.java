@@ -18,8 +18,9 @@ package org.svarm.common.engine;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
-import com.google.common.base.Charsets;
-import com.google.common.hash.Hashing;
+import java.nio.charset.StandardCharsets;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.codec.digest.MurmurHash3;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.slf4j.Logger;
@@ -48,7 +49,8 @@ public class HashingEngine {
    * @return the value.
    */
   public int murmur3(final String value) {
-    return Hashing.murmur3_32_fixed().hashString(value, Charsets.UTF_8).asInt();
+    byte[] bytes = value.getBytes(StandardCharsets.UTF_8);
+    return MurmurHash3.hash32x86(bytes);
   }
 
   /**
@@ -58,7 +60,7 @@ public class HashingEngine {
    * @return the string.
    */
   public String sha256(final String value) {
-    return Hashing.sha256().hashString(value, Charsets.UTF_8).toString();
+    return DigestUtils.sha256Hex(value);
   }
 
 }

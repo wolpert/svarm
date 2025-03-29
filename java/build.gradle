@@ -16,7 +16,6 @@ allprojects {
         implementation(libs.codehead.metrics.micrometer)
 
         implementation libs.bcprov
-        implementation libs.guava
 
         implementation libs.javax.inject
         implementation libs.dagger

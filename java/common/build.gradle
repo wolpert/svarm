@@ -18,6 +18,8 @@ base {
 //jacocoTestReport.finalizedBy jacocoTestCoverageVerification  // Require code coverage to pass
 
 dependencies {
+    implementation libs.caffeine
+    implementation(libs.commons.codec)
     implementation libs.javax.inject
     implementation libs.dagger
     annotationProcessor libs.dagger.compiler
