@@ -8,15 +8,16 @@ awsSDK1 = "1.12.782"
 awsSDK2 = "2.31.10"
 bouncy = '1.80'
 c3p0 = "0.10.2"
+caffine = "3.2.0"
 codehead-test = "3.0.2"
 codehead-database-test = "3.0.2"
 codehead-metrics = "3.0.2"
 codehead-ff="3.0.2"
+commons-codec = "1.18.0"
 commons-io = "2.18.0"
 conscrypt = '2.5.2'
 dagger = "2.56.1"
 dropwizard4 = "4.0.13"
-guava = "33.4.6-jre"
 hsqldb = '2.7.4'
 httpclient = '4.5.14'
 immutables = '2.10.1'
@@ -48,6 +49,8 @@ aws-sdk-ddb = { module = "com.amazonaws:aws-java-sdk-dynamodb", version.ref = "a
 bcpkix =  { module = "org.bouncycastle:bcpkix-jdk18on", version.ref ="bouncy" }
 bcprov =  { module = "org.bouncycastle:bcprov-jdk18on", version.ref ="bouncy" }
 c3p0 =  { module = "com.mchange:c3p0", version.ref ="c3p0" }
+caffeine = { module = "com.github.ben-manes.caffeine:caffeine", version.ref = "caffine" }
+caffeine-jcache = { module = "com.github.ben-manes.caffeine:jcache", version.ref = "caffine" }
 codehead-ff = { module = "com.codeheadsystems:feature-flag", version.ref = "codehead-ff" }
 codehead-ff-etcd = { module = "com.codeheadsystems:feature-flag-etcd", version.ref = "codehead-ff" }
 codehead-ff-metrics = { module = "com.codeheadsystems:feature-flag-metrics", version.ref = "codehead-ff" }
@@ -56,6 +59,7 @@ database-test = { module = "com.codeheadsystems:database-test", version.ref = "c
 codehead-metrics = { module = "com.codeheadsystems:metrics", version.ref = "codehead-metrics" }
 codehead-metrics-micrometer = { module = "com.codeheadsystems:metrics-micrometer", version.ref = "codehead-metrics" }
 codehead-metrics-test = { module = "com.codeheadsystems:metrics-test", version.ref = "codehead-metrics" }
+commons-codec = { module = "commons-codec:commons-codec", version.ref = "commons-codec" }
 commons-io = { module = "commons-io:commons-io", version.ref = "commons-io" }
 conscrypt-openjdk-uber = { module = "org.conscrypt:conscrypt-openjdk-uber", version.ref = "conscrypt" }
 dagger = { module = "com.google.dagger:dagger", version.ref = "dagger" }
@@ -69,7 +73,6 @@ dropwizard4-jdbi= { module = "io.dropwizard:dropwizard-jdbi3", version.ref = "dr
 dropwizard4-metrics-graphite= { module = "io.dropwizard:dropwizard-metrics-graphite", version.ref = "dropwizard4" }
 dropwizard4-testing= { module = "io.dropwizard:dropwizard-testing", version.ref = "dropwizard4" }
 dropwizard4-http2= { module = "io.dropwizard:dropwizard-http2", version.ref = "dropwizard4" }
-guava = { module = "com.google.guava:guava", version.ref = "guava" }
 hsqldb = { module = "org.hsqldb:hsqldb", version.ref = "hsqldb" }
 httpclient = { module = "org.apache.httpcomponents:httpclient", version.ref = "httpclient" }
 immutables-value = { module = "org.immutables:value", version.ref = "immutables" }
@@ -85,7 +88,6 @@ jdbi-caffeine = {module = "org.jdbi:jdbi3-caffeine-cache", version.ref = "jdbi" 
 jdbi-noopcache = {module = "org.jdbi:jdbi3-noop-cache", version.ref = "jdbi" }
 jdbi-testing = {module = "org.jdbi:jdbi3-testing", version.ref = "jdbi" }
 jdbi-testcontainers = {module = "org.jdbi:jdbi3-testcontainers", version.ref = "jdbi" }
-jdbi-guava = {module = "org.jdbi:jdbi3-guava", version.ref = "jdbi" }
 jdbi-jackson2 = {module = "org.jdbi:jdbi3-jackson2", version.ref = "jdbi" }
 jdbi-postgres = {module = "org.jdbi:jdbi3-postgres", version.ref = "jdbi" }
 jdbi-sqlobject = {module = "org.jdbi:jdbi3-sqlobject", version.ref = "jdbi" }

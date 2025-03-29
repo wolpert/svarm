@@ -20,8 +20,6 @@ base {
 
 dependencies {
     api project(":common")
-    implementation libs.guava
-
     implementation libs.javax.inject
     implementation libs.dagger
     annotationProcessor libs.dagger.compiler

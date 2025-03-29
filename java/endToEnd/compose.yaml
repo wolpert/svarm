@@ -83,8 +83,8 @@ services:
         condition: service_healthy
     healthcheck:
       test: curl -k --fail https://localhost:8081/healthcheck || exit 1
-      timeout: 2s
-      interval: 2s
+      timeout: 3s
+      interval: 3s
       retries: 10
 
   proxy:

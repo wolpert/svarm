@@ -18,10 +18,9 @@ package org.svarm.common.engine;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
-import com.google.common.collect.ImmutableSet;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.LoadingCache;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
@@ -51,8 +50,8 @@ public class RingEngine {
   @Inject
   public RingEngine(final HashingEngine hashingEngine) {
     this.hashingEngine = hashingEngine;
-    replicationBaseCache = CacheBuilder.newBuilder().maximumSize(100)
-        .build(CacheLoader.from(this::getReplicationBases));
+    replicationBaseCache = Caffeine.newBuilder().maximumSize(100)
+        .build(this::getReplicationBases);
     LOGGER.info("RingEngine({})", hashingEngine);
   }
 
@@ -69,7 +68,7 @@ public class RingEngine {
     }
     LOGGER.trace("ringEntry({})", id);
     final int hash = hashingEngine.murmur3(id);
-    final Set<Integer> otherHashes = replicationBaseCache.getUnchecked(replicationFactor).stream()
+    final Set<Integer> otherHashes = replicationBaseCache.get(replicationFactor).stream()
         .map(base -> addNumbersWithIntegerWrap(hash, base))
         .collect(Collectors.toSet());
     return ImmutableRingEntry.builder().id(id).hash(hash).locationStores(otherHashes).build();
@@ -86,12 +85,13 @@ public class RingEngine {
     LOGGER.trace("getReplicationBases({})", replicationFactor);
     long currentHash = 0;
     final long replicationAddition = (((long) Integer.MAX_VALUE * 2L) - 1L) / (long) replicationFactor;
-    final ImmutableSet.Builder<Long> builder = ImmutableSet.<Long>builder().add(currentHash);
+    final HashSet<Long> builder = new HashSet<>();
+    builder.add(currentHash);
     for (int i = 1; i < replicationFactor; i++) {
       currentHash = addNumbersWithIntegerWrap(Math.toIntExact(currentHash), replicationAddition);
       builder.add(currentHash);
     }
-    final ImmutableSet<Long> set = builder.build();
+    final Set<Long> set = Set.copyOf(builder);
     LOGGER.trace("getReplicationBases({})->{}", replicationFactor, set);
     return set;
   }

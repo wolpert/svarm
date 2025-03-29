@@ -24,10 +24,15 @@ repositories {
 dependencies {
     testImplementation("org.junit.platform:junit-platform-launcher") // used to be runtimeOnly
     // Logging
-    implementation("org.slf4j:slf4j-api:2.0.16")
-    testImplementation("ch.qos.logback:logback-access:1.4.14")
-    testImplementation("ch.qos.logback:logback-classic:1.4.14")
-    testImplementation("ch.qos.logback:logback-core:1.4.14")
+    implementation("org.slf4j:slf4j-api:2.0.17")
+    testImplementation("ch.qos.logback:logback-access:1.5.18")
+    testImplementation("ch.qos.logback:logback-classic:1.5.18")
+    testImplementation("ch.qos.logback:logback-core:1.5.18")
+    // Previous working logging setup
+    //    implementation("org.slf4j:slf4j-api:2.0.16")
+    //    testImplementation("ch.qos.logback:logback-access:1.4.14")
+    //    testImplementation("ch.qos.logback:logback-classic:1.4.14")
+    //    testImplementation("ch.qos.logback:logback-core:1.4.14")
 }
 
 java {
