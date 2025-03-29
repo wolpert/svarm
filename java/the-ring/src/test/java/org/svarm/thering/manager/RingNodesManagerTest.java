@@ -1,20 +1,19 @@
-package org.svarm.thering.factory;
+package org.svarm.thering.manager;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import java.util.stream.Stream;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.InjectMocks;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.svarm.thering.model.Ring;
 
-@ExtendWith(MockitoExtension.class)
-class RingFactoryTest {
+class RingNodesManagerTest {
 
-  @InjectMocks private RingFactory ringFactory;
+  private RingNodesManager ringNodesManager;
 
   static Stream<Arguments> expectedRangesForReplicationFactor3() {
     // This method provides test cases for different ranges and nodes
@@ -27,19 +26,25 @@ class RingFactoryTest {
     );
   }
 
+  @BeforeEach
+  void setUp() {
+    ringNodesManager = new RingNodesManager();
+  }
+
   @ParameterizedTest
   @MethodSource("expectedRangesForReplicationFactor3")
   void expectedRangesForReplicationFactor3(int range, int nodes,
                                            int expectedDistance, int expectedSecondStart, int expectedThirdStart) {
-    var ring = ringFactory.generate(3, range, nodes);
+    var ring = Ring.of(range, 3);
+    var ringNodes = ringNodesManager.initialize(ring, nodes);
 
-    assertThat(ring).isNotNull();
-    assertThat(ring.ringMetadata())
+    assertThat(ring)
         .isNotNull()
         .hasFieldOrPropertyWithValue("range", range)
         .hasFieldOrPropertyWithValue("replicationFactor", 3)
         .hasFieldOrPropertyWithValue("replicationDistance", expectedDistance);
-    assertThat(ring.nodes())
+    assertThat(ringNodes).isNotNull();
+    assertThat(ringNodes.nodesByRangeStart())
         .isNotNull()
         .hasSize(nodes)
         .containsKeys(0, expectedSecondStart, expectedThirdStart)
@@ -61,6 +66,30 @@ class RingFactoryTest {
           assertThat(node.rangeStart()).isEqualTo(expectedThirdStart);
           // Add more assertions as needed for the Node properties
         });
+  }
+
+  @Test
+  void testNegativeNodeCount() {
+    var ring = Ring.of(10, 3);
+    assertThatExceptionOfType(IllegalArgumentException.class)
+        .isThrownBy(() -> ringNodesManager.initialize(ring, -1));
+  }
+
+  @Test
+  void testZeroNodeCount() {
+    var ring = Ring.of(10, 3);
+    assertThatExceptionOfType(IllegalArgumentException.class)
+        .isThrownBy(() -> ringNodesManager.initialize(ring, 0))
+        .withMessage("Number of nodes must be greater than zero.");
+  }
+
+  @Test
+  void testNodeCountGreaterThanRange() {
+    var ring = Ring.of(10, 3);
+    // Test case where the number of nodes is greater than the range
+    assertThatExceptionOfType(IllegalArgumentException.class)
+        .isThrownBy(() -> ringNodesManager.initialize(ring, 11))
+        .withMessage("Number of nodes cannot be greater than the range of the ring.");
   }
 
 }

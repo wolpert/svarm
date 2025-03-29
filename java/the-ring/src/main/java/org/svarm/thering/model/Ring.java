@@ -1,6 +1,5 @@
 package org.svarm.thering.model;
 
-import java.util.Map;
 import org.immutables.value.Value;
 
 /**
@@ -9,15 +8,25 @@ import org.immutables.value.Value;
 @Value.Immutable
 public interface Ring {
 
-  static Ring of(RingMetadata ringMetadata, Map<Integer, Node> nodes) {
+  static Ring of(int range, int replicationFactor) {
+    if (range < 1 || replicationFactor < 1) {
+      throw new IllegalArgumentException("Range, Replication Factor and Nodes must be greater than zero.");
+    } else if (replicationFactor > range) {
+      throw new IllegalArgumentException("Replication Factor and Nodes must be less than or equal to Range.");
+    }
     return ImmutableRing.builder()
-        .ringMetadata(ringMetadata)
-        .nodes(nodes)
+        .range(range)
+        .replicationFactor(replicationFactor)
         .build();
   }
 
-  RingMetadata ringMetadata();
+  Integer range();
 
-  Map<Integer, Node> nodes();
+  Integer replicationFactor();
+
+  @Value.Derived
+  default Integer replicationDistance() {
+    return range() / replicationFactor();
+  }
 
 }
