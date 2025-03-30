@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Stream;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -62,6 +63,32 @@ class RingTest {
     expectedValue.ifPresentOrElse(
         value -> assertThat(result).isPresent().contains(value),
         () -> assertThat(result).isEmpty());
+  }
+
+  static Stream<Arguments> replicatedHashesTestValues() {
+    // This method provides test cases for different ranges and hashes
+    return Stream.of(
+        Arguments.of(10, 3, 0, Set.of(0, 3, 6)),
+        Arguments.of(10, 3, 1, Set.of(1, 4, 7)),
+        Arguments.of(10, 3, 2, Set.of(2, 5, 8)),
+        Arguments.of(10, 3, 3, Set.of(3, 6, 9)),
+        Arguments.of(10, 3, 4, Set.of(4, 7, 0)),
+        Arguments.of(10, 3, 5, Set.of(5, 8, 1)),
+        Arguments.of(12, 4, 0, Set.of(0, 3, 6, 9)),
+        Arguments.of(12, 4, 1, Set.of(1, 4, 7, 10)),
+        Arguments.of(12, 4, 2, Set.of(2, 5, 8, 11))
+    );
+  }
+
+  @ParameterizedTest
+  @MethodSource("replicatedHashesTestValues")
+  void testReplicationHash(int range, int replicationFactory, int hash, Set<Integer> expectation){
+    var ring = Ring.of(range, replicationFactory);
+    var result = ring.replicatedHashes(hash);
+    assertThat(result)
+        .isNotNull()
+        .hasSize(expectation.size())
+        .containsExactlyInAnyOrderElementsOf(expectation);
   }
 
 }

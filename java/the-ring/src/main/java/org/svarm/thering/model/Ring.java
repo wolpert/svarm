@@ -1,7 +1,10 @@
 package org.svarm.thering.model;
 
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.LongStream;
 import org.immutables.value.Value;
 
 /**
@@ -40,6 +43,13 @@ public interface Ring {
   @Value.Derived
   default Integer replicationDistance() {
     return range() / replicationFactor();
+  }
+
+  default Set<Integer> replicatedHashes(final Integer hash) {
+    return LongStream.range(0, replicationFactor())
+        .map(i -> ((hash + (i * replicationDistance())) % range()))
+        .mapToObj(l -> Long.valueOf(l).intValue())
+        .collect(Collectors.toSet());
   }
 
   default Optional<Integer> midpoint(final Integer start,
