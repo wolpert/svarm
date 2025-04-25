@@ -5,9 +5,9 @@
 assertj = "3.27.3"
 aws-dynamodblocal = "2.6.0"
 awsSDK1 = "1.12.782"
-awsSDK2 = "2.31.24"
+awsSDK2 = "2.31.29"
 bouncy = '1.80'
-c3p0 = "0.10.2"
+c3p0 = "0.11.0"
 caffine = "3.2.0"
 codehead-test = "3.0.2"
 codehead-database-test = "3.0.2"
@@ -21,8 +21,8 @@ dropwizard4 = "4.0.13"
 hsqldb = '2.7.4'
 httpclient = '4.5.14'
 immutables = '2.10.1'
-jackson = '2.18.3'
-jdbi = '3.49.0'
+jackson = '2.19.0'
+jdbi = '3.49.1'
 jetcd = "0.8.5"
 junit-jupiter = "5.12.2"
 junit-platform = '1.12.2'
@@ -38,7 +38,7 @@ openfeign = '13.5'
 pgjdbc = '42.7.5'
 resilience4j = '2.2.0'
 retrofit = '2.11.0'
-testcontainers = '1.20.6'
+testcontainers = '1.21.0'
 
 [libraries]
 assertj = { module = "org.assertj:assertj-core", version.ref = "assertj" }
