@@ -5,7 +5,7 @@
 assertj = "3.27.3"
 aws-dynamodblocal = "2.6.0"
 awsSDK1 = "1.12.783"
-awsSDK2 = "2.31.34"
+awsSDK2 = "2.31.39"
 bouncy = '1.80'
 c3p0 = "0.11.0"
 caffine = "3.2.0"
@@ -34,7 +34,7 @@ micrometer = '1.14.6'
 metrics = '4.2.30'
 mokito = '5.17.0'
 okhttp = '4.12.0'
-openfeign = '13.5'
+openfeign = '13.6'
 pgjdbc = '42.7.5'
 resilience4j = '2.2.0'
 retrofit = '2.11.0'
