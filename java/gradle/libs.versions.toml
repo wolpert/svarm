@@ -5,7 +5,7 @@
 assertj = "3.27.3"
 aws-dynamodblocal = "2.6.0"
 awsSDK1 = "1.12.783"
-awsSDK2 = "2.31.39"
+awsSDK2 = "2.31.44"
 bouncy = '1.80'
 c3p0 = "0.11.0"
 caffine = "3.2.0"
@@ -30,14 +30,14 @@ liquibase = '4.31.1'
 local-queue = '3.0.2'
 logback-access = '2.0.3'
 log4j = '2.24.3'
-micrometer = '1.14.6'
+micrometer = '1.15.0'
 metrics = '4.2.30'
 mokito = '5.17.0'
 okhttp = '4.12.0'
 openfeign = '13.6'
 pgjdbc = '42.7.5'
 resilience4j = '2.2.0'
-retrofit = '2.11.0'
+retrofit = '3.0.0'
 testcontainers = '1.21.0'
 
 [libraries]
