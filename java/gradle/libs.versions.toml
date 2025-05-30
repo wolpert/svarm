@@ -5,9 +5,9 @@
 assertj = "3.27.3"
 aws-dynamodblocal = "2.6.0"
 awsSDK1 = "1.12.783"
-awsSDK2 = "2.31.49"
+awsSDK2 = "2.31.53"
 bouncy = '1.80'
-c3p0 = "0.11.0"
+c3p0 = "0.11.1"
 caffine = "3.2.0"
 codehead-test = "3.0.4"
 codehead-database-test = "3.0.4"
@@ -17,7 +17,7 @@ commons-codec = "1.18.0"
 commons-io = "2.19.0"
 conscrypt = '2.5.2'
 dagger = "2.56.2"
-dropwizard4 = "4.0.13"
+dropwizard4 = "4.0.14"
 hsqldb = '2.7.4'
 httpclient = '4.5.14'
 immutables = '2.10.1'
@@ -31,14 +31,14 @@ local-queue = '3.0.4'
 logback-access = '2.0.3'
 log4j = '2.24.3'
 micrometer = '1.15.0'
-metrics = '4.2.30'
+metrics = '4.2.32'
 mokito = '5.18.0'
 okhttp = '4.12.0'
 openfeign = '13.6'
-pgjdbc = '42.7.5'
+pgjdbc = '42.7.6'
 resilience4j = '2.2.0'
 retrofit = '3.0.0'
-testcontainers = '1.21.0'
+testcontainers = '1.21.1'
 
 [libraries]
 assertj = { module = "org.assertj:assertj-core", version.ref = "assertj" }
