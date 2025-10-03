@@ -4,8 +4,8 @@
 [versions]
 assertj = "3.27.6"
 aws-dynamodblocal = "2.6.1"
-awsSDK1 = "1.12.791"
-awsSDK2 = "2.34.4"
+awsSDK1 = "1.12.792"
+awsSDK2 = "2.34.9"
 bouncy = '1.82'
 c3p0 = "0.11.2"
 caffine = "3.2.2"
@@ -23,11 +23,11 @@ httpclient = '4.5.14'
 immutables = '2.11.4'
 jackson = '2.20.0'
 jackson_annotations = '2.20'
-jdbi = '3.49.5'
+jdbi = '3.49.6'
 jetcd = "0.8.5"
-junit-jupiter = "5.13.4"
-junit-platform = '1.13.4'
-liquibase = '4.33.0'
+junit-jupiter = "6.0.0"
+junit-platform = '6.0.0'
+liquibase = '5.0.0'
 local-queue = '3.0.5'
 logback-access = '2.0.3'
 log4j = '2.25.2'
