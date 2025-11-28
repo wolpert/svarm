@@ -4,9 +4,9 @@
 [versions]
 assertj = "3.27.6"
 aws-dynamodblocal = "2.6.1"
-awsSDK1 = "1.12.793"
-awsSDK2 = "2.39.1"
-bouncy = '1.82'
+awsSDK1 = "1.12.794"
+awsSDK2 = "2.39.5"
+bouncy = '1.83'
 c3p0 = "0.11.2"
 caffine = "3.2.3"
 codehead-test = "3.0.5"
