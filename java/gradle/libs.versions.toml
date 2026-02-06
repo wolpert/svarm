@@ -5,7 +5,7 @@
 assertj = "3.27.7"
 aws-dynamodblocal = "2.6.1"
 awsSDK1 = "1.12.797"
-awsSDK2 = "2.41.18"
+awsSDK2 = "2.41.23"
 bouncy = '1.83'
 c3p0 = "0.11.2"
 caffine = "3.2.3"
@@ -16,7 +16,7 @@ codehead-ff="3.0.5"
 commons-codec = "1.21.0"
 commons-io = "2.21.0"
 conscrypt = '2.5.2'
-dagger = "2.59"
+dagger = "2.59.1"
 dropwizard4 = "5.0.1"
 hsqldb = '2.7.4'
 httpclient = '4.5.14'
