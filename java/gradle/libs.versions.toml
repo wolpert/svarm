@@ -15,7 +15,6 @@ codehead-metrics = "3.0.5"
 codehead-ff="3.0.5"
 commons-codec = "1.21.0"
 commons-io = "2.21.0"
-conscrypt = '2.5.2'
 dagger = "2.59.1"
 dropwizard4 = "5.0.1"
 hsqldb = '2.7.4'
@@ -24,7 +23,7 @@ immutables = '2.12.1'
 jackson = '2.21.0'
 jackson_annotations = '2.21'
 jdbi = '3.51.0'
-jetcd = "0.8.5"
+jetcd = "0.8.6"
 junit-jupiter = "6.0.2"
 junit-platform = '6.0.2'
 liquibase = '5.0.1'
@@ -62,7 +61,6 @@ codehead-metrics-micrometer = { module = "com.codeheadsystems:metrics-micrometer
 codehead-metrics-test = { module = "com.codeheadsystems:metrics-test", version.ref = "codehead-metrics" }
 commons-codec = { module = "commons-codec:commons-codec", version.ref = "commons-codec" }
 commons-io = { module = "commons-io:commons-io", version.ref = "commons-io" }
-conscrypt-openjdk-uber = { module = "org.conscrypt:conscrypt-openjdk-uber", version.ref = "conscrypt" }
 dagger = { module = "com.google.dagger:dagger", version.ref = "dagger" }
 dagger-compiler = { module = "com.google.dagger:dagger-compiler", version.ref = "dagger" }
 dropwizard4-bom= { module = "io.dropwizard:dropwizard-bom", version.ref = "dropwizard4" }

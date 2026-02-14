@@ -47,31 +47,11 @@ server:
   adminContextPath: /
   applicationContextPath: /
   applicationConnectors:
-    - type: h2
-      jceProvider: Conscrypt
+    - type: http
       port: 8080
-      maxConcurrentStreams: 1024
-      initialStreamRecvWindow: 65535
-      keyStorePath: /server/keystore.jks
-      keyStorePassword: password
-      trustStorePath: /server/cacerts.jks
-      trustStorePassword: password
-      certAlias: control
-      validateCerts: false
-      disableSniHostCheck: true  # Work with docker hosts
   adminConnectors:
-    - type: h2
+    - type: http
       port: 8081
-      jceProvider: Conscrypt
-      maxConcurrentStreams: 1024
-      initialStreamRecvWindow: 65535
-      keyStorePath: /server/keystore.jks
-      keyStorePassword: password
-      trustStorePath: /server/cacerts.jks
-      trustStorePassword: password
-      certAlias: control
-      validateCerts: false
-      disableSniHostCheck: true  # Work with docker hosts
 
 health:
   healthCheckUrlPaths: [ "/health-check" ]
