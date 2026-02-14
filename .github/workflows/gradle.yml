@@ -39,16 +39,6 @@ jobs:
 
     - name: Build with Gradle Wrapper
       run: ./gradlew build test
-      env:
-        # Testcontainers 1.20+ changed its Docker socket discovery strategy and can fail
-        # to locate Docker on ubuntu-latest (ubuntu-24.04, cgroup v2) even when Docker is
-        # running. Explicitly pointing at the socket fixes this. If tests start failing
-        # with "Could not find a valid Docker environment" again, check whether the socket
-        # path has moved (e.g. rootless Docker uses ~/.docker/run/docker.sock).
-        DOCKER_HOST: unix:///var/run/docker.sock
-        # Ryuk is Testcontainers' cleanup container. Disabling it avoids a secondary
-        # Docker-access failure that can occur in restricted CI environments.
-        TESTCONTAINERS_RYUK_DISABLED: "true"
 
     # NOTE: The Gradle Wrapper is the default and recommended way to run Gradle (https://docs.gradle.org/current/userguide/gradle_wrapper.html).
     # If your project does not have the Gradle Wrapper configured, you can use the following configuration to run Gradle with a specified version.
