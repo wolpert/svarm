@@ -18,16 +18,7 @@ package org.svarm.server;
 
 import io.dropwizard.core.Application;
 import io.dropwizard.core.setup.Environment;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
-import java.security.Security;
-import java.security.cert.X509Certificate;
 import java.util.UUID;
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
-import org.conscrypt.OpenSSLProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.svarm.common.engine.TraceUuidEngine;
@@ -41,10 +32,6 @@ import org.svarm.server.module.DropWizardModule;
  */
 public abstract class Server<T extends ServerConfiguration> extends Application<T> {
   private static final Logger LOGGER = LoggerFactory.getLogger(Server.class);
-
-  static {
-    Security.insertProviderAt(new OpenSSLProvider(), 1);
-  }
 
   /**
    * Default constructor.

@@ -58,7 +58,7 @@ services:
       database:
         condition: service_healthy
     healthcheck:
-      test: curl -k --fail https://localhost:8081/healthcheck || exit 1
+      test: curl -k --fail http://localhost:8081/healthcheck || exit 1
       timeout: 2s
       interval: 2s
       retries: 10
@@ -82,7 +82,7 @@ services:
       control:
         condition: service_healthy
     healthcheck:
-      test: curl -k --fail https://localhost:8081/healthcheck || exit 1
+      test: curl -k --fail http://localhost:8081/healthcheck || exit 1
       timeout: 3s
       interval: 3s
       retries: 10
@@ -106,7 +106,7 @@ services:
       control:
         condition: service_healthy
     healthcheck:
-      test: curl -k --fail https://localhost:8081/healthcheck || exit 1
+      test: curl -k --fail http://localhost:8081/healthcheck || exit 1
       timeout: 2s
       interval: 2s
       retries: 10

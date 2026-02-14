@@ -22,7 +22,6 @@ base {
 dependencies {
     api project(":config-common")
     implementation project(":common")
-    api libs.conscrypt.openjdk.uber
     implementation "com.google.code.findbugs:jsr305:+"
 
     api platform(libs.dropwizard4.dependencies)
@@ -42,7 +41,5 @@ dependencies {
 
     testImplementation libs.jackson.dataformat.yaml
 
-    // from the BOM of dropwizard...
-    api 'org.eclipse.jetty:jetty-alpn-conscrypt-server'
 }
 
