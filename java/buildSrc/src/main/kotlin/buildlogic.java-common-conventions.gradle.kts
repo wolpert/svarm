@@ -44,7 +44,14 @@ java {
 }
 
 tasks.named<Test>("test") {
-    useJUnitPlatform()
+    useJUnitPlatform {
+        // Tests tagged @Tag("integ") spin up Docker containers via Testcontainers
+        // (e.g. etcd via jetcd-test) and are excluded from the standard test run.
+        // Pass -Pe2e to include them: ./gradlew test -Pe2e
+        if (!project.hasProperty("e2e")) {
+            excludeTags("integ")
+        }
+    }
 }
 // Ensure we have lint warnings displayed so we can fix or  @SuppressWarnings("unchecked")
 tasks.withType<JavaCompile>().configureEach {
