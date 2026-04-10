@@ -5,7 +5,7 @@
 assertj = "3.27.7"
 aws-dynamodblocal = "2.6.1"
 awsSDK1 = "1.12.797"
-awsSDK2 = "2.42.27"
+awsSDK2 = "2.42.32"
 bouncy = '1.83'
 c3p0 = "0.12.0"
 caffine = "3.2.3"
@@ -22,7 +22,7 @@ httpclient = '4.5.14'
 immutables = '2.12.1'
 jackson = '2.21.2'
 jackson_annotations = '2.21'
-jdbi = '3.52.0'
+jdbi = '3.52.1'
 jetcd = "0.8.6"
 junit-jupiter = "6.0.3"
 junit-platform = '6.0.3'
