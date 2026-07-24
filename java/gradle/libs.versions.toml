@@ -5,7 +5,7 @@
 assertj = "3.27.7"
 aws-dynamodblocal = "2.6.1"
 awsSDK1 = "1.12.797"
-awsSDK2 = "2.48.2"
+awsSDK2 = "2.49.2"
 bouncy = '1.85'
 c3p0 = "0.14.1"
 caffine = "3.2.4"
