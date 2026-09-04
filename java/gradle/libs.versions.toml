@@ -5,7 +5,7 @@
 assertj = "3.27.7"
 aws-dynamodblocal = "2.6.1"
 awsSDK1 = "1.12.797"
-awsSDK2 = "2.54.3"
+awsSDK2 = "2.54.9"
 bouncy = '1.85'
 c3p0 = "0.14.1"
 caffine = "3.2.4"
@@ -31,7 +31,7 @@ local-queue = '3.1.1'
 logback-access = '2.0.3'
 log4j = '2.26.1'
 micrometer = '1.17.1'
-metrics = '4.2.39'
+metrics = '4.2.40'
 mokito = '5.23.0'
 okhttp = '5.5.0'
 openfeign = '13.14'
